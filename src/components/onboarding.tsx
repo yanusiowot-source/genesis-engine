@@ -8,7 +8,7 @@ type Props = {
   copy: Copy;
   locale: Locale;
   onLocale: () => void;
-  onDone: () => void;
+  onDone: (born?: boolean) => void;
 };
 
 export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
@@ -17,9 +17,9 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onDone();
+      if (event.key === "Escape") onDone(false);
       if (event.key === "Enter" || event.key === "ArrowRight") {
-        if (step >= copy.onboarding.length - 1) onDone();
+        if (step >= copy.onboarding.length - 1) onDone(true);
         else setStep((s) => s + 1);
       }
       if (event.key === "ArrowLeft") setStep((s) => Math.max(0, s - 1));
@@ -90,17 +90,17 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
           ))}
         </div>
         <div className="relative z-10 flex items-center justify-between gap-3 pointer-events-auto">
-          <Button variant="ghost" className="min-h-11 min-w-20" onClick={onDone}>
+          <Button variant="ghost" className="min-h-11 min-w-20" onClick={() => onDone(false)}>
             {copy.skip}
           </Button>
           <Button
             className="min-h-11 min-w-28"
             onClick={() => {
-              if (last) onDone();
+              if (last) onDone(true);
               else setStep((s) => s + 1);
             }}
           >
-            {last ? copy.enter : copy.continue}
+            {last ? copy.birth : copy.continue}
           </Button>
         </div>
       </div>

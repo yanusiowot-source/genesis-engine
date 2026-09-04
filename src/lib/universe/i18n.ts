@@ -454,7 +454,7 @@ const en: Copy = {
   kicker: "Cosmological laboratory",
   appName: "Genesis Engine",
   birth: "Birth a universe",
-  birthWitness: "A new sky. Most of them stay empty. That is allowed.",
+  birthWitness: "A new sky. Most stay empty.",
   birthGood: "And I saw that it was good.",
   survey: "Survey 64",
   ours: "Our universe",
@@ -528,19 +528,15 @@ const en: Copy = {
   onboarding: [
     {
       title: "Most skies stay empty",
-      body: "Random constants almost never make stars. Tap «Birth a universe» to try yours.",
+      body: "Random constants almost never make stars. The last step is the first act: birth.",
     },
     {
       title: "Six constants",
-      body: "Open Lab, then Const. Grey ticks mark our universe. Drag a slider — the galaxy follows.",
-    },
-    {
-      title: "Sky, Lab, Log",
-      body: "Sky is the picture. Lab has the sliders, life corridors, and laws. Log keeps every sky you birth.",
+      body: "Lab, then Const. Grey ticks are home. Drag — the galaxy follows.",
     },
     {
       title: "Three corridors",
-      body: "Carbon needs quiet water. Silicon, if it lives, wants heat. Eternal thought needs almost no dark energy.",
+      body: "Carbon wants quiet water. Silicon, heat. Eternal thought, almost no dark energy.",
     },
   ],
   fateLabel: {
@@ -1222,7 +1218,7 @@ const ru: Copy = {
   kicker: "Космологическая лаборатория",
   appName: "Genesis Engine",
   birth: "Родить вселенную",
-  birthWitness: "Новое небо. Большинство остаются пустыми. Так можно.",
+  birthWitness: "Новое небо. Большинство пусты.",
   birthGood: "И увидел я, что это хорошо.",
   survey: "Обзор 64",
   ours: "Наша вселенная",
@@ -1296,19 +1292,15 @@ const ru: Copy = {
   onboarding: [
     {
       title: "Большинство небес пусты",
-      body: "Случайные константы почти никогда не дают звёзд. Нажмите «Родить вселенную», чтобы проверить своё небо.",
+      body: "Случайные константы почти никогда не дают звёзд. Последний шаг — первый акт: родить.",
     },
     {
       title: "Шесть констант",
-      body: "Откройте Лаб, затем Конст. Серые метки — наша вселенная. Тяните ползунок — галактика следует.",
-    },
-    {
-      title: "Небо, Лаб, Журнал",
-      body: "Небо — картина. В Лаб — ползунки, коридоры жизни и законы. Журнал хранит каждое рождённое небо.",
+      body: "Лаб, затем Конст. Серые метки — дом. Тяните — галактика следует.",
     },
     {
       title: "Три коридора",
-      body: "Углероду нужна тихая вода. Кремнию, если он живёт, — жар. Вечная мысль — почти без тёмной энергии.",
+      body: "Углероду — тихая вода. Кремнию — жар. Вечной мысли — почти без тёмной энергии.",
     },
   ],
   fateLabel: {

@@ -209,7 +209,7 @@
 
 @keyframes birth-wash {
   0% {
-    opacity: 0.82;
+    opacity: 0.9;
   }
   100% {
     opacity: 0;
@@ -218,9 +218,9 @@
 
 .birth-flash {
   background:
-    radial-gradient(ellipse at 50% 38%, color-mix(in oklab, var(--color-accent) 46%, transparent), transparent 58%),
-    radial-gradient(ellipse at 50% 52%, color-mix(in oklab, var(--color-fg) 16%, transparent), transparent 72%);
-  animation: birth-wash 900ms var(--ease-out) forwards;
+    radial-gradient(ellipse at 50% 38%, color-mix(in oklab, var(--color-accent) 58%, transparent), transparent 58%),
+    radial-gradient(ellipse at 50% 48%, color-mix(in oklab, var(--color-fg) 22%, transparent), transparent 70%);
+  animation: birth-wash 1100ms var(--ease-out) forwards;
 }
 
 @keyframes birth-line-in {

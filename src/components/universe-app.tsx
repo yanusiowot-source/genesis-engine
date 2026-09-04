@@ -137,7 +137,7 @@ import type { LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from 
 import { cn } from "@/lib/utils";
 import { nowMarker } from "@/lib/universe/observatory";
 
-const ONBOARD_KEY = "genesis-engine-onboarded-v4";
+const ONBOARD_KEY = "genesis-engine-onboarded-v5";
 
 function makeRecord(params: UniverseParams, visualSeed: number): UniverseRecord {
   const snapped = snapParams(params);
@@ -184,6 +184,7 @@ export function UniverseApp() {
   const [egg, setEgg] = useState<string | null>(null);
   const [birthFlash, setBirthFlash] = useState(false);
   const [creationLine, setCreationLine] = useState<string | null>(null);
+  const [birthFate, setBirthFate] = useState<string | null>(null);
   const [whaleOn, setWhaleOn] = useState(false);
   const [tauOn, setTauOn] = useState(false);
   const kickerTaps = useRef(0);
@@ -421,6 +422,7 @@ export function UniverseApp() {
       const good = fate === "habitable" || fate === "teeming" || fate === "enduring";
       const line = good ? copy.birthGood : copy.birthWitness;
       setCreationLine(line);
+      setBirthFate(copy.fateLabel[fate]);
       try {
         pingBirth();
       } catch {
@@ -429,10 +431,13 @@ export function UniverseApp() {
       setBirthFlash(true);
       window.clearTimeout(birthFlashTimer.current);
       window.clearTimeout(creationTimer.current);
-      birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 900);
-      creationTimer.current = window.setTimeout(() => setCreationLine(null), good ? 6400 : 4200);
+      birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 1100);
+      creationTimer.current = window.setTimeout(() => {
+        setCreationLine(null);
+        setBirthFate(null);
+      }, good ? 6400 : 4200);
     },
-    [copy.birthGood, copy.birthWitness],
+    [copy.birthGood, copy.birthWitness, copy.fateLabel],
   );
 
   const setParams = useCallback((key: ParamKey, value: number) => {
@@ -683,7 +688,7 @@ export function UniverseApp() {
     setArchive((prev) => removeFromArchive(prev, id));
   }, []);
 
-  const finishOnboard = useCallback(() => {
+  const finishOnboard = useCallback((born = false) => {
     try {
       localStorage.setItem(ONBOARD_KEY, "1");
     } catch {
@@ -694,7 +699,8 @@ export function UniverseApp() {
     soundOnRef.current = true;
     unlockAndStart(current.params);
     void setSoundscape(true, current.params);
-  }, [current.params]);
+    if (born) window.setTimeout(() => birth(), 220);
+  }, [birth, current.params]);
 
   const toggleLocale = useCallback(() => {
     setLocale((prev) => {
@@ -1083,15 +1089,22 @@ export function UniverseApp() {
           wakeKey={wakeKey}
         />
         {birthFlash ? (
-          <div aria-hidden className="birth-flash absolute inset-0 z-[1]" />
+          <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" />
         ) : null}
         {creationLine ? (
-          <p
+          <div
             role="status"
-            className="birth-line pointer-events-none absolute inset-x-6 top-1/3 z-[2] text-center font-display text-2xl leading-tight tracking-[-0.03em] text-fg sm:text-4xl"
+            className="birth-line pointer-events-none absolute inset-x-6 top-[28%] z-[4] text-center"
           >
-            {creationLine}
-          </p>
+            <p className="font-display text-2xl leading-tight tracking-[-0.03em] text-fg sm:text-4xl">
+              {creationLine}
+            </p>
+            {birthFate ? (
+              <p className="mt-3 font-mono text-[0.6875rem] tracking-[0.22em] text-fg-subtle uppercase">
+                {birthFate}
+              </p>
+            ) : null}
+          </div>
         ) : null}
         {hydrated && catalogOverlay && catalog && catalog.ok ? (
           <CatalogOverlay

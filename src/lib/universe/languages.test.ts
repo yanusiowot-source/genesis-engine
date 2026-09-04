@@ -48,6 +48,10 @@ describe("copyFor", () => {
   it("keeps English as the complete source", () => {
     const c = copyFor("en");
     assert.equal(c.birth, "Birth a universe");
+    assert.equal(c.onboarding.length, 3);
+    assert.equal(copyFor("ru").onboarding.length, 3);
+    assert.equal(copyFor("be").onboarding.length, 3);
+    assert.match(c.birthWitness, /Most stay empty/);
     assert.match(c.birthGood, /it was good/);
     assert.match(copyFor("ru").birthGood, /хорошо/);
     assert.match(copyFor("be").birthGood, /добра/);
