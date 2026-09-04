@@ -494,14 +494,14 @@ const en: Copy = {
   installDismiss: "Not now",
   platforms: {
     title: "On your computer or phone",
-    intro: "Install the free lab on this device. A paid desktop copy is how you take the instrument with you and work offline.",
+    intro: "Install the free lab on this device. A paid Windows or Linux copy is how you take the instrument with you and work offline.",
     here: "This device",
     windowsTitle: "Windows",
     windowsBody:
-      "In Edge or Chrome: menu → Install Genesis Engine. The free lab lands in the Start menu. The paid portable copy is separate — a window with no browser.",
+      "In Edge or Chrome: menu → Install Genesis Engine. The free lab lands in the Start menu. The paid portable copy is a zip: Genesis Engine.exe, no browser. Write to take it. Unsigned — SmartScreen may warn.",
     linuxTitle: "Linux",
     linuxBody:
-      "In Chromium, Chrome or Edge: Install app. That is the free lab. The paid Linux build is a window of its own.",
+      "In Chromium, Chrome or Edge: Install app. That is the free lab. The paid Linux zip is a window of its own. Write to take it.",
     androidTitle: "Android",
     androidBody:
       "Chrome → Add to Home screen. Later the same interface wraps in Android Studio via Capacitor (app.genesisengine.lab).",
@@ -709,12 +709,12 @@ const en: Copy = {
   studioFreeTitle: "The lab stays free",
   studioFreeBody: "Sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal stays on this device.",
   studioKeepTitle: "Keep a copy",
-  studioKeepBody: "Install the app here. A paid desktop copy for Windows, macOS and Linux is next — not a lock on the sky, a way to take the instrument with you and work offline.",
+  studioKeepBody: "Install the free lab here. A paid Windows or Linux copy is ready — a window, no browser, offline. macOS later. Not a lock on the sky. Write to take a zip. The build is unsigned; SmartScreen may warn.",
   studioSupportTitle: "A copy you can take",
-  studioSupportBody: "One-time. Windows, macOS and Linux. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
+  studioSupportBody: "One-time. Windows and Linux now. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
-  studioReserveCta: "Write to reserve a copy",
+  studioReserveCta: "Write to take a copy",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
   eggs: {
@@ -1260,14 +1260,14 @@ const ru: Copy = {
   installDismiss: "Не сейчас",
   platforms: {
     title: "На компьютере и телефоне",
-    intro: "Установите свободную лабораторию на это устройство. Платная настольная копия — способ забрать инструмент с собой и работать без сети.",
+    intro: "Установите свободную лабораторию на это устройство. Платная копия для Windows или Linux — способ забрать инструмент с собой и работать без сети.",
     here: "Это устройство",
     windowsTitle: "Windows",
     windowsBody:
-      "В Edge или Chrome: меню → «Установить Genesis Engine». Свободная лаборатория появится в меню «Пуск». Платная портативная копия — отдельно, окно без браузера.",
+      "В Edge или Chrome: меню → «Установить Genesis Engine». Свободная лаборатория появится в меню «Пуск». Платная портативная копия — zip: Genesis Engine.exe, окно без браузера. Напишите, чтобы забрать. Без подписи: SmartScreen может предупредить.",
     linuxTitle: "Linux",
     linuxBody:
-      "В Chromium, Chrome или Edge: «Установить приложение». Это свободная лаборатория. Платная Linux-сборка — своё окно.",
+      "В Chromium, Chrome или Edge: «Установить приложение». Это свободная лаборатория. Платный Linux-zip — своё окно. Напишите, чтобы забрать.",
     androidTitle: "Android",
     androidBody:
       "Chrome → «На экран “Домой”». Позже тот же интерфейс собирается в Android Studio через Capacitor (app.genesisengine.lab).",
@@ -1476,9 +1476,9 @@ const ru: Copy = {
   studioFreeTitle: "Лаборатория остаётся свободной",
   studioFreeBody: "Лепите, делайте обзор, выгружайте FITS и VOTable, гоняйте MCMC. Без рекламы. Без учётных записей. Без подписки. Журнал остаётся на этом устройстве.",
   studioKeepTitle: "Оставить у себя",
-  studioKeepBody: "Установите приложение сюда. Платная настольная копия для Windows, macOS и Linux — следующий шаг: не замок на небе, а способ забрать инструмент с собой и работать без сети.",
+  studioKeepBody: "Установите свободную лабораторию сюда. Платная копия для Windows и Linux уже есть — окно без браузера, без сети. macOS позже. Не замок на небе. Напишите, чтобы забрать zip. Сборка без подписи: SmartScreen может предупредить.",
   studioSupportTitle: "Копия, которую можно унести",
-  studioSupportBody: "Разовая. Windows, macOS и Linux. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
+  studioSupportBody: "Разовая. Windows и Linux сейчас. macOS позже. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
   studioFollowCta: "Заметки автора в X",
   studioPublicCta: "Открыть публичную лабораторию",
   studioReserveCta: "Написать, чтобы забрать копию",
