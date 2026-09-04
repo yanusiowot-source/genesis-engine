@@ -209,6 +209,7 @@ export type Copy = {
   studioSupportBody: string;
   studioFollowCta: string;
   studioPublicCta: string;
+  studioEnterCta: string;
   studioReserveCta: string;
   sourceCode: string;
   version: string;
@@ -714,6 +715,7 @@ const en: Copy = {
   studioSupportBody: "One-time. Windows and Linux now. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
+  studioEnterCta: "Enter the laboratory",
   studioReserveCta: "Write to take a copy",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
@@ -1481,6 +1483,7 @@ const ru: Copy = {
   studioSupportBody: "Разовая. Windows и Linux сейчас. macOS позже. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
   studioFollowCta: "Заметки автора в X",
   studioPublicCta: "Открыть публичную лабораторию",
+  studioEnterCta: "Войти в лабораторию",
   studioReserveCta: "Написать, чтобы забрать копию",
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
   version: "Версия 1.24",

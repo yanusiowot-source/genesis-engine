@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { mergeCopy } from "./copy-merge.ts";
 import { copyFor } from "./i18n.ts";
-import { isAboutHash, isHostedLab } from "./studio.ts";
+import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -65,6 +65,7 @@ describe("copyFor", () => {
     assert.match(c.studioSupportBody, /now/);
     assert.match(c.studioReserveCta, /take a copy/);
     assert.match(c.studioPublicCta, /public lab/);
+    assert.match(c.studioEnterCta, /laboratory/);
     assert.match(c.platforms.intro, /free lab/);
     assert.match(c.platforms.windowsBody, /paid portable copy/);
     assert.match(c.platforms.windowsBody, /SmartScreen/);
@@ -85,7 +86,9 @@ describe("copyFor", () => {
     assert.equal(isHostedLab("https://yanusiowot-source.github.io/genesis-lab/"), true);
     assert.equal(isHostedLab("https://example.com/"), false);
     assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/#about"), true);
+    assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/about/"), true);
     assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/"), false);
+    assert.match(PUBLIC_ABOUT_URL, /\/about\/$/);
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {

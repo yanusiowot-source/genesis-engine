@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Genesis Engine — physics is not for sale</title>
+    <meta
+      name="description"
+      content="A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live. The lab is free. Windows and Linux copies are ready. Not a lock on the sky."
+    />
+    <link rel="canonical" href="https://yanusiowot-source.github.io/genesis-lab/about/" />
+    <meta property="og:title" content="Genesis Engine — physics is not for sale" />
+    <meta
+      property="og:description"
+      content="Sculpt ΛCDM. Export FITS and VOTable. Run MCMC. No ads, no accounts, no subscription. A Windows or Linux copy is how you take the instrument with you."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://yanusiowot-source.github.io/genesis-lab/about/" />
+    <meta property="og:image" content="https://yanusiowot-source.github.io/genesis-lab/og.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Genesis Engine — physics is not for sale" />
+    <meta
+      name="twitter:description"
+      content="A cosmological laboratory. The physics is not for sale. The lab stays free."
+    />
+    <meta name="twitter:image" content="https://yanusiowot-source.github.io/genesis-lab/og.jpg" />
+    <meta name="theme-color" content="#09061a" />
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="apple-touch-icon" href="../icon-180.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap"
+    />
+    <style>
+      :root {
+        --bg: #09061a;
+        --elevated: #16112a;
+        --subtle: #221b3c;
+        --fg: #f6f0e4;
+        --muted: #cfc0d8;
+        --subtle-fg: #9a8ab0;
+        --accent: #f0c36b;
+        --accent-fg: #1a1206;
+        --life: #5ee0b8;
+        --radius: 12px;
+        --ease: cubic-bezier(0.23, 1, 0.32, 1);
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        font-family: Figtree, ui-sans-serif, system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--fg);
+        line-height: 1.55;
+      }
+      .sky {
+        min-height: 100dvh;
+        background:
+          radial-gradient(ellipse at 18% 8%, color-mix(in oklab, #8b7cff 28%, transparent), transparent 42%),
+          radial-gradient(ellipse at 82% 12%, color-mix(in oklab, #79d4ff 18%, transparent), transparent 46%),
+          radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 48%),
+          var(--bg);
+        padding: 2.5rem 1.25rem 4rem;
+      }
+      main {
+        max-width: 40rem;
+        margin: 0 auto;
+      }
+      .kicker {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.6875rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--subtle-fg);
+        margin: 0;
+      }
+      h1 {
+        font-family: Newsreader, "Times New Roman", serif;
+        font-weight: 500;
+        font-size: clamp(2.25rem, 7vw, 3.4rem);
+        letter-spacing: -0.03em;
+        line-height: 1.08;
+        margin: 0.6rem 0 0;
+      }
+      .lead {
+        margin: 1rem 0 0;
+        font-size: 1.05rem;
+        color: var(--muted);
+        text-wrap: pretty;
+      }
+      .honesty {
+        margin: 1.25rem 0 0;
+        color: var(--fg);
+        text-wrap: pretty;
+      }
+      .hero {
+        display: block;
+        width: 100%;
+        height: auto;
+        margin: 1.75rem 0 0;
+        border-radius: var(--radius);
+        box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.16);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1.75rem;
+      }
+      a.btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.75rem;
+        padding: 0.7rem 1.1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.9375rem;
+        font-weight: 500;
+        transition: transform 150ms var(--ease), box-shadow 150ms var(--ease), background-color 150ms var(--ease);
+      }
+      a.btn:active { transform: scale(0.96); }
+      a.primary {
+        background: var(--accent);
+        color: var(--accent-fg);
+      }
+      a.ghost {
+        color: var(--fg);
+        box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.16);
+      }
+      a.ghost:hover { box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.34); }
+      ul {
+        list-style: none;
+        margin: 1.75rem 0 0;
+        padding: 0;
+        display: grid;
+        gap: 0.65rem;
+      }
+      li {
+        background: var(--subtle);
+        border-radius: var(--radius);
+        padding: 1rem 1.05rem;
+        box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.16);
+      }
+      li h2 {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.6875rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin: 0;
+        font-weight: 500;
+      }
+      li p {
+        margin: 0.45rem 0 0;
+        font-size: 0.9375rem;
+        text-wrap: pretty;
+      }
+      .ru {
+        margin-top: 2rem;
+        color: var(--muted);
+        font-size: 0.95rem;
+        text-wrap: pretty;
+      }
+      footer {
+        margin-top: 2.25rem;
+        font-size: 0.875rem;
+        color: var(--subtle-fg);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        a.btn { transition: none; }
+        a.btn:active { transform: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sky">
+      <main>
+        <p class="kicker">Cosmological laboratory</p>
+        <h1>Genesis Engine</h1>
+        <p class="lead">
+          Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live.
+          Export FITS and VOTable. Run MCMC. No ads, no accounts, no subscription.
+        </p>
+        <p class="honesty">The physics is not for sale. Corridors are envelopes, not a census you can buy.</p>
+        <img
+          class="hero"
+          src="../og.jpg"
+          width="1200"
+          height="630"
+          alt="A spiral galaxy in Genesis Engine, lit from the disk, on a dark laboratory sky."
+        />
+        <div class="actions">
+          <a class="btn primary" href="../">Enter the laboratory</a>
+          <a class="btn ghost" href="https://x.com/yanusio" rel="noopener noreferrer">Write to take a copy</a>
+        </div>
+        <ul>
+          <li>
+            <h2>The lab stays free</h2>
+            <p>Sculpt, survey, export, run MCMC. No ads. No accounts. No subscription. Your journal stays on the device.</p>
+          </li>
+          <li>
+            <h2>Keep a copy</h2>
+            <p>A paid Windows or Linux copy is ready — a window, no browser, offline. macOS later. Not a lock on the sky. The build is unsigned; SmartScreen may warn.</p>
+          </li>
+          <li>
+            <h2>A copy you can take</h2>
+            <p>One-time. Classrooms and planetariums write for a license. The lab on the web stays free.</p>
+          </li>
+        </ul>
+        <p class="ru">
+          Физику не продаём. Лаборатория свободная. Копия для Windows и Linux уже есть — напишите, чтобы забрать zip.
+        </p>
+        <footer>© 2026 Ян Ярошевич. All rights reserved. Not open source. Version 1.24</footer>
+      </main>
+    </div>
+  </body>
+</html>

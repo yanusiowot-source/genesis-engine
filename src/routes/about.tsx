@@ -1,0 +1,81 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { copyFor, detectLocale } from "@/lib/universe/i18n";
+import { AUTHOR_X_URL } from "@/lib/universe/studio";
+
+const TITLE = "Genesis Engine — physics is not for sale";
+const DESCRIPTION =
+  "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live. The lab is free. Windows and Linux copies are ready.";
+
+export const Route = createFileRoute("/about")({
+  component: AboutPage,
+  head: () => ({
+    meta: [
+      { title: TITLE },
+      { name: "description", content: DESCRIPTION },
+      { property: "og:title", content: TITLE },
+      { property: "og:description", content: DESCRIPTION },
+      { property: "og:type", content: "website" },
+      { property: "og:image", content: "https://yanusiowot-source.github.io/genesis-lab/og.jpg" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+});
+
+function AboutPage() {
+  const copy = copyFor(detectLocale());
+  const cards = [
+    [copy.studioFreeTitle, copy.studioFreeBody],
+    [copy.studioKeepTitle, copy.studioKeepBody],
+    [copy.studioSupportTitle, copy.studioSupportBody],
+  ] as const;
+
+  return (
+    <div className="sky-glow min-h-dvh bg-bg px-5 py-10 text-fg sm:px-8">
+      <main className="mx-auto flex max-w-xl flex-col">
+        <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+          {copy.kicker}
+        </p>
+        <h1 className="mt-2 font-display text-4xl leading-none tracking-[-0.03em] sm:text-5xl">
+          {copy.appName}
+        </h1>
+        <p className="mt-4 text-pretty text-base leading-relaxed text-fg-muted">{copy.aboutBody}</p>
+        <p className="mt-3 text-pretty text-base leading-relaxed text-fg">{copy.studioHonesty}</p>
+        <img
+          src="/og.jpg"
+          alt="A spiral galaxy in Genesis Engine, lit from the disk."
+          width={1200}
+          height={630}
+          className="mt-7 w-full rounded-[var(--radius-md)] shadow-[var(--shadow-border)]"
+        />
+        <div className="mt-7 flex flex-wrap gap-3">
+          <Button asChild>
+            <Link to="/">{copy.studioEnterCta}</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
+              <ExternalLink />
+              {copy.studioReserveCta}
+            </a>
+          </Button>
+        </div>
+        <ul className="mt-7 flex flex-col gap-2">
+          {cards.map(([title, body]) => (
+            <li
+              key={title}
+              className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3 shadow-[var(--shadow-border)]"
+            >
+              <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
+                {title}
+              </p>
+              <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">{body}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-8 text-sm text-fg-subtle">{copy.sourceCode}</p>
+        <p className="mt-1 font-mono text-[0.6875rem] text-fg-subtle">{copy.version}</p>
+      </main>
+    </div>
+  );
+}

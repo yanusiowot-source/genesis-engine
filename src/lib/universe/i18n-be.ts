@@ -209,6 +209,7 @@ export function makeBe(ru: Copy): Copy {
 		studioSupportBody: "Разавая. Windows і Linux зараз. macOS пазней. Школам і планетарыям — ліцэнзія па пісьме. Лабараторыя ў сетцы застаецца вольнай. Без рэкламы. Без падпіскі.",
 		studioFollowCta: "Нататкі аўтара ў X",
 		studioPublicCta: "Адкрыць публічную лабараторыю",
+		studioEnterCta: "Увайсці ў лабараторыю",
 		studioReserveCta: "Напісаць, каб забраць копію",
 		sourceCode: "© 2026 Ян Ярошевіч. Усе правы абаронены.",
 		version: "Версія 1.24",
