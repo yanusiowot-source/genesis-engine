@@ -7,7 +7,7 @@ import type { Copy, Locale } from "@/lib/universe/i18n";
 import type { MusicSource } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
 import { cn } from "@/lib/utils";
-import { AUTHOR_X_URL, PUBLIC_LAB_URL } from "@/lib/universe/studio";
+import { AUTHOR_X_URL, PUBLIC_LAB_URL, isHostedLab } from "@/lib/universe/studio";
 
 type Props = {
   copy: Copy;
@@ -71,6 +71,7 @@ export function SettingsSheet({
   onClose,
 }: Props) {
   const [confirmClear, setConfirmClear] = useState(false);
+  const [hosted, setHosted] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const aboutRef = useRef<HTMLElement>(null);
 
@@ -81,6 +82,10 @@ export function SettingsSheet({
       block: "start",
     });
   };
+
+  useEffect(() => {
+    setHosted(isHostedLab());
+  }, []);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -308,6 +313,7 @@ export function SettingsSheet({
               [
                 [copy.studioFreeTitle, copy.studioFreeBody],
                 [copy.studioKeepTitle, copy.studioKeepBody],
+                [copy.studioSupportTitle, copy.studioSupportBody],
               ] as const
             ).map(([title, body]) => (
               <li
@@ -324,17 +330,27 @@ export function SettingsSheet({
             ))}
           </ul>
           <Button asChild className="mt-4 w-full">
-            <a href={PUBLIC_LAB_URL} target="_blank" rel="noopener noreferrer">
-              <ExternalLink />
-              {copy.studioPublicCta}
-            </a>
-          </Button>
-          <Button asChild variant="outline" className="mt-2 w-full">
             <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
               <ExternalLink />
-              {copy.studioFollowCta}
+              {copy.studioReserveCta}
             </a>
           </Button>
+          {!hosted ? (
+            <Button asChild variant="outline" className="mt-2 w-full">
+              <a href={PUBLIC_LAB_URL} target="_blank" rel="noopener noreferrer">
+                <ExternalLink />
+                {copy.studioPublicCta}
+              </a>
+            </Button>
+          ) : null}
+          {!hosted ? (
+            <Button asChild variant="outline" className="mt-2 w-full">
+              <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
+                <ExternalLink />
+                {copy.studioFollowCta}
+              </a>
+            </Button>
+          ) : null}
           <p className="mt-4 text-sm text-fg">{copy.sourceCode}</p>
           <p className="mt-1 font-mono text-[0.6875rem] text-fg-subtle">{copy.version}</p>
         </section>

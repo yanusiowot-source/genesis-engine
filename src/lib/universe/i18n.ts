@@ -203,8 +203,11 @@ export type Copy = {
   studioFreeBody: string;
   studioKeepTitle: string;
   studioKeepBody: string;
+  studioSupportTitle: string;
+  studioSupportBody: string;
   studioFollowCta: string;
   studioPublicCta: string;
+  studioReserveCta: string;
   sourceCode: string;
   version: string;
   eggs: {
@@ -699,8 +702,11 @@ const en: Copy = {
   studioFreeBody: "Sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal stays on this device.",
   studioKeepTitle: "Keep a copy",
   studioKeepBody: "Install the app here. A paid desktop copy for Windows, macOS and Linux is next — not a lock on the sky, a way to take the instrument with you and work offline.",
+  studioSupportTitle: "A copy you can take",
+  studioSupportBody: "One-time. Windows, macOS and Linux. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
+  studioReserveCta: "Write to reserve a copy",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
   eggs: {
@@ -1457,8 +1463,11 @@ const ru: Copy = {
   studioFreeBody: "Лепите, делайте обзор, выгружайте FITS и VOTable, гоняйте MCMC. Без рекламы. Без учётных записей. Без подписки. Журнал остаётся на этом устройстве.",
   studioKeepTitle: "Оставить у себя",
   studioKeepBody: "Установите приложение сюда. Платная настольная копия для Windows, macOS и Linux — следующий шаг: не замок на небе, а способ забрать инструмент с собой и работать без сети.",
+  studioSupportTitle: "Копия, которую можно унести",
+  studioSupportBody: "Разовая. Windows, macOS и Linux. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
   studioFollowCta: "Заметки автора в X",
   studioPublicCta: "Открыть публичную лабораторию",
+  studioReserveCta: "Написать, чтобы забрать копию",
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
   version: "Версия 1.24",
   eggs: {

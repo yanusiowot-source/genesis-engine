@@ -6,7 +6,7 @@ Six constants. A galaxy. Three corridors where a mind might live: carbon–water
 
 The lab stays free: sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal and music stay on this device.
 
-A paid desktop copy for Windows, macOS and Linux is next — not a lock on the sky, a way to take the instrument with you and work offline.
+A paid desktop copy for Windows, macOS and Linux is next — not a lock on the sky, a way to take the instrument with you and work offline. Write to reserve one: https://x.com/yanusio
 
 Public lab (build only, no source): https://yanusiowot-source.github.io/genesis-lab/
 
