@@ -7,6 +7,7 @@ import type { Copy, Locale } from "@/lib/universe/i18n";
 import type { MusicSource } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
 import { cn } from "@/lib/utils";
+import { AUTHOR_X_URL, PUBLIC_LAB_URL } from "@/lib/universe/studio";
 
 type Props = {
   copy: Copy;
@@ -322,12 +323,14 @@ export function SettingsSheet({
               </li>
             ))}
           </ul>
-          <Button asChild variant="outline" className="mt-4 w-full">
-            <a
-              href="https://x.com/yanusio"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+          <Button asChild className="mt-4 w-full">
+            <a href={PUBLIC_LAB_URL} target="_blank" rel="noopener noreferrer">
+              <ExternalLink />
+              {copy.studioPublicCta}
+            </a>
+          </Button>
+          <Button asChild variant="outline" className="mt-2 w-full">
+            <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
               <ExternalLink />
               {copy.studioFollowCta}
             </a>

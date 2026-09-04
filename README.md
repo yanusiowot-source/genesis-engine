@@ -8,6 +8,8 @@ The lab stays free: sculpt, survey, export FITS and VOTable, run MCMC. No ads. N
 
 A paid desktop copy for Windows, macOS and Linux is next — not a lock on the sky, a way to take the instrument with you and work offline.
 
+Public lab (build only, no source): https://yanusiowot-source.github.io/genesis-lab/
+
 Twenty authored interfaces. A catalog of about 7,000 living language names; chrome falls back to English when a pack is not written. The chronicle tries the language you picked.
 
 Web app, installable PWA, portable Windows and Linux. Same codebase can wrap for Android and iOS.

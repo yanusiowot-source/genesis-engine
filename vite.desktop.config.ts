@@ -11,6 +11,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve("src"),
+      "@tanstack/react-start/server": path.resolve("desktop/start-stub.ts"),
+      "@tanstack/react-start": path.resolve("desktop/start-stub.ts"),
     },
   },
   worker: {

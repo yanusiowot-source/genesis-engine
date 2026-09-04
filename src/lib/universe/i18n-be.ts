@@ -200,6 +200,7 @@ export function makeBe(ru: Copy): Copy {
 		studioKeepTitle: "Пакінуць у сябе",
 		studioKeepBody: "Усталюйце прыкладанне сюды. Платная настольная копія для Windows, macOS і Linux — наступны крок: не замак на небе, а спосаб забраць інструмент з сабой і працаваць без сеткі.",
 		studioFollowCta: "Нататкі аўтара ў X",
+		studioPublicCta: "Адкрыць публічную лабараторыю",
 		sourceCode: "© 2026 Ян Ярошевіч. Усе правы абаронены.",
 		version: "Версія 1.24",
 		eggs: {

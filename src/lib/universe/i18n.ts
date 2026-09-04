@@ -204,6 +204,7 @@ export type Copy = {
   studioKeepTitle: string;
   studioKeepBody: string;
   studioFollowCta: string;
+  studioPublicCta: string;
   sourceCode: string;
   version: string;
   eggs: {
@@ -699,6 +700,7 @@ const en: Copy = {
   studioKeepTitle: "Keep a copy",
   studioKeepBody: "Install the app here. A paid desktop copy for Windows, macOS and Linux is next — not a lock on the sky, a way to take the instrument with you and work offline.",
   studioFollowCta: "Notes from the author on X",
+  studioPublicCta: "Open the public lab",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
   eggs: {
@@ -1456,6 +1458,7 @@ const ru: Copy = {
   studioKeepTitle: "Оставить у себя",
   studioKeepBody: "Установите приложение сюда. Платная настольная копия для Windows, macOS и Linux — следующий шаг: не замок на небе, а способ забрать инструмент с собой и работать без сети.",
   studioFollowCta: "Заметки автора в X",
+  studioPublicCta: "Открыть публичную лабораторию",
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
   version: "Версия 1.24",
   eggs: {
