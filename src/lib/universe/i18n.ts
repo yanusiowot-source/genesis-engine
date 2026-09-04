@@ -198,6 +198,12 @@ export type Copy = {
   clearLogConfirm: string;
   aboutTitle: string;
   aboutBody: string;
+  studioHonesty: string;
+  studioFreeTitle: string;
+  studioFreeBody: string;
+  studioKeepTitle: string;
+  studioKeepBody: string;
+  studioFollowCta: string;
   sourceCode: string;
   version: string;
   eggs: {
@@ -687,6 +693,12 @@ const en: Copy = {
   clearLogConfirm: "Tap again to clear",
   aboutTitle: "About",
   aboutBody: "A cosmological laboratory on this machine. Sculpt the constants, watch a galaxy, hunt three thin corridors where a mind might live.",
+  studioHonesty: "The physics is not for sale. Corridors are envelopes, not a census you can buy.",
+  studioFreeTitle: "The lab stays free",
+  studioFreeBody: "Sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. Your journal stays on this device.",
+  studioKeepTitle: "Keep a copy",
+  studioKeepBody: "Install the app here. A paid desktop build for Windows, macOS and Linux is the next step — not a lock on the sky.",
+  studioFollowCta: "Notes from the author on X",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
   eggs: {
@@ -1438,6 +1450,12 @@ const ru: Copy = {
   clearLogConfirm: "Нажмите ещё раз",
   aboutTitle: "О приложении",
   aboutBody: "Космологическая лаборатория на этой машине. Лепите константы, смотрите галактику, ищите три узких коридора, где ум может жить.",
+  studioHonesty: "Физику не продаём. Коридоры — оболочки, не перепись, которую можно купить.",
+  studioFreeTitle: "Лаборатория остаётся свободной",
+  studioFreeBody: "Лепите, делайте обзор, выгружайте FITS и VOTable, гоняйте MCMC. Без рекламы. Без учётных записей. Журнал остаётся на этом устройстве.",
+  studioKeepTitle: "Оставить у себя",
+  studioKeepBody: "Установите приложение сюда. Платная настольная копия для Windows, macOS и Linux — следующий шаг, не замок на небе.",
+  studioFollowCta: "Заметки автора в X",
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
   version: "Версия 1.24",
   eggs: {

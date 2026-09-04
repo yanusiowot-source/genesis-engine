@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Check, CircleHelp, Download, Music, RotateCcw, Trash2, X } from "lucide-react";
+import { Check, CircleHelp, Download, ExternalLink, Info, Music, RotateCcw, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { LanguagePicker } from "@/components/language-picker";
@@ -71,6 +71,15 @@ export function SettingsSheet({
 }: Props) {
   const [confirmClear, setConfirmClear] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const aboutRef = useRef<HTMLElement>(null);
+
+  const scrollToAbout = () => {
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    aboutRef.current?.scrollIntoView({
+      behavior: reduced ? "auto" : "smooth",
+      block: "start",
+    });
+  };
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -262,6 +271,7 @@ export function SettingsSheet({
 
         <Group>
           <ActionRow icon={CircleHelp} label={copy.help} onClick={onHelp} />
+          <ActionRow icon={Info} label={copy.aboutTitle} onClick={scrollToAbout} />
           {!standalone ? (
             <ActionRow icon={Download} label={copy.install} onClick={onInstall} />
           ) : null}
@@ -282,14 +292,47 @@ export function SettingsSheet({
           />
         </Group>
 
-        <section className="mt-6">
+        <section ref={aboutRef} id="settings-about" className="mt-6 scroll-mt-3">
           <h3 className="px-1 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
             {copy.aboutTitle}
           </h3>
           <p className="mt-2 text-pretty text-sm leading-relaxed text-fg-muted">
             {copy.aboutBody}
           </p>
-          <p className="mt-3 text-sm text-fg">{copy.sourceCode}</p>
+          <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">
+            {copy.studioHonesty}
+          </p>
+          <ul className="mt-4 flex flex-col gap-2">
+            {(
+              [
+                [copy.studioFreeTitle, copy.studioFreeBody],
+                [copy.studioKeepTitle, copy.studioKeepBody],
+              ] as const
+            ).map(([title, body]) => (
+              <li
+                key={title}
+                className="rounded-[var(--radius-md)] bg-bg-subtle px-3 py-3 shadow-[var(--shadow-border)]"
+              >
+                <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
+                  {title}
+                </p>
+                <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">
+                  {body}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <Button asChild variant="outline" className="mt-4 w-full">
+            <a
+              href="https://x.com/yanusio"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink />
+              {copy.studioFollowCta}
+            </a>
+          </Button>
+          <p className="mt-4 text-sm text-fg">{copy.sourceCode}</p>
           <p className="mt-1 font-mono text-[0.6875rem] text-fg-subtle">{copy.version}</p>
         </section>
       </div>

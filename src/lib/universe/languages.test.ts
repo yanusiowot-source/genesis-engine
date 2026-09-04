@@ -49,8 +49,13 @@ describe("copyFor", () => {
     assert.equal(c.birth, "Birth a universe");
     assert.equal(c.tabs.sky, "Sky");
     assert.match(c.eggs.tau, /homology/);
+    assert.match(c.studioHonesty, /not for sale/);
+    assert.match(c.studioFreeBody, /No ads/);
+    assert.match(c.studioKeepBody, /desktop/i);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
+    assert.match(copyFor("ru").studioHonesty, /не прода/);
     assert.match(copyFor("be").eggs.tau, /гамалог/);
+    assert.match(copyFor("be").studioHonesty, /не прада/);
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {
