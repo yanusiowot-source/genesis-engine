@@ -39,10 +39,15 @@ function PayRow({
         size="sm"
         className="mt-2"
         onClick={() => {
-          void navigator.clipboard.writeText(value).then(() => {
-            setCopied(true);
-            window.setTimeout(() => setCopied(false), 1600);
-          });
+          void navigator.clipboard.writeText(value).then(
+            () => {
+              setCopied(true);
+              window.setTimeout(() => setCopied(false), 1600);
+            },
+            () => {
+              /* clipboard can be blocked; the address stays selectable */
+            },
+          );
         }}
       >
         {copied ? <Check /> : <Copy />}

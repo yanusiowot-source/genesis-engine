@@ -5,6 +5,7 @@ export function formatPct(n: number): string {
 }
 
 export function formatGyr(n: number): string {
+  if (!Number.isFinite(n) || n <= 0) return "0 Gyr";
   if (n >= 100) return `${n.toFixed(0)} Gyr`;
   if (n >= 10) return `${n.toFixed(1)} Gyr`;
   if (n >= 1) return `${n.toFixed(2)} Gyr`;

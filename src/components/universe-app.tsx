@@ -307,6 +307,15 @@ export function UniverseApp() {
     document.documentElement.lang = bcp47(locale);
   }, [locale]);
 
+  useEffect(() => {
+    return () => {
+      window.clearTimeout(eggTimer.current);
+      window.clearTimeout(tauTimer.current);
+      window.clearTimeout(birthFlashTimer.current);
+      window.clearTimeout(creationTimer.current);
+    };
+  }, []);
+
   useLayoutEffect(() => {
     const next = detectLocale();
     setLocale(next);

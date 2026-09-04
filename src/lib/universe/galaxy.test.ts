@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { lookCam, projectLook } from "./galaxy.ts";
+import { buildGalaxy, lookCam, projectLook } from "./galaxy.ts";
+import { evaluate, OUR_UNIVERSE } from "./physics.ts";
 
 describe("inside-sky camera", () => {
   it("places the bulge in front of the default look", () => {
@@ -29,5 +30,18 @@ describe("inside-sky camera", () => {
     const up = projectLook(0, 0, 0, lookCam(0, 0.35), 1.22);
     assert.ok(up);
     assert.ok(up.y > 0);
+  });
+});
+
+describe("buildGalaxy", () => {
+  it("builds a spiral for our constants without NaN stars", () => {
+    const ev = evaluate(OUR_UNIVERSE);
+    assert.equal(ev.morphology, "spiral");
+    const model = buildGalaxy(OUR_UNIVERSE, ev, 0x4c91a2e1, 0.45);
+    assert.ok(model.stars.length > 40);
+    for (const star of model.stars.slice(0, 20)) {
+      assert.equal(Number.isFinite(star.x) && Number.isFinite(star.y) && Number.isFinite(star.z), true);
+      assert.ok(star.rgb.every((c) => c >= 0 && c <= 255));
+    }
   });
 });

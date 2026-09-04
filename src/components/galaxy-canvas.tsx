@@ -706,7 +706,11 @@ export function GalaxyCanvas({
       const model = modelRef.current;
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
       lastT = t;
-      if (!model) return;
+      if (!model) {
+        ctx.fillStyle = "#09061a";
+        ctx.fillRect(0, 0, Math.max(w, 1), Math.max(h, 1));
+        return;
+      }
       tauHit.live = false;
 
       const clock = timeLiveRef.current ?? cosmicRef;

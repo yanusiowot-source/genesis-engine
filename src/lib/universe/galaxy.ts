@@ -1,4 +1,5 @@
 import { sampleMass } from "./observatory.ts";
+import { isOurParams } from "./physics.ts";
 import { lerp, mulberry32 } from "./rng.ts";
 import type { Evaluation, UniverseParams } from "./types";
 
@@ -80,7 +81,7 @@ function starTint(rng: () => number): [number, number, number] {
   if (roll < 0.42) return [255, 214, 170];
   if (roll < 0.7) return [236, 240, 255];
   if (roll < 0.88) return [170, 210, 255];
-  return [255, 150, 196];
+  return [255, 132, 78];
 }
 
 /** Camera sitting in the disk. Yaw 0 looks at the bulge. */
@@ -217,7 +218,8 @@ function fillMorphology(
       }
     }
   } else {
-    const arms = 2 + Math.round(params.complexity * 3);
+    const ours = isOurParams(params);
+    const arms = ours ? 4 : 2 + Math.round(params.complexity * 3);
     const pitch = 0.2 + (1.15 - params.gravity) * 0.12;
     for (let i = 0; i < n; i++) {
       const arm = i % arms;
@@ -228,6 +230,14 @@ function fillMorphology(
       const x = Math.cos(theta) * rad + Math.cos(theta + pitch) * jitter;
       const y = Math.sin(theta) * rad * 0.78 + Math.sin(theta + pitch) * jitter;
       pushStar(x, y, diskZ(rng, rad, 0.16), scale);
+    }
+    if (ours) {
+      const bar = Math.floor(n * 0.12);
+      for (let i = 0; i < bar; i++) {
+        const x = (rng() - 0.5) * 0.58;
+        const y = (rng() - 0.5) * 0.07;
+        pushStar(x, y, diskZ(rng, Math.abs(x), 0.09), 1.08 * scale);
+      }
     }
     const bulge = Math.floor(n * 0.22);
     for (let i = 0; i < bulge; i++) {
