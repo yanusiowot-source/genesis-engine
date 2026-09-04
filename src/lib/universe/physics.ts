@@ -159,7 +159,7 @@ export function environmentClass(env: number): EnvironmentClass {
   return "cluster";
 }
 
-/** Hubble 1926 mix, warped by environment: field ≈ 70/15/15, cluster ≈ 25/65/10. */
+/** Dressler 1980 morphology–density: field ≈ 70/15/15, cluster ≈ 25/65/10. */
 export function hubbleMix(env: number): HubbleMix {
   const spiral = lerp(0.72, 0.22, env);
   const elliptical = lerp(0.14, 0.68, env);
@@ -191,7 +191,7 @@ export function evaluate(params: UniverseParams): Evaluation {
   const recollapseRisk = clamp(
     sigmoid((m - 0.85) * 4.2) *
       sigmoid((0.32 - de) * 6) *
-      sigmoid((0.72 - h) * 5),
+      sigmoid(-(1 - m - de) * 4.5),
     0,
     1,
   );
@@ -203,10 +203,12 @@ export function evaluate(params: UniverseParams): Evaluation {
 
   // Homology: nuclear timescale falls steeply with G.
   const stellarLifetimeGyr = 10 / Math.pow(Math.max(g, 0.2), 2.15);
+  /** Pop III analog. Ours lands ~0.25 Gyr, not a Hubble time. */
   const timeToStarsGyr =
-    (0.22 * h) / (m * Math.max(c, 0.04) + 0.018) * (0.7 + de);
-  const lifeWindowGyr = Math.max(0, stellarLifetimeGyr - timeToStarsGyr - 3.8);
-  const generations = stellarLifetimeGyr / Math.max(timeToStarsGyr, 0.12);
+    (0.0235 * h) / (m * Math.max(c, 0.04) + 0.018) * (0.7 + de);
+  const lifeWindowGyr = Math.max(0, stellarLifetimeGyr - timeToStarsGyr - CHEM_DELAY_GYR);
+  const generations =
+    stellarLifetimeGyr / Math.max(timeToStarsGyr + 2.12, 0.12);
 
   let life = structure * gauss(g, 1.0, 0.33);
   life *= sigmoid((lifeWindowGyr - 0.8) * 1.15);
@@ -315,6 +317,34 @@ export type DerivedAstro = {
 
 const MPC_IN_METERS = 3.085677581e22;
 const G_SI = 6.6743e-11;
+/** Time from first stars to a quiet wet-chemistry window. Shared with the epoch strip. */
+export const CHEM_DELAY_GYR = 3.8;
+
+/** Homology Friedmann age, radiation neglected. Ours lands near Planck 13.8 Gyr. */
+export function friedmannAgeGyr(params: UniverseParams): number {
+  const h0 = 67.4 * Math.max(params.expansion, 0.28);
+  const om = Math.max(params.matter, 1e-4);
+  const ol = Math.max(params.darkEnergy, 0);
+  const ok = 1 - om - ol;
+  const e = (a: number) => {
+    const x = om / (a * a * a) + ok / (a * a) + ol;
+    return Math.sqrt(Math.max(x, 1e-12));
+  };
+  const f = (a: number) => 1 / (Math.max(a, 1e-6) * e(a));
+  const n = 24;
+  const aMin = 1e-4;
+  let acc = 0;
+  let prevA = aMin;
+  let prevF = f(aMin);
+  for (let i = 1; i <= n; i++) {
+    const a = aMin + ((1 - aMin) * i) / n;
+    const fi = f(a);
+    acc += 0.5 * (prevF + fi) * (a - prevA);
+    prevA = a;
+    prevF = fi;
+  }
+  return (977.8 / h0) * acc;
+}
 
 /** Homology scalings, not a Boltzmann code. Ours lands near Planck/MW ballparks. */
 export function derivedAstro(
@@ -325,7 +355,7 @@ export function derivedAstro(
   const h0Si = (hubble * 1000) / MPC_IN_METERS;
   return {
     hubble,
-    ageGyr: 13.8 / Math.max(params.expansion, 0.28),
+    ageGyr: friedmannAgeGyr(params),
     galaxyKpc:
       6 + 22 * ev.structure * Math.sqrt(Math.max(params.matter, 0.05)),
     sfr: ev.structure * params.complexity * Math.max(params.matter, 0.05) * 12,

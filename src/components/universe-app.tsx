@@ -202,10 +202,11 @@ export function UniverseApp() {
   const tauTimer = useRef(0);
   const birthFlashTimer = useRef(0);
   const creationTimer = useRef(0);
+  const onboardBirthTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const dotHinted = useRef(false);
-  const [hydrated] = useState(true);
+  const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(false);
   const [tab, setTab] = useState<AppTab>("sky");
   const [labPane, setLabPane] = useState<LabPane>("constants");
@@ -313,6 +314,7 @@ export function UniverseApp() {
       window.clearTimeout(tauTimer.current);
       window.clearTimeout(birthFlashTimer.current);
       window.clearTimeout(creationTimer.current);
+      window.clearTimeout(onboardBirthTimer.current);
     };
   }, []);
 
@@ -339,6 +341,11 @@ export function UniverseApp() {
       setOnboard(false);
       setSettingsOpen(true);
       setAboutIntent(true);
+      try {
+        localStorage.setItem(ONBOARD_KEY, "1");
+      } catch {
+        /* ignore */
+      }
     }
   }, []);
 
@@ -371,13 +378,18 @@ export function UniverseApp() {
     } else {
       primeAudio(OUR_UNIVERSE);
     }
-    void loadArchive().then((loaded) => {
-      if (loaded.length === 0) {
+    void loadArchive()
+      .then((loaded) => {
+        if (loaded.length === 0) {
+          setArchive([makeRecord(OUR_UNIVERSE, OUR_SEED)]);
+        } else {
+          setArchive(loaded);
+        }
+      })
+      .catch(() => {
         setArchive([makeRecord(OUR_UNIVERSE, OUR_SEED)]);
-      } else {
-        setArchive(loaded);
-      }
-    });
+      })
+      .finally(() => setHydrated(true));
     const host = detectPlatform();
     setPlatform(host);
     setStandalone(host.standalone);
@@ -603,6 +615,7 @@ export function UniverseApp() {
     setError(null);
     setTab("lab");
     try {
+      const snapshotId = current.id;
       const result = await chronicleUniverse({
         data: {
           name: current.name,
@@ -616,9 +629,12 @@ export function UniverseApp() {
         setError(result.error);
         return;
       }
-      const next = { ...current, chronicle: result.text, locale };
-      setCurrent(next);
-      remember(next);
+      setCurrent((prev) => {
+        if (prev.id !== snapshotId) return prev;
+        const next = { ...prev, chronicle: result.text, locale };
+        remember(next);
+        return next;
+      });
     } catch {
       setError(copy.chronicleError);
     } finally {
@@ -718,7 +734,10 @@ export function UniverseApp() {
     soundOnRef.current = true;
     unlockAndStart(current.params);
     void setSoundscape(true, current.params);
-    if (born) window.setTimeout(() => birth(), 220);
+    if (born) {
+      window.clearTimeout(onboardBirthTimer.current);
+      onboardBirthTimer.current = window.setTimeout(() => birth(), 220);
+    }
   }, [birth, current.params]);
 
   const toggleLocale = useCallback(() => {
@@ -1640,6 +1659,11 @@ export function UniverseApp() {
           onInstall={() => showOverlay("install")}
           onReplay={() => {
             setSettingsOpen(false);
+            setAboutIntent(false);
+            if (isAboutHash()) {
+              const url = `${window.location.pathname}${window.location.search}`;
+              window.history.replaceState(null, "", url);
+            }
             setOnboard(true);
           }}
           onClearLog={() => {

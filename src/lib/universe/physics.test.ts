@@ -10,6 +10,7 @@ import {
   derivedAstro,
   eternalDossier,
   evaluate,
+  friedmannAgeGyr,
   randomParams,
   refine,
   siliconDossier,
@@ -30,6 +31,8 @@ describe("evaluate", () => {
     assert.ok(ev.environmentDensity > 0.28 && ev.environmentDensity < 0.4);
     assert.ok(ev.hubbleMix.spiral > ev.hubbleMix.elliptical);
     assert.ok(Math.abs(ev.darkMatterFraction - 0.85) < 0.05);
+    assert.ok(ev.timeToStarsGyr > 0.15 && ev.timeToStarsGyr < 0.5);
+    assert.ok(ev.recollapseRisk < 0.05);
   });
 
   it("gives the silicon corridor high Si and low carbon", () => {
@@ -139,6 +142,26 @@ describe("derivedAstro", () => {
     assert.ok(d.sfr > 0.4 && d.sfr < 4);
     assert.ok(Math.abs(d.omegaK) < 0.01);
     assert.ok(Math.abs(d.rhoCrit - 8.54e-27) / 8.54e-27 < 0.05);
+  });
+
+  it("gives Einstein–de Sitter a shorter age than ΛCDM at the same H0", () => {
+    const eds = friedmannAgeGyr({ ...OUR_UNIVERSE, matter: 1, darkEnergy: 0 });
+    assert.ok(eds > 8 && eds < 11);
+    assert.ok(eds < friedmannAgeGyr(OUR_UNIVERSE) - 2);
+  });
+});
+
+describe("recollapse", () => {
+  it("flags a closed high-Ωm sky even when H0 is ours", () => {
+    const params = {
+      ...OUR_UNIVERSE,
+      matter: 1.2,
+      darkEnergy: 0.05,
+      expansion: 1,
+    };
+    const ev = evaluate(params);
+    assert.ok(ev.recollapseRisk > 0.4);
+    assert.ok(derivedAstro(params, ev).omegaK < -0.1);
   });
 });
 

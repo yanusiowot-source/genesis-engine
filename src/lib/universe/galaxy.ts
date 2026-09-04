@@ -315,7 +315,7 @@ export function buildGalaxy(
   for (let i = 0; i < bgN; i++) {
     const ang = rng() * Math.PI * 2;
     const rad = 1.35 + rng() * 1.15;
-    const spiral = rng() > 0.35;
+    const spiral = rng() < evaluation.hubbleMix.spiral;
     background.push({
       x: Math.cos(ang) * rad,
       y: Math.sin(ang) * rad * 0.82,
@@ -336,7 +336,7 @@ export function buildGalaxy(
     [90, 230, 190],
   ];
 
-  const dustCount = morph === "spiral" ? 10 : morph === "irregular" ? 6 : 3;
+  const dustCount = morph === "spiral" ? 10 : morph === "irregular" ? 6 : 0;
   const dust = Array.from({ length: dustCount }, () => {
     const ang = rng() * Math.PI * 2;
     const rad = (0.18 + rng() * 0.95) * spread;

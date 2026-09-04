@@ -142,9 +142,9 @@ export function GalaxyCanvas({
     let visualT = cosmicRef.current;
     let idlePaint = false;
     const quality = adaptiveQuality();
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reducedMq =
+      typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+    const reducedRef = { current: !!reducedMq?.matches };
     const rr = (n: number) => (Number.isFinite(n) && n > 0 ? n : 0.01);
 
     const resize = () => {
@@ -163,6 +163,11 @@ export function GalaxyCanvas({
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = q.scale < 0.6 ? "medium" : "high";
     };
+
+    const onReduce = () => {
+      reducedRef.current = !!reducedMq?.matches;
+    };
+    reducedMq?.addEventListener("change", onReduce);
 
     const ro = new ResizeObserver(resize);
     if (canvas.parentElement) ro.observe(canvas.parentElement);
@@ -226,7 +231,7 @@ export function GalaxyCanvas({
     const drawStar = (s: Star, x: number, y: number, ageGyr: number, vis: number, time: number) => {
       const st = evolveStar(s.mass, ageGyr - s.birthGyr, paramsRef.current.gravity);
       if (st.stage === "unborn") return;
-      const tw = reduced ? 1 : 0.75 + 0.25 * Math.sin(time * 2.2 + s.phase);
+      const tw = reducedRef.current ? 1 : 0.75 + 0.25 * Math.sin(time * 2.2 + s.phase);
       let a = Math.min(1, s.a * vis * tw * 1.25);
       if (st.stage === "blackHole") a *= 0.4;
       if (st.stage === "whiteDwarf" || st.stage === "neutronStar") a *= 0.85;
@@ -395,7 +400,7 @@ export function GalaxyCanvas({
       for (const cl of model.clumps) {
         const p = projectLook(cl.x, cl.y, 0, cam, fov);
         if (!p || Math.abs(p.x) > limX * 1.4 || Math.abs(p.y) > limY * 1.4) continue;
-        const rad = (cl.r * scale) / p.depth;
+        const rad = rr((cl.r * scale) / p.depth);
         const g = ctx.createRadialGradient(p.x * scale, p.y * scale, 0, p.x * scale, p.y * scale, rad);
         const [r, gch, b] = cl.rgb;
         g.addColorStop(0, `rgba(${r},${gch},${b},${Math.min(0.42, cl.a * vis * 1.4)})`);
@@ -414,7 +419,7 @@ export function GalaxyCanvas({
         ctx.translate(p.x * scale, p.y * scale);
         ctx.fillStyle = `rgba(${dr},${dg},${db},${Math.min(0.3, d.a * vis * 2.1)})`;
         ctx.beginPath();
-        ctx.ellipse(0, 0, (d.rx * scale) / p.depth, (d.ry * scale) / p.depth, d.rot, 0, Math.PI * 2);
+        ctx.ellipse(0, 0, rr((d.rx * scale) / p.depth), rr((d.ry * scale) / p.depth), d.rot, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
       }
@@ -422,7 +427,7 @@ export function GalaxyCanvas({
       for (const s of model.field) {
         const p = projectLook(s.x, s.y, s.z, cam, fov);
         if (!p || Math.abs(p.x) > limX || Math.abs(p.y) > limY) continue;
-        const tw = reduced ? 1 : 0.7 + 0.3 * Math.sin(time * 1.8 + s.phase);
+        const tw = reducedRef.current ? 1 : 0.7 + 0.3 * Math.sin(time * 1.8 + s.phase);
         const size = Math.max(0.4, s.r * 0.48);
         ctx.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${s.a * tw * 0.92})`;
         ctx.beginPath();
@@ -431,14 +436,17 @@ export function GalaxyCanvas({
       }
 
       const bright: { x: number; y: number }[] = [];
+      const disk: { s: Star; px: number; py: number; depth: number; near: number }[] = [];
       for (const s of model.stars) {
         const p = projectLook(s.x, s.y, s.z, cam, fov);
         if (!p || Math.abs(p.x) > limX || Math.abs(p.y) > limY) continue;
         const near = Math.min(2.4, 0.62 / p.depth);
-        const px = p.x * scale;
-        const py = p.y * scale;
-        drawStar(s, px, py, ageGyr, vis * near, time);
-        if (s.r * near > 1.7 && bright.length < 16) bright.push({ x: px, y: py });
+        disk.push({ s, px: p.x * scale, py: p.y * scale, depth: p.depth, near });
+      }
+      disk.sort((a, b) => b.depth - a.depth);
+      for (const row of disk) {
+        drawStar(row.s, row.px, row.py, ageGyr, vis * row.near, time);
+        if (row.s.r * row.near > 1.7 && bright.length < 16) bright.push({ x: row.px, y: row.py });
       }
 
       ctx.globalCompositeOperation = "source-over";
@@ -470,24 +478,30 @@ export function GalaxyCanvas({
       ctx.fillRect(0, h * 0.68, w, h * 0.32);
 
       if (isOurParams(paramsRef.current)) {
-        const x = cx + scale * 0.08;
-        const y = h * 0.62;
-        ctx.fillStyle = "rgb(150, 190, 255)";
-        ctx.beginPath();
-        ctx.arc(x, y, 1.6, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = "rgba(120, 170, 255, 0.35)";
-        ctx.beginPath();
-        ctx.arc(x, y, 4.5, 0, Math.PI * 2);
-        ctx.fill();
-        const tx = x + 16;
-        const ty = y - 22;
-        const hot = eggsRef.current.tau;
-        drawTauBeacon(tx, ty, time, hot, "right");
-        tauHit.x = tx;
-        tauHit.y = ty;
-        tauHit.r = 36;
-        tauHit.live = true;
+        const sol = projectLook(cam.ox - 0.04, cam.oy - 0.008, cam.oz - 0.004, cam, fov);
+        const tau = projectLook(cam.ox - 0.02, cam.oy + 0.03, cam.oz + 0.006, cam, fov);
+        if (sol && Math.abs(sol.x) < limX && Math.abs(sol.y) < limY) {
+          const x = cx + sol.x * scale;
+          const y = cy + sol.y * scale;
+          ctx.fillStyle = "rgb(150, 190, 255)";
+          ctx.beginPath();
+          ctx.arc(x, y, 1.6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "rgba(120, 170, 255, 0.35)";
+          ctx.beginPath();
+          ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (tau && Math.abs(tau.x) < limX && Math.abs(tau.y) < limY) {
+          const tx = cx + tau.x * scale;
+          const ty = cy + tau.y * scale;
+          const hot = eggsRef.current.tau;
+          drawTauBeacon(tx, ty, time, hot, tau.x < 0 ? "right" : "left");
+          tauHit.x = tx;
+          tauHit.y = ty;
+          tauHit.r = 36;
+          tauHit.live = true;
+        }
       } else if (eggsRef.current.tau) {
         drawTauBeacon(cx + scale * 0.16, h * 0.56, time, true, "right");
       }
@@ -654,7 +668,7 @@ export function GalaxyCanvas({
     };
 
     const drawTauBeacon = (x: number, y: number, time: number, hot: boolean, label: "left" | "right") => {
-      const flicker = reduced ? 1 : 0.55 + 0.45 * Math.abs(Math.sin(time * 1.65));
+      const flicker = reducedRef.current ? 1 : 0.55 + 0.45 * Math.abs(Math.sin(time * 1.65));
       const rgb = "255,210,168";
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
@@ -714,7 +728,7 @@ export function GalaxyCanvas({
       tauHit.live = false;
 
       const clock = timeLiveRef.current ?? cosmicRef;
-      if (evolvingRef.current && !reduced) {
+      if (evolvingRef.current && !reducedRef.current) {
         const stepped = stepCosmicTime(clock.current, dt);
         clock.current = stepped.t;
         if (stepped.done) {
@@ -733,7 +747,7 @@ export function GalaxyCanvas({
       }
       if (flash > 0) flash = Math.max(0, flash - dt * 1.7);
 
-      if (!dragging && modeRef.current === "planetarium" && !reduced) {
+      if (!dragging && modeRef.current === "planetarium" && !reducedRef.current) {
         yaw += vYaw + dt * 0.028;
         pitch = Math.max(-1.15, Math.min(1.15, pitch + vPitch));
         vYaw *= Math.exp(-dt * 3.2);
@@ -741,25 +755,27 @@ export function GalaxyCanvas({
         if (Math.abs(vYaw) < 1e-4) vYaw = 0;
         if (Math.abs(vPitch) < 1e-4) vPitch = 0;
       }
-      yawTravel += Math.abs(yaw - lastYaw);
+      if (dragging || Math.abs(vYaw) > 0.05) {
+        yawTravel += Math.abs(yaw - lastYaw);
+      }
       lastYaw = yaw;
 
       if (collisionKeyRef.current !== armedKey) {
         armedKey = collisionKeyRef.current;
-        collisionT = reduced ? 1 : 0;
+        collisionT = reducedRef.current ? 1 : 0;
         flash = Math.max(flash, 0.55);
       }
       if (modeRef.current === "collision" && collisionT < 1) {
-        collisionT = Math.min(1, collisionT + dt * (reduced ? 8 : 0.13));
+        collisionT = Math.min(1, collisionT + dt * (reducedRef.current ? 8 : 0.13));
       }
 
       const cx = w / 2;
       const cy = h / 2;
       const scale = Math.min(w, h) * 0.46;
       if (!Number.isFinite(scale) || scale <= 0) return;
-      const time = reduced ? 0 : t / 1000;
+      const time = reducedRef.current ? 0 : t / 1000;
       const targetT = (timeLiveRef.current ?? cosmicRef).current;
-      if (reduced) visualT = targetT;
+      if (reducedRef.current) visualT = targetT;
       else visualT += (targetT - visualT) * (1 - Math.exp(-5.5 * dt));
       const ev = evRef.current;
       const pms = paramsRef.current;
@@ -893,7 +909,7 @@ export function GalaxyCanvas({
       }
 
       const host = Math.max(ev.lifeProb, ev.siliconProb, eternalProb);
-      const lite = relaxedRef.current || quality.scale < 0.55 || reduced;
+      const lite = relaxedRef.current || quality.scale < 0.55 || reducedRef.current;
       if (
         !lite &&
         skyMode === "galaxy" &&
@@ -902,7 +918,7 @@ export function GalaxyCanvas({
         host > 0.12 &&
         (epoch === "stellar" || epoch === "reionization")
       ) {
-        drawShips(ctx, cx, cy, scale, rot, time, host, eternalProb, reduced);
+        drawShips(ctx, cx, cy, scale, rot, time, host, eternalProb, reducedRef.current);
       }
 
       if (!lite && skyMode === "galaxy" && !late && pms.quantumNoise > 0.38) {
@@ -968,6 +984,7 @@ export function GalaxyCanvas({
       running = false;
       cancelAnimationFrame(frame);
       ro.disconnect();
+      reducedMq?.removeEventListener("change", onReduce);
       document.removeEventListener("visibilitychange", onVis);
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointermove", onMove);

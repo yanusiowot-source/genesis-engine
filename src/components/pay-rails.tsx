@@ -39,15 +39,11 @@ function PayRow({
         size="sm"
         className="mt-2"
         onClick={() => {
-          void navigator.clipboard.writeText(value).then(
-            () => {
-              setCopied(true);
-              window.setTimeout(() => setCopied(false), 1600);
-            },
-            () => {
-              /* clipboard can be blocked; the address stays selectable */
-            },
-          );
+          void copyText(value).then((ok) => {
+            if (!ok) return;
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1600);
+          });
         }}
       >
         {copied ? <Check /> : <Copy />}
@@ -55,4 +51,27 @@ function PayRow({
       </Button>
     </div>
   );
+}
+
+async function copyText(value: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(value);
+    return true;
+  } catch {
+    /* fall through */
+  }
+  try {
+    const ta = document.createElement("textarea");
+    ta.value = value;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    return ok;
+  } catch {
+    return false;
+  }
 }

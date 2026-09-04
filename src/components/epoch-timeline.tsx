@@ -1,4 +1,5 @@
 import type { Copy } from "@/lib/universe/i18n";
+import { CHEM_DELAY_GYR } from "@/lib/universe/physics";
 import type { Evaluation } from "@/lib/universe/types";
 
 type Props = {
@@ -9,8 +10,8 @@ type Props = {
 export function EpochTimeline({ copy, evaluation }: Props) {
   const end = Math.max(evaluation.stellarLifetimeGyr, 0.01);
   const stars = clamp01(evaluation.timeToStarsGyr / end);
-  const lifeStart = clamp01((evaluation.timeToStarsGyr + 3.8) / end);
-  const lifeEnd = clamp01((evaluation.timeToStarsGyr + 3.8 + evaluation.lifeWindowGyr) / end);
+  const lifeStart = clamp01((evaluation.timeToStarsGyr + CHEM_DELAY_GYR) / end);
+  const lifeEnd = clamp01((evaluation.timeToStarsGyr + CHEM_DELAY_GYR + evaluation.lifeWindowGyr) / end);
   const hasWindow = evaluation.lifeWindowGyr > 0.05;
 
   return (

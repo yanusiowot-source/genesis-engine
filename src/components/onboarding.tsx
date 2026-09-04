@@ -19,6 +19,8 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onDone(false);
       if (event.key === "Enter" || event.key === "ArrowRight") {
+        if (event.target instanceof HTMLButtonElement) return;
+        event.preventDefault();
         if (step >= copy.onboarding.length - 1) onDone(true);
         else setStep((s) => s + 1);
       }
