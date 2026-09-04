@@ -670,6 +670,10 @@ const en: Copy = {
       body: "Every born sky lives here. Star the keepers. Clear only from Settings.",
     },
     {
+      title: "Nearby",
+      body: "Our sky, Planetarium. A quiet G star labelled τ Cet sits by the pale blue pixel. Tap it, or type tau.",
+    },
+    {
       title: "Music",
       body: "The speaker starts a quiet pad. Settings → Music lets you play a file from this device.",
     },
@@ -682,7 +686,7 @@ const en: Copy = {
     desk: "Posterior cloud, export, classify.",
   },
   shortcutsTitle: "Keys",
-  shortcutsBody: "B birth · S survey · R refine · E evolve · 1 sky · 2 lab · 3 log · Esc close",
+  shortcutsBody: "B birth · S survey · R refine · E evolve · tau · 1 sky · 2 lab · 3 log · Esc close",
   astroTitle: "Astrophysics (homology)",
   astroHint:
     "Scaled from the constants, not a Boltzmann solver. For our universe the numbers sit near Planck H₀, 13.8 Gyr, and a Milky-Way-sized disk.",
@@ -1433,6 +1437,10 @@ const ru: Copy = {
       body: "Каждое рождённое небо живёт здесь. Отмечайте хранителей. Очистка только из настроек.",
     },
     {
+      title: "Рядом",
+      body: "Наше небо, режим «Планетарий». Тихая G-звезда с подписью τ Cet у бледно-голубой точки. Нажмите или наберите тау.",
+    },
+    {
       title: "Музыка",
       body: "Динамик включает тихую подушку. Настройки → Музыка — файл с этого устройства.",
     },
@@ -1445,7 +1453,7 @@ const ru: Copy = {
     desk: "Постериор, экспорт, классификация.",
   },
   shortcutsTitle: "Клавиши",
-  shortcutsBody: "B родить · S обзор · R уточнить · E эволюция · 1 небо · 2 лаб · 3 журнал · Esc закрыть",
+  shortcutsBody: "B родить · S обзор · R уточнить · E эволюция · тау · 1 небо · 2 лаб · 3 журнал · Esc закрыть",
   astroTitle: "Астрофизика (гомология)",
   astroHint:
     "Масштаб от констант, не код Больцмана. Для нашей вселенной числа близки к Planck H₀, 13.8 млрд лет и диску размера Млечного Пути.",

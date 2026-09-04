@@ -53,6 +53,7 @@ describe("copyFor", () => {
     assert.match(copyFor("be").birthGood, /добра/);
     assert.equal(c.tabs.sky, "Sky");
     assert.match(c.eggs.tau, /homology/);
+    assert.match(c.helpItems.map((item) => item.title).join(" "), /Nearby/);
     assert.match(c.studioHonesty, /not for sale/);
     assert.match(c.studioFreeBody, /No ads/);
     assert.match(c.studioFreeBody, /No subscription/);

@@ -486,7 +486,7 @@ export function GalaxyCanvas({
         drawTauBeacon(tx, ty, time, hot, "right");
         tauHit.x = tx;
         tauHit.y = ty;
-        tauHit.r = 28;
+        tauHit.r = 36;
         tauHit.live = true;
       } else if (eggsRef.current.tau) {
         drawTauBeacon(cx + scale * 0.16, h * 0.56, time, true, "right");
@@ -658,13 +658,13 @@ export function GalaxyCanvas({
       const rgb = "255,210,168";
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
-      ctx.fillStyle = `rgba(${rgb},${hot ? 0.55 + 0.35 * flicker : 0.28})`;
+      ctx.fillStyle = `rgba(${rgb},${hot ? 0.55 + 0.35 * flicker : 0.42})`;
       ctx.beginPath();
-      ctx.arc(x, y, hot ? 2.4 : 1.7, 0, Math.PI * 2);
+      ctx.arc(x, y, hot ? 2.4 : 2.1, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = `rgba(${rgb},${hot ? 0.22 * flicker : 0.12})`;
+      ctx.fillStyle = `rgba(${rgb},${hot ? 0.22 * flicker : 0.16})`;
       ctx.beginPath();
-      ctx.arc(x, y, hot ? 7.5 : 5, 0, Math.PI * 2);
+      ctx.arc(x, y, hot ? 7.5 : 6, 0, Math.PI * 2);
       ctx.fill();
       if (hot) {
         for (let i = 0; i < 3; i++) {
@@ -677,18 +677,18 @@ export function GalaxyCanvas({
           ctx.arc(x, y, r, 0, Math.PI * 2);
           ctx.stroke();
         }
-        ctx.restore();
-        ctx.save();
-        ctx.font = "600 10px ui-monospace, SFMono-Regular, Menlo, monospace";
-        ctx.fillStyle = `rgba(${rgb},${0.55 + 0.35 * flicker})`;
-        ctx.textBaseline = "middle";
-        if (label === "left") {
-          ctx.textAlign = "right";
-          ctx.fillText("τ Cet", x - 12, y);
-        } else {
-          ctx.textAlign = "left";
-          ctx.fillText("τ Cet", x + 12, y);
-        }
+      }
+      ctx.restore();
+      ctx.save();
+      ctx.font = "600 10px ui-monospace, SFMono-Regular, Menlo, monospace";
+      ctx.fillStyle = `rgba(${rgb},${hot ? 0.55 + 0.35 * flicker : 0.5})`;
+      ctx.textBaseline = "middle";
+      if (label === "left") {
+        ctx.textAlign = "right";
+        ctx.fillText("τ Cet", x - 12, y);
+      } else {
+        ctx.textAlign = "left";
+        ctx.fillText("τ Cet", x + 12, y);
       }
       ctx.restore();
     };

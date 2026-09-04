@@ -278,6 +278,8 @@ export function UniverseApp() {
   }, []);
 
   const armTau = useCallback(() => {
+    setTab("sky");
+    setMode("planetarium");
     setTauOn(true);
     haptic(14);
     try {

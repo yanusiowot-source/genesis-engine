@@ -105,6 +105,14 @@ describe("noteEggKey", () => {
     assert.equal(hit, "tau");
     buf = "";
     hit = null;
+    for (const k of ["т", "а", "у"]) {
+      const next = noteEggKey(buf, k);
+      buf = next.buf;
+      hit = next.hit;
+    }
+    assert.equal(hit, "tau");
+    buf = "";
+    hit = null;
     for (const k of ["к", "и", "т", "а"]) {
       const next = noteEggKey(buf, k);
       buf = next.buf;
