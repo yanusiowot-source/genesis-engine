@@ -696,3 +696,30 @@ export function pingEgg(): void {
     /* exponentialRamp throws on 0 — never block the joke */
   }
 }
+
+/** Call-and-return chirp: a signal out, a faint reply. Quieter than pingEgg. */
+export function pingSignal(): void {
+  if (!enabled) return;
+  const audio = ensureCtx();
+  if (!audio || audio.state !== "running") return;
+  try {
+    const t0 = audio.currentTime;
+    const blip = (t: number, hz: number, peak: number, hold: number) => {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(hz, t);
+      gain.gain.setValueAtTime(0.0008, t);
+      gain.gain.linearRampToValueAtTime(peak, t + 0.018);
+      gain.gain.exponentialRampToValueAtTime(0.0008, t + hold);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + hold + 0.02);
+    };
+    blip(t0, 740, 0.012, 0.16);
+    blip(t0 + 0.28, 494, 0.009, 0.22);
+  } catch {
+    /* a missed chirp is not a missed joke */
+  }
+}

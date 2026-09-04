@@ -71,6 +71,7 @@ import {
   subscribeAudioStatus,
   releaseAudio,
   pingEgg,
+  pingSignal,
   type MusicSource,
 } from "@/lib/universe/audio";
 import { chronicleUniverse } from "@/lib/universe/chronicle";
@@ -180,16 +181,18 @@ export function UniverseApp() {
   const [shared, setShared] = useState(false);
   const [egg, setEgg] = useState<string | null>(null);
   const [whaleOn, setWhaleOn] = useState(false);
+  const [tauOn, setTauOn] = useState(false);
   const kickerTaps = useRef(0);
   const titleTaps = useRef(0);
   const fateTaps = useRef(0);
   const siliconTaps = useRef(0);
   const eternalTaps = useRef(0);
   const eggTimer = useRef(0);
+  const tauTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const dotHinted = useRef(false);
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated] = useState(true);
   const [onboard, setOnboard] = useState(false);
   const [tab, setTab] = useState<AppTab>("sky");
   const [labPane, setLabPane] = useState<LabPane>("constants");
@@ -204,8 +207,26 @@ export function UniverseApp() {
   const [catalogOverlay, setCatalogOverlay] = useState(false);
   const [reportSaved, setReportSaved] = useState(false);
   const [mode, setMode] = useState<SkyMode>("galaxy");
-  const [cosmicTime, setCosmicTime] = useState(0.55);
+  const timeRef = useRef(0.55);
+  const [cosmicTime, setCosmicTimeState] = useState(0.55);
+  const setCosmicTime = useCallback((t: number | ((prev: number) => number)) => {
+    setCosmicTimeState((prev) => {
+      const next = typeof t === "function" ? t(prev) : t;
+      timeRef.current = next;
+      return next;
+    });
+  }, []);
   const [evolving, setEvolving] = useState(false);
+  const toggleEvolve = useCallback(() => {
+    setEvolving((on) => {
+      if (on) {
+        setCosmicTime(timeRef.current);
+        return false;
+      }
+      setCosmicTime((t) => (t >= 0.98 ? 0 : t));
+      return true;
+    });
+  }, [setCosmicTime]);
   const [collisionKey, setCollisionKey] = useState(0);
   const [installOpen, setInstallOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -237,7 +258,7 @@ export function UniverseApp() {
   soundOnRef.current = soundOn;
   paramsRef.current = current.params;
 
-  const flashEgg = useCallback((text: string) => {
+  const flashEgg = useCallback((text: string, ms = 5200) => {
     haptic(14);
     try {
       pingEgg();
@@ -246,8 +267,23 @@ export function UniverseApp() {
     }
     setEgg(text);
     window.clearTimeout(eggTimer.current);
-    eggTimer.current = window.setTimeout(() => setEgg(null), 5200);
+    eggTimer.current = window.setTimeout(() => setEgg(null), ms);
   }, []);
+
+  const armTau = useCallback(() => {
+    setTauOn(true);
+    haptic(14);
+    try {
+      pingSignal();
+    } catch {
+      /* a missed chirp is not a missed joke */
+    }
+    setEgg(copy.eggs.tau);
+    window.clearTimeout(eggTimer.current);
+    eggTimer.current = window.setTimeout(() => setEgg(null), 9000);
+    window.clearTimeout(tauTimer.current);
+    tauTimer.current = window.setTimeout(() => setTauOn(false), 11000);
+  }, [copy.eggs.tau]);
 
   useEffect(() => {
     document.documentElement.lang = bcp47(locale);
@@ -272,7 +308,6 @@ export function UniverseApp() {
     } catch {
       setOnboard(true);
     }
-    setHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -668,6 +703,7 @@ export function UniverseApp() {
       keyBuf.current = seq.buf;
       if (seq.hit) {
         if (seq.hit === "thought" || seq.hit === "answer") birthThought();
+        else if (seq.hit === "tau") armTau();
         else flashEgg(copy.eggs[seq.hit]);
         if (seq.hit === "whale") setWhaleOn(true);
         return;
@@ -687,12 +723,7 @@ export function UniverseApp() {
         setTab("lab");
         setLabPane("desk");
       } else if (key === "e") {
-        setEvolving((on) => {
-          if (!on) {
-            setCosmicTime((t) => (t >= 0.98 ? 0 : t));
-          }
-          return !on;
-        });
+        toggleEvolve();
       } else if (key === "1") setTab("sky");
       else if (key === "2") setTab("lab");
       else if (key === "3") setTab("log");
@@ -704,12 +735,14 @@ export function UniverseApp() {
     birthThought,
     copy.eggs,
     flashEgg,
+    armTau,
     hydrated,
     launchExpedition,
     overlayOpen,
     resetOurs,
     runRefine,
     runSurvey,
+    toggleEvolve,
   ]);
 
   useEffect(() => {
@@ -741,29 +774,10 @@ export function UniverseApp() {
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      setCosmicTime((t) => (t >= 0.98 ? 0 : Math.min(1, t + 0.14)));
-      setEvolving(false);
-      return;
-    }
-    let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      setCosmicTime((prev) => {
-        const next = prev + dt * 0.065;
-        if (next >= 1) {
-          setEvolving(false);
-          return 1;
-        }
-        return next;
-      });
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [evolving]);
+    if (!reduced) return;
+    setCosmicTime((t) => (t >= 0.98 ? 0 : Math.min(1, t + 0.14)));
+    setEvolving(false);
+  }, [evolving, setCosmicTime]);
 
   const ev = current.evaluation;
   const lifeTone =
@@ -1001,10 +1015,17 @@ export function UniverseApp() {
           evaluation={ev}
           visualSeed={current.visualSeed}
           cosmicTime={cosmicTime}
+          timeRef={timeRef}
+          evolving={evolving}
+          onEvolveEnd={() => {
+            setEvolving(false);
+            setCosmicTime(timeRef.current);
+          }}
           mode={mode}
           collisionKey={collisionKey}
-          eggs={{ whale: whaleOn || isAnswerCatalog(current.catalog) }}
+          eggs={{ whale: whaleOn || isAnswerCatalog(current.catalog), tau: tauOn }}
           onVoyager={() => flashEgg(copy.eggs.voyager)}
+          onTau={armTau}
           className="absolute inset-0 z-0 h-full w-full"
           relaxed={tab !== "sky" || overlayOpen}
           wakeKey={wakeKey}
@@ -1172,16 +1193,12 @@ export function UniverseApp() {
               evaluation={ev}
               value={cosmicTime}
               evolving={evolving}
+              liveRef={timeRef}
               onChange={(t) => {
                 setEvolving(false);
                 setCosmicTime(t);
               }}
-              onToggleEvolve={() => {
-                setEvolving((on) => {
-                  if (!on) setCosmicTime((t) => (t >= 0.98 ? 0 : t));
-                  return !on;
-                });
-              }}
+              onToggleEvolve={toggleEvolve}
               onEggLight={() => flashEgg(copy.eggs.light)}
             />
           ) : (

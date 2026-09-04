@@ -214,6 +214,7 @@ export type Copy = {
     voyager: string;
     thought: string;
     dot: string;
+    tau: string;
   };
   thisIsOurs: string;
   compareTitle: string;
@@ -702,6 +703,7 @@ const en: Copy = {
     voyager: "You spun a full turn. A golden record, if anyone is still listening.",
     thought: "Deep Thought. The answer was 42. This is that sky.",
     dot: "A pale blue pixel. That’s us — if these constants are our universe.",
+    tau: "Tau Ceti is twelve light-years out — a quiet G star with dusty worlds. Nobody has answered. Vysotsky’s song is a homology, not a census: if anyone lives there, they may not share our alphabet, our humour, or our way of becoming more.",
   },
   thisIsOurs: "These constants match our universe — ΛCDM, as we measure it.",
   compareTitle: "Versus our universe",
@@ -1452,6 +1454,7 @@ const ru: Copy = {
     voyager: "Полный оборот неба. Золотая пластинка, если кто-то ещё слушает.",
     thought: "Deep Thought. Ответ был 42. Это то небо.",
     dot: "Бледная голубая точка. Это мы — если константы наши.",
+    tau: "Тау Кита — двенадцать световых лет, тихая G-звезда с пыльными мирами. Никто не ответил. Песня Высоцкого — гомология, не перепись: если там есть разум, алфавит, юмор и способ продолжаться могут быть не нашими.",
   },
   thisIsOurs: "Эти константы совпадают с нашей вселенной — ΛCDM, как мы её измеряем.",
   compareTitle: "Против нашей вселенной",

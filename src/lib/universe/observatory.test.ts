@@ -5,6 +5,7 @@ import {
   cosmicAgeGyr,
   epochAt,
   epochBlend,
+  EVOLVE_RATE,
   evolveStar,
   galaxyVisibility,
   nowMarker,
@@ -12,6 +13,7 @@ import {
   samplePopulation,
   scaleFactor,
   starLifetimeGyr,
+  stepCosmicTime,
 } from "./observatory.ts";
 import {
   DESERT_EPOCH,
@@ -112,6 +114,21 @@ describe("cosmic clock", () => {
     const b = galaxyVisibility(0.72, ev);
     assert.ok(Math.abs(a - b) < 0.2);
     assert.equal(galaxyVisibility(0.05, ev), 0);
+  });
+
+  it("advances from a single rAF step and latches at heat death", () => {
+    const a = stepCosmicTime(0.5, 1 / 60);
+    assert.equal(a.done, false);
+    assert.ok(a.t > 0.5 && a.t < 0.502);
+    assert.ok(Math.abs(a.t - (0.5 + (1 / 60) * EVOLVE_RATE)) < 1e-12);
+
+    const end = stepCosmicTime(0.999, 1);
+    assert.equal(end.t, 1);
+    assert.equal(end.done, true);
+
+    const cap = stepCosmicTime(0, 10);
+    assert.equal(cap.done, false);
+    assert.ok(Math.abs(cap.t - 0.05 * EVOLVE_RATE) < 1e-12);
   });
 
   it("puts our 'now' in the stellar era with CMB near 2.7 K", () => {

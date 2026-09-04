@@ -18,11 +18,15 @@ export type EggKind =
   | "light"
   | "voyager"
   | "thought"
-  | "dot";
+  | "dot"
+  | "tau";
 
 export type EggFlags = {
   whale: boolean;
+  tau: boolean;
 };
+
+export const QUIET_EGGS: EggFlags = { whale: false, tau: false };
 
 export function sliderEgg(params: UniverseParams): "nothing" | "overcooked" | null {
   let lo = 0;
@@ -46,6 +50,7 @@ export function sliderEgg(params: UniverseParams): "nothing" | "overcooked" | nu
  *
  * 042 — the answer (loads Deep Thought / catalog 42)
  * twl — towel (letters that don't steal birth/survey/evolve)
+ * tau / кита — Tau Ceti (Vysotsky homology; not a detection)
  * ↑↑↓↓←→←→ — don't panic
  */
 export function noteEggKey(
@@ -64,6 +69,7 @@ export function noteEggKey(
   const next = (buf + ch).slice(-16);
   if (next.endsWith("042")) return { buf: "", hit: "answer" };
   if (next.endsWith("twl")) return { buf: "", hit: "towel" };
+  if (next.endsWith("tau") || next.endsWith("кита")) return { buf: "", hit: "tau" };
   if (next.endsWith("uuddlrlr")) return { buf: "", hit: "panic" };
   return { buf: next, hit: null };
 }

@@ -1,5 +1,5 @@
 import { Pause, Play } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Slider } from "@/components/ui/slider";
 import { formatGyr } from "@/lib/universe/format";
 import { haptic } from "@/lib/universe/haptic";
@@ -19,6 +19,7 @@ type Props = {
   evaluation: Evaluation;
   value: number;
   evolving: boolean;
+  liveRef?: { current: number };
   onChange: (t: number) => void;
   onToggleEvolve: () => void;
   onEggLight?: () => void;
@@ -32,14 +33,28 @@ export function CosmicClock({
   evaluation,
   value,
   evolving,
+  liveRef,
   onChange,
   onToggleEvolve,
   onEggLight,
 }: Props) {
-  const blend = epochBlend(value);
+  const [live, setLive] = useState(value);
+  useEffect(() => {
+    if (!evolving || !liveRef) {
+      setLive(value);
+      return;
+    }
+    setLive(liveRef.current);
+    const id = window.setInterval(() => {
+      setLive(liveRef.current);
+    }, 64);
+    return () => window.clearInterval(id);
+  }, [evolving, liveRef, value]);
+  const shown = evolving ? live : value;
+  const blend = epochBlend(shown);
   const epoch = blend.mix >= 0.5 ? blend.to : blend.from;
   const now = nowMarker(params, evaluation);
-  const age = cosmicAgeGyr(value, params, evaluation);
+  const age = cosmicAgeGyr(shown, params, evaluation);
   const lastJump = useRef<(typeof JUMPS)[number] | null>(null);
 
   return (
@@ -85,7 +100,7 @@ export function CosmicClock({
               min={0}
               max={1}
               step={0.002}
-              value={[value]}
+              value={[shown]}
               marker={now}
               onValueChange={([v]) => {
                 if (typeof v !== "number") return;

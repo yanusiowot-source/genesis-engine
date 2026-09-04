@@ -48,6 +48,9 @@ describe("copyFor", () => {
     const c = copyFor("en");
     assert.equal(c.birth, "Birth a universe");
     assert.equal(c.tabs.sky, "Sky");
+    assert.match(c.eggs.tau, /homology/);
+    assert.match(copyFor("ru").eggs.tau, /гомологи/);
+    assert.match(copyFor("be").eggs.tau, /гамалог/);
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {

@@ -15,20 +15,25 @@ import {
   evolveStar,
   galaxyVisibility,
   lensDeflect,
+  stepCosmicTime,
 } from "@/lib/universe/observatory";
 import type { Evaluation, SkyMode, UniverseParams } from "@/lib/universe/types";
 import { isOurParams } from "@/lib/universe/physics";
-import type { EggFlags } from "@/lib/universe/eggs";
+import { QUIET_EGGS, type EggFlags } from "@/lib/universe/eggs";
 
 type Props = {
   params: UniverseParams;
   evaluation: Evaluation;
   visualSeed: number;
   cosmicTime: number;
+  timeRef?: { current: number };
+  evolving?: boolean;
+  onEvolveEnd?: () => void;
   mode: SkyMode;
   collisionKey: number;
   eggs?: EggFlags;
   onVoyager?: () => void;
+  onTau?: () => void;
   className?: string;
   relaxed?: boolean;
   wakeKey?: number;
@@ -39,10 +44,14 @@ export function GalaxyCanvas({
   evaluation,
   visualSeed,
   cosmicTime,
+  timeRef,
+  evolving,
+  onEvolveEnd,
   mode,
   collisionKey,
   eggs,
   onVoyager,
+  onTau,
   className,
   relaxed,
   wakeKey,
@@ -50,24 +59,32 @@ export function GalaxyCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const modelRef = useRef<GalaxyModel | null>(null);
   const cosmicRef = useRef(cosmicTime);
+  const timeLiveRef = useRef(timeRef);
+  const evolvingRef = useRef(!!evolving);
+  const onEvolveEndRef = useRef(onEvolveEnd);
   const modeRef = useRef(mode);
   const paramsRef = useRef(params);
   const evRef = useRef(evaluation);
   const collisionKeyRef = useRef(collisionKey);
   const seedRef = useRef(visualSeed);
-  const eggsRef = useRef<EggFlags>(eggs ?? { whale: false });
+  const eggsRef = useRef<EggFlags>(eggs ?? QUIET_EGGS);
   const voyagerRef = useRef(onVoyager);
+  const tauRef = useRef(onTau);
   const relaxedRef = useRef(!!relaxed);
   const wakeRef = useRef(wakeKey ?? 0);
   const builtSeed = useRef<number | null>(null);
-  cosmicRef.current = cosmicTime;
+  timeLiveRef.current = timeRef;
+  evolvingRef.current = !!evolving;
+  onEvolveEndRef.current = onEvolveEnd;
+  if (!timeRef) cosmicRef.current = cosmicTime;
   modeRef.current = mode;
   paramsRef.current = params;
   evRef.current = evaluation;
   collisionKeyRef.current = collisionKey;
   seedRef.current = visualSeed;
-  eggsRef.current = eggs ?? { whale: false };
+  eggsRef.current = eggs ?? QUIET_EGGS;
   voyagerRef.current = onVoyager;
+  tauRef.current = onTau;
   relaxedRef.current = !!relaxed;
   wakeRef.current = wakeKey ?? 0;
 
@@ -113,6 +130,10 @@ export function GalaxyCanvas({
     let dragging = false;
     let lastX = 0;
     let lastY = 0;
+    let downX = 0;
+    let downY = 0;
+    let dragTravel = 0;
+    const tauHit = { x: 0, y: 0, r: 0, live: false };
     let hidden = typeof document !== "undefined" && document.hidden;
     let flash = 0;
     let lastSeed = seedRef.current;
@@ -152,12 +173,16 @@ export function GalaxyCanvas({
       dragging = true;
       lastX = event.clientX;
       lastY = event.clientY;
+      downX = event.clientX;
+      downY = event.clientY;
+      dragTravel = 0;
       canvas.setPointerCapture(event.pointerId);
     };
     const onMove = (event: PointerEvent) => {
       if (!dragging) return;
       const dx = event.clientX - lastX;
       const dy = event.clientY - lastY;
+      dragTravel += Math.hypot(dx, dy);
       vYaw = -dx * 0.0045;
       vPitch = dy * 0.0032;
       yaw += vYaw;
@@ -165,8 +190,24 @@ export function GalaxyCanvas({
       lastX = event.clientX;
       lastY = event.clientY;
     };
-    const onUp = () => {
+    const onUp = (event: PointerEvent) => {
+      if (
+        !dragging &&
+        modeRef.current !== "planetarium"
+      ) {
+        return;
+      }
+      const tap =
+        dragTravel < 10 &&
+        Math.hypot((event.clientX ?? downX) - downX, (event.clientY ?? downY) - downY) < 14;
       dragging = false;
+      if (!tap || !tauHit.live) return;
+      const rect = canvas.getBoundingClientRect();
+      const px = (event.clientX ?? downX) - rect.left;
+      const py = (event.clientY ?? downY) - rect.top;
+      if (Math.hypot(px - tauHit.x, py - tauHit.y) <= tauHit.r) {
+        tauRef.current?.();
+      }
     };
     canvas.addEventListener("pointerdown", onDown);
     canvas.addEventListener("pointermove", onMove);
@@ -439,6 +480,16 @@ export function GalaxyCanvas({
         ctx.beginPath();
         ctx.arc(x, y, 4.5, 0, Math.PI * 2);
         ctx.fill();
+        const tx = x + 16;
+        const ty = y - 22;
+        const hot = eggsRef.current.tau;
+        drawTauBeacon(tx, ty, time, hot, "right");
+        tauHit.x = tx;
+        tauHit.y = ty;
+        tauHit.r = 28;
+        tauHit.live = true;
+      } else if (eggsRef.current.tau) {
+        drawTauBeacon(cx + scale * 0.16, h * 0.56, time, true, "right");
       }
 
       if (yawTravel > Math.PI * 2) {
@@ -602,6 +653,46 @@ export function GalaxyCanvas({
       g.restore();
     };
 
+    const drawTauBeacon = (x: number, y: number, time: number, hot: boolean, label: "left" | "right") => {
+      const flicker = reduced ? 1 : 0.55 + 0.45 * Math.abs(Math.sin(time * 1.65));
+      const rgb = "255,210,168";
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      ctx.fillStyle = `rgba(${rgb},${hot ? 0.55 + 0.35 * flicker : 0.28})`;
+      ctx.beginPath();
+      ctx.arc(x, y, hot ? 2.4 : 1.7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = `rgba(${rgb},${hot ? 0.22 * flicker : 0.12})`;
+      ctx.beginPath();
+      ctx.arc(x, y, hot ? 7.5 : 5, 0, Math.PI * 2);
+      ctx.fill();
+      if (hot) {
+        for (let i = 0; i < 3; i++) {
+          const span = 56;
+          const r = 10 + ((time * 26 + i * 18) % span);
+          const a = (1 - r / (span + 8)) * 0.42 * flicker;
+          ctx.strokeStyle = `rgba(${rgb},${a})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+        ctx.save();
+        ctx.font = "600 10px ui-monospace, SFMono-Regular, Menlo, monospace";
+        ctx.fillStyle = `rgba(${rgb},${0.55 + 0.35 * flicker})`;
+        ctx.textBaseline = "middle";
+        if (label === "left") {
+          ctx.textAlign = "right";
+          ctx.fillText("τ Cet", x - 12, y);
+        } else {
+          ctx.textAlign = "left";
+          ctx.fillText("τ Cet", x + 12, y);
+        }
+      }
+      ctx.restore();
+    };
+
     const draw = (t: number) => {
       if (!running) return;
       if (hidden) return;
@@ -616,6 +707,17 @@ export function GalaxyCanvas({
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
       lastT = t;
       if (!model) return;
+      tauHit.live = false;
+
+      const clock = timeLiveRef.current ?? cosmicRef;
+      if (evolvingRef.current && !reduced) {
+        const stepped = stepCosmicTime(clock.current, dt);
+        clock.current = stepped.t;
+        if (stepped.done) {
+          evolvingRef.current = false;
+          onEvolveEndRef.current?.();
+        }
+      }
 
       if (seedRef.current !== lastSeed) {
         lastSeed = seedRef.current;
@@ -652,7 +754,7 @@ export function GalaxyCanvas({
       const scale = Math.min(w, h) * 0.46;
       if (!Number.isFinite(scale) || scale <= 0) return;
       const time = reduced ? 0 : t / 1000;
-      const targetT = cosmicRef.current;
+      const targetT = (timeLiveRef.current ?? cosmicRef).current;
       if (reduced) visualT = targetT;
       else visualT += (targetT - visualT) * (1 - Math.exp(-5.5 * dt));
       const ev = evRef.current;
@@ -834,11 +936,21 @@ export function GalaxyCanvas({
           : `rgba(255, 214, 150, ${flash * 0.3})`;
         ctx.fillRect(0, 0, w, h);
       }
+
+      tauHit.live = skyMode === "planetarium" && tauHit.live;
+      if (eggsRef.current.tau && skyMode !== "planetarium") {
+        const bx = w * 0.78;
+        const by = Math.min(h * 0.3, h * 0.22 + 48);
+        drawTauBeacon(bx, by, time, true, "left");
+      }
+
       idlePaint =
         skyMode !== "planetarium" &&
         (skyMode !== "collision" || collisionT >= 0.999) &&
         !dragging &&
         flash < 0.02 &&
+        !eggsRef.current.tau &&
+        !evolvingRef.current &&
         Math.abs(visualT - targetT) < 0.0008;
       } catch {
         /* one bad frame must not kill the sky */

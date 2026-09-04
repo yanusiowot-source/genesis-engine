@@ -1,9 +1,37 @@
 @import "tailwindcss";
 
+/* Metric-matched local faces so first paint does not jump if Google is late or offline. */
+@font-face {
+  font-family: "Figtree Fallback";
+  src: local("Arial"), local("Helvetica");
+  size-adjust: 100.72%;
+  ascent-override: 94.32%;
+  descent-override: 24.82%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Newsreader Fallback";
+  src: local("Times New Roman"), local("Times");
+  size-adjust: 105.48%;
+  ascent-override: 69.68%;
+  descent-override: 25.12%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "IBM Plex Mono Fallback";
+  src: local("Courier New"), local("Courier");
+  size-adjust: 100%;
+  ascent-override: 102.5%;
+  descent-override: 27.5%;
+  line-gap-override: 0%;
+}
+
 @theme {
-  --font-display: "Newsreader", "Times New Roman", serif;
-  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-display: "Newsreader", "Newsreader Fallback", "Times New Roman", serif;
+  --font-sans: "Figtree", "Figtree Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   --color-bg: #09061a;
   --color-bg-elevated: #16112a;
@@ -64,6 +92,13 @@
     min-height: 100dvh;
     font-family: var(--font-sans);
     touch-action: manipulation;
+  }
+
+  /* First paint uses the system stack; webfonts swap in without blocking. */
+  @media (scripting: enabled) {
+    html {
+      font-synthesis: none;
+    }
   }
 
   html[data-type="sm"] {

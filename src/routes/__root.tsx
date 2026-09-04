@@ -5,6 +5,9 @@ import appCss from "../styles.css?url";
 
 const APP_NAME = "Genesis Engine";
 
+const FONT_HREF =
+  "https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=optional";
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -31,10 +34,7 @@ export const Route = createRootRoute({
       { rel: "apple-touch-icon", href: "/icon-180.png" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap",
-      },
+      { rel: "preload", as: "style", href: FONT_HREF },
     ],
   }),
   component: RootDocument,
@@ -47,6 +47,11 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(()=>{var h=${JSON.stringify(FONT_HREF)};var l=document.createElement("link");l.rel="stylesheet";l.href=h;l.media="print";l.onload=function(){this.media="all"};document.head.appendChild(l);})();`,
+          }}
+        />
         <PreviewHostBridge />
         <AuthProvider>
           <Outlet />

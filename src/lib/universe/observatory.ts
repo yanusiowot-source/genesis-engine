@@ -107,6 +107,20 @@ export function nowMarker(params: UniverseParams, ev: Evaluation): number {
   return clamp(0.42 + 0.28 * clamp(age / (span + 8), 0, 1), 0.42, 0.7);
 }
 
+/** Wall-clock rate while evolving. A full 0→1 sweep takes ~15 s. */
+export const EVOLVE_RATE = 0.065;
+
+/** One display-frame of cosmic time. Canvas rAF is the only caller. */
+export function stepCosmicTime(
+  t: number,
+  dt: number,
+  rate = EVOLVE_RATE,
+): { t: number; done: boolean } {
+  const next = t + Math.min(0.05, Math.max(0, dt)) * rate;
+  if (next >= 1) return { t: 1, done: true };
+  return { t: next, done: false };
+}
+
 export function galaxyVisibility(t: number, ev: Evaluation): number {
   const blend = epochBlend(t);
   if (blend.mix <= 0 || blend.from === blend.to) return visForEpoch(blend.from, ev);

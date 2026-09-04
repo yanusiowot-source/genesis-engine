@@ -96,5 +96,20 @@ describe("noteEggKey", () => {
       hit = next.hit;
     }
     assert.equal(hit, "panic");
+    buf = "";
+    for (const k of ["t", "a", "u"]) {
+      const next = noteEggKey(buf, k);
+      buf = next.buf;
+      hit = next.hit;
+    }
+    assert.equal(hit, "tau");
+    buf = "";
+    hit = null;
+    for (const k of ["к", "и", "т", "а"]) {
+      const next = noteEggKey(buf, k);
+      buf = next.buf;
+      hit = next.hit;
+    }
+    assert.equal(hit, "tau");
   });
 });
