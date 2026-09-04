@@ -51,9 +51,11 @@ describe("copyFor", () => {
     assert.match(c.eggs.tau, /homology/);
     assert.match(c.studioHonesty, /not for sale/);
     assert.match(c.studioFreeBody, /No ads/);
-    assert.match(c.studioKeepBody, /desktop/i);
+    assert.match(c.studioFreeBody, /No subscription/);
+    assert.match(c.studioKeepBody, /offline/i);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
     assert.match(copyFor("ru").studioHonesty, /не прода/);
+    assert.match(copyFor("ru").studioKeepBody, /без сети/);
     assert.match(copyFor("be").eggs.tau, /гамалог/);
     assert.match(copyFor("be").studioHonesty, /не прада/);
   });
