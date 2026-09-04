@@ -72,6 +72,7 @@ import {
   releaseAudio,
   pingEgg,
   pingSignal,
+  pingBirth,
   type MusicSource,
 } from "@/lib/universe/audio";
 import { chronicleUniverse } from "@/lib/universe/chronicle";
@@ -181,6 +182,8 @@ export function UniverseApp() {
   const [copied, setCopied] = useState(false);
   const [shared, setShared] = useState(false);
   const [egg, setEgg] = useState<string | null>(null);
+  const [birthFlash, setBirthFlash] = useState(false);
+  const [creationLine, setCreationLine] = useState<string | null>(null);
   const [whaleOn, setWhaleOn] = useState(false);
   const [tauOn, setTauOn] = useState(false);
   const kickerTaps = useRef(0);
@@ -190,6 +193,8 @@ export function UniverseApp() {
   const eternalTaps = useRef(0);
   const eggTimer = useRef(0);
   const tauTimer = useRef(0);
+  const birthFlashTimer = useRef(0);
+  const creationTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const dotHinted = useRef(false);
@@ -408,6 +413,26 @@ export function UniverseApp() {
     flashEgg(copy.eggs.thought);
   }, [copy.eggs.thought, flashEgg, remember]);
 
+  const witnessBirth = useCallback(
+    (record: UniverseRecord) => {
+      const fate = record.evaluation.fate;
+      const good = fate === "habitable" || fate === "teeming" || fate === "enduring";
+      const line = good ? copy.birthGood : copy.birthWitness;
+      setCreationLine(line);
+      try {
+        pingBirth();
+      } catch {
+        /* a missed chord is not a missed sky */
+      }
+      setBirthFlash(true);
+      window.clearTimeout(birthFlashTimer.current);
+      window.clearTimeout(creationTimer.current);
+      birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 900);
+      creationTimer.current = window.setTimeout(() => setCreationLine(null), good ? 6400 : 4200);
+    },
+    [copy.birthGood, copy.birthWitness],
+  );
+
   const setParams = useCallback((key: ParamKey, value: number) => {
     setCurrent((prev) => {
       const params = { ...prev.params, [key]: value };
@@ -417,7 +442,7 @@ export function UniverseApp() {
   }, []);
 
   const birth = useCallback(() => {
-    haptic(8);
+    haptic(12);
     const seed = randomSeed();
     const record = makeRecord(randomParams(mulberry32(seed)), seed);
     setCurrent(record);
@@ -425,7 +450,8 @@ export function UniverseApp() {
     setError(null);
     setTab("sky");
     nudgeSoundscape(record.params);
-  }, [remember]);
+    witnessBirth(record);
+  }, [remember, witnessBirth]);
 
   const resetOurs = useCallback(() => {
     haptic(8);
@@ -1054,6 +1080,17 @@ export function UniverseApp() {
           relaxed={tab !== "sky" || overlayOpen}
           wakeKey={wakeKey}
         />
+        {birthFlash ? (
+          <div aria-hidden className="birth-flash absolute inset-0 z-[1]" />
+        ) : null}
+        {creationLine ? (
+          <p
+            role="status"
+            className="birth-line pointer-events-none absolute inset-x-6 top-1/3 z-[2] text-center font-display text-2xl leading-tight tracking-[-0.03em] text-fg sm:text-4xl"
+          >
+            {creationLine}
+          </p>
+        ) : null}
         {hydrated && catalogOverlay && catalog && catalog.ok ? (
           <CatalogOverlay
             copy={copy}

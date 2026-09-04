@@ -207,6 +207,50 @@
     radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--color-accent) 14%, transparent), transparent 48%);
 }
 
+@keyframes birth-wash {
+  0% {
+    opacity: 0.82;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.birth-flash {
+  background:
+    radial-gradient(ellipse at 50% 38%, color-mix(in oklab, var(--color-accent) 46%, transparent), transparent 58%),
+    radial-gradient(ellipse at 50% 52%, color-mix(in oklab, var(--color-fg) 16%, transparent), transparent 72%);
+  animation: birth-wash 900ms var(--ease-out) forwards;
+}
+
+@keyframes birth-line-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--motion-y-medium));
+    filter: blur(var(--motion-blur-sm));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.birth-line {
+  text-shadow: 0 0 28px color-mix(in oklab, var(--color-accent) 40%, transparent);
+  animation: birth-line-in 500ms var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .birth-flash {
+    animation: none;
+    opacity: 0.22;
+  }
+  .birth-line {
+    animation: none;
+  }
+}
+
 .help-card {
   background: var(--color-bg-subtle);
 }

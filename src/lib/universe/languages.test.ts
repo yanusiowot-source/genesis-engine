@@ -48,6 +48,9 @@ describe("copyFor", () => {
   it("keeps English as the complete source", () => {
     const c = copyFor("en");
     assert.equal(c.birth, "Birth a universe");
+    assert.match(c.birthGood, /it was good/);
+    assert.match(copyFor("ru").birthGood, /хорошо/);
+    assert.match(copyFor("be").birthGood, /добра/);
     assert.equal(c.tabs.sky, "Sky");
     assert.match(c.eggs.tau, /homology/);
     assert.match(c.studioHonesty, /not for sale/);
