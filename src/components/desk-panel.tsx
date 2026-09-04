@@ -1,0 +1,484 @@
+import { FileOutput, Sigma } from "lucide-react";
+import { useMemo, useState } from "react";
+import { McmcView } from "@/components/mcmc-view";
+import { Button } from "@/components/ui/button";
+import type { BayesResult } from "@/lib/universe/bayes";
+import { intelligenceWindow } from "@/lib/universe/civilization";
+import { formatPct } from "@/lib/universe/format";
+import {
+  catalogImageFits,
+  catalogTableFits,
+  galaxyFits,
+  mcmcImageFits,
+  mcmcTableFits,
+} from "@/lib/universe/fits";
+import { haptic } from "@/lib/universe/haptic";
+import type { Copy, Locale } from "@/lib/universe/i18n";
+import { runMcmcAsync } from "@/lib/universe/law-client";
+import type { CatalogResult } from "@/lib/universe/mast";
+import type { McmcResult } from "@/lib/universe/mcmc";
+import { PARAM_META, siliconDossier } from "@/lib/universe/physics";
+import {
+  downloadBlob,
+  downloadBytes,
+  downloadDocx,
+  downloadPptx,
+} from "@/lib/universe/publish";
+import { buildFieldReport, reportFilename } from "@/lib/universe/report";
+import type { ExpeditionResult, ResearchTarget } from "@/lib/universe/research";
+import { randomSeed } from "@/lib/universe/rng";
+import type { DiscoveryResult } from "@/lib/universe/symbolic";
+import type { UniverseParams, UniverseRecord } from "@/lib/universe/types";
+import {
+  catalogVotable,
+  mcmcVotable,
+  universeVotable,
+} from "@/lib/universe/votable";
+import {
+  SKY_CLASSES,
+  goldClass,
+  rankedVotes,
+  recordVote,
+  zooniverseClassificationsCsv,
+  zooniverseSubjectsCsv,
+  type SkyClass,
+  type SkyVote,
+} from "@/lib/universe/zooniverse";
+import { cn } from "@/lib/utils";
+
+type Props = {
+  copy: Copy;
+  locale: Locale;
+  record: UniverseRecord;
+  target: ResearchTarget;
+  result: McmcResult | null;
+  catalog: CatalogResult | null;
+  expedition: ExpeditionResult | null;
+  law: DiscoveryResult | null;
+  bayes: BayesResult | null;
+  votes: SkyVote[];
+  onVotes: (votes: SkyVote[]) => void;
+  onResult: (result: McmcResult) => void;
+  onApply: (params: UniverseParams, visualSeed: number) => void;
+};
+
+export function DeskPanel({
+  copy,
+  locale,
+  record,
+  target,
+  result,
+  catalog,
+  expedition,
+  law,
+  bayes,
+  votes,
+  onVotes,
+  onResult,
+  onApply,
+}: Props) {
+  const [busy, setBusy] = useState(false);
+  const [saved, setSaved] = useState<string | null>(null);
+  const [klass, setKlass] = useState<SkyClass>("habitable");
+  const [rating, setRating] = useState(3);
+  const silicon = useMemo(
+    () => siliconDossier(record.params, record.evaluation),
+    [record.params, record.evaluation],
+  );
+  const civ = useMemo(
+    () => intelligenceWindow(record.params, record.evaluation),
+    [record.params, record.evaluation],
+  );
+  const reportArgs = {
+    record,
+    locale,
+    copy,
+    silicon,
+    civ,
+    expedition,
+    law,
+    bayes,
+    mcmc: result,
+  };
+  const existing = votes.find((v) => v.catalog === record.catalog);
+  const board = rankedVotes(votes);
+
+  const flash = (id: string) => {
+    setSaved(id);
+    window.setTimeout(() => setSaved(null), 1200);
+  };
+
+  const run = async () => {
+    if (busy) return;
+    haptic(12);
+    setBusy(true);
+    try {
+      onResult(await runMcmcAsync(randomSeed(), record.params, target));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const okCatalog = catalog && catalog.ok ? catalog : null;
+
+  return (
+    <section className="flex flex-col gap-5">
+      <div>
+        <h3 className="text-sm font-medium">{copy.desk.title}</h3>
+        <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.desk.hint}</p>
+      </div>
+
+      <div>
+        <h4 className="text-sm font-medium">{copy.desk.mcmc}</h4>
+        <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.desk.mcmcHint}</p>
+        <Button className="mt-3 w-full" onClick={() => void run()} disabled={busy}>
+          <Sigma />
+          {busy ? copy.desk.running : copy.desk.run}
+        </Button>
+        {result ? (
+          <McmcBlock copy={copy} result={result} visualSeed={record.visualSeed} onApply={onApply} />
+        ) : (
+          <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.desk.empty}</p>
+        )}
+      </div>
+
+      <div className="h-px bg-border" />
+
+      <div>
+        <h4 className="text-sm font-medium">{copy.desk.exportTitle}</h4>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <ExportBtn
+            label={copy.desk.fitsGalaxy}
+            saved={saved === "fg"}
+            copy={copy}
+            onClick={() => {
+              downloadBytes(`genesis-${record.catalog.toLowerCase()}-disk.fits`, galaxyFits(record), "application/fits");
+              flash("fg");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.votable}
+            saved={saved === "vu"}
+            copy={copy}
+            onClick={() => {
+              downloadBlob(
+                `genesis-${record.catalog.toLowerCase()}.xml`,
+                new Blob([universeVotable(record)], { type: "application/x-votable+xml" }),
+              );
+              flash("vu");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.fitsMcmc}
+            saved={saved === "fm"}
+            copy={copy}
+            disabled={!result}
+            title={!result ? copy.desk.needChain : undefined}
+            onClick={() => {
+              if (!result) return;
+              downloadBytes(
+                `genesis-${record.catalog.toLowerCase()}-mcmc.fits`,
+                mcmcTableFits(result),
+                "application/fits",
+              );
+              downloadBytes(
+                `genesis-${record.catalog.toLowerCase()}-posterior.fits`,
+                mcmcImageFits(result),
+                "application/fits",
+              );
+              flash("fm");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.votableMcmc}
+            saved={saved === "vm"}
+            copy={copy}
+            disabled={!result}
+            title={!result ? copy.desk.needChain : undefined}
+            onClick={() => {
+              if (!result) return;
+              downloadBlob(
+                `genesis-${record.catalog.toLowerCase()}-chain.xml`,
+                new Blob([mcmcVotable(result)], { type: "application/x-votable+xml" }),
+              );
+              flash("vm");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.fitsCatalog}
+            saved={saved === "fc"}
+            copy={copy}
+            disabled={!okCatalog}
+            title={!okCatalog ? copy.desk.needCatalog : undefined}
+            onClick={() => {
+              if (!okCatalog) return;
+              downloadBytes(
+                `genesis-${record.catalog.toLowerCase()}-ps1.fits`,
+                catalogTableFits(okCatalog),
+                "application/fits",
+              );
+              downloadBytes(
+                `genesis-${record.catalog.toLowerCase()}-ps1-img.fits`,
+                catalogImageFits(okCatalog),
+                "application/fits",
+              );
+              flash("fc");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.votableCatalog}
+            saved={saved === "vc"}
+            copy={copy}
+            disabled={!okCatalog}
+            title={!okCatalog ? copy.desk.needCatalog : undefined}
+            onClick={() => {
+              if (!okCatalog) return;
+              downloadBlob(
+                `genesis-${record.catalog.toLowerCase()}-ps1.xml`,
+                new Blob([catalogVotable(okCatalog)], { type: "application/x-votable+xml" }),
+              );
+              flash("vc");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.markdown}
+            saved={saved === "md"}
+            copy={copy}
+            onClick={() => {
+              downloadBlob(
+                reportFilename(record),
+                new Blob([buildFieldReport(reportArgs)], { type: "text/markdown;charset=utf-8" }),
+              );
+              flash("md");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.docx}
+            saved={saved === "dx"}
+            copy={copy}
+            onClick={() => {
+              void downloadDocx(reportArgs).then(() => flash("dx"));
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.pptx}
+            saved={saved === "pp"}
+            copy={copy}
+            onClick={() => {
+              void downloadPptx(reportArgs).then(() => flash("pp"));
+            }}
+          />
+        </div>
+      </div>
+
+      <div className="h-px bg-border" />
+
+      <div>
+        <h4 className="text-sm font-medium">{copy.desk.citizen}</h4>
+        <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.desk.citizenHint}</p>
+        <p className="mt-2 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+          {copy.desk.classify}
+        </p>
+        <div className="mt-2 grid grid-cols-3 gap-1">
+          {SKY_CLASSES.map((id) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setKlass(id)}
+              className={cn(
+                "h-11 rounded-[var(--radius-xs)] px-1 text-[0.625rem] font-medium tracking-wide uppercase",
+                klass === id ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
+              )}
+            >
+              {copy.desk.classLabel[id]}
+            </button>
+          ))}
+        </div>
+        <p className="mt-3 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+          {copy.desk.rating}
+        </p>
+        <div className="mt-2 flex gap-1">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <button
+              key={n}
+              type="button"
+              aria-label={`${copy.desk.rating} ${n}`}
+              onClick={() => setRating(n)}
+              className={cn(
+                "h-11 flex-1 rounded-[var(--radius-xs)] font-mono text-sm tabular-nums",
+                n <= rating ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
+              )}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+        <Button
+          className="mt-3 w-full"
+          onClick={() => {
+            haptic(10);
+            onVotes(recordVote(record, klass, rating));
+          }}
+        >
+          {copy.desk.submit}
+        </Button>
+        {existing ? (
+          <p className="mt-2 text-pretty text-sm text-fg-muted">
+            {existing.match ? copy.desk.match : copy.desk.miss}
+            <span className="ml-2 font-mono text-xs text-fg-subtle uppercase">
+              {copy.desk.gold} {copy.desk.classLabel[goldClass(record.evaluation)]}
+            </span>
+          </p>
+        ) : null}
+      </div>
+
+      <div>
+        <div className="flex items-baseline justify-between gap-3">
+          <h4 className="text-sm font-medium">{copy.desk.board}</h4>
+          <p className="font-mono text-[0.6875rem] tabular-nums text-fg-subtle uppercase">
+            {copy.desk.points} {votes.reduce((s, v) => s + 3 + v.rating + (v.match ? 2 : 0), 0)}
+          </p>
+        </div>
+        <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-subtle">{copy.desk.local}</p>
+        {board.length === 0 ? (
+          <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.desk.emptyBoard}</p>
+        ) : (
+          <ol className="mt-3 flex flex-col gap-2">
+            {board.slice(0, 8).map((v, i) => (
+              <li key={v.catalog} className="flex items-baseline justify-between gap-3">
+                <span className="min-w-0 truncate text-sm text-fg">
+                  <span className="mr-2 font-mono text-[0.6875rem] text-fg-subtle">{i + 1}</span>
+                  {v.name}
+                </span>
+                <span className="shrink-0 font-mono text-[0.6875rem] tabular-nums text-fg-subtle uppercase">
+                  {copy.desk.classLabel[v.class]} · {v.rating} · {formatPct(v.lifeProb)}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <ExportBtn
+            label={copy.desk.zooniverse}
+            saved={saved === "z"}
+            copy={copy}
+            disabled={votes.length === 0}
+            onClick={() => {
+              downloadBlob(
+                "genesis-zooniverse-classifications.csv",
+                new Blob([zooniverseClassificationsCsv(votes)], { type: "text/csv;charset=utf-8" }),
+              );
+              flash("z");
+            }}
+          />
+          <ExportBtn
+            label={copy.desk.subjects}
+            saved={saved === "s"}
+            copy={copy}
+            disabled={votes.length === 0}
+            onClick={() => {
+              downloadBlob(
+                "genesis-zooniverse-subjects.csv",
+                new Blob([zooniverseSubjectsCsv(votes)], { type: "text/csv;charset=utf-8" }),
+              );
+              flash("s");
+            }}
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function McmcBlock({
+  copy,
+  result,
+  visualSeed,
+  onApply,
+}: {
+  copy: Copy;
+  result: McmcResult;
+  visualSeed: number;
+  onApply: (params: UniverseParams, visualSeed: number) => void;
+}) {
+  const rows = [
+    { k: copy.desk.accept, v: formatPct(result.acceptRate) },
+    { k: copy.desk.ess, v: result.ess.toFixed(0) },
+    { k: copy.desk.samples, v: String(result.samples.length) },
+    { k: copy.desk.map, v: formatPct(result.map.score) },
+  ];
+  return (
+    <div className="mt-4 flex flex-col gap-3">
+      <McmcView copy={copy} result={result} />
+      <PosteriorFlat result={result} />
+      <p className="font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+        {copy.desk.prior}
+      </p>
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+        {rows.map((s) => (
+          <div key={s.k} className="min-w-0">
+            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{s.k}</dt>
+            <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{s.v}</dd>
+          </div>
+        ))}
+      </dl>
+      <Button
+        variant="outline"
+        onClick={() => {
+          haptic(8);
+          onApply(result.map.params, visualSeed ^ 0x51c);
+        }}
+      >
+        {copy.desk.loadMap}
+      </Button>
+    </div>
+  );
+}
+
+function ExportBtn({
+  label,
+  saved,
+  copy,
+  onClick,
+  disabled,
+  title,
+}: {
+  label: string;
+  saved: boolean;
+  copy: Copy;
+  onClick: () => void;
+  disabled?: boolean;
+  title?: string;
+}) {
+  return (
+    <Button variant="outline" size="sm" className="h-11 w-full" disabled={disabled} title={title} onClick={onClick}>
+      <FileOutput />
+      {saved ? copy.desk.saved : label}
+    </Button>
+  );
+}
+
+function PosteriorFlat({ result }: { result: McmcResult }) {
+  const gMeta = PARAM_META.find((m) => m.key === "gravity")!;
+  const mMeta = PARAM_META.find((m) => m.key === "matter")!;
+  const lo = result.logLMin;
+  const span = Math.max(1e-6, result.logLMax - result.logLMin);
+  const w = 280;
+  const h = 96;
+  const step = Math.max(1, Math.floor(result.samples.length / 220));
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} className="h-24 w-full text-fg" role="img" aria-hidden>
+      <rect width={w} height={h} fill="transparent" />
+      {result.samples.map((s, i) => {
+        if (i % step !== 0) return null;
+        const x = ((s.params.gravity - gMeta.min) / (gMeta.max - gMeta.min)) * w;
+        const y = (1 - (s.params.matter - mMeta.min) / (mMeta.max - mMeta.min)) * h;
+        const t = (s.logL - lo) / span;
+        const r = Math.round(160 + (84 - 160) * t);
+        const g = Math.round(138 + (163 - 138) * t);
+        const b = Math.round(126 + (144 - 126) * t);
+        return <circle key={i} cx={x.toFixed(1)} cy={y.toFixed(1)} r="1.6" fill={`rgb(${r} ${g} ${b})`} />;
+      })}
+    </svg>
+  );
+}

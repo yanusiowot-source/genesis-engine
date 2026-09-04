@@ -1,0 +1,43 @@
+# dependencies
+node_modules/
+
+# secrets & local env
+.project_id
+.github_repo
+.env
+.env.*
+!.env.example
+
+# build / deploy
+dist/
+dist-desktop/
+desktop/www/
+desktop/.cache/
+.output/
+.nitro/
+.tanstack/
+.vercel/
+*.tsbuildinfo
+
+# sandbox (Grok Build contract — not part of the lab)
+AGENTS.md
+AGENTS.*.md
+.grok/*
+!.grok/app-env.json
+.claude/
+artifacts/
+attachments/
+screenshots/
+startup.sh
+
+# logs & OS
+*.log
+.DS_Store
+Thumbs.db
+coverage/
+.idea/
+.vscode/
+*.swp
+
+# optional local lock
+.node_modules.lock
