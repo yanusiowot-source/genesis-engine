@@ -7,7 +7,7 @@ import { orderCopyUrl } from "@/lib/universe/studio";
 
 const TITLE = "Genesis Engine — physics is not for sale";
 const DESCRIPTION =
-  "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live. The lab is free. Windows and Linux copies are ready.";
+  "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live. The lab is free. A Windows or Linux copy is one-time, 15 USDT.";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,

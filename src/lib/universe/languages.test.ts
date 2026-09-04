@@ -65,8 +65,10 @@ describe("copyFor", () => {
     assert.match(c.studioKeepBody, /Windows/);
     assert.match(c.studioKeepBody, /unsigned/i);
     assert.doesNotMatch(c.studioKeepBody, /is next/);
+    assert.doesNotMatch(c.studioKeepBody, /is ready/);
     assert.match(c.studioKeepBody, /15 USDT/);
     assert.match(c.studioSupportBody, /15 USDT/);
+    assert.doesNotMatch(c.studioSupportBody, /Linux now/);
     assert.match(c.studioReserveCta, /15 USDT/);
     assert.match(c.studioOrderText, /15 USDT/);
     assert.match(orderCopyUrl(c.studioOrderText), /messages\/compose/);
@@ -80,7 +82,8 @@ describe("copyFor", () => {
     assert.match(copyFor("ru").studioHonesty, /не прода/);
     assert.match(copyFor("be").eggs.tau, /гамалог/);
     assert.match(copyFor("be").studioHonesty, /не прада/);
-    assert.match(copyFor("ru").studioKeepBody, /уже есть/);
+    assert.doesNotMatch(copyFor("ru").studioKeepBody, /уже есть/);
+    assert.match(copyFor("ru").studioKeepBody, /разовая/);
     assert.match(copyFor("ru").studioKeepBody, /без сети/);
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /следующий шаг/);
     assert.match(copyFor("ru").studioKeepBody, /15 USDT/);
