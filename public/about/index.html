@@ -159,6 +159,62 @@
         font-size: 0.9375rem;
         text-wrap: pretty;
       }
+      .pay {
+        margin-top: 1.75rem;
+        display: grid;
+        gap: 0.65rem;
+      }
+      .pay p {
+        margin: 0;
+        font-size: 0.9375rem;
+        color: var(--muted);
+        text-wrap: pretty;
+      }
+      .rail {
+        background: var(--subtle);
+        border-radius: var(--radius);
+        padding: 1rem 1.05rem;
+        box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.16);
+      }
+      .rail h2 {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.6875rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin: 0;
+        font-weight: 500;
+      }
+      .rail code {
+        display: block;
+        margin-top: 0.45rem;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.75rem;
+        line-height: 1.45;
+        word-break: break-all;
+        color: var(--fg);
+      }
+        display: block;
+        margin-top: 0.45rem;
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.75rem;
+        line-height: 1.45;
+        word-break: break-all;
+        color: var(--fg);
+      }
+      .rail button {
+        margin-top: 0.7rem;
+        min-height: 2.5rem;
+        padding: 0.45rem 0.8rem;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--fg);
+        box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.16);
+        font: inherit;
+        font-size: 0.8125rem;
+        cursor: pointer;
+      }
       .ru {
         margin-top: 2rem;
         color: var(--muted);
@@ -224,7 +280,7 @@
         />
         <div class="actions">
           <a class="btn primary" href="../">Enter the laboratory</a>
-          <a class="btn ghost" href="https://x.com/messages/compose?recipient_id=1652518444795928590&text=Hello.%20I%20would%20like%20a%20Genesis%20Engine%20desktop%20copy%20for%20Windows%20or%20Linux.%2015%20USDT." rel="noopener noreferrer">Order a copy · 15 USDT</a>
+          <a class="btn ghost" href="https://x.com/messages/compose?recipient_id=1652518444795928590&text=Hello.%20Paid%2015%20USDT%20BEP20%20(or%20BTC)%20for%20a%20Genesis%20Engine%20desktop%20copy.%20Sending%20the%20tx." rel="noopener noreferrer">Write on X after you pay</a>
         </div>
         <ul>
           <li>
@@ -233,18 +289,51 @@
           </li>
           <li>
             <h2>Keep a copy</h2>
-            <p>A paid Windows or Linux copy is ready — a window, no browser, offline. macOS later. Not a lock on the sky. One-time, 15 USDT: write on X, I'll reply with a wallet. The build is unsigned; SmartScreen may warn.</p>
+            <p>A paid Windows or Linux copy is ready — a window, no browser, offline. macOS later. Not a lock on the sky. One-time, 15 USDT on BNB Smart Chain, or Bitcoin. Addresses below. Then write on X with the tx. The build is unsigned; SmartScreen may warn.</p>
           </li>
           <li>
             <h2>A copy you can take</h2>
-            <p>One-time, 15 USDT. Classrooms and planetariums write for a license. The lab on the web stays free.</p>
+            <p>One-time, 15 USDT (BEP20) or the same in Bitcoin. Classrooms and planetariums write for a license. The lab on the web stays free.</p>
           </li>
         </ul>
+        <div class="pay">
+          <p>Only BEP20 for USDT, Native Segwit for Bitcoin. Any other network burns the transfer.</p>
+          <div class="rail">
+            <h2>USDT · BEP20</h2>
+            <code id="pay-usdt">0xcfbf90866165174a66aa99bda14917cc67fffb50</code>
+            <button type="button" data-copy="pay-usdt">Copy address</button>
+          </div>
+          <div class="rail">
+            <h2>Bitcoin · Segwit</h2>
+            <code id="pay-btc">bc1qd6gnul7wjsq4yv78yt5gra82ywsslr6rtcw86v</code>
+            <button type="button" data-copy="pay-btc">Copy address</button>
+          </div>
+          <p>After you send, write on X with the transaction. That is how the zip finds you.</p>
+        </div>
         <p class="ru">
-          Физику не продаём. Лаборатория свободная. Копия для Windows и Linux — разово 15 USDT: напишите в X, пришлю кошелёк.
+          Физику не продаём. Лаборатория свободная. Копия — 15 USDT в сети BNB Smart Chain (BEP20) или Bitcoin. Потом напишите в X с транзакцией.
         </p>
         <footer>© 2026 Ян Ярошевич. All rights reserved. Not open source. Version 1.24</footer>
       </main>
     </div>
+    <script>
+      document.querySelectorAll("[data-copy]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-copy");
+          const text = document.getElementById(id)?.textContent?.trim();
+          if (!text) return;
+          try {
+            await navigator.clipboard.writeText(text);
+            const prev = btn.textContent;
+            btn.textContent = "Copied";
+            window.setTimeout(() => {
+              btn.textContent = prev;
+            }, 1600);
+          } catch {
+            /* clipboard may be blocked */
+          }
+        });
+      });
+    </script>
   </body>
 </html>

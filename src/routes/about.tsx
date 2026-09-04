@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PayRails } from "@/components/pay-rails";
 import { copyFor, detectLocale } from "@/lib/universe/i18n";
 import { orderCopyUrl } from "@/lib/universe/studio";
 
@@ -73,6 +74,9 @@ function AboutPage() {
             </li>
           ))}
         </ul>
+        <div className="mt-7">
+          <PayRails copy={copy} />
+        </div>
         <p className="mt-8 text-sm text-fg-subtle">{copy.sourceCode}</p>
         <p className="mt-1 font-mono text-[0.6875rem] text-fg-subtle">{copy.version}</p>
         <script

@@ -212,6 +212,9 @@ export type Copy = {
   studioEnterCta: string;
   studioReserveCta: string;
   studioOrderText: string;
+  payWarn: string;
+  payAfter: string;
+  payCopy: string;
   sourceCode: string;
   version: string;
   eggs: {
@@ -707,14 +710,17 @@ const en: Copy = {
   studioFreeTitle: "The lab stays free",
   studioFreeBody: "Sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal stays on this device.",
   studioKeepTitle: "Keep a copy",
-  studioKeepBody: "Install the free lab here. A paid Windows or Linux copy is ready — a window, no browser, offline. macOS later. Not a lock on the sky. One-time, 15 USDT: write on X, I'll reply with a wallet. The build is unsigned; SmartScreen may warn.",
+  studioKeepBody: "Install the free lab here. A paid Windows or Linux copy is ready — a window, no browser, offline. macOS later. Not a lock on the sky. One-time, 15 USDT on BNB Smart Chain, or Bitcoin. Addresses below. Then write on X with the tx. The build is unsigned; SmartScreen may warn.",
   studioSupportTitle: "A copy you can take",
-  studioSupportBody: "One-time, 15 USDT. Windows and Linux now. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
+  studioSupportBody: "One-time, 15 USDT (BEP20) or the same in Bitcoin. Windows and Linux now. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
   studioEnterCta: "Enter the laboratory",
   studioReserveCta: "Order a copy · 15 USDT",
-  studioOrderText: "Hello. I would like a Genesis Engine desktop copy for Windows or Linux. 15 USDT.",
+  studioOrderText: "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Sending the tx.",
+  payWarn: "Only BEP20 for USDT, Native Segwit for Bitcoin. Any other network burns the transfer.",
+  payAfter: "After you send, write on X with the transaction. That is how the zip finds you.",
+  payCopy: "Copy address",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
   eggs: {
@@ -1472,14 +1478,17 @@ const ru: Copy = {
   studioFreeTitle: "Лаборатория остаётся свободной",
   studioFreeBody: "Лепите, делайте обзор, выгружайте FITS и VOTable, гоняйте MCMC. Без рекламы. Без учётных записей. Без подписки. Журнал остаётся на этом устройстве.",
   studioKeepTitle: "Оставить у себя",
-  studioKeepBody: "Установите свободную лабораторию сюда. Платная копия для Windows и Linux уже есть — окно без браузера, без сети. macOS позже. Не замок на небе. Разово, 15 USDT: напишите в X, пришлю адрес кошелька. Сборка без подписи: SmartScreen может предупредить.",
+  studioKeepBody: "Установите свободную лабораторию сюда. Платная копия для Windows и Linux уже есть — окно без браузера, без сети. macOS позже. Не замок на небе. Разово, 15 USDT в сети BNB Smart Chain или Bitcoin. Адреса ниже. Потом напишите в X с транзакцией. Сборка без подписи: SmartScreen может предупредить.",
   studioSupportTitle: "Копия, которую можно унести",
-  studioSupportBody: "Разовая, 15 USDT. Windows и Linux сейчас. macOS позже. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
+  studioSupportBody: "Разовая, 15 USDT (BEP20) или столько же в Bitcoin. Windows и Linux сейчас. macOS позже. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
   studioFollowCta: "Заметки автора в X",
   studioPublicCta: "Открыть публичную лабораторию",
   studioEnterCta: "Войти в лабораторию",
   studioReserveCta: "Забрать копию · 15 USDT",
-  studioOrderText: "Здравствуйте. Хочу забрать настольную копию Genesis Engine (Windows или Linux). 15 USDT.",
+  studioOrderText: "Здравствуйте. Оплатил 15 USDT BEP20 (или BTC) за настольную копию Genesis Engine. Присылаю транзакцию.",
+  payWarn: "Только BEP20 для USDT и Native Segwit для Bitcoin. Другая сеть — перевод сгорит.",
+  payAfter: "После перевода напишите в X с транзакцией. Так zip найдёт вас.",
+  payCopy: "Скопировать адрес",
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
   version: "Версия 1.24",
   eggs: {

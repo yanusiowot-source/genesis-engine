@@ -3,6 +3,7 @@ import { Check, CircleHelp, Download, ExternalLink, Info, Music, RotateCcw, Tras
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { LanguagePicker } from "@/components/language-picker";
+import { PayRails } from "@/components/pay-rails";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import type { MusicSource } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
@@ -337,6 +338,9 @@ export function SettingsSheet({
               </li>
             ))}
           </ul>
+          <div className="mt-4">
+            <PayRails copy={copy} />
+          </div>
           <Button asChild className="mt-4 w-full">
             <a href={orderCopyUrl(copy.studioOrderText)} target="_blank" rel="noopener noreferrer">
               <ExternalLink />

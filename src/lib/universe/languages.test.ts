@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { mergeCopy } from "./copy-merge.ts";
 import { copyFor } from "./i18n.ts";
-import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY } from "./studio.ts";
+import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -99,6 +99,10 @@ describe("copyFor", () => {
     assert.match(PUBLIC_ABOUT_URL, /\/about\/$/);
     assert.equal(COPY_PRICE, "15");
     assert.equal(COPY_CURRENCY, "USDT");
+    assert.match(PAY_USDT_BEP20, /^0xcfbf/);
+    assert.doesNotMatch(PAY_USDT_BEP20, /55d39832/i);
+    assert.match(PAY_BTC, /^bc1q/);
+    assert.match(copyFor("en").payWarn, /BEP20/);
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {
