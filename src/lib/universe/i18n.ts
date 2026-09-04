@@ -36,6 +36,8 @@ export type Copy = {
   kicker: string;
   appName: string;
   birth: string;
+  birthWitness: string;
+  birthGood: string;
   survey: string;
   ours: string;
   fate: string;
@@ -450,6 +452,8 @@ const en: Copy = {
   kicker: "Cosmological laboratory",
   appName: "Genesis Engine",
   birth: "Birth a universe",
+  birthWitness: "A new sky. Most of them stay empty. That is allowed.",
+  birthGood: "And I saw that it was good.",
   survey: "Survey 64",
   ours: "Our universe",
   fate: "Fate",
@@ -1210,6 +1214,8 @@ const ru: Copy = {
   kicker: "Космологическая лаборатория",
   appName: "Genesis Engine",
   birth: "Родить вселенную",
+  birthWitness: "Новое небо. Большинство остаются пустыми. Так можно.",
+  birthGood: "И увидел я, что это хорошо.",
   survey: "Обзор 64",
   ours: "Наша вселенная",
   fate: "Судьба",

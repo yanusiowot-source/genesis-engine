@@ -723,3 +723,31 @@ export function pingSignal(): void {
     /* a missed chirp is not a missed joke */
   }
 }
+
+/** Soft Dorian triad on birth. No-op if the sky is muted. */
+export function pingBirth(): void {
+  if (!enabled) return;
+  const audio = ensureCtx();
+  if (!audio || audio.state !== "running") return;
+  try {
+    const t = audio.currentTime;
+    const triad = [146.83, 174.61, 220];
+    triad.forEach((hz, i) => {
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(hz, t);
+      const peak = 0.012 - i * 0.002;
+      const start = t + i * 0.05;
+      gain.gain.setValueAtTime(0.0008, start);
+      gain.gain.linearRampToValueAtTime(peak, start + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0008, start + 0.62);
+      osc.connect(gain);
+      gain.connect(audio.destination);
+      osc.start(start);
+      osc.stop(start + 0.66);
+    });
+  } catch {
+    /* a missed chord is not a missed sky */
+  }
+}
