@@ -3,6 +3,9 @@ export const PUBLIC_LAB_URL = "https://yanusiowot-source.github.io/genesis-lab/"
 export const PUBLIC_ABOUT_URL = `${PUBLIC_LAB_URL}about/`;
 export const AUTHOR_X_URL = "https://x.com/yanusio";
 export const AUTHOR_X_ID = "1652518444795928590";
+/** One-time desktop copy. Settled in USDT because card rails do not pay out to the author. */
+export const COPY_PRICE = "15";
+export const COPY_CURRENCY = "USDT";
 
 export function orderCopyUrl(text: string) {
   const q = new URLSearchParams({

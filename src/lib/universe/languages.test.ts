@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { mergeCopy } from "./copy-merge.ts";
 import { copyFor } from "./i18n.ts";
-import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL, orderCopyUrl } from "./studio.ts";
+import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -61,10 +61,10 @@ describe("copyFor", () => {
     assert.match(c.studioKeepBody, /Windows/);
     assert.match(c.studioKeepBody, /unsigned/i);
     assert.doesNotMatch(c.studioKeepBody, /is next/);
-    assert.match(c.studioSupportBody, /One-time/);
-    assert.match(c.studioSupportBody, /now/);
-    assert.match(c.studioReserveCta, /take a copy/);
-    assert.match(c.studioOrderText, /Windows/);
+    assert.match(c.studioKeepBody, /15 USDT/);
+    assert.match(c.studioSupportBody, /15 USDT/);
+    assert.match(c.studioReserveCta, /15 USDT/);
+    assert.match(c.studioOrderText, /15 USDT/);
     assert.match(orderCopyUrl(c.studioOrderText), /messages\/compose/);
     assert.match(orderCopyUrl(c.studioOrderText), /1652518444795928590/);
     assert.match(c.studioPublicCta, /public lab/);
@@ -74,14 +74,15 @@ describe("copyFor", () => {
     assert.match(c.platforms.windowsBody, /SmartScreen/);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
     assert.match(copyFor("ru").studioHonesty, /не прода/);
+    assert.match(copyFor("be").eggs.tau, /гамалог/);
+    assert.match(copyFor("be").studioHonesty, /не прада/);
     assert.match(copyFor("ru").studioKeepBody, /уже есть/);
     assert.match(copyFor("ru").studioKeepBody, /без сети/);
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /следующий шаг/);
-    assert.match(copyFor("ru").studioReserveCta, /забрать/);
-    assert.match(copyFor("be").eggs.tau, /гамалог/);
-    assert.match(copyFor("be").studioHonesty, /не прада/);
-    assert.match(copyFor("be").studioKeepBody, /ужо ёсць/);
-    assert.match(copyFor("be").studioReserveCta, /забраць/);
+    assert.match(copyFor("ru").studioKeepBody, /15 USDT/);
+    assert.match(copyFor("ru").studioReserveCta, /15 USDT/);
+    assert.match(copyFor("be").studioKeepBody, /15 USDT/);
+    assert.match(copyFor("be").studioReserveCta, /15 USDT/);
     assert.match(copyFor("ru").platforms.intro, /свободн/);
   });
 
@@ -92,6 +93,8 @@ describe("copyFor", () => {
     assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/about/"), true);
     assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/"), false);
     assert.match(PUBLIC_ABOUT_URL, /\/about\/$/);
+    assert.equal(COPY_PRICE, "15");
+    assert.equal(COPY_CURRENCY, "USDT");
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {

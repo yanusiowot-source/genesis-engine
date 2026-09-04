@@ -88,13 +88,22 @@ function AboutPage() {
               applicationCategory: "EducationalApplication",
               operatingSystem: "Windows, Linux, Web",
               author: { "@type": "Person", name: "Ян Ярошевич", url: "https://x.com/yanusio" },
-              offers: {
-                "@type": "Offer",
-                price: "0",
-                priceCurrency: "USD",
-                description:
-                  "The public laboratory is free. Windows and Linux desktop copies are sold separately.",
-              },
+              offers: [
+                {
+                  "@type": "Offer",
+                  name: "Public laboratory",
+                  price: "0",
+                  priceCurrency: "USD",
+                  description: "The public laboratory is free.",
+                },
+                {
+                  "@type": "Offer",
+                  name: "Desktop copy",
+                  price: "15",
+                  priceCurrency: "USD",
+                  description: "Windows or Linux zip. One-time. Paid in USDT.",
+                },
+              ],
             }),
           }}
         />
