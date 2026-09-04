@@ -203,6 +203,9 @@ export function UniverseApp() {
   const birthFlashTimer = useRef(0);
   const creationTimer = useRef(0);
   const onboardBirthTimer = useRef(0);
+  const copyTimer = useRef(0);
+  const shareTimer = useRef(0);
+  const reportTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const dotHinted = useRef(false);
@@ -315,6 +318,9 @@ export function UniverseApp() {
       window.clearTimeout(birthFlashTimer.current);
       window.clearTimeout(creationTimer.current);
       window.clearTimeout(onboardBirthTimer.current);
+      window.clearTimeout(copyTimer.current);
+      window.clearTimeout(shareTimer.current);
+      window.clearTimeout(reportTimer.current);
     };
   }, []);
 
@@ -606,7 +612,8 @@ export function UniverseApp() {
     });
     downloadText(reportFilename(current), text);
     setReportSaved(true);
-    window.setTimeout(() => setReportSaved(false), 1400);
+    window.clearTimeout(reportTimer.current);
+    reportTimer.current = window.setTimeout(() => setReportSaved(false), 1400);
   }, [copy, current, expedition, lawResult, bayesResult, mcmcResult, locale]);
 
   const commission = useCallback(async () => {
@@ -647,7 +654,8 @@ export function UniverseApp() {
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      window.setTimeout(() => setCopied(false), 1200);
+      window.clearTimeout(copyTimer.current);
+      copyTimer.current = window.setTimeout(() => setCopied(false), 1200);
       return;
     } catch {
       /* fall through */
@@ -664,7 +672,8 @@ export function UniverseApp() {
       ta.remove();
       if (ok) {
         setCopied(true);
-        window.setTimeout(() => setCopied(false), 1200);
+        window.clearTimeout(copyTimer.current);
+        copyTimer.current = window.setTimeout(() => setCopied(false), 1200);
       }
     } catch {
       setCopied(false);
@@ -685,12 +694,14 @@ export function UniverseApp() {
       }
       await navigator.clipboard.writeText(url);
       setShared(true);
-      window.setTimeout(() => setShared(false), 1400);
+      window.clearTimeout(shareTimer.current);
+      shareTimer.current = window.setTimeout(() => setShared(false), 1400);
     } catch {
       try {
         await navigator.clipboard.writeText(url);
         setShared(true);
-        window.setTimeout(() => setShared(false), 1400);
+        window.clearTimeout(shareTimer.current);
+        shareTimer.current = window.setTimeout(() => setShared(false), 1400);
       } catch {
         setShared(false);
       }
@@ -976,36 +987,34 @@ export function UniverseApp() {
           ) : null}
           <div className="h-px bg-border" />
 
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
-                {copy.fate}
-              </p>
-              <p className="mt-1 font-display text-2xl tracking-[-0.02em]">
-                {copy.fateLabel[ev.fate]}
-              </p>
-            </div>
+          <div>
+            <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+              {copy.fate}
+            </p>
+            <p className="mt-1 font-display text-2xl tracking-[-0.02em]">
+              {copy.fateLabel[ev.fate]}
+            </p>
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <div>
-              <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+            <div className="min-w-0">
+              <p className="truncate font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
                 {copy.carbon}
               </p>
               <p className={cn("mt-1 font-mono text-xl tabular-nums sm:text-2xl", lifeTone)}>
                 {formatPct(ev.lifeProb)}
               </p>
             </div>
-            <div className="text-center">
-              <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+            <div className="min-w-0 text-center">
+              <p className="truncate font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
                 {copy.silicon}
               </p>
               <p className={cn("mt-1 font-mono text-xl tabular-nums sm:text-2xl", siliconTone)}>
                 {formatPct(ev.siliconProb)}
               </p>
             </div>
-            <div className="text-right">
-              <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+            <div className="min-w-0 text-right">
+              <p className="truncate font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
                 {copy.eternal}
               </p>
               <p className={cn("mt-1 font-mono text-xl tabular-nums sm:text-2xl", eternalTone)}>
@@ -1104,7 +1113,7 @@ export function UniverseApp() {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-bg text-fg" data-hydrated={hydrated ? "1" : "0"}>
       <div
         className="relative flex min-h-0 flex-1 flex-col"
-        inert={onboard ? true : undefined}
+        inert={overlayOpen ? true : undefined}
       >
         <GalaxyCanvas
           params={current.params}
@@ -1501,11 +1510,11 @@ export function UniverseApp() {
         type="button"
         aria-label={copy.closePanel}
         data-open={panelOpen ? "true" : "false"}
-        className="scrim-fade fixed inset-x-0 top-0 bottom-14 z-30 bg-bg/70 lg:bg-bg/50"
+        className="scrim-fade fixed inset-x-0 top-0 z-30 bg-bg/70 lg:bg-bg/50 bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
         tabIndex={panelOpen ? 0 : -1}
         aria-hidden={!panelOpen}
         onClick={() => setTab("sky")}
-        inert={onboard ? true : undefined}
+        inert={overlayOpen ? true : undefined}
       />
 
       <aside
@@ -1515,11 +1524,11 @@ export function UniverseApp() {
           "panel-slide fixed top-0 right-0 z-40 flex min-h-0 flex-col overflow-y-auto overscroll-contain",
           "border-l border-border bg-bg-elevated px-5",
           "w-full sm:w-[min(28rem,90vw)]",
-          "bottom-[3.5rem] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
+          "bottom-[calc(3.5rem+env(safe-area-inset-bottom))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
           !panelOpen && "pointer-events-none",
         )}
         aria-hidden={!panelOpen}
-        inert={onboard || !panelOpen ? true : undefined}
+        inert={overlayOpen || !panelOpen ? true : undefined}
       >
         <div className="sticky top-0 z-10 -mx-5 mb-5 border-b border-border bg-bg-elevated px-5 pt-6 pb-3">
           <div className="flex items-center justify-between gap-3">
@@ -1559,7 +1568,7 @@ export function UniverseApp() {
         </div>
       </aside>
 
-      <div inert={onboard ? true : undefined}>
+      <div inert={overlayOpen ? true : undefined}>
         <TabBar copy={copy} tab={tab} onChange={setTab} />
       </div>
 

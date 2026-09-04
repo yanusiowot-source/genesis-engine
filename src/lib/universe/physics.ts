@@ -174,6 +174,9 @@ export function darkMatterFraction(params: UniverseParams): number {
   return clamp(1 - baryonShare, 0.6, 0.94);
 }
 
+/** Time from first stars to a quiet wet-chemistry window. Shared with the epoch strip. */
+export const CHEM_DELAY_GYR = 3.8;
+
 export function evaluate(params: UniverseParams): Evaluation {
   const g = params.gravity;
   const h = params.expansion;
@@ -317,8 +320,6 @@ export type DerivedAstro = {
 
 const MPC_IN_METERS = 3.085677581e22;
 const G_SI = 6.6743e-11;
-/** Time from first stars to a quiet wet-chemistry window. Shared with the epoch strip. */
-export const CHEM_DELAY_GYR = 3.8;
 
 /** Homology Friedmann age, radiation neglected. Ours lands near Planck 13.8 Gyr. */
 export function friedmannAgeGyr(params: UniverseParams): number {

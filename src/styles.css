@@ -365,10 +365,6 @@
   pointer-events: auto;
 }
 
-.hear-pulse {
-  animation: hear-pulse 1.7s var(--ease-out) infinite;
-}
-
 .lab-fold > summary {
   list-style: none;
 }

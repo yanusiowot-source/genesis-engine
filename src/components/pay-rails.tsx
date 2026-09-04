@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Copy as CopyText } from "@/lib/universe/i18n";
@@ -28,6 +28,8 @@ function PayRow({
   copiedLabel: string;
 }) {
   const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef(0);
+  useEffect(() => () => window.clearTimeout(copiedTimer.current), []);
 
   return (
     <div className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3 shadow-[var(--shadow-border)]">
@@ -42,7 +44,8 @@ function PayRow({
           void copyText(value).then((ok) => {
             if (!ok) return;
             setCopied(true);
-            window.setTimeout(() => setCopied(false), 1600);
+            window.clearTimeout(copiedTimer.current);
+            copiedTimer.current = window.setTimeout(() => setCopied(false), 1600);
           });
         }}
       >

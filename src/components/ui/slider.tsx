@@ -15,7 +15,7 @@ function Slider({
   return (
     <SliderPrimitive.Root
       className={cn(
-        "relative flex h-11 w-full touch-none items-center select-none sm:h-8",
+        "relative flex h-11 w-full touch-none items-center select-none",
         className,
       )}
       {...props}
@@ -33,7 +33,7 @@ function Slider({
       <SliderPrimitive.Thumb
         className={
           "block size-5 rounded-full bg-accent shadow-[var(--shadow-border)] " +
-          "sm:size-4 outline-none focus-visible:ring-2 focus-visible:ring-accent/50 " +
+          "outline-none focus-visible:ring-2 focus-visible:ring-accent/50 " +
           "disabled:pointer-events-none"
         }
       />

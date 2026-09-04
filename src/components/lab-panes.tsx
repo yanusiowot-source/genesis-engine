@@ -13,6 +13,7 @@ export function LabPanes({ copy, pane, onChange }: Props) {
   return (
     <Segmented
       stacked
+      collapseLabel
       className="bg-bg"
       ariaLabel={copy.tabs.lab}
       value={pane}

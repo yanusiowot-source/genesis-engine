@@ -55,6 +55,7 @@ function Button({
         !isStatic && "active:not-disabled:scale-[0.96]",
         className,
       )}
+      {...(asChild ? undefined : { type: "button" as const })}
       {...props}
     />
   );

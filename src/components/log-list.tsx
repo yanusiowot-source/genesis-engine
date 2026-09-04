@@ -58,8 +58,9 @@ export function LogList({
               key={f.id}
               type="button"
               onClick={() => setFilter(f.id)}
+              aria-pressed={active}
               className={cn(
-                "h-8 min-h-8 flex-1 rounded-[var(--radius-sm)] text-xs font-medium",
+                "h-11 min-h-11 flex-1 rounded-[var(--radius-sm)] text-xs font-medium",
                 "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                 active ? "bg-bg-elevated text-fg shadow-[var(--shadow-border)]" : "text-fg-subtle",
               )}
@@ -71,7 +72,13 @@ export function LogList({
       </div>
 
       {items.length === 0 ? (
-        <p className="text-sm text-fg-subtle">{copy.logEmpty}</p>
+        <p className="py-6 text-sm text-fg-subtle">
+          {archive.length === 0
+            ? copy.logEmpty
+            : filter === "starred"
+              ? copy.filterStarred
+              : copy.filterViable}
+        </p>
       ) : (
         <ul className="flex flex-col gap-1">
           {items.map((r) => (

@@ -134,6 +134,8 @@ export function GalaxyCanvas({
     let downY = 0;
     let dragTravel = 0;
     const tauHit = { x: 0, y: 0, r: 0, live: false };
+    const diskBuf: { s: Star; px: number; py: number; depth: number; near: number }[] = [];
+    const brightBuf: { x: number; y: number }[] = [];
     let hidden = typeof document !== "undefined" && document.hidden;
     let flash = 0;
     let lastSeed = seedRef.current;
@@ -206,6 +208,11 @@ export function GalaxyCanvas({
         dragTravel < 10 &&
         Math.hypot((event.clientX ?? downX) - downX, (event.clientY ?? downY) - downY) < 14;
       dragging = false;
+      try {
+        if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      } catch {
+        /* capture may already be gone */
+      }
       if (!tap || !tauHit.live) return;
       const rect = canvas.getBoundingClientRect();
       const px = (event.clientX ?? downX) - rect.left;
@@ -306,7 +313,7 @@ export function GalaxyCanvas({
             0,
             cl.x * scale,
             cl.y * scale,
-            cl.r * scale,
+            rr(cl.r * scale),
           );
           const [r, gch, b] = cl.rgb;
           g.addColorStop(0, `rgba(${r},${gch},${b},${Math.min(0.38, cl.a * vis * 1.25)})`);
@@ -314,7 +321,7 @@ export function GalaxyCanvas({
           g.addColorStop(1, "rgba(9,6,26,0)");
           ctx.fillStyle = g;
           ctx.beginPath();
-          ctx.arc(cl.x * scale, cl.y * scale, cl.r * scale, 0, Math.PI * 2);
+          ctx.arc(cl.x * scale, cl.y * scale, rr(cl.r * scale), 0, Math.PI * 2);
           ctx.fill();
         }
 
@@ -378,7 +385,7 @@ export function GalaxyCanvas({
 
       const coreP = projectLook(0, 0, 0, cam, fov);
       if (coreP) {
-        const rad = (model.coreScale * scale * 2.4) / coreP.depth;
+        const rad = rr((model.coreScale * scale * 2.4) / coreP.depth);
         const g = ctx.createRadialGradient(
           coreP.x * scale,
           coreP.y * scale,
@@ -387,9 +394,9 @@ export function GalaxyCanvas({
           coreP.y * scale,
           rad,
         );
-        const [rr, gg, bb] = model.coreRgb;
-        g.addColorStop(0, `rgba(${rr},${gg},${bb},${0.55 * vis})`);
-        g.addColorStop(0.35, `rgba(${rr},${gg},${bb},${0.16 * vis})`);
+        const [cr, cg, cb] = model.coreRgb;
+        g.addColorStop(0, `rgba(${cr},${cg},${cb},${0.55 * vis})`);
+        g.addColorStop(0.35, `rgba(${cr},${cg},${cb},${0.16 * vis})`);
         g.addColorStop(1, "rgba(9,6,26,0)");
         ctx.fillStyle = g;
         ctx.beginPath();
@@ -428,35 +435,33 @@ export function GalaxyCanvas({
         const p = projectLook(s.x, s.y, s.z, cam, fov);
         if (!p || Math.abs(p.x) > limX || Math.abs(p.y) > limY) continue;
         const tw = reducedRef.current ? 1 : 0.7 + 0.3 * Math.sin(time * 1.8 + s.phase);
-        const size = Math.max(0.4, s.r * 0.48);
+        const size = Math.max(0.35, s.r * 0.26);
         ctx.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${s.a * tw * 0.92})`;
-        ctx.beginPath();
-        ctx.arc(p.x * scale, p.y * scale, size * 0.55, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.fillRect(p.x * scale - size, p.y * scale - size, size * 2, size * 2);
       }
 
-      const bright: { x: number; y: number }[] = [];
-      const disk: { s: Star; px: number; py: number; depth: number; near: number }[] = [];
+      diskBuf.length = 0;
+      brightBuf.length = 0;
       for (const s of model.stars) {
         const p = projectLook(s.x, s.y, s.z, cam, fov);
         if (!p || Math.abs(p.x) > limX || Math.abs(p.y) > limY) continue;
         const near = Math.min(2.4, 0.62 / p.depth);
-        disk.push({ s, px: p.x * scale, py: p.y * scale, depth: p.depth, near });
+        diskBuf.push({ s, px: p.x * scale, py: p.y * scale, depth: p.depth, near });
       }
-      disk.sort((a, b) => b.depth - a.depth);
-      for (const row of disk) {
+      diskBuf.sort((a, b) => b.depth - a.depth);
+      for (const row of diskBuf) {
         drawStar(row.s, row.px, row.py, ageGyr, vis * row.near, time);
-        if (row.s.r * row.near > 1.7 && bright.length < 16) bright.push({ x: row.px, y: row.py });
+        if (row.s.r * row.near > 1.7 && brightBuf.length < 16) brightBuf.push({ x: row.px, y: row.py });
       }
 
       ctx.globalCompositeOperation = "source-over";
       ctx.strokeStyle = "rgba(213,216,222,0.16)";
       ctx.lineWidth = 0.8;
-      for (let i = 0; i < bright.length; i++) {
+      for (let i = 0; i < brightBuf.length; i++) {
         let best = -1;
         let bestD = 88;
-        for (let j = i + 1; j < bright.length; j++) {
-          const dist = Math.hypot(bright[i].x - bright[j].x, bright[i].y - bright[j].y);
+        for (let j = i + 1; j < brightBuf.length; j++) {
+          const dist = Math.hypot(brightBuf[i].x - brightBuf[j].x, brightBuf[i].y - brightBuf[j].y);
           if (dist < bestD && dist > 20) {
             bestD = dist;
             best = j;
@@ -464,8 +469,8 @@ export function GalaxyCanvas({
         }
         if (best >= 0 && bestD < 78) {
           ctx.beginPath();
-          ctx.moveTo(bright[i].x, bright[i].y);
-          ctx.lineTo(bright[best].x, bright[best].y);
+          ctx.moveTo(brightBuf[i].x, brightBuf[i].y);
+          ctx.lineTo(brightBuf[best].x, brightBuf[best].y);
           ctx.stroke();
         }
       }
@@ -710,7 +715,13 @@ export function GalaxyCanvas({
     const draw = (t: number) => {
       if (!running) return;
       if (hidden) return;
-      const minGap = relaxedRef.current ? 33 : idlePaint ? 45 : 0;
+      const minGap = relaxedRef.current
+        ? 33
+        : idlePaint
+          ? 45
+          : modeRef.current === "planetarium" && !dragging
+            ? 22
+            : 0;
       if (minGap && lastPaint && t - lastPaint < minGap) {
         frame = requestAnimationFrame(draw);
         return;
@@ -808,9 +819,8 @@ export function GalaxyCanvas({
             fy = def.y;
           }
           ctx.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${s.a * (late ? 0.08 + vis * 0.35 + eternalProb * 0.18 : 0.7 + vis * 0.5)})`;
-          ctx.beginPath();
-          ctx.arc(fx * scale, fy * scale, s.r, 0, Math.PI * 2);
-          ctx.fill();
+          const fr = Math.max(0.35, s.r);
+          ctx.fillRect(fx * scale - fr * 0.5, fy * scale - fr * 0.5, fr, fr);
         }
         ctx.globalCompositeOperation = "source-over";
 

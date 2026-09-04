@@ -10,7 +10,6 @@ export function formatGyr(n: number): string {
   if (n >= 10) return `${n.toFixed(1)} Gyr`;
   if (n >= 1) return `${n.toFixed(2)} Gyr`;
   if (n >= 0.01) return `${n.toFixed(2)} Gyr`;
-  if (n <= 0) return "0 Gyr";
   return `${n.toExponential(1)} Gyr`;
 }
 

@@ -44,4 +44,13 @@ describe("buildGalaxy", () => {
       assert.ok(star.rgb.every((c) => c >= 0 && c <= 255));
     }
   });
+
+  it("adds a bar to our disk that a nearby spiral does not get", () => {
+    const ours = buildGalaxy(OUR_UNIVERSE, evaluate(OUR_UNIVERSE), 7, 0.5);
+    const neighborParams = { ...OUR_UNIVERSE, gravity: 1.08 };
+    const neighbor = buildGalaxy(neighborParams, evaluate(neighborParams), 7, 0.5);
+    assert.ok(ours.stars.length > neighbor.stars.length);
+    assert.ok(ours.dust.length > 0);
+    assert.ok(ours.background.some((g) => g.kind === "spiral"));
+  });
 });

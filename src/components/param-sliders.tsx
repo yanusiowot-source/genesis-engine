@@ -17,18 +17,17 @@ export function ParamSliders({ copy, params, onChange }: Props) {
         const digits = meta.step < 0.01 ? 3 : 2;
         const text = copy.params[meta.key];
         return (
-          <div key={meta.key} className="flex flex-col gap-1.5">
+          <label key={meta.key} className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between gap-3">
-              <label className="text-sm font-medium text-fg" htmlFor={meta.key}>
+              <span className="text-sm font-medium text-fg">
                 {text.label}
-              </label>
+              </span>
               <span className="font-mono text-xs tabular-nums text-fg-muted">
                 {value.toFixed(digits)}
                 <span className="ml-1 text-fg-subtle">{meta.unit}</span>
               </span>
             </div>
             <Slider
-              id={meta.key}
               min={meta.min}
               max={meta.max}
               step={meta.step}
@@ -47,8 +46,8 @@ export function ParamSliders({ copy, params, onChange }: Props) {
               <span>{text.low}</span>
               <span>{text.high}</span>
             </div>
-            <p className="hidden text-pretty text-xs leading-relaxed text-fg-muted sm:block">{text.hint}</p>
-          </div>
+            <p className="text-pretty text-xs leading-relaxed text-fg-muted">{text.hint}</p>
+          </label>
         );
       })}
     </div>

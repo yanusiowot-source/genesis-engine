@@ -16,6 +16,13 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
   const page = copy.onboarding[step];
 
   useEffect(() => {
+    const id = window.setTimeout(() => {
+      document.querySelector<HTMLButtonElement>("[data-onboard-cta]")?.focus();
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [step]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onDone(false);
       if (event.key === "Enter" || event.key === "ArrowRight") {
@@ -66,7 +73,7 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
         key={step}
         className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center"
       >
-        <p className="onboard-rise font-mono text-[0.6875rem] tabular-nums text-fg-subtle">
+        <p className="onboard-rise font-mono text-[0.6875rem] tabular-nums text-fg-subtle" aria-live="polite">
           {step + 1} / {copy.onboarding.length}
         </p>
         <h2
@@ -96,6 +103,7 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
             {copy.skip}
           </Button>
           <Button
+            data-onboard-cta
             className="min-h-11 min-w-28"
             onClick={() => {
               if (last) onDone(true);
