@@ -68,6 +68,7 @@ async function createWindow() {
   const port = typeof address === "object" && address ? address.port : 0;
   const url = `http://127.0.0.1:${port}/`;
 
+  const icon = path.join(root, "icon-512.png");
   const win = new BrowserWindow({
     width: 1440,
     height: 900,
@@ -77,6 +78,7 @@ async function createWindow() {
     title: "Genesis Engine",
     autoHideMenuBar: true,
     show: false,
+    icon: fs.existsSync(icon) ? icon : undefined,
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
       contextIsolation: true,

@@ -38,6 +38,7 @@ type Props = {
   onEternal: () => void;
   onHelp: () => void;
   onClose: () => void;
+  openAbout?: boolean;
 };
 
 export function SettingsSheet({
@@ -69,6 +70,7 @@ export function SettingsSheet({
   onEternal,
   onHelp,
   onClose,
+  openAbout = false,
 }: Props) {
   const [confirmClear, setConfirmClear] = useState(false);
   const [hosted, setHosted] = useState(false);
@@ -86,6 +88,12 @@ export function SettingsSheet({
   useEffect(() => {
     setHosted(isHostedLab());
   }, []);
+
+  useEffect(() => {
+    if (!openAbout) return;
+    const id = window.requestAnimationFrame(() => scrollToAbout());
+    return () => window.cancelAnimationFrame(id);
+  }, [openAbout]);
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {

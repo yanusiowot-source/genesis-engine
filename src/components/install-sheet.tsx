@@ -1,8 +1,9 @@
 import { useEffect } from "react";
-import { AppWindow, Monitor, Plus, Share, Smartphone, Tablet } from "lucide-react";
+import { AppWindow, ExternalLink, Monitor, Plus, Share, Smartphone, Tablet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Copy } from "@/lib/universe/i18n";
 import type { HostKind, PlatformInfo } from "@/lib/universe/platform";
+import { AUTHOR_X_URL } from "@/lib/universe/studio";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -112,9 +113,17 @@ export function InstallSheet({ copy, platform, onInstall, onClose }: Props) {
           </ol>
         ) : null}
 
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-6 flex flex-col gap-2">
           {canPrompt ? <Button onClick={onInstall}>{copy.installCta}</Button> : null}
-          <Button variant={canPrompt ? "ghost" : "default"} onClick={onClose}>
+          {!platform.native ? (
+            <Button asChild variant={canPrompt ? "outline" : "default"}>
+              <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
+                <ExternalLink />
+                {copy.studioReserveCta}
+              </a>
+            </Button>
+          ) : null}
+          <Button variant="ghost" onClick={onClose}>
             {copy.installDismiss}
           </Button>
         </div>

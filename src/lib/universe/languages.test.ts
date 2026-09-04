@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { mergeCopy } from "./copy-merge.ts";
 import { copyFor } from "./i18n.ts";
+import { isAboutHash, isHostedLab } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -56,6 +57,8 @@ describe("copyFor", () => {
     assert.match(c.studioSupportBody, /One-time/);
     assert.match(c.studioReserveCta, /reserve/);
     assert.match(c.studioPublicCta, /public lab/);
+    assert.match(c.platforms.intro, /free lab/);
+    assert.match(c.platforms.windowsBody, /paid portable copy/);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
     assert.match(copyFor("ru").studioHonesty, /не прода/);
     assert.match(copyFor("ru").studioKeepBody, /без сети/);
@@ -63,6 +66,14 @@ describe("copyFor", () => {
     assert.match(copyFor("be").eggs.tau, /гамалог/);
     assert.match(copyFor("be").studioHonesty, /не прада/);
     assert.match(copyFor("be").studioReserveCta, /забраць/);
+    assert.match(copyFor("ru").platforms.intro, /свободн/);
+  });
+
+  it("knows the public lab host and the about hash", () => {
+    assert.equal(isHostedLab("https://yanusiowot-source.github.io/genesis-lab/"), true);
+    assert.equal(isHostedLab("https://example.com/"), false);
+    assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/#about"), true);
+    assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/"), false);
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {

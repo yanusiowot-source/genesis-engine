@@ -1,0 +1,31 @@
+Genesis Engine 1.24 — desktop copy
+© 2026 Ян Ярошевич. All rights reserved. Not open source.
+
+This is the copy you take with you. The public lab stays free:
+https://yanusiowot-source.github.io/genesis-lab/
+
+Windows
+  Unzip the folder. Double-click "Genesis Engine.exe".
+  SmartScreen may warn because the build is unsigned. More info → Run anyway.
+
+Linux
+  Unzip. Run ./genesis-engine
+
+Author: https://x.com/yanusio
+
+---
+
+Genesis Engine 1.24 — настольная копия
+© 2026 Ян Ярошевич. Все права защищены. Исходники не публичные.
+
+Это копия, которую уносят с собой. Лаборатория в сети остаётся свободной:
+https://yanusiowot-source.github.io/genesis-lab/
+
+Windows
+  Распакуйте папку. Запустите «Genesis Engine.exe».
+  SmartScreen может предупредить: сборка без подписи. Подробнее → Выполнить в любом случае.
+
+Linux
+  Распакуйте. Запустите ./genesis-engine
+
+Автор: https://x.com/yanusio

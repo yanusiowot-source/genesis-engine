@@ -490,14 +490,14 @@ const en: Copy = {
   installDismiss: "Not now",
   platforms: {
     title: "On your computer or phone",
-    intro: "Same laboratory on this computer or phone.",
+    intro: "Install the free lab on this device. A paid desktop copy is how you take the instrument with you and work offline.",
     here: "This device",
     windowsTitle: "Windows",
     windowsBody:
-      "In Edge or Chrome: menu → Install Genesis Engine. It lands in the Start menu like a program. A portable .exe is the same app in its own window, no browser chrome.",
+      "In Edge or Chrome: menu → Install Genesis Engine. The free lab lands in the Start menu. The paid portable copy is separate — a window with no browser.",
     linuxTitle: "Linux",
     linuxBody:
-      "In Chromium, Chrome or Edge: Install app. Or run the Linux desktop build — a window, not a tab.",
+      "In Chromium, Chrome or Edge: Install app. That is the free lab. The paid Linux build is a window of its own.",
     androidTitle: "Android",
     androidBody:
       "Chrome → Add to Home screen. Later the same interface wraps in Android Studio via Capacitor (app.genesisengine.lab).",
@@ -1250,14 +1250,14 @@ const ru: Copy = {
   installDismiss: "Не сейчас",
   platforms: {
     title: "На компьютере и телефоне",
-    intro: "Та же лаборатория на этом компьютере или телефоне.",
+    intro: "Установите свободную лабораторию на это устройство. Платная настольная копия — способ забрать инструмент с собой и работать без сети.",
     here: "Это устройство",
     windowsTitle: "Windows",
     windowsBody:
-      "В Edge или Chrome: меню → «Установить Genesis Engine». Появится в меню «Пуск», как программа. Портативный .exe — то же окно без браузера.",
+      "В Edge или Chrome: меню → «Установить Genesis Engine». Свободная лаборатория появится в меню «Пуск». Платная портативная копия — отдельно, окно без браузера.",
     linuxTitle: "Linux",
     linuxBody:
-      "В Chromium, Chrome или Edge: «Установить приложение». Или запустите Linux-сборку — отдельное окно, не вкладка.",
+      "В Chromium, Chrome или Edge: «Установить приложение». Это свободная лаборатория. Платная Linux-сборка — своё окно.",
     androidTitle: "Android",
     androidBody:
       "Chrome → «На экран “Домой”». Позже тот же интерфейс собирается в Android Studio через Capacitor (app.genesisengine.lab).",

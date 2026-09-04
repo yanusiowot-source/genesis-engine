@@ -116,6 +116,7 @@ import {
   type ResearchTarget,
 } from "@/lib/universe/research";
 import { buildFieldReport, downloadText, reportFilename } from "@/lib/universe/report";
+import { isAboutHash } from "@/lib/universe/studio";
 import type { DiscoveryResult } from "@/lib/universe/symbolic";
 import type { BayesResult } from "@/lib/universe/bayes";
 import type { CatalogResult, CutoutResult } from "@/lib/universe/mast";
@@ -230,6 +231,7 @@ export function UniverseApp() {
   const [collisionKey, setCollisionKey] = useState(0);
   const [installOpen, setInstallOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [aboutIntent, setAboutIntent] = useState(false);
   const [siliconOpen, setSiliconOpen] = useState(false);
   const [eternalOpen, setEternalOpen] = useState(false);
   const [hapticsOn, setHapticsOn] = useState(true);
@@ -308,6 +310,27 @@ export function UniverseApp() {
     } catch {
       setOnboard(true);
     }
+    if (isAboutHash()) {
+      setOnboard(false);
+      setSettingsOpen(true);
+      setAboutIntent(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const applyHash = () => {
+      if (!isAboutHash()) return;
+      setOnboard(false);
+      setHelpOpen(false);
+      setInstallOpen(false);
+      setSiliconOpen(false);
+      setEternalOpen(false);
+      setSettingsOpen(true);
+      setAboutIntent(true);
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
   }, []);
 
   useEffect(() => {
@@ -363,8 +386,9 @@ export function UniverseApp() {
   useEffect(() => {
     if (!hydrated) return;
     const qs = encodeUniverse(current.params, current.visualSeed);
-    const next = `${window.location.pathname}?${qs}`;
-    if (`${window.location.pathname}${window.location.search}` !== next) {
+    const next = `${window.location.pathname}?${qs}${window.location.hash}`;
+    const now = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    if (now !== next) {
       window.history.replaceState(null, "", next);
     }
   }, [current.params, current.visualSeed, hydrated]);
@@ -1544,7 +1568,15 @@ export function UniverseApp() {
             applyPreset(DESERT_EPOCH, DESERT_SEED);
           }}
           onHelp={() => showOverlay("help")}
-          onClose={() => setSettingsOpen(false)}
+          onClose={() => {
+            setSettingsOpen(false);
+            setAboutIntent(false);
+            if (isAboutHash()) {
+              const next = `${window.location.pathname}${window.location.search}`;
+              window.history.replaceState(null, "", next);
+            }
+          }}
+          openAbout={aboutIntent}
         />
       ) : null}
       {helpOpen ? <HelpSheet copy={copy} onClose={() => setHelpOpen(false)} /> : null}
