@@ -5,12 +5,15 @@ const SOURCE_KEY = "genesis-engine-music-source";
 const VOLUME_KEY = "genesis-engine-music-volume-v3";
 const NAME_KEY = "genesis-engine-music-name";
 const TRACK_KEY = "own-track";
+const META_KEY = "own-playlist";
+const TRACK_PREFIX = "own-track:";
 const DB_NAME = "genesis-engine";
 const STORE = "kv";
 
 export const DEFAULT_MUSIC_VOLUME = 0.38;
 
 export type MusicSource = "cosmos" | "own";
+export type PlaylistEntry = { id: string; name: string };
 
 export type AudioStatus = {
   wanted: boolean;
@@ -45,6 +48,8 @@ let ownEl: HTMLAudioElement | null = null;
 let ownNode: MediaElementAudioSourceNode | null = null;
 let ownObjectUrl: string | null = null;
 let ownName = "";
+let playlist: PlaylistEntry[] = [];
+let playIndex = 0;
 let wiredOwn = false;
 let kicked = false;
 let visWired = false;
@@ -136,6 +141,19 @@ function persistOwnName(name: string): void {
 
 export function getOwnTrackName(): string {
   return ownName;
+}
+
+export function getOwnPlaylist(): PlaylistEntry[] {
+  return playlist.slice();
+}
+
+export function getPlayIndex(): number {
+  return playIndex;
+}
+
+export function nextPlayIndex(length: number, index: number): number {
+  if (length <= 0) return 0;
+  return (index + 1) % length;
 }
 
 export function getMusicSource(): MusicSource {
@@ -287,18 +305,18 @@ function closeDb(db: IDBDatabase | null): void {
   }
 }
 
-async function idbPut(value: unknown): Promise<void> {
+async function idbPutKey(key: string, value: unknown): Promise<boolean> {
   const db = await openDb();
-  if (!db) return;
+  if (!db) return false;
   try {
-    await new Promise<void>((resolve) => {
+    return await new Promise<boolean>((resolve) => {
       try {
         const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).put(value, TRACK_KEY);
-        tx.oncomplete = () => resolve();
-        tx.onerror = () => resolve();
+        tx.objectStore(STORE).put(value, key);
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
       } catch {
-        resolve();
+        resolve(false);
       }
     });
   } finally {
@@ -306,20 +324,15 @@ async function idbPut(value: unknown): Promise<void> {
   }
 }
 
-async function idbGet(): Promise<{ name: string; type: string; blob: Blob } | null> {
+async function idbGetKey<T>(key: string): Promise<T | null> {
   const db = await openDb();
   if (!db) return null;
   try {
     return await new Promise((resolve) => {
       try {
         const tx = db.transaction(STORE, "readonly");
-        const req = tx.objectStore(STORE).get(TRACK_KEY);
-        req.onsuccess = () => {
-          const v = req.result as { name?: string; type?: string; blob?: Blob } | undefined;
-          if (v?.blob instanceof Blob) {
-            resolve({ name: v.name ?? "track", type: v.type ?? v.blob.type, blob: v.blob });
-          } else resolve(null);
-        };
+        const req = tx.objectStore(STORE).get(key);
+        req.onsuccess = () => resolve((req.result as T | undefined) ?? null);
         req.onerror = () => resolve(null);
       } catch {
         resolve(null);
@@ -330,14 +343,14 @@ async function idbGet(): Promise<{ name: string; type: string; blob: Blob } | nu
   }
 }
 
-async function idbDel(): Promise<void> {
+async function idbDelKey(key: string): Promise<void> {
   const db = await openDb();
   if (!db) return;
   try {
     await new Promise<void>((resolve) => {
       try {
         const tx = db.transaction(STORE, "readwrite");
-        tx.objectStore(STORE).delete(TRACK_KEY);
+        tx.objectStore(STORE).delete(key);
         tx.oncomplete = () => resolve();
         tx.onerror = () => resolve();
       } catch {
@@ -347,6 +360,54 @@ async function idbDel(): Promise<void> {
   } finally {
     closeDb(db);
   }
+}
+
+async function idbPut(value: unknown): Promise<void> {
+  await idbPutKey(TRACK_KEY, value);
+}
+
+async function idbGet(): Promise<{ name: string; type: string; blob: Blob } | null> {
+  const v = await idbGetKey<{ name?: string; type?: string; blob?: Blob }>(TRACK_KEY);
+  if (v?.blob instanceof Blob) {
+    return { name: v.name ?? "track", type: v.type ?? v.blob.type, blob: v.blob };
+  }
+  return null;
+}
+
+async function idbDel(): Promise<void> {
+  await idbDelKey(TRACK_KEY);
+}
+
+type PlaylistMeta = { ids: string[]; names: string[]; index: number };
+type StoredTrack = { id: string; name: string; type: string; blob: Blob };
+
+function newTrackId(): string {
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+async function saveMeta(): Promise<void> {
+  const meta: PlaylistMeta = {
+    ids: playlist.map((t) => t.id),
+    names: playlist.map((t) => t.name),
+    index: playIndex,
+  };
+  await idbPutKey(META_KEY, meta);
+}
+
+async function loadCurrentBlob(): Promise<void> {
+  const entry = playlist[playIndex];
+  if (!entry) {
+    if (ownEl) {
+      ownEl.pause();
+      ownEl.removeAttribute("src");
+      ownEl.load();
+    }
+    persistOwnName("");
+    return;
+  }
+  const stored = await idbGetKey<StoredTrack>(TRACK_PREFIX + entry.id);
+  if (!stored?.blob) return;
+  attachBlob(stored.blob, stored.name || entry.name);
 }
 
 function graph(): void {
@@ -528,20 +589,87 @@ function attachBlob(blob: Blob, name: string): void {
   ownObjectUrl = URL.createObjectURL(blob);
   if (!ownEl) {
     ownEl = new Audio();
-    ownEl.loop = true;
     ownEl.preload = "auto";
     ownEl.crossOrigin = "anonymous";
+    ownEl.addEventListener("ended", () => {
+      void advancePlaylist();
+    });
   }
+  ownEl.loop = playlist.length <= 1;
   ownEl.src = ownObjectUrl;
   persistOwnName(name);
   wireOwnElement();
 }
 
-export async function setOwnTrack(file: File): Promise<void> {
-  persistOwnName(file.name);
-  attachBlob(file, file.name);
-  await idbPut({ name: file.name, type: file.type, blob: file });
+async function advancePlaylist(): Promise<void> {
+  if (playlist.length <= 1) return;
+  playIndex = nextPlayIndex(playlist.length, playIndex);
+  await saveMeta();
+  await loadCurrentBlob();
+  if (enabled && source === "own" && ownEl) {
+    void ownEl.play().catch(() => undefined);
+  }
+}
+
+export async function addOwnTracks(files: Iterable<File>): Promise<number> {
+  const list = [...files].filter((file) => file.size > 0);
+  if (!list.length) return 0;
+  const wasEmpty = playlist.length === 0;
+  let added = 0;
+  for (const file of list) {
+    const id = newTrackId();
+    const ok = await idbPutKey(TRACK_PREFIX + id, {
+      id,
+      name: file.name,
+      type: file.type,
+      blob: file,
+    } satisfies StoredTrack);
+    if (!ok) continue;
+    playlist = [...playlist, { id, name: file.name }];
+    added += 1;
+  }
+  if (!added) return 0;
+  if (wasEmpty) playIndex = 0;
+  await saveMeta();
   persistMusicSource("own");
+  if (wasEmpty) await loadCurrentBlob();
+  else if (ownEl) ownEl.loop = playlist.length <= 1;
+  persistOwnName(playlist[playIndex]?.name ?? "");
+  return added;
+}
+
+export async function setOwnTrack(file: File): Promise<void> {
+  await addOwnTracks([file]);
+}
+
+export async function playOwnTrack(id: string): Promise<void> {
+  const index = playlist.findIndex((t) => t.id === id);
+  if (index < 0) return;
+  playIndex = index;
+  await saveMeta();
+  await loadCurrentBlob();
+  persistMusicSource("own");
+  if (enabled && ownEl) void ownEl.play().catch(() => undefined);
+}
+
+export async function removeOwnTrack(id: string): Promise<void> {
+  const index = playlist.findIndex((t) => t.id === id);
+  if (index < 0) return;
+  const wasCurrent = index === playIndex;
+  playlist = playlist.filter((t) => t.id !== id);
+  await idbDelKey(TRACK_PREFIX + id);
+  if (!playlist.length) {
+    playIndex = 0;
+    await saveMeta();
+    await clearOwnTrack();
+    return;
+  }
+  if (index < playIndex) playIndex -= 1;
+  else if (wasCurrent) playIndex = playIndex % playlist.length;
+  await saveMeta();
+  if (wasCurrent) await loadCurrentBlob();
+  else if (ownEl) ownEl.loop = playlist.length <= 1;
+  persistOwnName(playlist[playIndex]?.name ?? "");
 }
 
 export async function clearOwnTrack(): Promise<void> {
@@ -554,7 +682,12 @@ export async function clearOwnTrack(): Promise<void> {
     URL.revokeObjectURL(ownObjectUrl);
     ownObjectUrl = null;
   }
+  const ids = playlist.map((t) => t.id);
+  playlist = [];
+  playIndex = 0;
   persistOwnName("");
+  await Promise.all(ids.map((id) => idbDelKey(TRACK_PREFIX + id)));
+  await idbDelKey(META_KEY);
   await idbDel();
   persistMusicSource("cosmos");
 }
@@ -563,14 +696,32 @@ export async function restoreOwnTrack(): Promise<string> {
   ownName = loadOwnTrackName();
   source = loadMusicSource();
   volume = loadMusicVolume();
+  const meta = await idbGetKey<PlaylistMeta>(META_KEY);
+  if (meta?.ids?.length) {
+    playlist = meta.ids.map((id, i) => ({ id, name: meta.names?.[i] || id }));
+    playIndex = Math.min(Math.max(0, meta.index | 0), playlist.length - 1);
+    await loadCurrentBlob();
+    return ownName;
+  }
   const stored = await idbGet();
   if (stored) {
-    attachBlob(stored.blob, stored.name);
-    ownName = stored.name;
-    persistOwnName(stored.name);
-  } else if (source === "own") {
-    persistMusicSource("cosmos");
+    const id = newTrackId();
+    const ok = await idbPutKey(TRACK_PREFIX + id, {
+      id,
+      name: stored.name,
+      type: stored.type,
+      blob: stored.blob,
+    } satisfies StoredTrack);
+    if (ok) {
+      playlist = [{ id, name: stored.name }];
+      playIndex = 0;
+      await saveMeta();
+      await idbDel();
+      attachBlob(stored.blob, stored.name);
+      return ownName;
+    }
   }
+  if (source === "own") persistMusicSource("cosmos");
   return ownName;
 }
 

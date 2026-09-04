@@ -5,7 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { LanguagePicker } from "@/components/language-picker";
 import { PayRails } from "@/components/pay-rails";
 import type { Copy, Locale } from "@/lib/universe/i18n";
-import type { MusicSource } from "@/lib/universe/audio";
+import type { MusicSource, PlaylistEntry } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
 import { cn } from "@/lib/utils";
 import { AUTHOR_X_URL, PUBLIC_LAB_URL, isHostedLab, orderCopyUrl } from "@/lib/universe/studio";
@@ -21,6 +21,8 @@ type Props = {
   musicSource: MusicSource;
   musicVolume: number;
   ownTrackName: string;
+  ownTracks: PlaylistEntry[];
+  playIndex: number;
   onLocale: (next: Locale) => void;
   onHaptics: (on: boolean) => void;
   onSound: (on: boolean) => void;
@@ -28,7 +30,9 @@ type Props = {
   onTypeScale: (scale: TypeScale) => void;
   onMusicSource: (source: MusicSource) => void;
   onMusicVolume: (value: number) => void;
-  onPickTrack: (file: File) => void;
+  onPickTracks: (files: File[]) => void;
+  onPlayTrack: (id: string) => void;
+  onRemoveTrack: (id: string) => void;
   onClearTrack: () => void;
   onInstall: () => void;
   onReplay: () => void;
@@ -53,6 +57,8 @@ export function SettingsSheet({
   musicSource,
   musicVolume,
   ownTrackName,
+  ownTracks,
+  playIndex,
   onLocale,
   onHaptics,
   onSound,
@@ -60,7 +66,9 @@ export function SettingsSheet({
   onTypeScale,
   onMusicSource,
   onMusicVolume,
-  onPickTrack,
+  onPickTracks,
+  onPlayTrack,
+  onRemoveTrack,
   onClearTrack,
   onInstall,
   onReplay,
@@ -238,14 +246,43 @@ export function SettingsSheet({
             active={musicSource === "own"}
             onClick={() => onMusicSource("own")}
             label={copy.musicOwn}
-            last={!ownTrackName}
+            last={!ownTracks.length}
           />
           <div className="flex flex-col gap-2 border-t border-border px-4 py-3">
             <p className="text-xs text-fg-muted">
-              {ownTrackName
-                ? `${copy.musicPlaying}: ${ownTrackName}`
+              {ownTracks.length
+                ? `${copy.musicPlaying}: ${ownTrackName || ownTracks[playIndex]?.name || ""} · ${copy.musicCount.replace("{n}", String(ownTracks.length))}`
                 : copy.musicEmpty}
             </p>
+            {ownTracks.length ? (
+              <ul className="max-h-48 overflow-y-auto">
+                {ownTracks.map((track, i) => (
+                  <li
+                    key={track.id}
+                    className="flex items-center gap-2 border-b border-border py-1.5 last:border-b-0"
+                  >
+                    <button
+                      type="button"
+                      className={cn(
+                        "min-w-0 flex-1 truncate text-left text-sm",
+                        i === playIndex ? "text-accent" : "text-fg",
+                      )}
+                      onClick={() => onPlayTrack(track.id)}
+                    >
+                      {track.name}
+                    </button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="shrink-0"
+                      onClick={() => onRemoveTrack(track.id)}
+                    >
+                      {copy.musicRemove}
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             <div className="flex flex-wrap gap-2">
               <Button
                 size="sm"
@@ -255,7 +292,7 @@ export function SettingsSheet({
                 <Music />
                 {copy.musicPick}
               </Button>
-              {ownTrackName ? (
+              {ownTracks.length ? (
                 <Button size="sm" variant="outline" onClick={onClearTrack}>
                   {copy.musicClear}
                 </Button>
@@ -264,13 +301,14 @@ export function SettingsSheet({
             <input
               ref={fileRef}
               type="file"
+              multiple
               accept="audio/*,.mp3,.m4a,.aac,.wav,.flac,.ogg,.opus,.webm"
               className="sr-only"
               tabIndex={-1}
               aria-hidden="true"
               onChange={(event) => {
-                const file = event.target.files?.[0];
-                if (file) onPickTrack(file);
+                const files = [...(event.target.files ?? [])];
+                if (files.length) onPickTracks(files);
                 event.target.value = "";
               }}
             />

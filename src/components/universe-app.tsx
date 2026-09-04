@@ -64,7 +64,12 @@ import {
   primeAudio,
   restoreOwnTrack,
   retuneSoundscape,
-  setOwnTrack,
+  addOwnTracks,
+  playOwnTrack,
+  removeOwnTrack,
+  getOwnPlaylist,
+  getOwnTrackName,
+  getPlayIndex,
   clearOwnTrack,
   setSoundscape,
   unlockAndStart,
@@ -74,6 +79,7 @@ import {
   pingSignal,
   pingBirth,
   type MusicSource,
+  type PlaylistEntry,
 } from "@/lib/universe/audio";
 import { chronicleUniverse } from "@/lib/universe/chronicle";
 import { formatGyr, formatPct } from "@/lib/universe/format";
@@ -247,6 +253,8 @@ export function UniverseApp() {
   const [musicSource, setMusicSource] = useState<MusicSource>("cosmos");
   const [musicVolume, setMusicVolume] = useState(DEFAULT_MUSIC_VOLUME);
   const [ownTrackName, setOwnTrackName] = useState("");
+  const [ownTracks, setOwnTracks] = useState<PlaylistEntry[]>([]);
+  const [playIndex, setPlayIndex] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
   const [contrast, setContrast] = useState(false);
   const [typeScale, setTypeScale] = useState<TypeScale>("md");
@@ -344,6 +352,8 @@ export function UniverseApp() {
   useEffect(() => {
     void restoreOwnTrack().then((name) => {
       if (name) setOwnTrackName(name);
+      setOwnTracks(getOwnPlaylist());
+      setPlayIndex(getPlayIndex());
     });
     const decoded = decodeUniverse(window.location.search);
     if (decoded) {
@@ -1548,6 +1558,8 @@ export function UniverseApp() {
           musicSource={musicSource}
           musicVolume={musicVolume}
           ownTrackName={ownTrackName}
+          ownTracks={ownTracks}
+          playIndex={playIndex}
           onLocale={setLocaleExplicit}
           onHaptics={(on) => {
             setHapticEnabled(on);
@@ -1579,17 +1591,39 @@ export function UniverseApp() {
             persistMusicVolume(value);
             setMusicVolume(value);
           }}
-          onPickTrack={(file) => {
-            void setOwnTrack(file).then(() => {
-              setOwnTrackName(file.name);
+          onPickTracks={(files) => {
+            void addOwnTracks(files).then(() => {
+              setOwnTracks(getOwnPlaylist());
+              setPlayIndex(getPlayIndex());
+              setOwnTrackName(getOwnTrackName());
               setMusicSource("own");
               setSoundOn(true);
               void setSoundscape(true, current.params);
             });
           }}
+          onPlayTrack={(id) => {
+            void playOwnTrack(id).then(() => {
+              setPlayIndex(getPlayIndex());
+              setOwnTrackName(getOwnTrackName());
+              setMusicSource("own");
+              setSoundOn(true);
+              void setSoundscape(true, current.params);
+            });
+          }}
+          onRemoveTrack={(id) => {
+            void removeOwnTrack(id).then(() => {
+              setOwnTracks(getOwnPlaylist());
+              setPlayIndex(getPlayIndex());
+              setOwnTrackName(getOwnTrackName());
+              if (!getOwnPlaylist().length) setMusicSource("cosmos");
+              void setSoundscape(soundOn, current.params);
+            });
+          }}
           onClearTrack={() => {
             void clearOwnTrack().then(() => {
               setOwnTrackName("");
+              setOwnTracks([]);
+              setPlayIndex(0);
               setMusicSource("cosmos");
               void setSoundscape(soundOn, current.params);
             });

@@ -5,6 +5,7 @@ import {
   getAudioStatus,
   loadMusicVolume,
   loadSoundPref,
+  nextPlayIndex,
   persistMusicVolume,
   persistSound,
   primeAudio,
@@ -71,5 +72,13 @@ describe("audio prefs", () => {
     assert.equal(s.wanted, true);
     assert.equal(s.live, false);
     assert.equal(s.state, "idle");
+  });
+
+  it("walks a playlist without a cap", () => {
+    assert.equal(nextPlayIndex(0, 0), 0);
+    assert.equal(nextPlayIndex(1, 0), 0);
+    assert.equal(nextPlayIndex(3, 0), 1);
+    assert.equal(nextPlayIndex(3, 2), 0);
+    assert.equal(nextPlayIndex(64, 63), 0);
   });
 });

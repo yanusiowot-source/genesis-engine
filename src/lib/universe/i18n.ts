@@ -175,6 +175,8 @@ export type Copy = {
   musicVolume: string;
   musicPlaying: string;
   musicEmpty: string;
+  musicCount: string;
+  musicRemove: string;
   tapToHear: string;
   help: string;
   helpTitle: string;
@@ -629,14 +631,16 @@ const en: Copy = {
   soundOn: "Sky music on",
   soundOff: "Sky music off",
   musicTitle: "Music",
-  musicHint: "Quiet chords follow the sliders. Or pick a file from this device.",
+  musicHint: "Quiet chords follow the sliders. Or add as many files as this device will hold.",
   musicCosmos: "Born with the sky",
-  musicOwn: "My track",
-  musicPick: "Choose a file",
-  musicClear: "Remove track",
+  musicOwn: "My tracks",
+  musicPick: "Add tracks",
+  musicClear: "Clear playlist",
   musicVolume: "Volume",
   musicPlaying: "Playing",
-  musicEmpty: "No file yet. MP3, AAC, WAV, FLAC, OGG.",
+  musicEmpty: "No tracks yet. Add many at once. MP3, AAC, WAV, FLAC, OGG.",
+  musicCount: "{n} tracks",
+  musicRemove: "Remove",
   tapToHear: "Tap to hear the sky",
   help: "How this works",
   helpTitle: "How to use the laboratory",
@@ -1397,14 +1401,16 @@ const ru: Copy = {
   soundOff: "Музыка неба выключена",
   musicTitle: "Музыка",
   musicHint:
-    "Тихие аккорды следуют за ползунками. Или выберите файл с этого устройства.",
+    "Тихие аккорды следуют за ползунками. Или добавьте сколько угодно файлов с этого устройства.",
   musicCosmos: "Рождена с небом",
-  musicOwn: "Мой трек",
-  musicPick: "Выбрать файл",
-  musicClear: "Убрать трек",
+  musicOwn: "Мои треки",
+  musicPick: "Добавить треки",
+  musicClear: "Очистить список",
   musicVolume: "Громкость",
   musicPlaying: "Играет",
-  musicEmpty: "Файла пока нет. MP3, AAC, WAV, FLAC, OGG.",
+  musicEmpty: "Треков пока нет. Можно добавить сразу много. MP3, AAC, WAV, FLAC, OGG.",
+  musicCount: "{n} треков",
+  musicRemove: "Убрать",
   tapToHear: "Нажмите, чтобы услышать небо",
   help: "Как это устроено",
   helpTitle: "Как пользоваться лабораторией",
