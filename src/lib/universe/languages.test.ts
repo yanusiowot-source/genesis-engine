@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { mergeCopy } from "./copy-merge.ts";
 import { copyFor } from "./i18n.ts";
-import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL } from "./studio.ts";
+import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL, orderCopyUrl } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -64,6 +64,9 @@ describe("copyFor", () => {
     assert.match(c.studioSupportBody, /One-time/);
     assert.match(c.studioSupportBody, /now/);
     assert.match(c.studioReserveCta, /take a copy/);
+    assert.match(c.studioOrderText, /Windows/);
+    assert.match(orderCopyUrl(c.studioOrderText), /messages\/compose/);
+    assert.match(orderCopyUrl(c.studioOrderText), /1652518444795928590/);
     assert.match(c.studioPublicCta, /public lab/);
     assert.match(c.studioEnterCta, /laboratory/);
     assert.match(c.platforms.intro, /free lab/);

@@ -211,6 +211,7 @@ export function makeBe(ru: Copy): Copy {
 		studioPublicCta: "Адкрыць публічную лабараторыю",
 		studioEnterCta: "Увайсці ў лабараторыю",
 		studioReserveCta: "Напісаць, каб забраць копію",
+		studioOrderText: "Добры дзень. Хачу забраць настольную копію Genesis Engine (Windows або Linux).",
 		sourceCode: "© 2026 Ян Ярошевіч. Усе правы абаронены.",
 		version: "Версія 1.24",
 		eggs: {

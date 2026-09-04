@@ -211,6 +211,7 @@ export type Copy = {
   studioPublicCta: string;
   studioEnterCta: string;
   studioReserveCta: string;
+  studioOrderText: string;
   sourceCode: string;
   version: string;
   eggs: {
@@ -717,6 +718,7 @@ const en: Copy = {
   studioPublicCta: "Open the public lab",
   studioEnterCta: "Enter the laboratory",
   studioReserveCta: "Write to take a copy",
+  studioOrderText: "Hello. I would like a Genesis Engine desktop copy for Windows or Linux.",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
   eggs: {
@@ -1485,6 +1487,7 @@ const ru: Copy = {
   studioPublicCta: "Открыть публичную лабораторию",
   studioEnterCta: "Войти в лабораторию",
   studioReserveCta: "Написать, чтобы забрать копию",
+  studioOrderText: "Здравствуйте. Хочу забрать настольную копию Genesis Engine (Windows или Linux).",
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
   version: "Версия 1.24",
   eggs: {

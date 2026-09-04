@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { copyFor, detectLocale } from "@/lib/universe/i18n";
-import { AUTHOR_X_URL } from "@/lib/universe/studio";
+import { orderCopyUrl } from "@/lib/universe/studio";
 
 const TITLE = "Genesis Engine — physics is not for sale";
 const DESCRIPTION =
@@ -54,7 +54,7 @@ function AboutPage() {
             <Link to="/">{copy.studioEnterCta}</Link>
           </Button>
           <Button asChild variant="outline">
-            <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
+            <a href={orderCopyUrl(copy.studioOrderText)} target="_blank" rel="noopener noreferrer">
               <ExternalLink />
               {copy.studioReserveCta}
             </a>
@@ -75,6 +75,29 @@ function AboutPage() {
         </ul>
         <p className="mt-8 text-sm text-fg-subtle">{copy.sourceCode}</p>
         <p className="mt-1 font-mono text-[0.6875rem] text-fg-subtle">{copy.version}</p>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "SoftwareApplication",
+              name: "Genesis Engine",
+              url: "https://yanusiowot-source.github.io/genesis-lab/about/",
+              image: "https://yanusiowot-source.github.io/genesis-lab/og.jpg",
+              description: DESCRIPTION,
+              applicationCategory: "EducationalApplication",
+              operatingSystem: "Windows, Linux, Web",
+              author: { "@type": "Person", name: "Ян Ярошевич", url: "https://x.com/yanusio" },
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "USD",
+                description:
+                  "The public laboratory is free. Windows and Linux desktop copies are sold separately.",
+              },
+            }),
+          }}
+        />
       </main>
     </div>
   );

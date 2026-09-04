@@ -3,7 +3,7 @@ import { AppWindow, ExternalLink, Monitor, Plus, Share, Smartphone, Tablet } fro
 import { Button } from "@/components/ui/button";
 import type { Copy } from "@/lib/universe/i18n";
 import type { HostKind, PlatformInfo } from "@/lib/universe/platform";
-import { AUTHOR_X_URL } from "@/lib/universe/studio";
+import { orderCopyUrl } from "@/lib/universe/studio";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -117,7 +117,7 @@ export function InstallSheet({ copy, platform, onInstall, onClose }: Props) {
           {canPrompt ? <Button onClick={onInstall}>{copy.installCta}</Button> : null}
           {!platform.native ? (
             <Button asChild variant={canPrompt ? "outline" : "default"}>
-              <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
+              <a href={orderCopyUrl(copy.studioOrderText)} target="_blank" rel="noopener noreferrer">
                 <ExternalLink />
                 {copy.studioReserveCta}
               </a>

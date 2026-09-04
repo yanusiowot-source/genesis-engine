@@ -7,7 +7,7 @@ import type { Copy, Locale } from "@/lib/universe/i18n";
 import type { MusicSource } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
 import { cn } from "@/lib/utils";
-import { AUTHOR_X_URL, PUBLIC_LAB_URL, isHostedLab } from "@/lib/universe/studio";
+import { AUTHOR_X_URL, PUBLIC_LAB_URL, isHostedLab, orderCopyUrl } from "@/lib/universe/studio";
 
 type Props = {
   copy: Copy;
@@ -338,7 +338,7 @@ export function SettingsSheet({
             ))}
           </ul>
           <Button asChild className="mt-4 w-full">
-            <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">
+            <a href={orderCopyUrl(copy.studioOrderText)} target="_blank" rel="noopener noreferrer">
               <ExternalLink />
               {copy.studioReserveCta}
             </a>
