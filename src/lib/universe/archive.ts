@@ -43,6 +43,13 @@ function saveLocal(records: UniverseRecord[]): void {
 function openDb(): Promise<IDBDatabase | null> {
   if (typeof indexedDB === "undefined") return Promise.resolve(null);
   return new Promise((resolve) => {
+    let settled = false;
+    const done = (db: IDBDatabase | null) => {
+      if (settled) return;
+      settled = true;
+      resolve(db);
+    };
+    const timer = setTimeout(() => done(null), 400);
     try {
       const req = indexedDB.open(DB_NAME, 1);
       req.onupgradeneeded = () => {
@@ -50,10 +57,17 @@ function openDb(): Promise<IDBDatabase | null> {
           req.result.createObjectStore(STORE);
         }
       };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => resolve(null);
+      req.onsuccess = () => {
+        clearTimeout(timer);
+        done(req.result);
+      };
+      req.onerror = () => {
+        clearTimeout(timer);
+        done(null);
+      };
     } catch {
-      resolve(null);
+      clearTimeout(timer);
+      done(null);
     }
   });
 }

@@ -6,7 +6,7 @@ export function makeBe(ru: Copy): Copy {
 		...ru,
 		kicker: "Касмалагічная лабараторыя",
 		birth: "Нарадзіць сусвет",
-		birthWitness: "Новае неба. Большасць пустыя.",
+		birthWitness: "Новае неба. Большасць пустыя. Агляд 64 — апора.",
 		birthGood: "І ўбачыў я, што гэта добра.",
 		survey: "Агляд 64",
 		ours: "Наш сусвет",

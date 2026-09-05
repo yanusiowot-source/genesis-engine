@@ -89,7 +89,7 @@ import {
   loadHapticPref,
   setHapticEnabled,
 } from "@/lib/universe/haptic";
-import { autonym, bcp47, copyFor, detectLocale, nextLocale, persistLocale, type Locale } from "@/lib/universe/i18n";
+import { autonym, bcp47, copyFor, detectLocale, persistLocale, type Locale } from "@/lib/universe/i18n";
 import { loadCatalog } from "@/lib/universe/languages";
 import { detectPlatform, type PlatformInfo } from "@/lib/universe/platform";
 import {
@@ -209,9 +209,10 @@ export function UniverseApp() {
   const reportTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
+  const fromLinkRef = useRef(false);
   const dotHinted = useRef(false);
   const [hydrated, setHydrated] = useState(false);
-  const [onboard, setOnboard] = useState(false);
+  const [onboard, setOnboard] = useState(true);
   const [tab, setTab] = useState<AppTab>("sky");
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
@@ -247,6 +248,7 @@ export function UniverseApp() {
   }, [setCosmicTime]);
   const [collisionKey, setCollisionKey] = useState(0);
   const [installOpen, setInstallOpen] = useState(false);
+  const [installReady, setInstallReady] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aboutIntent, setAboutIntent] = useState(false);
   const [siliconOpen, setSiliconOpen] = useState(false);
@@ -345,21 +347,14 @@ export function UniverseApp() {
       setOnboard(true);
     }
     if (isAboutHash()) {
-      setOnboard(false);
       setSettingsOpen(true);
       setAboutIntent(true);
-      try {
-        localStorage.setItem(ONBOARD_KEY, "1");
-      } catch {
-        /* ignore */
-      }
     }
   }, []);
 
   useEffect(() => {
     const applyHash = () => {
       if (!isAboutHash()) return;
-      setOnboard(false);
       setHelpOpen(false);
       setInstallOpen(false);
       setSiliconOpen(false);
@@ -380,6 +375,7 @@ export function UniverseApp() {
     });
     const decoded = decodeUniverse(window.location.search);
     if (decoded) {
+      fromLinkRef.current = true;
       setCurrent(makeRecord(decoded.params, decoded.visualSeed));
       primeAudio(decoded.params);
     } else {
@@ -414,6 +410,7 @@ export function UniverseApp() {
     const onPrompt = (event: Event) => {
       event.preventDefault();
       installPrompt.current = event as InstallPromptEvent;
+      setInstallReady(true);
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
     return () => {
@@ -767,7 +764,7 @@ export function UniverseApp() {
     soundOnRef.current = true;
     unlockAndStart(current.params);
     void setSoundscape(true, current.params);
-    if (born) {
+    if (born && !fromLinkRef.current) {
       window.clearTimeout(onboardBirthTimer.current);
       onboardBirthTimer.current = window.setTimeout(() => birth(), 220);
     }
@@ -775,7 +772,9 @@ export function UniverseApp() {
 
   const toggleLocale = useCallback(() => {
     setLocale((prev) => {
-      const next = nextLocale(prev);
+      const order = ["en", "ru", "be"] as const;
+      const i = order.indexOf(prev as (typeof order)[number]);
+      const next = order[i < 0 ? 0 : (i + 1) % order.length];
       persistLocale(next);
       return next;
     });
@@ -788,14 +787,12 @@ export function UniverseApp() {
 
   const runInstall = useCallback(async () => {
     const prompt = installPrompt.current;
-    if (prompt) {
-      await prompt.prompt();
-      installPrompt.current = null;
-      setInstallOpen(false);
-      setSettingsOpen(false);
-      return;
-    }
+    if (!prompt) return;
+    await prompt.prompt();
+    installPrompt.current = null;
+    setInstallReady(false);
     setInstallOpen(false);
+    setSettingsOpen(false);
   }, []);
 
   const overlayOpen = onboard || installOpen || settingsOpen || siliconOpen || eternalOpen || helpOpen;
@@ -1495,16 +1492,11 @@ export function UniverseApp() {
             </Button>
             <Button
               variant="secondary"
-              size="icon"
-              className="shrink-0 sm:hidden"
-              aria-label={copy.survey}
+              className="shrink-0"
               onClick={runSurvey}
             >
               <ScanSearch />
-            </Button>
-            <Button variant="secondary" className="hidden sm:inline-flex" onClick={runSurvey}>
-              <ScanSearch />
-              {copy.survey}
+              <span className="truncate">{copy.survey}</span>
             </Button>
             <Button
               variant="outline"
@@ -1597,13 +1589,14 @@ export function UniverseApp() {
         <TabBar copy={copy} tab={tab} onChange={setTab} />
       </div>
 
-      {hydrated && onboard && !settingsOpen && !helpOpen && !installOpen && !siliconOpen && !eternalOpen ? (
+      {onboard && !settingsOpen && !helpOpen && !installOpen && !siliconOpen && !eternalOpen ? (
         <Onboarding copy={copy} locale={locale} onLocale={toggleLocale} onDone={finishOnboard} />
       ) : null}
       {installOpen ? (
         <InstallSheet
           copy={copy}
           platform={platform}
+          canNativeInstall={installReady}
           onInstall={() => void runInstall()}
           onClose={() => setInstallOpen(false)}
         />

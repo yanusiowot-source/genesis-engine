@@ -52,6 +52,7 @@ describe("copyFor", () => {
     assert.equal(copyFor("ru").onboarding.length, 3);
     assert.equal(copyFor("be").onboarding.length, 3);
     assert.match(c.birthWitness, /Most stay empty/);
+    assert.match(c.birthWitness, /Survey 64/);
     assert.match(c.birthGood, /it was good/);
     assert.match(copyFor("ru").birthGood, /хорошо/);
     assert.match(copyFor("be").birthGood, /добра/);
@@ -83,6 +84,7 @@ describe("copyFor", () => {
     assert.match(c.platforms.windowsBody, /SmartScreen/);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
     assert.match(copyFor("ru").studioHonesty, /не прода/);
+    assert.match(copyFor("ru").birthWitness, /Обзор 64/);
     assert.match(copyFor("be").eggs.tau, /гамалог/);
     assert.match(copyFor("be").studioHonesty, /не прада/);
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /уже есть/);

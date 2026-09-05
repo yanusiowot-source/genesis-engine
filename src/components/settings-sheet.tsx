@@ -100,8 +100,14 @@ export function SettingsSheet({
 
   useEffect(() => {
     if (!openAbout) return;
-    const id = window.requestAnimationFrame(() => scrollToAbout());
-    return () => window.cancelAnimationFrame(id);
+    let inner = 0;
+    const outer = window.requestAnimationFrame(() => {
+      inner = window.requestAnimationFrame(() => scrollToAbout());
+    });
+    return () => {
+      window.cancelAnimationFrame(outer);
+      window.cancelAnimationFrame(inner);
+    };
   }, [openAbout]);
 
   useEffect(() => {

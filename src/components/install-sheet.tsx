@@ -9,11 +9,12 @@ import { cn } from "@/lib/utils";
 type Props = {
   copy: Copy;
   platform: PlatformInfo;
+  canNativeInstall: boolean;
   onInstall: () => void;
   onClose: () => void;
 };
 
-export function InstallSheet({ copy, platform, onInstall, onClose }: Props) {
+export function InstallSheet({ copy, platform, canNativeInstall, onInstall, onClose }: Props) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -29,9 +30,8 @@ export function InstallSheet({ copy, platform, onInstall, onClose }: Props) {
     { id: "ios", title: copy.platforms.iosTitle, body: copy.platforms.iosBody, Icon: Tablet },
   ];
 
-  const current =
-    platform.kind === "macos" ? "windows" : platform.kind === "other" ? null : platform.kind;
-  const canPrompt = !platform.native && platform.kind !== "ios" && !platform.standalone;
+  const current = platform.kind === "other" ? null : platform.kind;
+  const canPrompt = canNativeInstall && !platform.native && platform.kind !== "ios" && !platform.standalone;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
