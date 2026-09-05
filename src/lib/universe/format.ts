@@ -1,6 +1,7 @@
 import type { Locale } from "./i18n";
 
 export function formatPct(n: number): string {
+  if (!Number.isFinite(n)) return "—";
   return `${(n * 100).toFixed(1)}%`;
 }
 

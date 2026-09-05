@@ -54,7 +54,7 @@ type Props = {
 const TARGETS: ResearchTarget[] = RESEARCH_TARGETS;
 const KEYS: ParamKey[] = PARAM_META.map((m) => m.key);
 
-let lawsPrimed = false;
+let lawsPrimedFor: string | null = null;
 
 const fieldClass =
   "h-11 w-full rounded-[var(--radius-sm)] bg-bg px-3 font-mono text-sm tabular-nums text-fg shadow-[var(--shadow-border)] outline-none focus-visible:ring-2 focus-visible:ring-accent/50";
@@ -97,30 +97,36 @@ export function LawsPanel({
     setBusyLaw(true);
     try {
       onLaw(await discoverLawAsync(randomSeed(), target));
+    } catch {
+      /* worker failed — Discover stays available */
     } finally {
       setBusyLaw(false);
     }
   };
 
   useEffect(() => {
-    if (law || lawsPrimed) return;
-    lawsPrimed = true;
+    if (law?.target === target) return;
+    if (lawsPrimedFor === target) return;
+    lawsPrimedFor = target;
     let live = true;
     void (async () => {
       setBusyLaw(true);
       try {
         const next = await discoverLawAsync(randomSeed(), target);
+        if (!live) return;
         onLaw(next);
+      } catch {
+        if (live) lawsPrimedFor = null;
       } finally {
-        setBusyLaw(false);
+        if (live) setBusyLaw(false);
       }
     })();
     return () => {
       live = false;
     };
-    // first visit only — later Discover is the user's
+    // first visit per corridor
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [target]);
 
   const runBayes = async () => {
     if (busyBayes) return;
@@ -181,7 +187,7 @@ export function LawsPanel({
         <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.laws.hint}</p>
       </div>
 
-      <TargetGrid copy={copy} target={target} onTarget={onTarget} />
+      <TargetGrid copy={copy} target={target} onTarget={onTarget} locked={busyLaw} />
 
       <div>
         <h4 className="text-sm font-medium">{copy.laws.symbolic}</h4>
@@ -191,9 +197,9 @@ export function LawsPanel({
         <Button className="mt-3 w-full" onClick={() => void runLaw()} disabled={busyLaw} data-fitting={busyLaw ? "1" : undefined}>
           {busyLaw ? copy.laws.discovering : copy.laws.discover}
         </Button>
-        {law ? (
+        {law && law.target === target ? (
           <LawBlock copy={copy} law={law} params={params} />
-        ) : (
+        ) : busyLaw ? null : (
           <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">
             {copy.laws.empty}
           </p>
@@ -327,10 +333,12 @@ function TargetGrid({
   copy,
   target,
   onTarget,
+  locked = false,
 }: {
   copy: Copy;
   target: ResearchTarget;
   onTarget: (t: ResearchTarget) => void;
+  locked?: boolean;
 }) {
   return (
     <div
@@ -346,9 +354,11 @@ function TargetGrid({
             type="button"
             role="radio"
             aria-checked={active}
+            disabled={locked}
             onClick={() => onTarget(id)}
             className={cn(
               "h-11 rounded-[var(--radius-xs)] text-[0.6875rem] font-medium tracking-wide uppercase",
+              locked && "opacity-60",
               active ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
             )}
           >

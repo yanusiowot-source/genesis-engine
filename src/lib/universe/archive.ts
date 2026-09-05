@@ -5,6 +5,8 @@ const KEY = "genesis-engine-archive-v1";
 const DB_NAME = "genesis-engine";
 const STORE = "kv";
 const LIMIT = 32;
+let idbReadable = false;
+let saveGen = 0;
 
 function revive(record: UniverseRecord): UniverseRecord {
   const params = snapParams(record.params);
@@ -49,7 +51,7 @@ function openDb(): Promise<IDBDatabase | null> {
       settled = true;
       resolve(db);
     };
-    const timer = setTimeout(() => done(null), 400);
+    const timer = setTimeout(() => done(null), 1600);
     try {
       const req = indexedDB.open(DB_NAME, 1);
       req.onupgradeneeded = () => {
@@ -129,12 +131,16 @@ export async function loadArchive(): Promise<UniverseRecord[]> {
   if (db) {
     const fromIdb = await idbGet(db);
     db.close();
-    if (fromIdb && fromIdb.length > 0) return fromIdb;
+    if (fromIdb !== null) {
+      idbReadable = true;
+      if (fromIdb.length > 0) return fromIdb;
+    }
   }
   const fromLs = loadLocal();
   if (fromLs.length > 0) {
     const migrated = await openDb();
     if (migrated) {
+      idbReadable = true;
       await idbSet(migrated, fromLs);
       migrated.close();
     }
@@ -145,8 +151,30 @@ export async function loadArchive(): Promise<UniverseRecord[]> {
 export async function saveArchive(records: UniverseRecord[]): Promise<void> {
   const next = sortArchive(records);
   saveLocal(next);
+  const gen = ++saveGen;
+  if (!idbReadable) {
+    const probe = await openDb();
+    if (!probe) return;
+    const existing = await idbGet(probe);
+    if (existing === null) {
+      probe.close();
+      return;
+    }
+    idbReadable = true;
+    if (gen !== saveGen) {
+      probe.close();
+      return;
+    }
+    await idbSet(probe, next);
+    probe.close();
+    return;
+  }
   const db = await openDb();
   if (!db) return;
+  if (gen !== saveGen) {
+    db.close();
+    return;
+  }
   await idbSet(db, next);
   db.close();
 }

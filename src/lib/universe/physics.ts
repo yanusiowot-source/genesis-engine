@@ -520,7 +520,10 @@ export function snapParams(params: UniverseParams): UniverseParams {
   const next = { ...params };
   for (const meta of PARAM_META) {
     const digits = meta.step < 0.01 ? 3 : 2;
-    next[meta.key] = Number(next[meta.key].toFixed(digits));
+    const v = next[meta.key];
+    next[meta.key] = Number.isFinite(v)
+      ? Number(v.toFixed(digits))
+      : OUR_UNIVERSE[meta.key];
   }
   return next;
 }

@@ -29,6 +29,9 @@ function getWorker(): Worker | null {
       else slot.reject(new Error(msg.error));
     };
     worker.onerror = () => {
+      const err = new Error("worker");
+      for (const [, slot] of pending) slot.reject(err);
+      pending.clear();
       worker?.terminate();
       worker = null;
     };
@@ -67,11 +70,8 @@ export async function discoverLawAsync(
   target: ResearchTarget,
   n?: number,
 ): Promise<DiscoveryResult> {
-  try {
-    return await callWorker<DiscoveryResult>({ op: "discover", seed, target, n });
-  } catch {
-    return discoverLaw(seed, target, n);
-  }
+  if (!getWorker()) return discoverLaw(seed, target, n);
+  return callWorker<DiscoveryResult>({ op: "discover", seed, target, n });
 }
 
 export async function testHypothesisAsync(
@@ -79,11 +79,8 @@ export async function testHypothesisAsync(
   hypothesis: Hypothesis,
   n?: number,
 ): Promise<BayesResult> {
-  try {
-    return await callWorker<BayesResult>({ op: "bayes", seed, hypothesis, n });
-  } catch {
-    return testHypothesis(seed, hypothesis, n);
-  }
+  if (!getWorker()) return testHypothesis(seed, hypothesis, n);
+  return callWorker<BayesResult>({ op: "bayes", seed, hypothesis, n });
 }
 
 export async function runMcmcAsync(
@@ -94,14 +91,11 @@ export async function runMcmcAsync(
   burnIn?: number,
   thin?: number,
 ): Promise<McmcResult> {
-  try {
-    return await callWorker<McmcResult>(
-      { op: "mcmc", seed, start, target, nSteps, burnIn, thin },
-      28_000,
-    );
-  } catch {
-    return runMcmc(seed, start, target, nSteps, burnIn, thin);
-  }
+  if (!getWorker()) return runMcmc(seed, start, target, nSteps, burnIn, thin);
+  return callWorker<McmcResult>(
+    { op: "mcmc", seed, start, target, nSteps, burnIn, thin },
+    28_000,
+  );
 }
 
 export async function runExpeditionAsync(
@@ -109,12 +103,9 @@ export async function runExpeditionAsync(
   target: ResearchTarget,
   current: UniverseParams,
 ): Promise<ExpeditionResult> {
-  try {
-    return await callWorker<ExpeditionResult>(
-      { op: "expedition", seed, target, current },
-      20_000,
-    );
-  } catch {
-    return runExpedition(seed, target, current);
-  }
+  if (!getWorker()) return runExpedition(seed, target, current);
+  return callWorker<ExpeditionResult>(
+    { op: "expedition", seed, target, current },
+    20_000,
+  );
 }

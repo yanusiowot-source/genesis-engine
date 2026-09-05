@@ -232,6 +232,7 @@ export function GalaxyCanvas({
       hidden = document.hidden;
       if (!hidden && running) {
         lastT = 0;
+        cancelAnimationFrame(frame);
         frame = requestAnimationFrame(draw);
       }
     };
@@ -987,7 +988,7 @@ export function GalaxyCanvas({
       } catch {
         /* one bad frame must not kill the sky */
       } finally {
-        if (running) frame = requestAnimationFrame(draw);
+        if (running && !hidden) frame = requestAnimationFrame(draw);
       }
     };
 

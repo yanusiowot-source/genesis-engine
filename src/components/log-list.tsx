@@ -76,8 +76,8 @@ export function LogList({
           {archive.length === 0
             ? copy.logEmpty
             : filter === "starred"
-              ? copy.filterStarred
-              : copy.filterViable}
+              ? copy.logEmptyStarred
+              : copy.logEmptyViable}
         </p>
       ) : (
         <ul className="flex flex-col gap-1">

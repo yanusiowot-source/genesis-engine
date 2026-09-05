@@ -140,6 +140,7 @@ import {
 } from "@/lib/universe/rng";
 import { ANSWER_SEED, noteEggKey, sliderEgg } from "@/lib/universe/eggs";
 import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
+import { compareToOurs, formatCompareLine } from "@/lib/universe/compare";
 import type { LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
 import { nowMarker } from "@/lib/universe/observatory";
@@ -179,6 +180,7 @@ interface InstallPromptEvent extends Event {
 }
 
 export function UniverseApp() {
+  const fromLinkRef = useRef(false);
   const [current, setCurrent] = useState<UniverseRecord>(() =>
     makeRecord(OUR_UNIVERSE, OUR_SEED),
   );
@@ -215,14 +217,13 @@ export function UniverseApp() {
   const oursNudgeTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
-  const fromLinkRef = useRef(false);
   const dotHinted = useRef(false);
   const tauHinted = useRef(false);
   const huntAuto = useRef(false);
   const huntTimer = useRef(0);
   const huntGen = useRef(0);
   const [hydrated, setHydrated] = useState(false);
-  const [onboard, setOnboard] = useState(false);
+  const [onboard, setOnboard] = useState(true);
   const [tab, setTab] = useState<AppTab>("sky");
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
@@ -369,13 +370,19 @@ export function UniverseApp() {
     setContrast(contrastPref);
     setTypeScale(typePref);
     applyPrefs(contrastPref, typePref);
+    if (!fromLinkRef.current) {
+      const decoded = decodeUniverse(window.location.search);
+      if (decoded) {
+        fromLinkRef.current = true;
+        setCurrent(makeRecord(decoded.params, decoded.visualSeed));
+      }
+    }
     try {
       setOnboard(localStorage.getItem(ONBOARD_KEY) !== "1");
     } catch {
       setOnboard(true);
     }
     if (isAboutHash()) {
-      setSettingsOpen(true);
       setAboutIntent(true);
     }
   }, []);
@@ -387,8 +394,12 @@ export function UniverseApp() {
       setInstallOpen(false);
       setSiliconOpen(false);
       setEternalOpen(false);
-      setSettingsOpen(true);
       setAboutIntent(true);
+      try {
+        if (localStorage.getItem(ONBOARD_KEY) === "1") setSettingsOpen(true);
+      } catch {
+        /* primer first */
+      }
     };
     applyHash();
     window.addEventListener("hashchange", applyHash);
@@ -404,21 +415,27 @@ export function UniverseApp() {
     const decoded = decodeUniverse(window.location.search);
     if (decoded) {
       fromLinkRef.current = true;
-      setCurrent(makeRecord(decoded.params, decoded.visualSeed));
       primeAudio(decoded.params);
     } else {
       primeAudio(OUR_UNIVERSE);
     }
     void loadArchive()
       .then((loaded) => {
-        if (loaded.length === 0) {
-          setArchive([makeRecord(OUR_UNIVERSE, OUR_SEED)]);
-        } else {
-          setArchive(loaded);
-        }
+        setArchive((prev) => {
+          if (prev.length > 0) {
+            if (loaded.length === 0) return prev;
+            let next = loaded;
+            for (const row of prev) next = upsertArchive(next, row);
+            return next;
+          }
+          if (loaded.length === 0) return [makeRecord(OUR_UNIVERSE, OUR_SEED)];
+          return loaded;
+        });
       })
       .catch(() => {
-        setArchive([makeRecord(OUR_UNIVERSE, OUR_SEED)]);
+        setArchive((prev) =>
+          prev.length > 0 ? prev : [makeRecord(OUR_UNIVERSE, OUR_SEED)],
+        );
       })
       .finally(() => setHydrated(true));
     const host = detectPlatform();
@@ -784,7 +801,8 @@ export function UniverseApp() {
       setShared(true);
       window.clearTimeout(shareTimer.current);
       shareTimer.current = window.setTimeout(() => setShared(false), 1400);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") return;
       try {
         await navigator.clipboard.writeText(url);
         setShared(true);
@@ -833,11 +851,14 @@ export function UniverseApp() {
     soundOnRef.current = true;
     unlockAndStart(current.params);
     void setSoundscape(true, current.params);
+    if (aboutIntent) {
+      setSettingsOpen(true);
+    }
     if (born && !fromLinkRef.current) {
       window.clearTimeout(onboardBirthTimer.current);
       onboardBirthTimer.current = window.setTimeout(() => birth(), 220);
     }
-  }, [birth, current.params]);
+  }, [aboutIntent, birth, current.params]);
 
   const toggleLocale = useCallback(() => {
     setLocale((prev) => {
@@ -1008,6 +1029,10 @@ export function UniverseApp() {
     ],
     [copy, ev],
   );
+  const versusLine = useMemo(
+    () => formatCompareLine(compareToOurs(current.params), copy),
+    [copy, current.params],
+  );
 
   const lab = tab !== "lab" ? null : (
     <>
@@ -1023,6 +1048,9 @@ export function UniverseApp() {
         />
       ) : labPane === "life" ? (
         <>
+          {ev.lifeProb < 0.08 && ev.siliconProb < 0.08 && ev.eternalProb < 0.08 ? (
+            <p className="text-pretty text-sm leading-relaxed text-fg-muted">{copy.birthWitness}</p>
+          ) : null}
           <CivPanel copy={copy} params={current.params} evaluation={ev} />
           <div className="h-px bg-border" />
           <BiospherePanel copy={copy} params={current.params} evaluation={ev} />
@@ -1559,6 +1587,14 @@ export function UniverseApp() {
           <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-2">
             {copy.fateCopy[ev.fate]}
           </p>
+          {versusLine ? (
+            <p
+              className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2"
+              data-versus="1"
+            >
+              {versusLine}
+            </p>
+          ) : null}
           {!ours ? (
             <button
               type="button"

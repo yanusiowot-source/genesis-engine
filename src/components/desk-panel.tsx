@@ -1,5 +1,5 @@
 import { FileOutput, Sigma } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { McmcView } from "@/components/mcmc-view";
 import { Button } from "@/components/ui/button";
 import type { BayesResult } from "@/lib/universe/bayes";
@@ -62,7 +62,7 @@ type Props = {
   onApply: (params: UniverseParams, visualSeed: number) => void;
 };
 
-let deskPrimed = false;
+let deskPrimedFor: string | null = null;
 
 export function DeskPanel({
   copy,
@@ -109,10 +109,16 @@ export function DeskPanel({
     if (result) setBusy(false);
   }, [result]);
 
+  const flashTimer = useRef(0);
   const flash = (id: string) => {
     setSaved(id);
-    window.setTimeout(() => setSaved(null), 1200);
+    window.clearTimeout(flashTimer.current);
+    flashTimer.current = window.setTimeout(() => setSaved(null), 1200);
   };
+
+  useEffect(() => {
+    return () => window.clearTimeout(flashTimer.current);
+  }, []);
 
   const run = async (silent = false) => {
     if (busy) return;
@@ -120,30 +126,36 @@ export function DeskPanel({
     setBusy(true);
     try {
       onResult(await runMcmcAsync(randomSeed(), record.params, target));
+    } catch {
+      /* worker failed — Walk stays available */
     } finally {
       setBusy(false);
     }
   };
 
   useEffect(() => {
-    if (result || deskPrimed) return;
-    deskPrimed = true;
+    if (result?.target === target) return;
+    if (deskPrimedFor === target) return;
+    deskPrimedFor = target;
     let live = true;
     void (async () => {
       setBusy(true);
       try {
         const next = await runMcmcAsync(randomSeed(), record.params, target);
+        if (!live) return;
         onResult(next);
+      } catch {
+        if (live) deskPrimedFor = null;
       } finally {
-        setBusy(false);
+        if (live) setBusy(false);
       }
     })();
     return () => {
       live = false;
     };
-    // first visit only
+    // first visit per corridor
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [target]);
 
   const okCatalog = catalog && catalog.ok ? catalog : null;
 
@@ -161,7 +173,7 @@ export function DeskPanel({
           <Sigma />
           {busy ? copy.desk.running : copy.desk.run}
         </Button>
-        {result ? (
+        {result && result.target === target ? (
           <McmcBlock
             copy={copy}
             result={result}
@@ -169,7 +181,7 @@ export function DeskPanel({
             visualSeed={record.visualSeed}
             onApply={onApply}
           />
-        ) : (
+        ) : busy ? null : (
           <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.desk.empty}</p>
         )}
       </div>
@@ -438,11 +450,16 @@ function McmcBlock({
   onApply: (params: UniverseParams, visualSeed: number) => void;
 }) {
   const reading = useMemo(() => analyzePosterior(result, here), [result, here]);
+  if (result.samples.length === 0) {
+    return (
+      <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.desk.empty}</p>
+    );
+  }
   const rows = [
     { k: copy.desk.accept, v: formatPct(result.acceptRate) },
-    { k: copy.desk.ess, v: result.ess.toFixed(0) },
-    { k: copy.desk.rhat, v: reading.rhat.toFixed(2) },
-    { k: copy.desk.tau, v: reading.tau.toFixed(1) },
+    { k: copy.desk.ess, v: Number.isFinite(result.ess) ? result.ess.toFixed(0) : "—" },
+    { k: copy.desk.rhat, v: Number.isFinite(reading.rhat) ? reading.rhat.toFixed(2) : "—" },
+    { k: copy.desk.tau, v: Number.isFinite(reading.tau) ? reading.tau.toFixed(1) : "—" },
     { k: copy.desk.samples, v: String(result.samples.length) },
     { k: copy.desk.map, v: formatPct(result.map.score) },
   ];
@@ -461,7 +478,7 @@ function McmcBlock({
             <dd
               className={cn(
                 "mt-0.5 font-mono text-sm tabular-nums",
-                s.k === copy.desk.rhat && reading.rhat > 1.2 ? "text-sterile" : "text-fg",
+                s.k === copy.desk.rhat && reading.rhat >= 1.2 ? "text-sterile" : "text-fg",
               )}
             >
               {s.v}
@@ -469,7 +486,7 @@ function McmcBlock({
           </div>
         ))}
       </dl>
-      {reading.rhat > 1.2 ? (
+      {reading.rhat >= 1.2 ? (
         <p className="text-pretty text-xs leading-relaxed text-fg-muted">{copy.desk.rhatHint}</p>
       ) : null}
 

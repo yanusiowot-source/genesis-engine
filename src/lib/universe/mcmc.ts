@@ -251,9 +251,9 @@ export function analyzePosterior(
   let viableSilicon = 0;
   let viableEternal = 0;
   for (const s of result.samples) {
-    const carbon = s.lifeProb ?? evaluate(s.params).lifeProb;
-    const silicon = s.siliconProb ?? evaluate(s.params).siliconProb;
-    const eternal = s.eternalProb ?? evaluate(s.params).eternalProb;
+    const carbon = s.lifeProb;
+    const silicon = s.siliconProb;
+    const eternal = s.eternalProb;
     if (carbon >= 0.18) viableCarbon += 1;
     if (silicon >= 0.18) viableSilicon += 1;
     if (eternal >= 0.18) viableEternal += 1;

@@ -71,6 +71,16 @@ describe("copyFor", () => {
     assert.doesNotMatch(c.studioKeepBody, /is next/);
     assert.doesNotMatch(c.studioKeepBody, /is ready/);
     assert.match(c.studioKeepBody, /15 USDT/);
+    assert.doesNotMatch(c.payAfter, /zip/i);
+    assert.doesNotMatch(c.platforms.windowsBody, /zip/i);
+    assert.doesNotMatch(c.platforms.linuxBody, /zip/i);
+    assert.match(c.versusYounger, /Younger than home/);
+    assert.match(c.research.running, /prior/);
+    assert.match(copyFor("ru").versusYounger, /Моложе дома/);
+    assert.match(copyFor("ru").research.running, /приор/);
+    assert.match(copyFor("be").versusYounger, /Маладзейшы/);
+    assert.doesNotMatch(copyFor("ru").payAfter, /zip/i);
+    assert.doesNotMatch(copyFor("be").payAfter, /zip/i);
     assert.doesNotMatch(c.chronicleHint, /Grok/);
     assert.equal(COPY_PRICE, "15");
     assert.equal(COPY_CURRENCY, "USDT");

@@ -116,7 +116,7 @@ export function InstallSheet({ copy, platform, canNativeInstall, onInstall, onCl
         <div className="mt-6 flex flex-col gap-2">
           {canPrompt ? <Button onClick={onInstall}>{copy.installCta}</Button> : null}
           {!platform.native ? (
-            <Button asChild variant={canPrompt ? "outline" : "default"}>
+            <Button asChild variant="outline">
               <a href={orderCopyUrl(copy.studioOrderText)} target="_blank" rel="noopener noreferrer">
                 <ExternalLink />
                 {copy.studioReserveCta}

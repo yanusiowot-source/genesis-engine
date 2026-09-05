@@ -27,7 +27,7 @@
     "desktop:pack": "npm run desktop:build && node desktop/assemble.mjs",
     "desktop:pack:win": "npm run desktop:build && node desktop/assemble.mjs win32",
     "desktop:pack:linux": "npm run desktop:build && node desktop/assemble.mjs linux",
-    "test": "node --experimental-strip-types --test src/lib/universe/physics.test.ts src/lib/universe/observatory.test.ts src/lib/universe/galaxy.test.ts src/lib/universe/research.test.ts src/lib/universe/civilization.test.ts src/lib/universe/citizen.test.ts src/lib/universe/symbolic.test.ts src/lib/universe/bayes.test.ts src/lib/universe/mast.test.ts src/lib/universe/fits.test.ts src/lib/universe/mcmc.test.ts src/lib/universe/zooniverse.test.ts src/lib/universe/eggs.test.ts src/lib/universe/audio.test.ts src/lib/universe/biosphere.test.ts src/lib/universe/languages.test.ts src/lib/universe/field-note.test.ts",
+    "test": "node --experimental-strip-types --test src/lib/universe/physics.test.ts src/lib/universe/observatory.test.ts src/lib/universe/galaxy.test.ts src/lib/universe/research.test.ts src/lib/universe/civilization.test.ts src/lib/universe/citizen.test.ts src/lib/universe/symbolic.test.ts src/lib/universe/bayes.test.ts src/lib/universe/mast.test.ts src/lib/universe/fits.test.ts src/lib/universe/mcmc.test.ts src/lib/universe/zooniverse.test.ts src/lib/universe/eggs.test.ts src/lib/universe/audio.test.ts src/lib/universe/biosphere.test.ts src/lib/universe/languages.test.ts src/lib/universe/field-note.test.ts src/lib/universe/compare.test.ts",
     "test:scripts": "node --test 'scripts/**/*.test.mjs'",
     "lint": "eslint .",
     "format": "prettier --write ."

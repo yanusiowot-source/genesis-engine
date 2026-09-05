@@ -45,9 +45,11 @@ export function ResearchPanel({
               aria-checked={active}
               title={copy.research.targetHint[id]}
               onClick={() => onTarget(id)}
+              disabled={hunting}
               className={cn(
                 "h-11 rounded-[var(--radius-xs)] text-[0.6875rem] font-medium tracking-wide uppercase",
                 "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
+                hunting && "opacity-60",
                 active ? "bg-bg-subtle text-accent" : "text-fg-subtle hover:text-fg",
               )}
             >
@@ -62,12 +64,12 @@ export function ResearchPanel({
 
       <Button onClick={onRun} disabled={hunting} data-hunting={hunting ? "1" : undefined}>
         <ScanSearch />
-        {hunting ? copy.writing : copy.research.run}
+        {hunting ? copy.research.running : copy.research.run}
       </Button>
 
-      {hunting && !result ? (
-        <p className="text-pretty text-sm leading-relaxed text-fg-subtle">{copy.writing}</p>
-      ) : !result ? (
+      {hunting && !(result && result.target === target) ? (
+        <p className="text-pretty text-sm leading-relaxed text-fg-subtle">{copy.research.running}</p>
+      ) : !result || result.target !== target ? (
         <p className="text-pretty text-sm leading-relaxed text-fg-subtle">
           {copy.research.empty}
         </p>
@@ -102,6 +104,21 @@ function ResultBlock({
 
   return (
     <div className="flex flex-col gap-5">
+      <FindGroup
+        title={copy.research.observer}
+        copy={copy}
+        rows={result.observer}
+        onApply={onApply}
+      />
+      <FindGroup
+        title={copy.research.theorist}
+        copy={copy}
+        rows={result.theorist}
+        onApply={onApply}
+      />
+
+      <div className="h-px bg-border" />
+
       <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
         {stats.map((s) => (
           <div key={s.k} className="min-w-0">
@@ -158,19 +175,6 @@ function ResultBlock({
           </ul>
         </div>
       ) : null}
-
-      <FindGroup
-        title={copy.research.observer}
-        copy={copy}
-        rows={result.observer}
-        onApply={onApply}
-      />
-      <FindGroup
-        title={copy.research.theorist}
-        copy={copy}
-        rows={result.theorist}
-        onApply={onApply}
-      />
     </div>
   );
 }
@@ -235,9 +239,9 @@ function FindGroup({
     <div className="flex flex-col gap-2">
       <h4 className="text-sm font-medium">{title}</h4>
       <ul className="flex flex-col gap-2">
-        {rows.map((row) => (
+        {rows.map((row, i) => (
           <li
-            key={`${row.visualSeed}-${row.score}`}
+            key={`${row.visualSeed}-${row.score}-${i}`}
             className="flex items-center justify-between gap-3 rounded-[var(--radius-sm)] bg-bg px-3 py-2"
           >
             <div className="min-w-0">

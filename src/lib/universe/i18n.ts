@@ -55,6 +55,8 @@ export type Copy = {
   shared: string;
   log: string;
   logEmpty: string;
+  logEmptyStarred: string;
+  logEmptyViable: string;
   english: string;
   russian: string;
   belarusian: string;
@@ -238,6 +240,9 @@ export type Copy = {
   };
   thisIsOurs: string;
   compareTitle: string;
+  versusHome: string;
+  versusYounger: string;
+  versusOlder: string;
   oursBadge: string;
   star: string;
   unstar: string;
@@ -279,6 +284,7 @@ export type Copy = {
     title: string;
     hint: string;
     run: string;
+    running: string;
     target: Record<ResearchTarget, string>;
     targetHint: Record<ResearchTarget, string>;
     sample: string;
@@ -497,6 +503,8 @@ const en: Copy = {
   shared: "Link ready",
   log: "Log",
   logEmpty: "Every universe you birth is kept here.",
+  logEmptyStarred: "No starred skies yet.",
+  logEmptyViable: "No corridor is open in this log yet.",
   english: "English",
   russian: "Русский",
   belarusian: "Беларуская",
@@ -519,10 +527,10 @@ const en: Copy = {
     here: "This device",
     windowsTitle: "Windows",
     windowsBody:
-      "In Edge or Chrome: menu → Install Genesis Engine. The free lab lands in the Start menu. The paid portable copy is a zip: Genesis Engine.exe, no browser. Write to take it. Unsigned — SmartScreen may warn.",
+      "In Edge or Chrome: menu → Install Genesis Engine. The free lab lands in the Start menu. The paid portable copy is Genesis Engine.exe in its own window, no browser. Write to take it. Unsigned — SmartScreen may warn.",
     linuxTitle: "Linux",
     linuxBody:
-      "In Chromium, Chrome or Edge: Install app. That is the free lab. The paid Linux zip is a window of its own. Write to take it.",
+      "In Chromium, Chrome or Edge: Install app. That is the free lab. The paid Linux copy is a window of its own. Write to take it.",
     androidTitle: "Android",
     androidBody:
       "Chrome → Add to Home screen. Later the same interface wraps in Android Studio via Capacitor (app.genesisengine.lab).",
@@ -737,7 +745,7 @@ const en: Copy = {
   studioReserveCta: "Order a copy · 15 USDT",
   studioOrderText: "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Sending the tx.",
   payWarn: "Only BEP20 for USDT, Native Segwit for Bitcoin. Any other network burns the transfer.",
-  payAfter: "After you send, write on X with the transaction. That is how the zip finds you.",
+  payAfter: "After you send, write on X with the transaction. That is how the copy finds you.",
   payCopy: "Copy address",
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: "Version 1.24",
@@ -759,6 +767,9 @@ const en: Copy = {
   },
   thisIsOurs: "These constants match our universe — ΛCDM, as we measure it.",
   compareTitle: "Versus our universe",
+  versusHome: "Versus home",
+  versusYounger: "Younger than home by",
+  versusOlder: "Older than home by",
   oursBadge: "ΛCDM",
   star: "Star this sky",
   unstar: "Remove star",
@@ -962,6 +973,7 @@ const en: Copy = {
     title: "Expedition",
     hint: "Three agents on the closed-form physics — not a trained net. Observer draws a mixed prior (wild draws plus all three corridors). Theorist hill-climbs. Analyst permutes each constant and measures how hard the score moves.",
     run: "Run expedition",
+    running: "Mapping the prior…",
     target: {
       carbon: "Carbon",
       silicon: "Silicon",
@@ -1281,6 +1293,8 @@ const ru: Copy = {
   shared: "Ссылка готова",
   log: "Журнал",
   logEmpty: "Здесь собираются рождённые небеса.",
+  logEmptyStarred: "Пока нет отмеченных небес.",
+  logEmptyViable: "В журнале пока нет открытого коридора.",
   english: "English",
   russian: "Русский",
   switchToRu: "Переключить интерфейс на русский",
@@ -1303,10 +1317,10 @@ const ru: Copy = {
     here: "Это устройство",
     windowsTitle: "Windows",
     windowsBody:
-      "В Edge или Chrome: меню → «Установить Genesis Engine». Свободная лаборатория появится в меню «Пуск». Платная портативная копия — zip: Genesis Engine.exe, окно без браузера. Напишите, чтобы забрать. Без подписи: SmartScreen может предупредить.",
+      "В Edge или Chrome: меню → «Установить Genesis Engine». Свободная лаборатория появится в меню «Пуск». Платная портативная копия — Genesis Engine.exe, окно без браузера. Напишите, чтобы забрать. Без подписи: SmartScreen может предупредить.",
     linuxTitle: "Linux",
     linuxBody:
-      "В Chromium, Chrome или Edge: «Установить приложение». Это свободная лаборатория. Платный Linux-zip — своё окно. Напишите, чтобы забрать.",
+      "В Chromium, Chrome или Edge: «Установить приложение». Это свободная лаборатория. Платная копия для Linux — своё окно. Напишите, чтобы забрать.",
     androidTitle: "Android",
     androidBody:
       "Chrome → «На экран “Домой”». Позже тот же интерфейс собирается в Android Studio через Capacitor (app.genesisengine.lab).",
@@ -1522,7 +1536,7 @@ const ru: Copy = {
   studioReserveCta: "Забрать копию · 15 USDT",
   studioOrderText: "Здравствуйте. Оплатил 15 USDT BEP20 (или BTC) за настольную копию Genesis Engine. Присылаю транзакцию.",
   payWarn: "Только BEP20 для USDT и Native Segwit для Bitcoin. Другая сеть — перевод сгорит.",
-  payAfter: "После перевода напишите в X с транзакцией. Так zip найдёт вас.",
+  payAfter: "После перевода напишите в X с транзакцией. Так копия найдёт вас.",
   payCopy: "Скопировать адрес",
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
   version: "Версия 1.24",
@@ -1544,6 +1558,9 @@ const ru: Copy = {
   },
   thisIsOurs: "Эти константы совпадают с нашей вселенной — ΛCDM, как мы её измеряем.",
   compareTitle: "Против нашей вселенной",
+  versusHome: "Против дома",
+  versusYounger: "Моложе дома на",
+  versusOlder: "Старше дома на",
   oursBadge: "ΛCDM",
   star: "Отметить это небо",
   unstar: "Снять отметку",
@@ -1747,6 +1764,7 @@ const ru: Copy = {
     title: "Экспедиция",
     hint: "Три агента на замкнутой физике — не обученная сеть. Наблюдатель берёт смешанный приор (дикие броски и все три коридора). Теоретик поднимается в гору. Аналитик перемешивает каждую константу и смотрит, насколько прыгает оценка.",
     run: "Запустить экспедицию",
+    running: "Картирую приор…",
     target: {
       carbon: "Углерод",
       silicon: "Кремний",
