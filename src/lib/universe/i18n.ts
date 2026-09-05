@@ -147,6 +147,7 @@ export type Copy = {
   closePanel: string;
   foldCorridors: string;
   foldObs: string;
+  foldSculpt: string;
   skies: string;
   appearance: string;
   contrast: string;
@@ -863,6 +864,7 @@ const en: Copy = {
   closePanel: "Close",
   foldCorridors: "Life corridors",
   foldObs: "Observatory",
+  foldSculpt: "Sculpt the constants",
   skies: "Known skies",
   appearance: "Appearance",
   contrast: "High contrast",
@@ -1633,6 +1635,7 @@ const ru: Copy = {
   closePanel: "Закрыть",
   foldCorridors: "Коридоры жизни",
   foldObs: "Обсерватория",
+  foldSculpt: "Лепить константы",
   skies: "Известные небеса",
   appearance: "Оформление",
   contrast: "Высокий контраст",

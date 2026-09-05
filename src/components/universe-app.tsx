@@ -1050,11 +1050,6 @@ export function UniverseApp() {
         />
       ) : (
         <>
-          {hydrated ? (
-            <ParamSliders copy={copy} params={current.params} onChange={setParams} />
-          ) : null}
-          <div className="h-px bg-border" />
-
           <div>
             <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
               {copy.fate}
@@ -1100,6 +1095,49 @@ export function UniverseApp() {
             ))}
           </dl>
 
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+                {copy.chronicle}
+              </p>
+              <span className="font-mono text-[0.6875rem] text-fg-subtle uppercase">
+                {autonym(locale)}
+              </span>
+            </div>
+            {busy ? (
+              <p className="chronicle-write mt-2 text-pretty text-sm leading-relaxed text-fg-muted">
+                {copy.writing}
+              </p>
+            ) : (
+              <p className="mt-2 text-pretty text-sm leading-relaxed whitespace-pre-wrap text-fg-muted">
+                {noteText}
+              </p>
+            )}
+            <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
+              {copy.chronicleHint}
+            </p>
+            {error ? <p className="text-sm text-sterile">{error}</p> : null}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button onClick={() => void commission()} disabled={busy}>
+                <ScrollText />
+                {busy ? copy.writing : current.chronicle ? copy.rewrite : copy.commission}
+              </Button>
+              <Button variant="outline" onClick={() => void copyId()}>
+                {copied ? copy.copied : copy.copyId}
+              </Button>
+              <Button variant="outline" onClick={saveReport}>
+                <FileDown />
+                {reportSaved ? copy.report.downloaded : copy.report.download}
+              </Button>
+            </div>
+          </div>
+
+          <Fold title={copy.foldSculpt}>
+            {hydrated ? (
+              <ParamSliders copy={copy} params={current.params} onChange={setParams} />
+            ) : null}
+          </Fold>
+
           <Fold title={copy.foldCorridors}>
             <LifeFactors copy={copy} evaluation={ev} />
             <SiliconPanel
@@ -1136,40 +1174,6 @@ export function UniverseApp() {
             ) : null}
             <EpochTimeline copy={copy} evaluation={ev} />
             <CompareOurs copy={copy} params={current.params} />
-          </Fold>
-
-          <Fold title={copy.chronicle}>
-            <div className="flex items-center justify-between gap-3">
-              <span className="font-mono text-[0.6875rem] text-fg-subtle uppercase">
-                {autonym(locale)}
-              </span>
-            </div>
-            {busy ? (
-              <p className="chronicle-write text-pretty text-sm leading-relaxed text-fg-muted">
-                {copy.writing}
-              </p>
-            ) : (
-              <p className="text-pretty text-sm leading-relaxed whitespace-pre-wrap text-fg-muted">
-                {noteText}
-              </p>
-            )}
-            <p className="text-pretty text-sm leading-relaxed text-fg-subtle">
-              {copy.chronicleHint}
-            </p>
-            {error ? <p className="text-sm text-sterile">{error}</p> : null}
-            <div className="flex flex-wrap gap-2">
-              <Button onClick={() => void commission()} disabled={busy}>
-                <ScrollText />
-                {busy ? copy.writing : current.chronicle ? copy.rewrite : copy.commission}
-              </Button>
-              <Button variant="outline" onClick={() => void copyId()}>
-                {copied ? copy.copied : copy.copyId}
-              </Button>
-              <Button variant="outline" onClick={saveReport}>
-                <FileDown />
-                {reportSaved ? copy.report.downloaded : copy.report.download}
-              </Button>
-            </div>
           </Fold>
         </>
       )}
@@ -1627,6 +1631,9 @@ export function UniverseApp() {
           {tab === "lab" ? (
             <div className="mt-3">
               <LabPanes copy={copy} pane={labPane} onChange={setLabPane} />
+              <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
+                {copy.labPaneHint[labPane]}
+              </p>
             </div>
           ) : null}
         </div>

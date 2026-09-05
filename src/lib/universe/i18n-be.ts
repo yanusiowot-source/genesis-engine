@@ -185,6 +185,7 @@ export function makeBe(ru: Copy): Copy {
 		closePanel: "Закрыць",
 		foldCorridors: "Калідоры жыцця",
 		foldObs: "Абсерваторыя",
+		foldSculpt: "Ляпіць канстанты",
 		skies: "Нябёсы",
 		appearance: "Выгляд",
 		contrast: "Кантраст",
