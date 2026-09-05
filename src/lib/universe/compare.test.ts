@@ -7,7 +7,12 @@ import {
   SILICON_CORRIDOR,
   friedmannAgeGyr,
 } from "./physics.ts";
-import { compareToOurs, formatCompareLine, formatDelta } from "./compare.ts";
+import {
+  compareToOurs,
+  formatCompareFlash,
+  formatCompareLine,
+  formatDelta,
+} from "./compare.ts";
 
 describe("compareToOurs", () => {
   it("is silent on ΛCDM", () => {
@@ -16,6 +21,7 @@ describe("compareToOurs", () => {
     assert.equal(reading.knobs.length, 0);
     assert.ok(Math.abs(reading.ageDeltaGyr) < 0.05);
     assert.equal(formatCompareLine(reading, copyFor("en")), null);
+    assert.equal(formatCompareFlash(reading, copyFor("en")), null);
   });
 
   it("names the knobs that moved and the Friedmann age gap", () => {
@@ -28,6 +34,19 @@ describe("compareToOurs", () => {
     assert.match(line ?? "", /Gravity \+0\.40 G₀/);
     const younger = friedmannAgeGyr(heavy) < friedmannAgeGyr(OUR_UNIVERSE);
     if (younger) assert.match(line ?? "", /Younger than home/);
+  });
+
+  it("flashes only the age, not the knobs", () => {
+    const heavy = { ...OUR_UNIVERSE, gravity: 1.4 };
+    const copy = copyFor("en");
+    const reading = compareToOurs(heavy);
+    const flash = formatCompareFlash(reading, copy) ?? "";
+    const line = formatCompareLine(reading, copy) ?? "";
+    assert.match(flash, /home/);
+    assert.doesNotMatch(flash, /G₀|Ω|H₀/);
+    assert.ok(flash.length < line.length);
+    assert.match(formatCompareFlash(reading, copyFor("ru")) ?? "", /дома/);
+    assert.match(formatCompareFlash(reading, copyFor("be")) ?? "", /дома/);
   });
 
   it("reads the silicon corridor in three authored languages", () => {
@@ -47,6 +66,8 @@ describe("compareToOurs", () => {
     const line = formatCompareLine(compareToOurs(DESERT_EPOCH), copyFor("en")) ?? "";
     assert.doesNotMatch(line, /because|therefore|life cannot/i);
     assert.match(line, /H₀|Ω/);
+    const flash = formatCompareFlash(compareToOurs(DESERT_EPOCH), copyFor("en")) ?? "";
+    assert.doesNotMatch(flash, /because|therefore|empty|void/i);
   });
 });
 

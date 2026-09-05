@@ -31,8 +31,10 @@ describe("fieldNote", () => {
       evaluation: ev,
       locale: "en",
       salt: 2,
+      versus: "Younger than home by 4.2 Gyr.",
     });
     assert.match(text, /Silicon chemistry is negligible|not inflated/i);
+    assert.match(text, /Younger than home by 4\.2 Gyr/);
   });
 
   it("writes Russian without claiming a census", () => {

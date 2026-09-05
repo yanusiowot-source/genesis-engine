@@ -140,7 +140,7 @@ import {
 } from "@/lib/universe/rng";
 import { ANSWER_SEED, noteEggKey, sliderEgg } from "@/lib/universe/eggs";
 import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
-import { compareToOurs, formatCompareLine } from "@/lib/universe/compare";
+import { compareToOurs, formatCompareFlash, formatCompareLine } from "@/lib/universe/compare";
 import type { LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
 import { nowMarker } from "@/lib/universe/observatory";
@@ -500,7 +500,8 @@ export function UniverseApp() {
     (record: UniverseRecord) => {
       const fate = record.evaluation.fate;
       const good = fate === "habitable" || fate === "teeming" || fate === "enduring";
-      const line = good ? copy.birthGood : copy.birthWitness;
+      const versusFlash = formatCompareFlash(compareToOurs(record.params), copy);
+      const line = good ? copy.birthGood : (versusFlash ?? copy.birthWitness);
       setCreationLine(line);
       setBirthFate(copy.fateLabel[fate]);
       try {
@@ -537,7 +538,7 @@ export function UniverseApp() {
         surveyNudgeTimer.current = window.setTimeout(() => setSurveyNudge(false), 5200);
       }
     },
-    [copy.birthGood, copy.birthWitness, copy.fateLabel],
+    [copy],
   );
 
   const setParams = useCallback((key: ParamKey, value: number) => {
@@ -700,6 +701,11 @@ export function UniverseApp() {
     reportTimer.current = window.setTimeout(() => setReportSaved(false), 1400);
   }, [copy, current, expedition, lawResult, bayesResult, mcmcResult, locale]);
 
+  const versusLine = useMemo(
+    () => formatCompareLine(compareToOurs(current.params), copy),
+    [copy, current.params],
+  );
+
   const noteText = current.chronicle ?? fieldNote({
     name: current.name,
     catalog: current.catalog,
@@ -707,6 +713,7 @@ export function UniverseApp() {
     evaluation: current.evaluation,
     locale,
     salt: current.visualSeed,
+    versus: versusLine,
   });
 
   const commission = useCallback(async () => {
@@ -721,6 +728,7 @@ export function UniverseApp() {
       evaluation: current.evaluation,
       locale,
       salt: (Date.now() ^ current.visualSeed) >>> 0,
+      versus: versusLine,
     });
     setCurrent((prev) => {
       if (prev.id !== snapshotId) return prev;
@@ -752,7 +760,7 @@ export function UniverseApp() {
     } finally {
       setBusy(false);
     }
-  }, [busy, current, locale, remember]);
+  }, [busy, current, locale, remember, versusLine]);
 
   const copyId = useCallback(async () => {
     const text = current.catalog;
@@ -1029,10 +1037,6 @@ export function UniverseApp() {
     ],
     [copy, ev],
   );
-  const versusLine = useMemo(
-    () => formatCompareLine(compareToOurs(current.params), copy),
-    [copy, current.params],
-  );
 
   const lab = tab !== "lab" ? null : (
     <>
@@ -1153,6 +1157,8 @@ export function UniverseApp() {
             ))}
           </dl>
 
+          <CompareOurs copy={copy} params={current.params} />
+
           <div>
             <div className="flex items-center justify-between gap-3">
               <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
@@ -1231,7 +1237,6 @@ export function UniverseApp() {
               />
             ) : null}
             <EpochTimeline copy={copy} evaluation={ev} />
-            <CompareOurs copy={copy} params={current.params} />
           </Fold>
         </>
       )}
@@ -1589,7 +1594,7 @@ export function UniverseApp() {
           </p>
           {versusLine ? (
             <p
-              className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2"
+              className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-3"
               data-versus="1"
             >
               {versusLine}

@@ -46,16 +46,23 @@ export type CompareCopy = {
   params: Record<ParamKey, { label: string }>;
 };
 
+function agePhrase(reading: CompareReading, copy: CompareCopy): string {
+  const ageAbs = Math.abs(reading.ageDeltaGyr);
+  if (ageAbs < AGE_FLOOR_GYR) return "";
+  return `${reading.ageDeltaGyr < 0 ? copy.versusYounger : copy.versusOlder} ${formatGyr(ageAbs)}`;
+}
+
+export function formatCompareFlash(reading: CompareReading, copy: CompareCopy): string | null {
+  if (reading.ours) return null;
+  return agePhrase(reading, copy) || copy.versusHome;
+}
+
 export function formatCompareLine(reading: CompareReading, copy: CompareCopy): string | null {
   if (reading.ours) return null;
   const knobs = reading.knobs
     .map((k) => `${copy.params[k.key].label} ${formatDelta(k.delta)} ${k.unit}`)
     .join(" · ");
-  const ageAbs = Math.abs(reading.ageDeltaGyr);
-  const age =
-    ageAbs >= AGE_FLOOR_GYR
-      ? `${reading.ageDeltaGyr < 0 ? copy.versusYounger : copy.versusOlder} ${formatGyr(ageAbs)}`
-      : "";
+  const age = agePhrase(reading, copy);
   if (age && knobs) return `${age}. ${knobs}.`;
   if (age) return `${age}.`;
   if (knobs) return `${copy.versusHome}: ${knobs}.`;

@@ -57,6 +57,7 @@ export type FieldNoteInput = {
   evaluation: Evaluation;
   locale?: string;
   salt?: number;
+  versus?: string | null;
 };
 
 function pick<T>(rng: () => number, a: T, b: T): T {
@@ -115,12 +116,15 @@ export function fieldNote(input: FieldNoteInput): string {
   const first = formatGyr(ev.timeToStarsGyr);
   const lives = formatGyr(ev.stellarLifetimeGyr);
 
+  const versus = (input.versus ?? "").trim();
+  const versusBit = versus ? ` ${versus.replace(/\.*$/, ".")}` : "";
+
   if (locale === "ru") {
-    const p1 = `${name} (${catalog}) — ${MORPH_RU[ev.morphology]}. Возраст ${age}. ${FATE_RU[ev.fate]} Первые звёзды около ${first}; живут ${lives}.`;
+    const p1 = `${name} (${catalog}) — ${MORPH_RU[ev.morphology]}. Возраст ${age}.${versusBit} ${FATE_RU[ev.fate]} Первые звёзды около ${first}; живут ${lives}.`;
     return `${p1}\n\n${lifeRu(ev)}`;
   }
   if (locale === "be") {
-    const p1 = `${name} (${catalog}) — ${MORPH_BE[ev.morphology]}. Узрост ${age}. ${FATE_BE[ev.fate]} Першыя зоркі каля ${first}; жывуць ${lives}.`;
+    const p1 = `${name} (${catalog}) — ${MORPH_BE[ev.morphology]}. Узрост ${age}.${versusBit} ${FATE_BE[ev.fate]} Першыя зоркі каля ${first}; жывуць ${lives}.`;
     return `${p1}\n\n${lifeBe(ev)}`;
   }
 
@@ -129,6 +133,6 @@ export function fieldNote(input: FieldNoteInput): string {
     `${name} (${catalog}) is ${MORPH_EN[ev.morphology]}.`,
     `${MORPH_EN[ev.morphology][0].toUpperCase()}${MORPH_EN[ev.morphology].slice(1)} catalogued ${catalog}: ${name}.`,
   );
-  const p1 = `${opener} Cosmic age ${age}. ${FATE_COPY[ev.fate]} First stars near ${first}; they live ${lives}.`;
+  const p1 = `${opener} Cosmic age ${age}.${versusBit} ${FATE_COPY[ev.fate]} First stars near ${first}; they live ${lives}.`;
   return `${p1}\n\n${lifeEn(ev, rng)}`;
 }

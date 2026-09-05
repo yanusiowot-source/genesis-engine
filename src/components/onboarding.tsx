@@ -99,7 +99,12 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
           ))}
         </div>
         <div className="relative z-10 flex items-center justify-between gap-3 pointer-events-auto">
-          <Button variant="ghost" className="min-h-11 min-w-20" onClick={() => onDone(false)}>
+          <Button
+            variant="ghost"
+            className="min-h-11 min-w-20 transform-none"
+            data-onboard-skip
+            onClick={() => onDone(false)}
+          >
             {copy.skip}
           </Button>
           <Button
