@@ -616,8 +616,9 @@ export function UniverseApp() {
     nudgeSoundscape(record.params);
   }, [current.evaluation.lifeProb, current.evaluation.siliconProb, current.evaluation.eternalProb, current.params, remember]);
 
-  const launchExpedition = useCallback(() => {
-    haptic(16);
+  const launchExpedition = useCallback((opts?: { silent?: boolean }) => {
+    const silent = opts?.silent === true;
+    if (!silent) haptic(16);
     const seed = randomSeed();
     const target = researchTarget;
     const params = current.params;
@@ -628,7 +629,7 @@ export function UniverseApp() {
     huntTimer.current = window.setTimeout(() => {
       const result = runPhysicsExpedition(seed, target, params);
       setExpedition(result);
-      if (result.best[0] && result.best[0].score >= 0.18) {
+      if (!silent && result.best[0] && result.best[0].score >= 0.18) {
         setArchive((prev) => {
           let next = prev;
           for (const row of result.best) {
@@ -877,7 +878,7 @@ export function UniverseApp() {
     if (tab !== "lab" || labPane !== "hunt") return;
     if (expedition || hunting || huntAuto.current) return;
     huntAuto.current = true;
-    launchExpedition();
+    launchExpedition({ silent: true });
   }, [tab, labPane, expedition, hunting, launchExpedition]);
 
   useEffect(() => {
@@ -1008,7 +1009,7 @@ export function UniverseApp() {
           result={expedition}
           hunting={hunting}
           onTarget={setResearchTarget}
-          onRun={launchExpedition}
+          onRun={() => launchExpedition()}
           onApply={applyFind}
         />
       ) : labPane === "life" ? (

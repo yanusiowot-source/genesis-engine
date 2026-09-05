@@ -50,6 +50,8 @@ describe("copyFor", () => {
     assert.equal(c.birth, "Birth a universe");
     assert.equal(c.onboarding.length, 3);
     assert.match(c.onboarding[0].body, /Survey 64/);
+    assert.match(c.onboarding[1].body, /Sculpt/);
+    assert.match(c.labPaneHint.constants, /Sculpt/);
     assert.equal(copyFor("ru").onboarding.length, 3);
     assert.equal(copyFor("be").onboarding.length, 3);
     assert.match(c.birthWitness, /Most stay empty/);

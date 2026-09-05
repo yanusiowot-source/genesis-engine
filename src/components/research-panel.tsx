@@ -30,12 +30,8 @@ export function ResearchPanel({
 }: Props) {
   return (
     <section className="flex flex-col gap-4">
-      <div>
-        <h3 className="text-sm font-medium">{copy.research.title}</h3>
-      </div>
-
       <div
-        className="grid grid-cols-2 gap-1 rounded-[var(--radius-sm)] bg-bg p-1 sm:grid-cols-3"
+        className="grid grid-cols-3 gap-1 rounded-[var(--radius-sm)] bg-bg p-1"
         role="radiogroup"
         aria-label={copy.research.title}
       >

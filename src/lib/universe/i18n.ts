@@ -538,7 +538,7 @@ const en: Copy = {
     },
     {
       title: "Six constants",
-      body: "Lab, then Const. Grey ticks are home. Drag — the galaxy follows.",
+      body: "Lab reads this sky first. Levers wait under Sculpt. Grey ticks are home.",
     },
     {
       title: "Three corridors",
@@ -649,15 +649,15 @@ const en: Copy = {
   helpItems: [
     {
       title: "Sky",
-      body: "«Birth a universe» draws new constants. «Survey 64» tries many skies. «Refine» climbs from this one. The clock walks cosmic time.",
+      body: "Birth draws new constants. Survey 64 hunts a foothold. Inside stands in the disk.",
     },
     {
       title: "Lab · Const",
-      body: "Six sliders. Grey ticks are ΛCDM — our universe. Carbon, silicon and eternity update as you drag.",
+      body: "Opens on fate, corridors and a field note. Six levers live under Sculpt. Grey ticks are ΛCDM.",
     },
     {
       title: "Lab · Hunt",
-      body: "Search hundreds of random skies. Load a find onto the picture.",
+      body: "Opening Hunt maps the prior. Most draws are dead. Load a find onto the sky.",
     },
     {
       title: "Lab · Life",
@@ -685,8 +685,8 @@ const en: Copy = {
     },
   ],
   labPaneHint: {
-    constants: "Six levers. Grey ticks are our universe.",
-    hunt: "Three searchers across random skies. Load a find.",
+    constants: "A reading of this sky. Levers under Sculpt. Grey ticks are home.",
+    hunt: "The prior, mapped. Load a find onto the sky.",
     life: "Biosphere, biomass, and whether a mind could arise.",
     laws: "A formula, a test, a real star catalog.",
     desk: "Posterior cloud, export, classify.",
@@ -1308,7 +1308,7 @@ const ru: Copy = {
     },
     {
       title: "Шесть констант",
-      body: "Лаб, затем Конст. Серые метки — дом. Тяните — галактика следует.",
+      body: "Лаб сначала читает небо. Рычаги — под «Лепить». Серые метки — дом.",
     },
     {
       title: "Три коридора",
@@ -1420,15 +1420,15 @@ const ru: Copy = {
   helpItems: [
     {
       title: "Небо",
-      body: "«Родить вселенную» бросает новые константы. «Обзор 64» пробует много небес. «Уточнить» поднимается отсюда. Часы ведут космическое время.",
+      body: "«Родить» бросает константы. «Обзор 64» ищет опору. «Изнутри» — диск.",
     },
     {
       title: "Лаб · Конст",
-      body: "Шесть ползунков. Серые метки — ΛCDM, наша вселенная. Оценки углерода, кремния и вечности обновляются сразу.",
+      body: "Сначала судьба, коридоры и заметка. Шесть рычагов — под «Лепить». Серые метки — ΛCDM.",
     },
     {
       title: "Лаб · Поиск",
-      body: "Экспедиция ищет среди сотен небес. «Применить» загружает находку на картинку.",
+      body: "Открытие Поиска картирует приор. Большинство бросков мёртвые. Загрузите находку на небо.",
     },
     {
       title: "Лаб · Жизнь",
@@ -1456,8 +1456,8 @@ const ru: Copy = {
     },
   ],
   labPaneHint: {
-    constants: "Шесть рычагов. Серые метки — наша вселенная.",
-    hunt: "Три искателя через случайные небеса. Загрузите находку.",
+    constants: "Чтение этого неба. Рычаги — под «Лепить». Серые метки — дом.",
+    hunt: "Приор уже картирован. Загрузите находку на небо.",
     life: "Биосфера, биомасса и возникнет ли здесь разум.",
     laws: "Формула, проверка, настоящий каталог звёзд.",
     desk: "Постериор, экспорт, классификация.",
