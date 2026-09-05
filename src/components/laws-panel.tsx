@@ -82,6 +82,7 @@ export function LawsPanel({
   const [busyBayes, setBusyBayes] = useState(false);
   const [busyCat, setBusyCat] = useState(false);
   const [cached, setCached] = useState(false);
+  const meta = PARAM_META.find((m) => m.key === hyp.key)!;
   useEffect(() => {
     if (law) setBusyLaw(false);
   }, [law]);
