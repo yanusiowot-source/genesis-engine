@@ -425,6 +425,19 @@ export type Copy = {
     samples: string;
     loadMap: string;
     axes: string;
+    analysis: string;
+    analysisHint: string;
+    interval: string;
+    median: string;
+    rhat: string;
+    rhatHint: string;
+    tau: string;
+    corridorMass: string;
+    corridorHint: string;
+    thisInCloud: string;
+    pairing: string;
+    marginals: string;
+    trace: string;
     exportTitle: string;
     fitsGalaxy: string;
     fitsMcmc: string;
@@ -1187,6 +1200,20 @@ const en: Copy = {
     samples: "Kept",
     loadMap: "Load MAP sky",
     axes: "X gravity · Y log L · Z matter",
+    analysis: "Posterior reading",
+    analysisHint:
+      "Equal-tail 16–84% on this chain. Split-R̂ from two halves of one walk. Corridor mass is the share with score ≥ 0.18. The likelihood is the scoring model, not nature.",
+    interval: "16–84%",
+    median: "Median",
+    rhat: "Split-R̂",
+    rhatHint: "Near 1, the walk mixed. Above ~1.2, the cloud is still sticky.",
+    tau: "τ int",
+    corridorMass: "Mass in corridor",
+    corridorHint: "Share of the chain with score ≥ 0.18. Envelope, not a census.",
+    thisInCloud: "This sky in the cloud",
+    pairing: "Strongest pairing",
+    marginals: "Marginals",
+    trace: "log L",
     exportTitle: "Publish",
     fitsGalaxy: "FITS disk",
     fitsMcmc: "FITS chain",
@@ -1958,6 +1985,20 @@ const ru: Copy = {
     samples: "Оставлено",
     loadMap: "Загрузить MAP-небо",
     axes: "X гравитация · Y log L · Z материя",
+    analysis: "Чтение постериора",
+    analysisHint:
+      "Равные хвосты 16–84% по этой цепи. Split-R̂ — две половины одной прогулки. Масса в коридоре — доля с оценкой ≥ 0.18. Правдоподобие — модель оценки, не природа.",
+    interval: "16–84%",
+    median: "Медиана",
+    rhat: "Split-R̂",
+    rhatHint: "Около 1 — цепь перемешалась. Выше ~1.2 — облако ещё липкое.",
+    tau: "τ int",
+    corridorMass: "Масса в коридоре",
+    corridorHint: "Доля цепи с оценкой ≥ 0.18. Оболочка, не перепись.",
+    thisInCloud: "Это небо в облаке",
+    pairing: "Сильнейшая пара",
+    marginals: "Маргиналы",
+    trace: "log L",
     exportTitle: "Публикация",
     fitsGalaxy: "FITS диск",
     fitsMcmc: "FITS цепь",

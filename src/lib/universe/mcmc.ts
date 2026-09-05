@@ -106,6 +106,179 @@ export function essOf(xs: number[]): number {
   return n / Math.max(tau, 1);
 }
 
+export function quantile(xs: number[], q: number): number {
+  if (xs.length === 0) return 0;
+  const s = xs.slice().sort((a, b) => a - b);
+  const t = Math.max(0, Math.min(1, q)) * (s.length - 1);
+  const lo = Math.floor(t);
+  const hi = Math.ceil(t);
+  if (lo === hi) return s[lo]!;
+  return s[lo]! * (1 - (t - lo)) + s[hi]! * (t - lo);
+}
+
+/** Split-R̂ from two halves of one chain. Near 1 means the walk mixed. */
+export function splitRhat(xs: number[]): number {
+  const n = xs.length;
+  if (n < 16) return 1;
+  const m = Math.floor(n / 2);
+  const a = xs.slice(0, m);
+  const b = xs.slice(n - m);
+  const mean = (arr: number[]) => arr.reduce((s, x) => s + x, 0) / arr.length;
+  const ma = mean(a);
+  const mb = mean(b);
+  const grand = (ma + mb) / 2;
+  const varSample = (arr: number[], mu: number) => {
+    let v = 0;
+    for (const x of arr) v += (x - mu) ** 2;
+    return v / Math.max(arr.length - 1, 1);
+  };
+  const W = (varSample(a, ma) + varSample(b, mb)) / 2;
+  if (W < 1e-18) return 1;
+  const B = m * ((ma - grand) ** 2 + (mb - grand) ** 2);
+  const varHat = ((m - 1) / m) * W + B / m;
+  return Math.sqrt(Math.max(varHat / W, 1));
+}
+
+function pearson(xs: number[], ys: number[]): number {
+  const n = xs.length;
+  if (n < 8) return 0;
+  let sx = 0;
+  let sy = 0;
+  for (let i = 0; i < n; i++) {
+    sx += xs[i]!;
+    sy += ys[i]!;
+  }
+  const mx = sx / n;
+  const my = sy / n;
+  let num = 0;
+  let dx = 0;
+  let dy = 0;
+  for (let i = 0; i < n; i++) {
+    const a = xs[i]! - mx;
+    const b = ys[i]! - my;
+    num += a * b;
+    dx += a * a;
+    dy += b * b;
+  }
+  const den = Math.sqrt(dx * dy);
+  return den < 1e-18 ? 0 : num / den;
+}
+
+const MARGINAL_BINS = 24;
+
+export type Marginal = {
+  key: ParamKey;
+  bins: number[];
+  q16: number;
+  q50: number;
+  q84: number;
+  mean: number;
+  map: number;
+  ess: number;
+  here?: number;
+  hereValue?: number;
+};
+
+export type PosteriorAnalysis = {
+  marginals: Marginal[];
+  rhat: number;
+  tau: number;
+  viableCarbon: number;
+  viableSilicon: number;
+  viableEternal: number;
+  pairing: { a: ParamKey; b: ParamKey; r: number } | null;
+  logL: number[];
+};
+
+/**
+ * Reading of a finished chain. Quantiles, split-R̂, corridor mass —
+ * all on evaluate()'s score. Not a claim about nature.
+ */
+export function analyzePosterior(
+  result: McmcResult,
+  here?: UniverseParams,
+): PosteriorAnalysis {
+  const n = result.samples.length || 1;
+  const rhats: number[] = [];
+  const marginals: Marginal[] = KEYS.map((key) => {
+    const meta = metaOf(key);
+    const xs = result.samples.map((s) => s.params[key]);
+    rhats.push(splitRhat(xs));
+    const span = meta.max - meta.min || 1;
+    const bins = new Array<number>(MARGINAL_BINS).fill(0);
+    for (const x of xs) {
+      let i = Math.floor(((x - meta.min) / span) * MARGINAL_BINS);
+      if (i < 0) i = 0;
+      if (i >= MARGINAL_BINS) i = MARGINAL_BINS - 1;
+      bins[i] += 1;
+    }
+    const peak = Math.max(...bins, 1);
+    let pct: number | undefined;
+    let hereValue: number | undefined;
+    if (here) {
+      const v = here[key];
+      hereValue = v;
+      let below = 0;
+      for (const x of xs) if (x <= v) below += 1;
+      pct = below / n;
+    }
+    return {
+      key,
+      bins: bins.map((c) => c / peak),
+      q16: quantile(xs, 0.16),
+      q50: quantile(xs, 0.5),
+      q84: quantile(xs, 0.84),
+      mean: result.mean[key],
+      map: result.map.params[key],
+      ess: essOf(xs),
+      here: pct,
+      hereValue,
+    };
+  });
+
+  let viableCarbon = 0;
+  let viableSilicon = 0;
+  let viableEternal = 0;
+  for (const s of result.samples) {
+    const ev = evaluate(s.params);
+    if (ev.lifeProb >= 0.18) viableCarbon += 1;
+    if (ev.siliconProb >= 0.18) viableSilicon += 1;
+    if (ev.eternalProb >= 0.18) viableEternal += 1;
+  }
+
+  let pairing: PosteriorAnalysis["pairing"] = null;
+  for (let i = 0; i < KEYS.length; i++) {
+    for (let j = i + 1; j < KEYS.length; j++) {
+      const a = KEYS[i]!;
+      const b = KEYS[j]!;
+      const r = pearson(
+        result.samples.map((s) => s.params[a]),
+        result.samples.map((s) => s.params[b]),
+      );
+      if (!pairing || Math.abs(r) > Math.abs(pairing.r)) pairing = { a, b, r };
+    }
+  }
+  if (pairing && Math.abs(pairing.r) < 0.18) pairing = null;
+
+  const step = Math.max(1, Math.floor(result.samples.length / 80));
+  const logL: number[] = [];
+  for (let i = 0; i < result.samples.length; i += step) {
+    logL.push(result.samples[i]!.logL);
+  }
+
+  return {
+    marginals,
+    rhat: Math.max(1, ...rhats),
+    tau: n / Math.max(result.ess, 1),
+    viableCarbon: viableCarbon / n,
+    viableSilicon: viableSilicon / n,
+    viableEternal: viableEternal / n,
+    pairing,
+    logL,
+  };
+}
+
+
 /**
  * Metropolis–Hastings with a uniform prior on the six knobs.
  * Likelihood is evaluate()'s score for the chosen target — closed form, no net.

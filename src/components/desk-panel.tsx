@@ -16,7 +16,7 @@ import { haptic } from "@/lib/universe/haptic";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import { runMcmcAsync } from "@/lib/universe/law-client";
 import type { CatalogResult } from "@/lib/universe/mast";
-import type { McmcResult } from "@/lib/universe/mcmc";
+import { analyzePosterior, type McmcResult, type PosteriorAnalysis } from "@/lib/universe/mcmc";
 import { PARAM_META, siliconDossier } from "@/lib/universe/physics";
 import {
   downloadBlob,
@@ -162,7 +162,13 @@ export function DeskPanel({
           {busy ? copy.desk.running : copy.desk.run}
         </Button>
         {result ? (
-          <McmcBlock copy={copy} result={result} visualSeed={record.visualSeed} onApply={onApply} />
+          <McmcBlock
+            copy={copy}
+            result={result}
+            here={record.params}
+            visualSeed={record.visualSeed}
+            onApply={onApply}
+          />
         ) : (
           <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.desk.empty}</p>
         )}
@@ -421,35 +427,86 @@ export function DeskPanel({
 function McmcBlock({
   copy,
   result,
+  here,
   visualSeed,
   onApply,
 }: {
   copy: Copy;
   result: McmcResult;
+  here: UniverseParams;
   visualSeed: number;
   onApply: (params: UniverseParams, visualSeed: number) => void;
 }) {
+  const reading = useMemo(() => analyzePosterior(result, here), [result, here]);
   const rows = [
     { k: copy.desk.accept, v: formatPct(result.acceptRate) },
     { k: copy.desk.ess, v: result.ess.toFixed(0) },
+    { k: copy.desk.rhat, v: reading.rhat.toFixed(2) },
+    { k: copy.desk.tau, v: reading.tau.toFixed(1) },
     { k: copy.desk.samples, v: String(result.samples.length) },
     { k: copy.desk.map, v: formatPct(result.map.score) },
   ];
   return (
-    <div className="mt-4 flex flex-col gap-3">
+    <div className="mt-4 flex flex-col gap-4">
       <McmcView copy={copy} result={result} />
       <PosteriorFlat result={result} />
+      <LogLTrace copy={copy} values={reading.logL} />
       <p className="font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
         {copy.desk.prior}
       </p>
-      <dl className="grid grid-cols-2 gap-x-4 gap-y-3">
+      <dl className="grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-3">
         {rows.map((s) => (
           <div key={s.k} className="min-w-0">
             <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{s.k}</dt>
-            <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{s.v}</dd>
+            <dd
+              className={cn(
+                "mt-0.5 font-mono text-sm tabular-nums",
+                s.k === copy.desk.rhat && reading.rhat > 1.2 ? "text-sterile" : "text-fg",
+              )}
+            >
+              {s.v}
+            </dd>
           </div>
         ))}
       </dl>
+      {reading.rhat > 1.2 ? (
+        <p className="text-pretty text-xs leading-relaxed text-fg-muted">{copy.desk.rhatHint}</p>
+      ) : null}
+
+      <div>
+        <h4 className="text-sm font-medium">{copy.desk.analysis}</h4>
+        <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">
+          {copy.desk.analysisHint}
+        </p>
+      </div>
+
+      <Marginals copy={copy} reading={reading} />
+
+      <div>
+        <h4 className="text-sm font-medium">{copy.desk.corridorMass}</h4>
+        <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">
+          {copy.desk.corridorHint}
+        </p>
+        <dl className="mt-3 grid grid-cols-3 gap-3">
+          <Mass k={copy.carbon} v={reading.viableCarbon} tone="life" />
+          <Mass k={copy.silicon} v={reading.viableSilicon} tone="silicon" />
+          <Mass k={copy.eternal} v={reading.viableEternal} tone="eternal" />
+        </dl>
+      </div>
+
+      {reading.pairing ? (
+        <p className="text-pretty text-sm leading-relaxed text-fg-muted">
+          {copy.desk.pairing}
+          <span className="ml-2 font-mono tabular-nums text-fg">
+            {copy.params[reading.pairing.a].label} × {copy.params[reading.pairing.b].label}
+            <span className="ml-2">
+              {reading.pairing.r < 0 ? "−" : "+"}
+              {Math.abs(reading.pairing.r).toFixed(2)}
+            </span>
+          </span>
+        </p>
+      ) : null}
+
       <Button
         variant="outline"
         onClick={() => {
@@ -459,6 +516,145 @@ function McmcBlock({
       >
         {copy.desk.loadMap}
       </Button>
+    </div>
+  );
+}
+
+function Mass({
+  k,
+  v,
+  tone,
+}: {
+  k: string;
+  v: number;
+  tone: "life" | "silicon" | "eternal";
+}) {
+  return (
+    <div className="min-w-0">
+      <dt className="truncate text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{k}</dt>
+      <dd
+        className={cn(
+          "mt-0.5 font-mono text-sm tabular-nums",
+          v >= 0.18
+            ? tone === "eternal"
+              ? "text-eternal"
+              : tone === "silicon"
+                ? "text-silicon"
+                : "text-life"
+            : "text-fg-subtle",
+        )}
+      >
+        {formatPct(v)}
+      </dd>
+    </div>
+  );
+}
+
+function Marginals({ copy, reading }: { copy: Copy; reading: PosteriorAnalysis }) {
+  return (
+    <div>
+      <h4 className="text-sm font-medium">{copy.desk.marginals}</h4>
+      <p className="mt-1 text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+        {copy.desk.median} · {copy.desk.interval} · {copy.desk.thisInCloud}
+      </p>
+      <ul className="mt-3 flex flex-col gap-3">
+        {reading.marginals.map((m) => {
+          const meta = PARAM_META.find((p) => p.key === m.key)!;
+          const span = meta.max - meta.min || 1;
+          const at = (v: number) => ((v - meta.min) / span) * 240;
+          return (
+            <li key={m.key} className="flex flex-col gap-1">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-xs text-fg-muted">{copy.params[m.key].label}</span>
+                <span className="font-mono text-[0.6875rem] tabular-nums text-fg">
+                  {m.q50.toFixed(2)}
+                  <span className="ml-2 text-fg-subtle">
+                    {m.q16.toFixed(2)}–{m.q84.toFixed(2)}
+                  </span>
+                  {m.here !== undefined ? (
+                    <span className="ml-2 text-fg-subtle">{formatPct(m.here)}</span>
+                  ) : null}
+                </span>
+              </div>
+              <svg viewBox="0 0 240 28" className="h-7 w-full" role="img" aria-hidden>
+                <rect
+                  x={at(m.q16).toFixed(1)}
+                  y="2"
+                  width={Math.max(1, at(m.q84) - at(m.q16)).toFixed(1)}
+                  height="24"
+                  fill="currentColor"
+                  className="text-accent/15"
+                />
+                {m.bins.map((h, i) => (
+                  <rect
+                    key={i}
+                    x={((i + 0.12) * 240) / m.bins.length}
+                    y={(28 - 2 - h * 22).toFixed(1)}
+                    width={240 / m.bins.length - 1.2}
+                    height={(h * 22).toFixed(1)}
+                    fill="currentColor"
+                    className="text-fg-subtle/70"
+                  />
+                ))}
+                <line
+                  x1={at(m.q50).toFixed(1)}
+                  x2={at(m.q50).toFixed(1)}
+                  y1="2"
+                  y2="26"
+                  stroke="currentColor"
+                  className="text-fg"
+                  strokeWidth="1.2"
+                />
+                <line
+                  x1={at(m.map).toFixed(1)}
+                  x2={at(m.map).toFixed(1)}
+                  y1="2"
+                  y2="26"
+                  stroke="currentColor"
+                  className="text-accent"
+                  strokeWidth="1"
+                  strokeDasharray="2 2"
+                />
+                {m.hereValue !== undefined ? (
+                  <line
+                    x1={at(m.hereValue).toFixed(1)}
+                    x2={at(m.hereValue).toFixed(1)}
+                    y1="2"
+                    y2="26"
+                    stroke="currentColor"
+                    className="text-life"
+                    strokeWidth="1"
+                  />
+                ) : null}
+              </svg>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+function LogLTrace({ copy, values }: { copy: Copy; values: number[] }) {
+  if (values.length < 4) return null;
+  const lo = Math.min(...values);
+  const hi = Math.max(...values);
+  const span = Math.max(1e-6, hi - lo);
+  const w = 240;
+  const h = 36;
+  const d = values
+    .map((v, i) => {
+      const x = (i / Math.max(values.length - 1, 1)) * w;
+      const y = h - 2 - ((v - lo) / span) * (h - 4);
+      return `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
+    })
+    .join(" ");
+  return (
+    <div>
+      <p className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.desk.trace}</p>
+      <svg viewBox={`0 0 ${w} ${h}`} className="mt-1 h-9 w-full text-accent" role="img" aria-hidden>
+        <path d={d} fill="none" stroke="currentColor" strokeWidth="1.2" />
+      </svg>
     </div>
   );
 }

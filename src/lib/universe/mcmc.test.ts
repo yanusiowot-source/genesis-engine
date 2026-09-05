@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { essOf, runMcmc } from "./mcmc.ts";
+import { analyzePosterior, essOf, quantile, runMcmc, splitRhat } from "./mcmc.ts";
 import { OUR_UNIVERSE } from "./physics.ts";
 import { mcmcTableFits, mcmcImageFits } from "./fits.ts";
 import { mcmcVotable, parseVotableTableName } from "./votable.ts";
@@ -40,6 +40,24 @@ describe("essOf", () => {
       sticky.push(x);
     }
     assert.ok(essOf(white) > essOf(sticky));
+  });
+});
+
+describe("analyzePosterior", () => {
+  it("keeps quantiles ordered and places ΛCDM inside a carbon walk", () => {
+    assert.ok(quantile([1, 2, 3, 4, 5], 0.16) <= quantile([1, 2, 3, 4, 5], 0.5));
+    assert.ok(splitRhat(Array.from({ length: 80 }, () => 1)) === 1);
+    const r = runMcmc(3, OUR_UNIVERSE, "carbon", 900, 180, 4);
+    const a = analyzePosterior(r, OUR_UNIVERSE);
+    const g = a.marginals.find((m) => m.key === "gravity");
+    assert.ok(g);
+    assert.ok(g.q16 <= g.q50 && g.q50 <= g.q84);
+    assert.ok(g.q50 > 0.7 && g.q50 < 1.4, `g50=${g.q50}`);
+    assert.ok(a.rhat >= 1 && a.rhat < 3, `rhat=${a.rhat}`);
+    assert.ok(a.viableCarbon > a.viableEternal);
+    assert.ok(g.here !== undefined && g.here > 0.02 && g.here < 0.98);
+    assert.equal(a.marginals.length, 6);
+    assert.ok(a.logL.length > 4);
   });
 });
 
