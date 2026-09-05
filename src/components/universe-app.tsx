@@ -218,12 +218,15 @@ export function UniverseApp() {
   const fromLinkRef = useRef(false);
   const dotHinted = useRef(false);
   const tauHinted = useRef(false);
+  const huntAuto = useRef(false);
+  const huntTimer = useRef(0);
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(false);
   const [tab, setTab] = useState<AppTab>("sky");
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
   const [expedition, setExpedition] = useState<ExpeditionResult | null>(null);
+  const [hunting, setHunting] = useState(false);
   const [lawResult, setLawResult] = useState<DiscoveryResult | null>(null);
   const [bayesResult, setBayesResult] = useState<BayesResult | null>(null);
   const [mcmcResult, setMcmcResult] = useState<McmcResult | null>(null);
@@ -347,6 +350,7 @@ export function UniverseApp() {
       window.clearTimeout(surveyNudgeTimer.current);
       window.clearTimeout(insideNudgeTimer.current);
       window.clearTimeout(oursNudgeTimer.current);
+      window.clearTimeout(huntTimer.current);
     };
   }, []);
 
@@ -615,20 +619,26 @@ export function UniverseApp() {
   const launchExpedition = useCallback(() => {
     haptic(16);
     const seed = randomSeed();
-    const result = runPhysicsExpedition(seed, researchTarget, current.params);
-    setExpedition(result);
+    const target = researchTarget;
+    const params = current.params;
+    setHunting(true);
     setTab("lab");
     setLabPane("hunt");
-    const winner = result.best[0];
-    if (winner && winner.score >= 0.18) {
-      setArchive((prev) => {
-        let next = prev;
-        for (const row of result.best) {
-          next = upsertArchive(next, makeRecord(row.params, row.visualSeed));
-        }
-        return next;
-      });
-    }
+    window.clearTimeout(huntTimer.current);
+    huntTimer.current = window.setTimeout(() => {
+      const result = runPhysicsExpedition(seed, target, params);
+      setExpedition(result);
+      if (result.best[0] && result.best[0].score >= 0.18) {
+        setArchive((prev) => {
+          let next = prev;
+          for (const row of result.best) {
+            next = upsertArchive(next, makeRecord(row.params, row.visualSeed));
+          }
+          return next;
+        });
+      }
+      setHunting(false);
+    }, 40);
   }, [current.params, researchTarget]);
 
   const applyFind = useCallback(
@@ -864,6 +874,13 @@ export function UniverseApp() {
   }, [labPane, tab]);
 
   useEffect(() => {
+    if (tab !== "lab" || labPane !== "hunt") return;
+    if (expedition || hunting || huntAuto.current) return;
+    huntAuto.current = true;
+    launchExpedition();
+  }, [tab, labPane, expedition, hunting, launchExpedition]);
+
+  useEffect(() => {
     if (!hydrated || overlayOpen) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -989,6 +1006,7 @@ export function UniverseApp() {
           copy={copy}
           target={researchTarget}
           result={expedition}
+          hunting={hunting}
           onTarget={setResearchTarget}
           onRun={launchExpedition}
           onApply={applyFind}

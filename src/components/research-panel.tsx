@@ -11,6 +11,7 @@ type Props = {
   copy: Copy;
   target: ResearchTarget;
   result: ExpeditionResult | null;
+  hunting?: boolean;
   onTarget: (target: ResearchTarget) => void;
   onRun: () => void;
   onApply: (params: UniverseParams, visualSeed: number) => void;
@@ -22,6 +23,7 @@ export function ResearchPanel({
   copy,
   target,
   result,
+  hunting = false,
   onTarget,
   onRun,
   onApply,
@@ -62,12 +64,14 @@ export function ResearchPanel({
         {copy.research.targetHint[target]}
       </p>
 
-      <Button onClick={onRun}>
+      <Button onClick={onRun} disabled={hunting} data-hunting={hunting ? "1" : undefined}>
         <ScanSearch />
-        {copy.research.run}
+        {hunting ? copy.writing : copy.research.run}
       </Button>
 
-      {!result ? (
+      {hunting && !result ? (
+        <p className="text-pretty text-sm leading-relaxed text-fg-subtle">{copy.writing}</p>
+      ) : !result ? (
         <p className="text-pretty text-sm leading-relaxed text-fg-subtle">
           {copy.research.empty}
         </p>

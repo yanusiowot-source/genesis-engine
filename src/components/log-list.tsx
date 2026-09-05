@@ -103,6 +103,9 @@ export function LogList({
                     <span className="mx-1.5 text-fg-subtle/50">·</span>
                     {formatRelative(r.createdAt, locale)}
                   </span>
+                  <span className="mt-1 block truncate text-[0.6875rem] leading-relaxed text-fg-subtle">
+                    {copy.fateCopy[r.evaluation.fate]}
+                  </span>
                 </span>
                 <span
                   className={cn(
