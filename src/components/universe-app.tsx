@@ -100,7 +100,7 @@ import {
   persistTypeScale,
   type TypeScale,
 } from "@/lib/universe/prefs";
-import { intelligenceWindow } from "@/lib/universe/civilization";
+import { intelligenceWindow, formatDiasporaLine } from "@/lib/universe/civilization";
 import {
   DESERT_EPOCH,
   DESERT_SEED,
@@ -704,6 +704,10 @@ export function UniverseApp() {
   const versusLine = useMemo(
     () => formatCompareLine(compareToOurs(current.params), copy),
     [copy, current.params],
+  );
+  const diasporaLine = useMemo(
+    () => formatDiasporaLine(intelligenceWindow(current.params, current.evaluation), copy.civ),
+    [copy, current.params, current.evaluation],
   );
 
   const noteText = current.chronicle ?? fieldNote({
@@ -1598,6 +1602,14 @@ export function UniverseApp() {
               data-versus="1"
             >
               {versusLine}
+            </p>
+          ) : null}
+          {diasporaLine ? (
+            <p
+              className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2"
+              data-routes="1"
+            >
+              {diasporaLine}
             </p>
           ) : null}
           {!ours ? (

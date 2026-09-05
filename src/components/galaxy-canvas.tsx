@@ -19,6 +19,7 @@ import {
 } from "@/lib/universe/observatory";
 import type { Evaluation, SkyMode, UniverseParams } from "@/lib/universe/types";
 import { isOurParams } from "@/lib/universe/physics";
+import { intelligenceWindow } from "@/lib/universe/civilization";
 import { QUIET_EGGS, type EggFlags } from "@/lib/universe/eggs";
 
 type Props = {
@@ -75,6 +76,7 @@ export function GalaxyCanvas({
   const relaxedRef = useRef(!!relaxed);
   const wakeRef = useRef(wakeKey ?? 0);
   const builtSeed = useRef<number | null>(null);
+  const shipsRef = useRef(0);
   timeLiveRef.current = timeRef;
   evolvingRef.current = !!evolving;
   onEvolveEndRef.current = onEvolveEnd;
@@ -96,6 +98,7 @@ export function GalaxyCanvas({
       try {
         modelRef.current = buildGalaxy(params, evaluation, visualSeed, q.scale);
         builtSeed.current = visualSeed;
+        shipsRef.current = intelligenceWindow(params, evaluation).ships;
       } catch {
         /* keep the last intact sky rather than blank the canvas */
       }
@@ -638,11 +641,11 @@ export function GalaxyCanvas({
       scale: number,
       rot: number,
       time: number,
-      host: number,
+      ships: number,
       eternalProb: number,
       quiet: boolean,
     ) => {
-      const n = 3 + Math.floor(host * 7);
+      const n = Math.max(3, Math.min(16, Math.round(3 + ships * 22)));
       g.save();
       g.translate(ox, oy);
       g.rotate(rot * 0.22);
@@ -658,8 +661,8 @@ export function GalaxyCanvas({
         const ux = tx / len;
         const uy = ty / len;
         const gold = eternalProb > 0.2;
-        g.strokeStyle = gold ? "rgba(180,220,255,0.35)" : "rgba(255,210,140,0.4)";
-        g.lineWidth = 1;
+        g.strokeStyle = gold ? "rgba(180,220,255,0.45)" : "rgba(255,210,140,0.5)";
+        g.lineWidth = 1.15;
         g.beginPath();
         g.moveTo(x - ux * 10, y - uy * 10);
         g.lineTo(x, y);
@@ -921,20 +924,19 @@ export function GalaxyCanvas({
         }
       }
 
-      const host = Math.max(ev.lifeProb, ev.siliconProb, eternalProb);
-      const lite = relaxedRef.current || quality.scale < 0.55 || reducedRef.current;
+      const ships = shipsRef.current;
+      const lite = relaxedRef.current || quality.scale < 0.45;
       if (
-        !lite &&
+        ships >= 0.05 &&
         skyMode === "galaxy" &&
         !late &&
         vis > 0.32 &&
-        host > 0.12 &&
         (epoch === "stellar" || epoch === "reionization")
       ) {
-        drawShips(ctx, cx, cy, scale, rot, time, host, eternalProb, reducedRef.current);
+        drawShips(ctx, cx, cy, scale, rot, time, ships, eternalProb, lite || reducedRef.current);
       }
 
-      if (!lite && skyMode === "galaxy" && !late && pms.quantumNoise > 0.38) {
+      if (!lite && !reducedRef.current && skyMode === "galaxy" && !late && pms.quantumNoise > 0.38) {
         ctx.save();
         ctx.globalCompositeOperation = "lighter";
         const n = 8 + Math.floor(pms.quantumNoise * 20);

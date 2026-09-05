@@ -1,6 +1,7 @@
 import type { Evaluation, UniverseParams } from "./types";
 import { clamp } from "./rng.ts";
 import { evaluate } from "./physics.ts";
+import { formatPct } from "./format.ts";
 
 export type CivStageId = "chemistry" | "cells" | "complex" | "minds" | "tech";
 export type CivPath = "carbon" | "silicon" | "eternal" | "none";
@@ -246,6 +247,16 @@ export function stageReached(model: CivModel): CivStageId | "none" {
     last = s.id;
   }
   return last;
+}
+
+const SHIPS_FLOOR = 0.05;
+
+export function formatDiasporaLine(
+  model: CivModel,
+  copy: { routes: string; spend: string },
+): string | null {
+  if (model.path === "none" || model.collapsed || model.ships < SHIPS_FLOOR) return null;
+  return `${copy.routes} ${formatPct(model.ships)}. ${copy.spend}`;
 }
 
 export function sparkPath(

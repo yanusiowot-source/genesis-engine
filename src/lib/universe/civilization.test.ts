@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { intelligenceWindow, sparkPath, stageReached } from "./civilization.ts";
+import { intelligenceWindow, sparkPath, stageReached, formatDiasporaLine } from "./civilization.ts";
 import { DESERT_EPOCH, ETERNAL_CORRIDOR, OUR_UNIVERSE, SILICON_CORRIDOR, evaluate } from "./physics.ts";
+import { copyFor } from "./i18n.ts";
 
 describe("intelligenceWindow", () => {
   it("puts our universe on a carbon path with a modest intelligence envelope", () => {
@@ -49,6 +50,18 @@ describe("intelligenceWindow", () => {
       assert.ok(p.biosphere >= 0 && p.biosphere < 2);
       assert.ok(p.minds >= 0 && p.minds < 2);
     }
+  });
+
+  it("reads a thin diaspora on ΛCDM and stays silent on a desert", () => {
+    const ours = intelligenceWindow(OUR_UNIVERSE, evaluate(OUR_UNIVERSE));
+    const line = formatDiasporaLine(ours, copyFor("en").civ);
+    assert.match(line ?? "", /diaspora analog/i);
+    assert.match(line ?? "", /not a fleet/i);
+    assert.doesNotMatch(line ?? "", /census|narcotic|gang/i);
+    const ru = formatDiasporaLine(ours, copyFor("ru").civ) ?? "";
+    assert.match(ru, /не флот/);
+    const desert = intelligenceWindow(DESERT_EPOCH, evaluate(DESERT_EPOCH));
+    assert.equal(formatDiasporaLine(desert, copyFor("en").civ), null);
   });
 });
 

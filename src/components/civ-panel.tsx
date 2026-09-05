@@ -3,6 +3,7 @@ import type { Copy } from "@/lib/universe/i18n";
 import {
   intelligenceWindow,
   sparkPath,
+  formatDiasporaLine,
   type CivModel,
 } from "@/lib/universe/civilization";
 import type { Evaluation, UniverseParams } from "@/lib/universe/types";
@@ -16,6 +17,7 @@ type Props = {
 
 export function CivPanel({ copy, params, evaluation }: Props) {
   const model = intelligenceWindow(params, evaluation);
+  const routes = formatDiasporaLine(model, copy.civ);
   return (
     <section className="flex flex-col gap-4">
       <div>
@@ -71,6 +73,10 @@ export function CivPanel({ copy, params, evaluation }: Props) {
           </dd>
         </div>
       </dl>
+
+      {routes ? (
+        <p className="text-pretty text-sm leading-relaxed text-fg-muted">{routes}</p>
+      ) : null}
 
       <ul className="flex flex-col gap-2.5">
         {model.stages.map((stage) => (

@@ -75,6 +75,9 @@ describe("copyFor", () => {
     assert.doesNotMatch(c.platforms.windowsBody, /zip/i);
     assert.doesNotMatch(c.platforms.linuxBody, /zip/i);
     assert.match(c.versusYounger, /Younger than home/);
+    assert.match(c.civ.spend, /not a fleet/);
+    assert.match(copyFor("ru").civ.spend, /не флот/);
+    assert.match(copyFor("be").civ.spend, /не флот/);
     assert.match(c.research.running, /prior/);
     assert.match(copyFor("ru").versusYounger, /Моложе дома/);
     assert.match(copyFor("ru").research.running, /приор/);

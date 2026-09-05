@@ -312,6 +312,8 @@ export type Copy = {
     intelligence: string;
     carrying: string;
     ships: string;
+    routes: string;
+    spend: string;
     collapsed: string;
     persists: string;
     ecology: string;
@@ -1044,6 +1046,8 @@ const en: Copy = {
     intelligence: "P(intelligence)",
     carrying: "Carrying analog",
     ships: "Diaspora analog",
+    routes: "Thin diaspora analog",
+    spend: "Carrying × stellar generations — energy a mind could spend, not a treasury and not a fleet.",
     collapsed: "The ecology analog collapses — recollapse, runaway, or extraction outruns growth.",
     persists:
       "Heat death does not close this window. If Λ stays near zero, remnant minds can slow without bound — Dyson, not rapture.",
@@ -1835,6 +1839,8 @@ const ru: Copy = {
     intelligence: "P(разум)",
     carrying: "Аналог ёмкости",
     ships: "Аналог диаспоры",
+    routes: "Тонкий аналог диаспоры",
+    spend: "Ёмкость × поколения звёзд — энергия, которую ум мог бы тратить, не казна и не флот.",
     collapsed: "Экологический аналог схлопывается — сжатие, разгон или изъятие обгоняет рост.",
     persists:
       "Тепловая смерть не закрывает это окно. Если Λ остаётся почти нулём, умы остатков могут замедляться без границы — Дайсон, не раж.",
