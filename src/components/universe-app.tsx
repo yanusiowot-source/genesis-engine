@@ -217,6 +217,7 @@ export function UniverseApp() {
   const collisionHinted = useRef(false);
   const fromLinkRef = useRef(false);
   const dotHinted = useRef(false);
+  const tauHinted = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(false);
   const [tab, setTab] = useState<AppTab>("sky");
@@ -300,6 +301,7 @@ export function UniverseApp() {
   }, []);
 
   const armTau = useCallback(() => {
+    tauHinted.current = true;
     setTab("sky");
     setMode("planetarium");
     setTauOn(true);
@@ -315,6 +317,18 @@ export function UniverseApp() {
     window.clearTimeout(tauTimer.current);
     tauTimer.current = window.setTimeout(() => setTauOn(false), 11000);
   }, [copy.eggs.tau]);
+
+  const revealHomeSky = useCallback(() => {
+    if (!dotHinted.current) {
+      dotHinted.current = true;
+      flashEgg(copy.eggs.dot);
+    }
+    if (tauHinted.current) return;
+    tauHinted.current = true;
+    setTauOn(true);
+    window.clearTimeout(tauTimer.current);
+    tauTimer.current = window.setTimeout(() => setTauOn(false), 9000);
+  }, [copy.eggs.dot, flashEgg]);
 
   useEffect(() => {
     document.documentElement.lang = bcp47(locale);
@@ -535,7 +549,8 @@ export function UniverseApp() {
     setSurveyNudge(false);
     nudgeSoundscape(record.params);
     witnessBirth(record);
-  }, [remember, witnessBirth]);
+    if (mode === "planetarium") revealHomeSky();
+  }, [remember, witnessBirth, mode, revealHomeSky]);
 
   const applyPreset = useCallback(
     (params: UniverseParams, seed: number) => {
@@ -1358,10 +1373,7 @@ export function UniverseApp() {
                   flashEgg(copy.eggs.andromeda);
                 }
               }
-              if (next === "planetarium" && ours && !dotHinted.current) {
-                dotHinted.current = true;
-                flashEgg(copy.eggs.dot);
-              }
+              if (next === "planetarium" && ours) revealHomeSky();
             }}
           />
         </div>

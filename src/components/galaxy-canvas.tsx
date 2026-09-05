@@ -1010,6 +1010,7 @@ export function GalaxyCanvas({
       ref={canvasRef}
       className={className}
       role="img"
+      data-sky-mode={mode}
       aria-label={ariaLabel ?? "Galaxy"}
       style={{
         touchAction: mode === "planetarium" ? "none" : undefined,
