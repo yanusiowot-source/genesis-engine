@@ -67,6 +67,8 @@ describe("copyFor", () => {
     assert.doesNotMatch(c.studioKeepBody, /is next/);
     assert.doesNotMatch(c.studioKeepBody, /is ready/);
     assert.match(c.studioKeepBody, /15 USDT/);
+    assert.equal(COPY_PRICE, "15");
+    assert.equal(COPY_CURRENCY, "USDT");
     assert.match(c.studioSupportBody, /15 USDT/);
     assert.doesNotMatch(c.studioSupportBody, /Linux now/);
     assert.match(c.studioReserveCta, /15 USDT/);

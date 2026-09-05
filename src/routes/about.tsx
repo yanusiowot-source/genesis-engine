@@ -103,9 +103,7 @@ function AboutPage() {
                 {
                   "@type": "Offer",
                   name: "Desktop copy",
-                  price: "15",
-                  priceCurrency: "USD",
-                  description: "Windows or Linux zip. One-time. Paid in USDT.",
+                  description: "Windows or Linux zip. One-time. 15 USDT (BEP20) or Bitcoin, then a note on X. Not a lock on the sky.",
                 },
               ],
             }),
