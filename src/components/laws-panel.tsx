@@ -54,6 +54,8 @@ type Props = {
 const TARGETS: ResearchTarget[] = RESEARCH_TARGETS;
 const KEYS: ParamKey[] = PARAM_META.map((m) => m.key);
 
+let lawsPrimed = false;
+
 const fieldClass =
   "h-11 w-full rounded-[var(--radius-sm)] bg-bg px-3 font-mono text-sm tabular-nums text-fg shadow-[var(--shadow-border)] outline-none focus-visible:ring-2 focus-visible:ring-accent/50";
 
@@ -80,15 +82,17 @@ export function LawsPanel({
   const [busyBayes, setBusyBayes] = useState(false);
   const [busyCat, setBusyCat] = useState(false);
   const [cached, setCached] = useState(false);
-  const meta = PARAM_META.find((m) => m.key === hyp.key)!;
+  useEffect(() => {
+    if (law) setBusyLaw(false);
+  }, [law]);
 
   useEffect(() => {
     setHyp((h) => (h.target === target ? h : { ...h, target }));
   }, [target]);
 
-  const runLaw = async () => {
+  const runLaw = async (silent = false) => {
     if (busyLaw) return;
-    haptic(12);
+    if (!silent) haptic(12);
     setBusyLaw(true);
     try {
       onLaw(await discoverLawAsync(randomSeed(), target));
@@ -96,6 +100,26 @@ export function LawsPanel({
       setBusyLaw(false);
     }
   };
+
+  useEffect(() => {
+    if (law || lawsPrimed) return;
+    lawsPrimed = true;
+    let live = true;
+    void (async () => {
+      setBusyLaw(true);
+      try {
+        const next = await discoverLawAsync(randomSeed(), target);
+        onLaw(next);
+      } finally {
+        setBusyLaw(false);
+      }
+    })();
+    return () => {
+      live = false;
+    };
+    // first visit only — later Discover is the user's
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const runBayes = async () => {
     if (busyBayes) return;
@@ -163,7 +187,7 @@ export function LawsPanel({
         <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">
           {copy.laws.symbolicHint}
         </p>
-        <Button className="mt-3 w-full" onClick={() => void runLaw()} disabled={busyLaw}>
+        <Button className="mt-3 w-full" onClick={() => void runLaw()} disabled={busyLaw} data-fitting={busyLaw ? "1" : undefined}>
           {busyLaw ? copy.laws.discovering : copy.laws.discover}
         </Button>
         {law ? (

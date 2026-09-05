@@ -1,5 +1,5 @@
 import { FileOutput, Sigma } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { McmcView } from "@/components/mcmc-view";
 import { Button } from "@/components/ui/button";
 import type { BayesResult } from "@/lib/universe/bayes";
@@ -62,6 +62,8 @@ type Props = {
   onApply: (params: UniverseParams, visualSeed: number) => void;
 };
 
+let deskPrimed = false;
+
 export function DeskPanel({
   copy,
   locale,
@@ -103,14 +105,18 @@ export function DeskPanel({
   const existing = votes.find((v) => v.catalog === record.catalog);
   const board = rankedVotes(votes);
 
+  useEffect(() => {
+    if (result) setBusy(false);
+  }, [result]);
+
   const flash = (id: string) => {
     setSaved(id);
     window.setTimeout(() => setSaved(null), 1200);
   };
 
-  const run = async () => {
+  const run = async (silent = false) => {
     if (busy) return;
-    haptic(12);
+    if (!silent) haptic(12);
     setBusy(true);
     try {
       onResult(await runMcmcAsync(randomSeed(), record.params, target));
@@ -118,6 +124,26 @@ export function DeskPanel({
       setBusy(false);
     }
   };
+
+  useEffect(() => {
+    if (result || deskPrimed) return;
+    deskPrimed = true;
+    let live = true;
+    void (async () => {
+      setBusy(true);
+      try {
+        const next = await runMcmcAsync(randomSeed(), record.params, target);
+        onResult(next);
+      } finally {
+        setBusy(false);
+      }
+    })();
+    return () => {
+      live = false;
+    };
+    // first visit only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const okCatalog = catalog && catalog.ok ? catalog : null;
 
@@ -131,7 +157,7 @@ export function DeskPanel({
       <div>
         <h4 className="text-sm font-medium">{copy.desk.mcmc}</h4>
         <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.desk.mcmcHint}</p>
-        <Button className="mt-3 w-full" onClick={() => void run()} disabled={busy}>
+        <Button className="mt-3 w-full" onClick={() => void run()} disabled={busy} data-walking={busy ? "1" : undefined}>
           <Sigma />
           {busy ? copy.desk.running : copy.desk.run}
         </Button>

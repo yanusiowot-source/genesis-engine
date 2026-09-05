@@ -1019,11 +1019,13 @@ export function UniverseApp() {
           <BiospherePanel copy={copy} params={current.params} evaluation={ev} />
           <div className="h-px bg-border" />
           {hydrated ? (
-            <CitizenPanel
-              copy={copy}
-              params={current.params}
-              visualSeed={current.visualSeed}
-            />
+            <Fold title={copy.citizen.title}>
+              <CitizenPanel
+                copy={copy}
+                params={current.params}
+                visualSeed={current.visualSeed}
+              />
+            </Fold>
           ) : null}
         </>
       ) : labPane === "laws" ? (
