@@ -194,6 +194,7 @@ export function UniverseApp() {
   const [birthFate, setBirthFate] = useState<string | null>(null);
   const [surveyNudge, setSurveyNudge] = useState(false);
   const [insideNudge, setInsideNudge] = useState(false);
+  const [oursNudge, setOursNudge] = useState(false);
   const [whaleOn, setWhaleOn] = useState(false);
   const [tauOn, setTauOn] = useState(false);
   const kickerTaps = useRef(0);
@@ -211,6 +212,7 @@ export function UniverseApp() {
   const reportTimer = useRef(0);
   const surveyNudgeTimer = useRef(0);
   const insideNudgeTimer = useRef(0);
+  const oursNudgeTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const fromLinkRef = useRef(false);
@@ -330,6 +332,7 @@ export function UniverseApp() {
       window.clearTimeout(reportTimer.current);
       window.clearTimeout(surveyNudgeTimer.current);
       window.clearTimeout(insideNudgeTimer.current);
+      window.clearTimeout(oursNudgeTimer.current);
     };
   }, []);
 
@@ -474,6 +477,7 @@ export function UniverseApp() {
       window.clearTimeout(creationTimer.current);
       window.clearTimeout(surveyNudgeTimer.current);
       window.clearTimeout(insideNudgeTimer.current);
+      window.clearTimeout(oursNudgeTimer.current);
       birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 1100);
       creationTimer.current = window.setTimeout(() => {
         setCreationLine(null);
@@ -481,10 +485,18 @@ export function UniverseApp() {
       }, good ? 6400 : 4200);
       if (good) {
         setSurveyNudge(false);
-        setInsideNudge(true);
-        insideNudgeTimer.current = window.setTimeout(() => setInsideNudge(false), 6400);
+        if (isOurParams(record.params)) {
+          setOursNudge(false);
+          setInsideNudge(true);
+          insideNudgeTimer.current = window.setTimeout(() => setInsideNudge(false), 6400);
+        } else {
+          setInsideNudge(false);
+          setOursNudge(true);
+          oursNudgeTimer.current = window.setTimeout(() => setOursNudge(false), 6400);
+        }
       } else {
         setInsideNudge(false);
+        setOursNudge(false);
         setSurveyNudge(true);
         surveyNudgeTimer.current = window.setTimeout(() => setSurveyNudge(false), 5200);
       }
@@ -519,8 +531,11 @@ export function UniverseApp() {
     remember(record);
     setError(null);
     setTab("sky");
+    setOursNudge(false);
+    setSurveyNudge(false);
     nudgeSoundscape(record.params);
-  }, [remember]);
+    witnessBirth(record);
+  }, [remember, witnessBirth]);
 
   const applyPreset = useCallback(
     (params: UniverseParams, seed: number) => {
@@ -1498,6 +1513,19 @@ export function UniverseApp() {
           <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-2">
             {copy.fateCopy[ev.fate]}
           </p>
+          {!ours ? (
+            <button
+              type="button"
+              onClick={resetOurs}
+              data-nudge={oursNudge ? "ours" : undefined}
+              className={cn(
+                "mt-2 font-mono text-[0.6875rem] tracking-[0.16em] text-accent uppercase",
+                oursNudge && "nudge-ring rounded-full px-2.5 py-1",
+              )}
+            >
+              {copy.ours}
+            </button>
+          ) : null}
           {mode !== "galaxy" ? (
             <p className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2">
               {copy.obs.modeHint[mode]}
