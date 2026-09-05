@@ -82,6 +82,7 @@ import {
   type PlaylistEntry,
 } from "@/lib/universe/audio";
 import { chronicleUniverse } from "@/lib/universe/chronicle";
+import { fieldNote } from "@/lib/universe/field-note";
 import { formatGyr, formatPct } from "@/lib/universe/format";
 import {
   haptic,
@@ -123,7 +124,7 @@ import {
   type ResearchTarget,
 } from "@/lib/universe/research";
 import { buildFieldReport, downloadText, reportFilename } from "@/lib/universe/report";
-import { isAboutHash } from "@/lib/universe/studio";
+import { isAboutHash, isHostedLab } from "@/lib/universe/studio";
 import type { DiscoveryResult } from "@/lib/universe/symbolic";
 import type { BayesResult } from "@/lib/universe/bayes";
 import type { CatalogResult, CutoutResult } from "@/lib/universe/mast";
@@ -616,13 +617,37 @@ export function UniverseApp() {
     reportTimer.current = window.setTimeout(() => setReportSaved(false), 1400);
   }, [copy, current, expedition, lawResult, bayesResult, mcmcResult, locale]);
 
+  const noteText = current.chronicle ?? fieldNote({
+    name: current.name,
+    catalog: current.catalog,
+    params: current.params,
+    evaluation: current.evaluation,
+    locale,
+    salt: current.visualSeed,
+  });
+
   const commission = useCallback(async () => {
     if (busy) return;
-    setBusy(true);
     setError(null);
     setTab("lab");
+    const snapshotId = current.id;
+    const local = fieldNote({
+      name: current.name,
+      catalog: current.catalog,
+      params: current.params,
+      evaluation: current.evaluation,
+      locale,
+      salt: (Date.now() ^ current.visualSeed) >>> 0,
+    });
+    setCurrent((prev) => {
+      if (prev.id !== snapshotId) return prev;
+      const next = { ...prev, chronicle: local, locale };
+      remember(next);
+      return next;
+    });
+    if (isHostedLab()) return;
+    setBusy(true);
     try {
-      const snapshotId = current.id;
       const result = await chronicleUniverse({
         data: {
           name: current.name,
@@ -632,10 +657,7 @@ export function UniverseApp() {
           evaluation: current.evaluation,
         },
       });
-      if (!result.ok) {
-        setError(result.error);
-        return;
-      }
+      if (!result.ok) return;
       setCurrent((prev) => {
         if (prev.id !== snapshotId) return prev;
         const next = { ...prev, chronicle: result.text, locale };
@@ -643,11 +665,11 @@ export function UniverseApp() {
         return next;
       });
     } catch {
-      setError(copy.chronicleError);
+      /* the field note already stands */
     } finally {
       setBusy(false);
     }
-  }, [busy, copy.chronicleError, current, locale, remember]);
+  }, [busy, current, locale, remember]);
 
   const copyId = useCallback(async () => {
     const text = current.catalog;
@@ -1080,15 +1102,14 @@ export function UniverseApp() {
               <p className="chronicle-write text-pretty text-sm leading-relaxed text-fg-muted">
                 {copy.writing}
               </p>
-            ) : current.chronicle ? (
-              <p className="text-pretty text-sm leading-relaxed whitespace-pre-wrap text-fg-muted">
-                {current.chronicle}
-              </p>
             ) : (
-              <p className="text-pretty text-sm leading-relaxed text-fg-subtle">
-                {copy.chronicleHint}
+              <p className="text-pretty text-sm leading-relaxed whitespace-pre-wrap text-fg-muted">
+                {noteText}
               </p>
             )}
+            <p className="text-pretty text-sm leading-relaxed text-fg-subtle">
+              {copy.chronicleHint}
+            </p>
             {error ? <p className="text-sm text-sterile">{error}</p> : null}
             <div className="flex flex-wrap gap-2">
               <Button onClick={() => void commission()} disabled={busy}>

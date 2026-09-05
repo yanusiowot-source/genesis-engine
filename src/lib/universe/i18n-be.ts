@@ -19,11 +19,11 @@ export function makeBe(ru: Copy): Copy {
 			generations: "Пакаленні"
 		},
 		chronicle: "Хроніка",
-		chronicleHint: "Кароткая палявая нататка ад Grok па гэтых лічбах.",
+		chronicleHint: "Кароткая палявая нататка па гэтых лічбах. Не навучаная мадэль.",
 		chronicleError: "Хроніка не ўдалася. Паспрабуйце яшчэ.",
 		writing: "Піша…",
 		rewrite: "Перапісаць",
-		commission: "Замовіць хроніку",
+		commission: "Напісаць нататку",
 		copyId: "Капіяваць ID",
 		copied: "Скапіявана",
 		share: "Падзяліцца",
