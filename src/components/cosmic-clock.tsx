@@ -112,7 +112,7 @@ export function CosmicClock({
               {EPOCH_MARKS.filter((m) => m.t > 0.02 && m.t < 0.98).map((m) => (
                 <span
                   key={m.id}
-                  className="absolute top-1/2 size-1 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fg-subtle/70"
+                  className="absolute top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-fg-subtle/70"
                   style={{ left: `${m.t * 100}%` }}
                 />
               ))}
@@ -120,7 +120,7 @@ export function CosmicClock({
           </div>
         </div>
       </div>
-      <div className="flex gap-1" role="group" aria-label={copy.obs.clock}>
+      <div className="flex gap-1" role="group" aria-label={copy.obs.epochs[epoch]}>
         {JUMPS.map((id) => {
           const mark = EPOCH_MARKS.find((m) => m.id === id);
           const active = epoch === id;
@@ -137,8 +137,8 @@ export function CosmicClock({
                 if (mark) onChange(mark.t);
               }}
               className={cn(
-                "h-9 min-h-9 min-w-0 flex-1 truncate rounded-[var(--radius-xs)] px-1",
-                "text-[0.6875rem] font-medium tracking-wide uppercase",
+                "h-11 min-h-11 min-w-0 flex-1 truncate rounded-[var(--radius-xs)] px-1",
+                "text-[0.6875rem] font-medium tracking-wide",
                 "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                 active ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
               )}

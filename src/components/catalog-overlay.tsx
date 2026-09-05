@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Copy } from "@/lib/universe/i18n";
 import type { CatalogResult, CatalogStar } from "@/lib/universe/mast";
@@ -12,8 +14,20 @@ type Props = {
 };
 
 export function CatalogOverlay({ copy, catalog, onClose }: Props) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
   return (
-    <div className="absolute top-24 right-4 z-20 w-56 max-w-[70vw] rounded-[var(--radius-md)] bg-bg-elevated/90 p-3 shadow-[var(--shadow-border)] sm:right-8">
+    <div
+      role="dialog"
+      aria-label={copy.laws.plate}
+      className="absolute top-28 left-4 z-20 w-64 max-w-[calc(100vw-2rem)] rounded-[var(--radius-md)] bg-bg-elevated/90 p-3 shadow-[var(--shadow-border)] sm:left-auto sm:right-8"
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
@@ -23,11 +37,21 @@ export function CatalogOverlay({ copy, catalog, onClose }: Props) {
             {copy.laws.plateHint}
           </p>
         </div>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          {copy.laws.hideSky}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-11 shrink-0"
+          aria-label={copy.laws.hideSky}
+          onClick={onClose}
+        >
+          <X />
         </Button>
       </div>
-      <CatalogScatter catalog={catalog} className="mt-3 h-36 w-full" />
+      <CatalogScatter
+        catalog={catalog}
+        className="mt-3 h-36 w-full"
+        label={`${copy.laws.plate} · ${catalog.stars.length}`}
+      />
       <p className="mt-2 font-mono text-[0.6875rem] tabular-nums text-fg-subtle">
         {catalog.stars.length} · {catalog.ra.toFixed(3)} {catalog.dec.toFixed(3)}
       </p>
@@ -38,9 +62,11 @@ export function CatalogOverlay({ copy, catalog, onClose }: Props) {
 export function CatalogScatter({
   catalog,
   className,
+  label,
 }: {
   catalog: OkCatalog;
   className?: string;
+  label?: string;
 }) {
   const w = 220;
   const h = 160;
@@ -59,7 +85,7 @@ export function CatalogScatter({
       viewBox={`0 0 ${w} ${h}`}
       className={cn("text-fg", className)}
       role="img"
-      aria-label={copySafe(catalog)}
+      aria-label={label ?? `${catalog.stars.length}`}
     >
       <rect
         x="0.5"
@@ -103,8 +129,4 @@ export function CatalogScatter({
       })}
     </svg>
   );
-}
-
-function copySafe(catalog: OkCatalog): string {
-  return `Pan-STARRS DR2 · ${catalog.stars.length} objects`;
 }

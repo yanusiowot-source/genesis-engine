@@ -28,9 +28,15 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, compact
     };
     document.addEventListener("mousedown", onDoc);
     window.addEventListener("keydown", onKey);
+    const el = root.current;
+    const onFocusOut = (event: FocusEvent) => {
+      if (!el?.contains(event.relatedTarget as Node)) setOpen(false);
+    };
+    el?.addEventListener("focusout", onFocusOut);
     return () => {
       document.removeEventListener("mousedown", onDoc);
       window.removeEventListener("keydown", onKey);
+      el?.removeEventListener("focusout", onFocusOut);
     };
   }, [open]);
 
@@ -48,6 +54,7 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, compact
         aria-label={copy.skies}
         aria-expanded={open}
         aria-haspopup="menu"
+        aria-controls="skies-menu"
         onClick={() => {
           haptic(8);
           setOpen((v) => !v);
@@ -63,6 +70,7 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, compact
       </Button>
       {open ? (
         <div
+          id="skies-menu"
           role="menu"
           className={cn(
             "menu-pop absolute right-0 bottom-full z-20 mb-2 min-w-52 overflow-hidden",

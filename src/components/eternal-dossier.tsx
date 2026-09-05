@@ -69,6 +69,7 @@ export function EternalDossier({ copy, params, evaluation, onClose }: Props) {
             size="icon"
             className="size-11 shrink-0"
             aria-label={copy.closePanel}
+            autoFocus
             onClick={onClose}
           >
             <X />

@@ -37,6 +37,7 @@ type Props = {
   className?: string;
   relaxed?: boolean;
   wakeKey?: number;
+  ariaLabel?: string;
 };
 
 export function GalaxyCanvas({
@@ -55,6 +56,7 @@ export function GalaxyCanvas({
   className,
   relaxed,
   wakeKey,
+  ariaLabel,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const modelRef = useRef<GalaxyModel | null>(null);
@@ -1007,7 +1009,8 @@ export function GalaxyCanvas({
     <canvas
       ref={canvasRef}
       className={className}
-      aria-label="Simulated galaxy"
+      role="img"
+      aria-label={ariaLabel ?? "Galaxy"}
       style={{
         touchAction: mode === "planetarium" ? "none" : undefined,
         cursor: mode === "planetarium" ? "grab" : undefined,

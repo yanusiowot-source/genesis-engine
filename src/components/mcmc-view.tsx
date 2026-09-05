@@ -159,6 +159,7 @@ export function McmcView({ copy, result, className }: Props) {
       if (onResize) window.removeEventListener("resize", onResize);
       for (const item of trash) item.dispose();
       if (renderer) {
+        renderer.forceContextLoss?.();
         renderer.dispose();
         renderer.domElement.remove();
       }

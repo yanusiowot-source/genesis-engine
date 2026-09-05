@@ -286,9 +286,10 @@ export function DeskPanel({
               type="button"
               onClick={() => setKlass(id)}
               className={cn(
-                "h-11 rounded-[var(--radius-xs)] px-1 text-[0.625rem] font-medium tracking-wide uppercase",
+                "h-11 rounded-[var(--radius-xs)] px-1.5 text-[0.6875rem] font-medium tracking-wide",
                 klass === id ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
               )}
+              aria-pressed={klass === id}
             >
               {copy.desk.classLabel[id]}
             </button>
@@ -303,6 +304,7 @@ export function DeskPanel({
               key={n}
               type="button"
               aria-label={`${copy.desk.rating} ${n}`}
+              aria-pressed={n === rating}
               onClick={() => setRating(n)}
               className={cn(
                 "h-11 flex-1 rounded-[var(--radius-xs)] font-mono text-sm tabular-nums",
@@ -451,7 +453,14 @@ function ExportBtn({
   title?: string;
 }) {
   return (
-    <Button variant="outline" size="sm" className="h-11 w-full" disabled={disabled} title={title} onClick={onClick}>
+    <Button
+      variant="outline"
+      size="sm"
+      className="h-11 w-full whitespace-normal text-center leading-tight"
+      disabled={disabled}
+      title={title}
+      onClick={onClick}
+    >
       <FileOutput />
       {saved ? copy.desk.saved : label}
     </Button>

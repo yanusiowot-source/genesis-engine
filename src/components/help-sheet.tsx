@@ -43,6 +43,7 @@ export function HelpSheet({ copy, onClose }: Props) {
             size="icon"
             className="size-11 shrink-0"
             aria-label={copy.closePanel}
+            autoFocus
             onClick={onClose}
           >
             <X />

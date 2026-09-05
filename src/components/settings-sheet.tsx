@@ -144,6 +144,7 @@ export function SettingsSheet({
             size="icon"
             className="size-11 shrink-0"
             aria-label={copy.closePanel}
+            autoFocus
             onClick={onClose}
           >
             <X />
@@ -183,9 +184,10 @@ export function SettingsSheet({
                 <button
                   key={id}
                   type="button"
+                  aria-pressed={typeScale === id}
                   onClick={() => onTypeScale(id)}
                   className={cn(
-                    "h-8 min-h-8 flex-1 rounded-[var(--radius-sm)] text-xs font-medium",
+                    "h-11 min-h-11 flex-1 rounded-[var(--radius-sm)] text-xs font-medium",
                     "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                     typeScale === id
                       ? "bg-bg-elevated text-fg shadow-[var(--shadow-border)]"
@@ -500,12 +502,15 @@ function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={cn(
-        "relative h-7 w-11 shrink-0 rounded-full",
-        "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
-        checked ? "bg-accent" : "bg-bg shadow-[var(--shadow-border)]",
-      )}
+      className="flex h-11 w-11 shrink-0 items-center justify-center"
     >
+      <span
+        className={cn(
+          "relative h-7 w-11 rounded-full",
+          "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
+          checked ? "bg-accent" : "bg-bg shadow-[var(--shadow-border)]",
+        )}
+      >
       <span
         className={cn(
           "absolute top-0.5 left-0.5 block size-6 rounded-full",
@@ -513,6 +518,7 @@ function Switch({
           checked ? "translate-x-4 bg-accent-fg" : "translate-x-0 bg-fg-muted",
         )}
       />
+      </span>
     </button>
   );
 }

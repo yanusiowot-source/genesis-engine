@@ -1134,6 +1134,7 @@ export function UniverseApp() {
           className="absolute inset-0 z-0 h-full w-full"
           relaxed={tab !== "sky" || overlayOpen}
           wakeKey={wakeKey}
+          ariaLabel={`${copy.appName} · ${copy.tabs.sky}`}
         />
         {birthFlash ? (
           <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" />
@@ -1184,16 +1185,19 @@ export function UniverseApp() {
             >
               {copy.kicker}
             </button>
-            <h1
-              className="mt-1 w-fit max-w-full cursor-pointer truncate font-display text-xl leading-none tracking-[-0.03em] text-fg sm:text-2xl lg:text-3xl"
-              onClick={() => {
-                titleTaps.current += 1;
-                if (titleTaps.current < 3) return;
-                titleTaps.current = 0;
-                birthThought();
-              }}
-            >
-              {copy.appName}
+            <h1 className="mt-1">
+              <button
+                type="button"
+                className="w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-xl leading-none tracking-[-0.03em] text-fg sm:text-2xl lg:text-3xl"
+                onClick={() => {
+                  titleTaps.current += 1;
+                  if (titleTaps.current < 3) return;
+                  titleTaps.current = 0;
+                  birthThought();
+                }}
+              >
+                {copy.appName}
+              </button>
             </h1>
           </div>
           <div className="flex shrink-0 items-center justify-end gap-0.5">
