@@ -192,6 +192,7 @@ export function UniverseApp() {
   const [birthFlash, setBirthFlash] = useState(false);
   const [creationLine, setCreationLine] = useState<string | null>(null);
   const [birthFate, setBirthFate] = useState<string | null>(null);
+  const [surveyNudge, setSurveyNudge] = useState(false);
   const [whaleOn, setWhaleOn] = useState(false);
   const [tauOn, setTauOn] = useState(false);
   const kickerTaps = useRef(0);
@@ -207,12 +208,13 @@ export function UniverseApp() {
   const copyTimer = useRef(0);
   const shareTimer = useRef(0);
   const reportTimer = useRef(0);
+  const surveyNudgeTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const fromLinkRef = useRef(false);
   const dotHinted = useRef(false);
   const [hydrated, setHydrated] = useState(false);
-  const [onboard, setOnboard] = useState(true);
+  const [onboard, setOnboard] = useState(false);
   const [tab, setTab] = useState<AppTab>("sky");
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
@@ -324,6 +326,7 @@ export function UniverseApp() {
       window.clearTimeout(copyTimer.current);
       window.clearTimeout(shareTimer.current);
       window.clearTimeout(reportTimer.current);
+      window.clearTimeout(surveyNudgeTimer.current);
     };
   }, []);
 
@@ -466,11 +469,18 @@ export function UniverseApp() {
       setBirthFlash(true);
       window.clearTimeout(birthFlashTimer.current);
       window.clearTimeout(creationTimer.current);
+      window.clearTimeout(surveyNudgeTimer.current);
       birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 1100);
       creationTimer.current = window.setTimeout(() => {
         setCreationLine(null);
         setBirthFate(null);
       }, good ? 6400 : 4200);
+      if (good) {
+        setSurveyNudge(false);
+      } else {
+        setSurveyNudge(true);
+        surveyNudgeTimer.current = window.setTimeout(() => setSurveyNudge(false), 5200);
+      }
     },
     [copy.birthGood, copy.birthWitness, copy.fateLabel],
   );
@@ -541,8 +551,10 @@ export function UniverseApp() {
     });
     setError(null);
     setTab("sky");
+    setSurveyNudge(false);
     nudgeSoundscape(record.params);
-  }, []);
+    witnessBirth(record);
+  }, [witnessBirth]);
 
   const runRefine = useCallback(() => {
     haptic(12);
@@ -1492,7 +1504,8 @@ export function UniverseApp() {
             </Button>
             <Button
               variant="secondary"
-              className="shrink-0"
+              className={cn("shrink-0", surveyNudge && "survey-nudge")}
+              data-nudge={surveyNudge ? "survey" : undefined}
               onClick={runSurvey}
             >
               <ScanSearch />

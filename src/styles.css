@@ -241,6 +241,12 @@
   animation: birth-line-in 500ms var(--ease-out) both;
 }
 
+.survey-nudge {
+  box-shadow:
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 72%, transparent),
+    0 0 22px color-mix(in oklab, var(--color-accent) 32%, transparent);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .birth-flash {
     animation: none;
