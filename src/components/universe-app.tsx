@@ -193,6 +193,7 @@ export function UniverseApp() {
   const [creationLine, setCreationLine] = useState<string | null>(null);
   const [birthFate, setBirthFate] = useState<string | null>(null);
   const [surveyNudge, setSurveyNudge] = useState(false);
+  const [insideNudge, setInsideNudge] = useState(false);
   const [whaleOn, setWhaleOn] = useState(false);
   const [tauOn, setTauOn] = useState(false);
   const kickerTaps = useRef(0);
@@ -209,6 +210,7 @@ export function UniverseApp() {
   const shareTimer = useRef(0);
   const reportTimer = useRef(0);
   const surveyNudgeTimer = useRef(0);
+  const insideNudgeTimer = useRef(0);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const fromLinkRef = useRef(false);
@@ -327,6 +329,7 @@ export function UniverseApp() {
       window.clearTimeout(shareTimer.current);
       window.clearTimeout(reportTimer.current);
       window.clearTimeout(surveyNudgeTimer.current);
+      window.clearTimeout(insideNudgeTimer.current);
     };
   }, []);
 
@@ -470,6 +473,7 @@ export function UniverseApp() {
       window.clearTimeout(birthFlashTimer.current);
       window.clearTimeout(creationTimer.current);
       window.clearTimeout(surveyNudgeTimer.current);
+      window.clearTimeout(insideNudgeTimer.current);
       birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 1100);
       creationTimer.current = window.setTimeout(() => {
         setCreationLine(null);
@@ -477,7 +481,10 @@ export function UniverseApp() {
       }, good ? 6400 : 4200);
       if (good) {
         setSurveyNudge(false);
+        setInsideNudge(true);
+        insideNudgeTimer.current = window.setTimeout(() => setInsideNudge(false), 6400);
       } else {
+        setInsideNudge(false);
         setSurveyNudge(true);
         surveyNudgeTimer.current = window.setTimeout(() => setSurveyNudge(false), 5200);
       }
@@ -1325,8 +1332,10 @@ export function UniverseApp() {
           <SkyModes
             copy={copy}
             mode={mode}
+            nudge={insideNudge ? "planetarium" : null}
             onChange={(next) => {
               setMode(next);
+              if (next === "planetarium") setInsideNudge(false);
               if (next === "collision") {
                 setCollisionKey((k) => k + 1);
                 if (!collisionHinted.current) {
@@ -1504,7 +1513,7 @@ export function UniverseApp() {
             </Button>
             <Button
               variant="secondary"
-              className={cn("shrink-0", surveyNudge && "survey-nudge")}
+              className={cn("shrink-0", surveyNudge && "nudge-ring")}
               data-nudge={surveyNudge ? "survey" : undefined}
               onClick={runSurvey}
             >

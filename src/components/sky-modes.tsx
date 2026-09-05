@@ -7,16 +7,17 @@ type Props = {
   copy: Copy;
   mode: SkyMode;
   onChange: (mode: SkyMode) => void;
+  nudge?: SkyMode | null;
 };
 
-export function SkyModes({ copy, mode, onChange }: Props) {
+export function SkyModes({ copy, mode, onChange, nudge }: Props) {
   return (
     <Segmented
-      collapseLabel
       className="w-full max-w-md"
       ariaLabel={copy.obs.modesLabel}
       value={mode}
       onChange={onChange}
+      nudge={nudge}
       items={[
         { id: "galaxy", label: copy.obs.modes.galaxy, title: copy.obs.modeHint.galaxy, icon: Orbit },
         {

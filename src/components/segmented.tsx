@@ -19,6 +19,7 @@ type Props<T extends string> = {
   ariaLabel: string;
   stacked?: boolean;
   collapseLabel?: boolean;
+  nudge?: T | null;
   className?: string;
 };
 
@@ -29,6 +30,7 @@ export function Segmented<T extends string>({
   ariaLabel,
   stacked = false,
   collapseLabel = false,
+  nudge = null,
   className,
 }: Props<T>) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -108,7 +110,9 @@ export function Segmented<T extends string>({
                 ? "h-12 min-w-0 flex-1 flex-col gap-0.5 px-0.5"
                 : "h-11 flex-1 gap-1.5 px-2.5",
               active ? "text-accent" : "text-fg-subtle hover:text-fg",
+              nudge === id && "nudge-ring",
             )}
+            data-nudge={nudge === id ? id : undefined}
           >
             <Icon className={stacked ? "size-5" : "size-4"} strokeWidth={active ? 2.2 : 1.8} />
             <span
