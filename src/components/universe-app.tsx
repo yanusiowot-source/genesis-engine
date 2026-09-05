@@ -1160,7 +1160,7 @@ export function UniverseApp() {
         {creationLine ? (
           <div
             role="status"
-            className="birth-line pointer-events-none absolute inset-x-6 top-[28%] z-[4] text-center"
+            className="birth-line pointer-events-none absolute inset-x-6 top-[22%] z-[8] text-center sm:top-[28%]"
           >
             <p className="font-display text-2xl leading-tight tracking-[-0.03em] text-fg sm:text-4xl">
               {creationLine}
@@ -1474,11 +1474,11 @@ export function UniverseApp() {
               </Button>
             </div>
           </div>
-          <p className="mt-2 hidden max-w-md text-pretty text-sm leading-relaxed text-fg-muted sm:line-clamp-2 sm:block lg:line-clamp-2">
+          <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-2">
             {copy.fateCopy[ev.fate]}
           </p>
           {mode !== "galaxy" ? (
-            <p className="mt-2 hidden max-w-md text-pretty text-xs leading-relaxed text-fg-subtle sm:block">
+            <p className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2">
               {copy.obs.modeHint[mode]}
             </p>
           ) : null}

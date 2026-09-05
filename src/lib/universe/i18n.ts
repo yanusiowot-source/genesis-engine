@@ -533,7 +533,7 @@ const en: Copy = {
   onboarding: [
     {
       title: "Most skies stay empty",
-      body: "Random constants almost never make stars. The last step is the first act: birth.",
+      body: "Random constants almost never make stars. Birth anyway. Survey 64 if the sky is empty.",
     },
     {
       title: "Six constants",
@@ -1302,7 +1302,7 @@ const ru: Copy = {
   onboarding: [
     {
       title: "Большинство небес пусты",
-      body: "Случайные константы почти никогда не дают звёзд. Последний шаг — первый акт: родить.",
+      body: "Случайные константы почти никогда не дают звёзд. Родите всё равно. Обзор 64 — если небо пустое.",
     },
     {
       title: "Шесть констант",
