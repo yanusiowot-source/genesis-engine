@@ -119,10 +119,10 @@ import {
   survey,
 } from "@/lib/universe/physics";
 import {
-  runExpedition as runPhysicsExpedition,
   type ExpeditionResult,
   type ResearchTarget,
 } from "@/lib/universe/research";
+import { runExpeditionAsync } from "@/lib/universe/law-client";
 import { buildFieldReport, downloadText, reportFilename } from "@/lib/universe/report";
 import { isAboutHash, isHostedLab } from "@/lib/universe/studio";
 import type { DiscoveryResult } from "@/lib/universe/symbolic";
@@ -220,6 +220,7 @@ export function UniverseApp() {
   const tauHinted = useRef(false);
   const huntAuto = useRef(false);
   const huntTimer = useRef(0);
+  const huntGen = useRef(0);
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(false);
   const [tab, setTab] = useState<AppTab>("sky");
@@ -618,28 +619,36 @@ export function UniverseApp() {
 
   const launchExpedition = useCallback((opts?: { silent?: boolean }) => {
     const silent = opts?.silent === true;
-    if (!silent) haptic(16);
+    if (!silent) {
+      haptic(16);
+      setTab("lab");
+      setLabPane("hunt");
+    }
     const seed = randomSeed();
     const target = researchTarget;
     const params = current.params;
+    const gen = ++huntGen.current;
     setHunting(true);
-    setTab("lab");
-    setLabPane("hunt");
     window.clearTimeout(huntTimer.current);
     huntTimer.current = window.setTimeout(() => {
-      const result = runPhysicsExpedition(seed, target, params);
-      setExpedition(result);
-      if (!silent && result.best[0] && result.best[0].score >= 0.18) {
-        setArchive((prev) => {
-          let next = prev;
-          for (const row of result.best) {
-            next = upsertArchive(next, makeRecord(row.params, row.visualSeed));
+      void runExpeditionAsync(seed, target, params)
+        .then((result) => {
+          if (gen !== huntGen.current) return;
+          setExpedition(result);
+          if (!silent && result.best[0] && result.best[0].score >= 0.18) {
+            setArchive((prev) => {
+              let next = prev;
+              for (const row of result.best) {
+                next = upsertArchive(next, makeRecord(row.params, row.visualSeed));
+              }
+              return next;
+            });
           }
-          return next;
+        })
+        .finally(() => {
+          if (gen === huntGen.current) setHunting(false);
         });
-      }
-      setHunting(false);
-    }, 40);
+    }, 0);
   }, [current.params, researchTarget]);
 
   const applyFind = useCallback(

@@ -85,6 +85,9 @@ export function mcmcVotable(result: McmcResult): string {
       { name: "quantumNoise", datatype: "float" },
       { name: "logL", datatype: "float" },
       { name: "score", datatype: "float" },
+      { name: "lifeProb", datatype: "float" },
+      { name: "siliconProb", datatype: "float" },
+      { name: "eternalProb", datatype: "float" },
     ],
     result.samples.map((s) => [
       s.params.gravity.toFixed(4),
@@ -95,6 +98,9 @@ export function mcmcVotable(result: McmcResult): string {
       s.params.quantumNoise.toFixed(4),
       s.logL.toFixed(4),
       s.score.toFixed(4),
+      s.lifeProb.toFixed(4),
+      s.siliconProb.toFixed(4),
+      s.eternalProb.toFixed(4),
     ]),
   );
 }

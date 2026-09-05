@@ -1,6 +1,6 @@
 import { testHypothesis, type Hypothesis } from "./bayes.ts";
 import { discoverLaw } from "./symbolic.ts";
-import type { ResearchTarget } from "./research.ts";
+import { runExpedition, type ResearchTarget } from "./research.ts";
 import { runMcmc } from "./mcmc.ts";
 import type { UniverseParams } from "./types.ts";
 
@@ -16,6 +16,13 @@ type Request =
       nSteps?: number;
       burnIn?: number;
       thin?: number;
+    }
+  | {
+      id: number;
+      op: "expedition";
+      seed: number;
+      target: ResearchTarget;
+      current: UniverseParams;
     };
 
 function reply(payload: unknown) {
@@ -38,6 +45,14 @@ self.onmessage = (event: MessageEvent<Request>) => {
         id: msg.id,
         ok: true,
         result: runMcmc(msg.seed, msg.start, msg.target, msg.nSteps, msg.burnIn, msg.thin),
+      });
+      return;
+    }
+    if (msg.op === "expedition") {
+      reply({
+        id: msg.id,
+        ok: true,
+        result: runExpedition(msg.seed, msg.target, msg.current),
       });
     }
   } catch (err) {

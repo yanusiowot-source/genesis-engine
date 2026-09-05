@@ -7,6 +7,9 @@ export type McmcSample = {
   params: UniverseParams;
   logL: number;
   score: number;
+  lifeProb: number;
+  siliconProb: number;
+  eternalProb: number;
 };
 
 export type McmcResult = {
@@ -49,9 +52,17 @@ function randn(rng: () => number): number {
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
 
-function logLike(params: UniverseParams, target: ResearchTarget): { logL: number; score: number } {
-  const score = scoreOf(evaluate(snapParams(params)), target);
-  return { score, logL: Math.log(score + 1e-8) };
+function measure(params: UniverseParams, target: ResearchTarget): McmcSample {
+  const ev = evaluate(snapParams(params));
+  const score = scoreOf(ev, target);
+  return {
+    params: copyParams(params),
+    score,
+    logL: Math.log(score + 1e-8),
+    lifeProb: ev.lifeProb,
+    siliconProb: ev.siliconProb,
+    eternalProb: ev.eternalProb,
+  };
 }
 
 function copyParams(p: UniverseParams): UniverseParams {
@@ -240,21 +251,24 @@ export function analyzePosterior(
   let viableSilicon = 0;
   let viableEternal = 0;
   for (const s of result.samples) {
-    const ev = evaluate(s.params);
-    if (ev.lifeProb >= 0.18) viableCarbon += 1;
-    if (ev.siliconProb >= 0.18) viableSilicon += 1;
-    if (ev.eternalProb >= 0.18) viableEternal += 1;
+    const carbon = s.lifeProb ?? evaluate(s.params).lifeProb;
+    const silicon = s.siliconProb ?? evaluate(s.params).siliconProb;
+    const eternal = s.eternalProb ?? evaluate(s.params).eternalProb;
+    if (carbon >= 0.18) viableCarbon += 1;
+    if (silicon >= 0.18) viableSilicon += 1;
+    if (eternal >= 0.18) viableEternal += 1;
   }
 
+  const cols = Object.fromEntries(KEYS.map((k) => [k, result.samples.map((s) => s.params[k])])) as Record<
+    ParamKey,
+    number[]
+  >;
   let pairing: PosteriorAnalysis["pairing"] = null;
   for (let i = 0; i < KEYS.length; i++) {
     for (let j = i + 1; j < KEYS.length; j++) {
       const a = KEYS[i]!;
       const b = KEYS[j]!;
-      const r = pearson(
-        result.samples.map((s) => s.params[a]),
-        result.samples.map((s) => s.params[b]),
-      );
+      const r = pearson(cols[a], cols[b]);
       if (!pairing || Math.abs(r) > Math.abs(pairing.r)) pairing = { a, b, r };
     }
   }
@@ -303,11 +317,11 @@ export function runMcmc(
   };
   let scale = 1;
   let current = copyParams(start);
-  let cur = logLike(current, target);
+  let cur = measure(current, target);
   let accepted = 0;
   let recent = 0;
   const samples: McmcSample[] = [];
-  let map: McmcSample = { params: copyParams(current), logL: cur.logL, score: cur.score };
+  let map = cur;
   let logLMin = cur.logL;
   let logLMax = cur.logL;
 
@@ -317,16 +331,14 @@ export function runMcmc(
       const m = metaOf(k);
       prop[k] = reflect(prop[k] + randn(rng) * scale0[k] * scale, m.min, m.max);
     }
-    const next = logLike(prop, target);
+    const next = measure(prop, target);
     const logA = next.logL - cur.logL;
     if (logA >= 0 || Math.log(rng()) < logA) {
       current = prop;
       cur = next;
       accepted += 1;
       recent += 1;
-      if (cur.logL > map.logL) {
-        map = { params: copyParams(current), logL: cur.logL, score: cur.score };
-      }
+      if (cur.logL > map.logL) map = cur;
     }
     if (i < burnIn && (i + 1) % 80 === 0) {
       const rate = recent / 80;
@@ -336,14 +348,9 @@ export function runMcmc(
       recent = 0;
     }
     if (i >= burnIn && (i - burnIn) % thin === 0) {
-      const row: McmcSample = {
-        params: copyParams(current),
-        logL: cur.logL,
-        score: cur.score,
-      };
-      samples.push(row);
-      if (row.logL < logLMin) logLMin = row.logL;
-      if (row.logL > logLMax) logLMax = row.logL;
+      samples.push(cur);
+      if (cur.logL < logLMin) logLMin = cur.logL;
+      if (cur.logL > logLMax) logLMax = cur.logL;
     }
   }
 

@@ -130,22 +130,34 @@ export function McmcView({ copy, result, className }: Props) {
         camera.updateProjectionMatrix();
         webgl.setSize(w, h, false);
       };
-      onResize = resize;
-      resize();
-      window.addEventListener("resize", resize);
-
       const reduced =
         typeof window !== "undefined" &&
         window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let hidden = typeof document !== "undefined" && document.hidden;
 
       const tick = () => {
         if (dead) return;
-        const dt = Math.min(0.05, 0.016);
+        if (hidden) return;
         orbit.update();
-        if (!reduced) cloud.rotation.y += dt * 0.04;
+        if (!reduced) cloud.rotation.y += 0.016 * 0.04;
         webgl.render(scene, camera);
         raf = requestAnimationFrame(tick);
       };
+
+      const onVis = () => {
+        hidden = document.hidden;
+        if (!hidden && !dead) {
+          cancelAnimationFrame(raf);
+          raf = requestAnimationFrame(tick);
+        }
+      };
+      document.addEventListener("visibilitychange", onVis);
+      window.addEventListener("resize", resize);
+      onResize = () => {
+        document.removeEventListener("visibilitychange", onVis);
+        window.removeEventListener("resize", resize);
+      };
+      resize();
       raf = requestAnimationFrame(tick);
     };
 
@@ -156,7 +168,7 @@ export function McmcView({ copy, result, className }: Props) {
     return () => {
       dead = true;
       cancelAnimationFrame(raf);
-      if (onResize) window.removeEventListener("resize", onResize);
+      onResize?.();
       for (const item of trash) item.dispose();
       if (renderer) {
         renderer.forceContextLoss?.();

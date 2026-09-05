@@ -1,10 +1,14 @@
 import { testHypothesis, type BayesResult, type Hypothesis } from "./bayes";
-import type { ResearchTarget } from "./research";
+import { runExpedition, type ExpeditionResult, type ResearchTarget } from "./research";
 import { discoverLaw, type DiscoveryResult } from "./symbolic";
 import { runMcmc, type McmcResult } from "./mcmc";
 import type { UniverseParams } from "./types";
 
-type WorkerOk = { id: number; ok: true; result: DiscoveryResult | BayesResult | McmcResult };
+type WorkerOk = {
+  id: number;
+  ok: true;
+  result: DiscoveryResult | BayesResult | McmcResult | ExpeditionResult;
+};
 type WorkerErr = { id: number; ok: false; error: string };
 
 let worker: Worker | null = null;
@@ -97,5 +101,20 @@ export async function runMcmcAsync(
     );
   } catch {
     return runMcmc(seed, start, target, nSteps, burnIn, thin);
+  }
+}
+
+export async function runExpeditionAsync(
+  seed: number,
+  target: ResearchTarget,
+  current: UniverseParams,
+): Promise<ExpeditionResult> {
+  try {
+    return await callWorker<ExpeditionResult>(
+      { op: "expedition", seed, target, current },
+      20_000,
+    );
+  } catch {
+    return runExpedition(seed, target, current);
   }
 }

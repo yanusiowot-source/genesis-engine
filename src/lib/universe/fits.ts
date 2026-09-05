@@ -325,6 +325,9 @@ export function mcmcTableFits(result: McmcResult): Uint8Array {
       { name: "QNOISE", kind: "E", values: samples.map((s) => s.params.quantumNoise) },
       { name: "LOGL", kind: "E", values: samples.map((s) => s.logL) },
       { name: "SCORE", kind: "E", values: samples.map((s) => s.score) },
+      { name: "LIFE", kind: "E", values: samples.map((s) => s.lifeProb) },
+      { name: "SILICON", kind: "E", values: samples.map((s) => s.siliconProb) },
+      { name: "ETERNAL", kind: "E", values: samples.map((s) => s.eternalProb) },
     ],
   });
 }
