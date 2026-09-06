@@ -248,11 +248,7 @@ export function GalaxyCanvas({
       window.clearTimeout(wait);
       wait = 0;
       cancelAnimationFrame(frame);
-      if (!hidden && running) {
-        lastT = 0;
-        idlePaint = false;
-        frame = requestAnimationFrame(draw);
-      }
+      if (running) frame = requestAnimationFrame(draw);
     };
     document.addEventListener("visibilitychange", onVis);
 
@@ -746,11 +742,14 @@ export function GalaxyCanvas({
     };
 
     const schedule = (ms: number) => {
-      if (!running || hidden) return;
+      if (!running) return;
+      window.clearTimeout(wait);
+      wait = 0;
+      cancelAnimationFrame(frame);
       if (ms > 0) {
         wait = window.setTimeout(() => {
           wait = 0;
-          if (running && !hidden) frame = requestAnimationFrame(draw);
+          if (running) frame = requestAnimationFrame(draw);
         }, ms);
         return;
       }
@@ -759,12 +758,10 @@ export function GalaxyCanvas({
 
     const draw = (t: number) => {
       if (!running) return;
-      if (hidden) return;
-      if (pausedRef.current) {
-        if (painted) {
-          schedule(280);
-          return;
-        }
+      const rest = hidden || pausedRef.current;
+      if (rest && painted) {
+        schedule(hidden ? 400 : 280);
+        return;
       }
       const skyNow = modeRef.current;
       const live =
@@ -777,15 +774,17 @@ export function GalaxyCanvas({
         eggsRef.current.tau ||
         wakeRef.current !== lastWake ||
         seedRef.current !== lastSeed;
-      if (idlePaint && painted && !live && !pausedRef.current) {
+      if (idlePaint && painted && !live && !rest) {
         schedule(140);
         return;
       }
-      const minGap = relaxedRef.current
-        ? 33
-        : skyNow === "planetarium" && !dragging
-          ? 22
-          : 0;
+      const minGap = rest
+        ? 0
+        : relaxedRef.current
+          ? 33
+          : skyNow === "planetarium" && !dragging
+            ? 22
+            : 0;
       if (minGap && lastPaint && t - lastPaint < minGap) {
         schedule(0);
         return;
@@ -1049,14 +1048,15 @@ export function GalaxyCanvas({
         !evolvingRef.current &&
         Math.abs(visualT - targetT) < 0.0008;
       painted = true;
+      canvas.dataset.skyPainted = "1";
       } catch {
         /* one bad frame must not kill the sky */
       } finally {
-        if (running && !hidden && !pausedRef.current) schedule(0);
+        if (running) schedule(hidden || pausedRef.current ? 280 : 0);
       }
     };
 
-    frame = requestAnimationFrame(draw);
+    draw(typeof performance !== "undefined" ? performance.now() : 0);
     return () => {
       running = false;
       cancelAnimationFrame(frame);

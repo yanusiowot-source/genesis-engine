@@ -1692,19 +1692,16 @@ export function UniverseApp() {
         </div>
       </div>
 
-      <button
-        type="button"
-        aria-label={copy.closePanel}
-        data-open={panelOpen ? "true" : "false"}
-        className={cn(
-          "scrim-fade fixed inset-x-0 top-0 z-30 bg-bg/70 lg:bg-bg/50 bottom-[calc(3.5rem+env(safe-area-inset-bottom))]",
-          !panelOpen && "pointer-events-none",
-        )}
-        tabIndex={panelOpen ? 0 : -1}
-        aria-hidden={!panelOpen}
-        onClick={() => setTab("sky")}
-        inert={overlayOpen ? true : undefined}
-      />
+      {panelOpen ? (
+        <button
+          type="button"
+          aria-label={copy.closePanel}
+          data-open="true"
+          className="scrim-fade fixed inset-x-0 top-0 z-30 bg-bg/70 lg:bg-bg/50 bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
+          onClick={() => setTab("sky")}
+          inert={overlayOpen ? true : undefined}
+        />
+      ) : null}
 
       <aside
         ref={asideRef}
