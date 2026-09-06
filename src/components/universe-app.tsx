@@ -1271,6 +1271,7 @@ export function UniverseApp() {
           onTau={armTau}
           className="absolute inset-0 z-0 h-full w-full"
           relaxed={tab !== "sky" || overlayOpen}
+          paused={overlayOpen}
           wakeKey={wakeKey}
           ariaLabel={`${copy.appName} · ${copy.tabs.sky}`}
         />
@@ -1449,7 +1450,8 @@ export function UniverseApp() {
           />
         </div>
 
-        <div className="relative z-10 mt-auto px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pointer-events-auto sm:px-8 lg:pb-8">
+        <div className="relative z-10 mt-auto flex min-h-0 flex-col px-5 pb-3 pointer-events-auto sm:px-8 lg:pb-6">
+          <div className="min-h-0 overflow-hidden">
           {hydrated ? (
             <CosmicClock
               copy={copy}
@@ -1593,13 +1595,14 @@ export function UniverseApp() {
               </Button>
             </div>
           </div>
-          <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-2">
+          <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-2" data-hud-tall>
             {copy.fateCopy[ev.fate]}
           </p>
           {versusLine ? (
             <p
               className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-3"
               data-versus="1"
+              data-hud-tall
             >
               {versusLine}
             </p>
@@ -1608,6 +1611,7 @@ export function UniverseApp() {
             <p
               className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2"
               data-routes="1"
+              data-hud-tall
             >
               {diasporaLine}
             </p>
@@ -1626,14 +1630,15 @@ export function UniverseApp() {
             </button>
           ) : null}
           {mode !== "galaxy" ? (
-            <p className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2">
+            <p className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2" data-hud-tall>
               {copy.obs.modeHint[mode]}
             </p>
           ) : null}
           {shared ? (
             <p className="mt-2 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
-          <div className="mt-3 flex items-center gap-2">
+          </div>
+          <div className="mt-3 flex shrink-0 flex-wrap items-center gap-2">
             <Button onClick={birth} className="min-w-0 flex-1 sm:flex-none">
               <Aperture />
               <span className="truncate">{copy.birth}</span>
@@ -1676,7 +1681,10 @@ export function UniverseApp() {
         type="button"
         aria-label={copy.closePanel}
         data-open={panelOpen ? "true" : "false"}
-        className="scrim-fade fixed inset-x-0 top-0 z-30 bg-bg/70 lg:bg-bg/50 bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
+        className={cn(
+          "scrim-fade fixed inset-x-0 top-0 z-30 bg-bg/70 lg:bg-bg/50 bottom-[calc(3.5rem+env(safe-area-inset-bottom))]",
+          !panelOpen && "pointer-events-none",
+        )}
         tabIndex={panelOpen ? 0 : -1}
         aria-hidden={!panelOpen}
         onClick={() => setTab("sky")}

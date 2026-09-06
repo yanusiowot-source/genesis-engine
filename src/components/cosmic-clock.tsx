@@ -58,7 +58,10 @@ export function CosmicClock({
   const lastJump = useRef<(typeof JUMPS)[number] | null>(null);
 
   return (
-    <section className="flex flex-col gap-1.5 rounded-[var(--radius-md)] bg-bg-elevated/80 px-3 py-2 shadow-[var(--shadow-border)]">
+    <section
+      className="flex flex-col gap-1.5 rounded-[var(--radius-md)] bg-bg-elevated/80 px-3 py-2 shadow-[var(--shadow-border)]"
+      data-hud-clock
+    >
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -120,7 +123,7 @@ export function CosmicClock({
           </div>
         </div>
       </div>
-      <div className="flex gap-1" role="group" aria-label={copy.obs.epochs[epoch]}>
+      <div className="flex gap-1" role="group" aria-label={copy.obs.epochs[epoch]} data-hud-tall>
         {JUMPS.map((id) => {
           const mark = EPOCH_MARKS.find((m) => m.id === id);
           const active = epoch === id;
@@ -149,7 +152,7 @@ export function CosmicClock({
           );
         })}
       </div>
-      <div className="flex justify-between gap-3 font-mono text-[0.6875rem] tabular-nums text-fg-subtle">
+      <div className="flex justify-between gap-3 font-mono text-[0.6875rem] tabular-nums text-fg-subtle" data-hud-tall>
         <span>{formatGyr(age)}</span>
         <span>{copy.obs.now}</span>
       </div>

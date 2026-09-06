@@ -37,6 +37,7 @@ type Props = {
   onTau?: () => void;
   className?: string;
   relaxed?: boolean;
+  paused?: boolean;
   wakeKey?: number;
   ariaLabel?: string;
 };
@@ -56,6 +57,7 @@ export function GalaxyCanvas({
   onTau,
   className,
   relaxed,
+  paused,
   wakeKey,
   ariaLabel,
 }: Props) {
@@ -74,6 +76,7 @@ export function GalaxyCanvas({
   const voyagerRef = useRef(onVoyager);
   const tauRef = useRef(onTau);
   const relaxedRef = useRef(!!relaxed);
+  const pausedRef = useRef(!!paused);
   const wakeRef = useRef(wakeKey ?? 0);
   const builtSeed = useRef<number | null>(null);
   const shipsRef = useRef(0);
@@ -90,6 +93,7 @@ export function GalaxyCanvas({
   voyagerRef.current = onVoyager;
   tauRef.current = onTau;
   relaxedRef.current = !!relaxed;
+  pausedRef.current = !!paused;
   wakeRef.current = wakeKey ?? 0;
 
   useEffect(() => {
@@ -721,6 +725,10 @@ export function GalaxyCanvas({
     const draw = (t: number) => {
       if (!running) return;
       if (hidden) return;
+      if (pausedRef.current) {
+        frame = requestAnimationFrame(draw);
+        return;
+      }
       const minGap = relaxedRef.current
         ? 33
         : idlePaint

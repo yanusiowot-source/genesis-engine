@@ -371,6 +371,18 @@
   pointer-events: auto;
 }
 
+@media (max-height: 720px) {
+  [data-hud-tall] {
+    display: none;
+  }
+}
+
+@media (max-height: 560px) {
+  [data-hud-clock] {
+    display: none;
+  }
+}
+
 .lab-fold > summary {
   list-style: none;
 }
