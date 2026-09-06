@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@source "./**/*.{ts,tsx}";
+@source "../desktop/renderer/**/*.{html,tsx}";
 
 /* Metric-matched local faces so first paint does not jump if Google is late or offline. */
 @font-face {
@@ -205,6 +207,15 @@
     radial-gradient(ellipse at 18% 8%, color-mix(in oklab, var(--color-nebula) 28%, transparent), transparent 42%),
     radial-gradient(ellipse at 82% 12%, color-mix(in oklab, var(--color-cyan) 22%, transparent), transparent 46%),
     radial-gradient(ellipse at 50% 100%, color-mix(in oklab, var(--color-accent) 14%, transparent), transparent 48%);
+}
+
+.sky-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 @keyframes birth-wash {

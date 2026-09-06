@@ -155,6 +155,7 @@ export function GalaxyCanvas({
     let lastPaint = 0;
     let visualT = cosmicRef.current;
     let idlePaint = false;
+    let painted = false;
     let frameLite = false;
     const evoCache = new WeakMap<Star, { k: number; st: StarState }>();
     const quality = adaptiveQuality();
@@ -169,16 +170,17 @@ export function GalaxyCanvas({
       const rect = parent.getBoundingClientRect();
       const q = adaptiveQuality();
       dpr = Math.min(window.devicePixelRatio || 1, q.dprCap);
-      w = Math.max(1, Math.floor(rect.width));
-      h = Math.max(1, Math.floor(rect.height));
+      const capW = Math.max(1, Math.floor(window.innerWidth || 1));
+      const capH = Math.max(1, Math.floor(window.innerHeight || 1));
+      w = Math.max(1, Math.min(capW, Math.floor(rect.width) || capW));
+      h = Math.max(1, Math.min(capH, Math.floor(rect.height) || capH));
       canvas.width = Math.floor(w * dpr);
       canvas.height = Math.floor(h * dpr);
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = q.scale < 0.6 ? "medium" : "high";
       idlePaint = false;
+      painted = false;
     };
 
     const onReduce = () => {
@@ -759,8 +761,10 @@ export function GalaxyCanvas({
       if (!running) return;
       if (hidden) return;
       if (pausedRef.current) {
-        schedule(280);
-        return;
+        if (painted) {
+          schedule(280);
+          return;
+        }
       }
       const skyNow = modeRef.current;
       const live =
@@ -773,7 +777,7 @@ export function GalaxyCanvas({
         eggsRef.current.tau ||
         wakeRef.current !== lastWake ||
         seedRef.current !== lastSeed;
-      if (idlePaint && !live) {
+      if (idlePaint && painted && !live && !pausedRef.current) {
         schedule(140);
         return;
       }
@@ -795,6 +799,7 @@ export function GalaxyCanvas({
       if (!model) {
         ctx.fillStyle = "#09061a";
         ctx.fillRect(0, 0, Math.max(w, 1), Math.max(h, 1));
+        painted = true;
         return;
       }
       tauHit.live = false;
@@ -1043,6 +1048,7 @@ export function GalaxyCanvas({
         !eggsRef.current.tau &&
         !evolvingRef.current &&
         Math.abs(visualT - targetT) < 0.0008;
+      painted = true;
       } catch {
         /* one bad frame must not kill the sky */
       } finally {
@@ -1068,11 +1074,15 @@ export function GalaxyCanvas({
   return (
     <canvas
       ref={canvasRef}
-      className={className}
+      className={["sky-canvas", className].filter(Boolean).join(" ")}
       role="img"
       data-sky-mode={mode}
       aria-label={ariaLabel ?? "Galaxy"}
       style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
         touchAction: mode === "planetarium" ? "none" : undefined,
         cursor: mode === "planetarium" ? "grab" : undefined,
         pointerEvents: mode === "planetarium" ? "auto" : "none",
