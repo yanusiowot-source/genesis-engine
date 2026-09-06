@@ -64,11 +64,15 @@ export function adaptiveQuality(): { scale: number; dprCap: number } {
   const memory =
     (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
   const mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+  const area =
+    typeof window !== "undefined" ? window.innerWidth * window.innerHeight : 1_000_000;
   let scale = 1;
   if (mobile) scale *= 0.55;
   if (cores <= 4) scale *= 0.75;
   if (memory <= 4) scale *= 0.8;
-  return { scale: Math.max(0.28, Math.min(1, scale)), dprCap: mobile ? 1.25 : 2 };
+  if (area < 420_000) scale *= 0.7;
+  if (area < 280_000) scale *= 0.78;
+  return { scale: Math.max(0.22, Math.min(1, scale)), dprCap: mobile ? 1.15 : 1.75 };
 }
 
 function diskZ(rng: () => number, dist: number, thick: number): number {
@@ -261,7 +265,7 @@ export function buildGalaxy(
   quality = 1,
 ): GalaxyModel {
   const rng = mulberry32(seed);
-  const n = Math.max(36, Math.floor((140 + params.matter * 680) * quality));
+  const n = Math.max(32, Math.floor((120 + params.matter * 560) * quality));
   const spread = 0.48 + params.expansion * 0.32;
   const scatter = 0.025 + params.quantumNoise * 0.38;
   const morph = evaluation.morphology;

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { buildGalaxy, lookCam, projectLook } from "./galaxy.ts";
+import { adaptiveQuality, buildGalaxy, lookCam, projectLook } from "./galaxy.ts";
 import { evaluate, OUR_UNIVERSE } from "./physics.ts";
 
 describe("inside-sky camera", () => {
@@ -52,5 +52,18 @@ describe("buildGalaxy", () => {
     assert.ok(ours.stars.length > neighbor.stars.length);
     assert.ok(ours.dust.length > 0);
     assert.ok(ours.background.some((g) => g.kind === "spiral"));
+  });
+
+  it("keeps quality in range without a window", () => {
+    const q = adaptiveQuality();
+    assert.ok(q.scale >= 0.22 && q.scale <= 1);
+    assert.ok(q.dprCap >= 1 && q.dprCap <= 2);
+  });
+
+  it("still builds a disk at the lowest quality", () => {
+    const ev = evaluate(OUR_UNIVERSE);
+    const model = buildGalaxy(OUR_UNIVERSE, ev, 3, 0.22);
+    assert.ok(model.stars.length > 24);
+    assert.ok(model.field.length > 10);
   });
 });

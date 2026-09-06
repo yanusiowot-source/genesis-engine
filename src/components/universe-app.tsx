@@ -14,29 +14,23 @@ import {
   VolumeX,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { AstroPanel } from "@/components/astro-panel";
-import { CatalogOverlay } from "@/components/catalog-overlay";
-import { CitizenPanel } from "@/components/citizen-panel";
 import { CivPanel } from "@/components/civ-panel";
 import { BiospherePanel } from "@/components/biosphere-panel";
 import { CompareOurs } from "@/components/compare-ours";
 import { CosmicClock } from "@/components/cosmic-clock";
-import { DeskPanel } from "@/components/desk-panel";
 import { EpochTimeline } from "@/components/epoch-timeline";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
-import { HrDiagram } from "@/components/hr-diagram";
 import { HelpSheet } from "@/components/help-sheet";
 import { HubblePanel } from "@/components/hubble-panel";
 import { InstallSheet } from "@/components/install-sheet";
 import { LabPanes } from "@/components/lab-panes";
-import { LawsPanel } from "@/components/laws-panel";
 import { LifeFactors } from "@/components/life-factors";
 import { LogList } from "@/components/log-list";
 import { MoreMenu } from "@/components/more-menu";
 import { Onboarding } from "@/components/onboarding";
 import { ParamSliders } from "@/components/param-sliders";
-import { ResearchPanel } from "@/components/research-panel";
 import { SettingsSheet } from "@/components/settings-sheet";
 import { EternalDossier } from "@/components/eternal-dossier";
 import { EternalPanel } from "@/components/eternal-panel";
@@ -45,6 +39,25 @@ import { SiliconPanel } from "@/components/silicon-panel";
 import { SkyModes } from "@/components/sky-modes";
 import { TabBar, type AppTab } from "@/components/tab-bar";
 import { Button } from "@/components/ui/button";
+
+const CatalogOverlay = lazy(() =>
+  import("@/components/catalog-overlay").then((m) => ({ default: m.CatalogOverlay })),
+);
+const CitizenPanel = lazy(() =>
+  import("@/components/citizen-panel").then((m) => ({ default: m.CitizenPanel })),
+);
+const DeskPanel = lazy(() =>
+  import("@/components/desk-panel").then((m) => ({ default: m.DeskPanel })),
+);
+const HrDiagram = lazy(() =>
+  import("@/components/hr-diagram").then((m) => ({ default: m.HrDiagram })),
+);
+const LawsPanel = lazy(() =>
+  import("@/components/laws-panel").then((m) => ({ default: m.LawsPanel })),
+);
+const ResearchPanel = lazy(() =>
+  import("@/components/research-panel").then((m) => ({ default: m.ResearchPanel })),
+);
 import {
   loadArchive,
   removeFromArchive,
@@ -1294,11 +1307,13 @@ export function UniverseApp() {
           </div>
         ) : null}
         {hydrated && catalogOverlay && catalog && catalog.ok ? (
-          <CatalogOverlay
-            copy={copy}
-            catalog={catalog}
-            onClose={() => setCatalogOverlay(false)}
-          />
+          <Suspense fallback={null}>
+            <CatalogOverlay
+              copy={copy}
+              catalog={catalog}
+              onClose={() => setCatalogOverlay(false)}
+            />
+          </Suspense>
         ) : null}
         <div
           aria-hidden
@@ -1740,7 +1755,9 @@ export function UniverseApp() {
               onRemove={removeById}
             />
           ) : tab === "lab" ? (
-            lab
+            <Suspense fallback={<p className="text-sm text-fg-muted">{copy.writing}</p>}>
+              {lab}
+            </Suspense>
           ) : null}
         </div>
       </aside>

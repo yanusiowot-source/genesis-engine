@@ -16,6 +16,7 @@ import {
   galaxyVisibility,
   lensDeflect,
   stepCosmicTime,
+  type StarState,
 } from "@/lib/universe/observatory";
 import type { Evaluation, SkyMode, UniverseParams } from "@/lib/universe/types";
 import { isOurParams } from "@/lib/universe/physics";
@@ -122,6 +123,7 @@ export function GalaxyCanvas({
     if (!ctx) return;
 
     let frame = 0;
+    let wait = 0;
     let running = true;
     let dpr = 1;
     let w = 0;
@@ -149,9 +151,12 @@ export function GalaxyCanvas({
     let flash = 0;
     let lastSeed = seedRef.current;
     let lastWake = wakeRef.current;
+    let lastMode = modeRef.current;
     let lastPaint = 0;
     let visualT = cosmicRef.current;
     let idlePaint = false;
+    let frameLite = false;
+    const evoCache = new WeakMap<Star, { k: number; st: StarState }>();
     const quality = adaptiveQuality();
     const reducedMq =
       typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
@@ -173,6 +178,7 @@ export function GalaxyCanvas({
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = q.scale < 0.6 ? "medium" : "high";
+      idlePaint = false;
     };
 
     const onReduce = () => {
@@ -237,18 +243,33 @@ export function GalaxyCanvas({
 
     const onVis = () => {
       hidden = document.hidden;
+      window.clearTimeout(wait);
+      wait = 0;
+      cancelAnimationFrame(frame);
       if (!hidden && running) {
         lastT = 0;
-        cancelAnimationFrame(frame);
+        idlePaint = false;
         frame = requestAnimationFrame(draw);
       }
     };
     document.addEventListener("visibilitychange", onVis);
 
     const drawStar = (s: Star, x: number, y: number, ageGyr: number, vis: number, time: number) => {
-      const st = evolveStar(s.mass, ageGyr - s.birthGyr, paramsRef.current.gravity);
+      if (frameLite) {
+        const size = Math.max(0.35, s.r * 0.55);
+        ctx.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${Math.min(1, s.a * vis)})`;
+        ctx.fillRect(x - size * 0.5, y - size * 0.5, size, size);
+        return;
+      }
+      const key = (Math.round(ageGyr * 48) << 8) ^ Math.round(paramsRef.current.gravity * 50);
+      let hit = evoCache.get(s);
+      if (!hit || hit.k !== key) {
+        hit = { k: key, st: evolveStar(s.mass, ageGyr - s.birthGyr, paramsRef.current.gravity) };
+        evoCache.set(s, hit);
+      }
+      const st = hit.st;
       if (st.stage === "unborn") return;
-      const tw = reducedRef.current ? 1 : 0.75 + 0.25 * Math.sin(time * 2.2 + s.phase);
+      const tw = reducedRef.current || idlePaint ? 1 : 0.75 + 0.25 * Math.sin(time * 2.2 + s.phase);
       let a = Math.min(1, s.a * vis * tw * 1.25);
       if (st.stage === "blackHole") a *= 0.4;
       if (st.stage === "whiteDwarf" || st.stage === "neutronStar") a *= 0.85;
@@ -722,25 +743,51 @@ export function GalaxyCanvas({
       ctx.restore();
     };
 
+    const schedule = (ms: number) => {
+      if (!running || hidden) return;
+      if (ms > 0) {
+        wait = window.setTimeout(() => {
+          wait = 0;
+          if (running && !hidden) frame = requestAnimationFrame(draw);
+        }, ms);
+        return;
+      }
+      frame = requestAnimationFrame(draw);
+    };
+
     const draw = (t: number) => {
       if (!running) return;
       if (hidden) return;
       if (pausedRef.current) {
-        frame = requestAnimationFrame(draw);
+        schedule(280);
+        return;
+      }
+      const skyNow = modeRef.current;
+      const live =
+        evolvingRef.current ||
+        dragging ||
+        skyNow === "planetarium" ||
+        (skyNow === "collision" && collisionT < 0.999) ||
+        collisionKeyRef.current !== armedKey ||
+        skyNow !== lastMode ||
+        eggsRef.current.tau ||
+        wakeRef.current !== lastWake ||
+        seedRef.current !== lastSeed;
+      if (idlePaint && !live) {
+        schedule(140);
         return;
       }
       const minGap = relaxedRef.current
         ? 33
-        : idlePaint
-          ? 45
-          : modeRef.current === "planetarium" && !dragging
-            ? 22
-            : 0;
+        : skyNow === "planetarium" && !dragging
+          ? 22
+          : 0;
       if (minGap && lastPaint && t - lastPaint < minGap) {
-        frame = requestAnimationFrame(draw);
+        schedule(0);
         return;
       }
       lastPaint = t;
+      frameLite = relaxedRef.current || reducedRef.current || w * h < 300000;
       try {
       const model = modelRef.current;
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
@@ -766,6 +813,7 @@ export function GalaxyCanvas({
         lastSeed = seedRef.current;
         flash = 1;
       }
+      lastMode = modeRef.current;
       if (wakeRef.current !== lastWake) {
         lastWake = wakeRef.current;
         flash = Math.max(flash, 0.9);
@@ -998,7 +1046,7 @@ export function GalaxyCanvas({
       } catch {
         /* one bad frame must not kill the sky */
       } finally {
-        if (running && !hidden) frame = requestAnimationFrame(draw);
+        if (running && !hidden && !pausedRef.current) schedule(0);
       }
     };
 
@@ -1006,6 +1054,7 @@ export function GalaxyCanvas({
     return () => {
       running = false;
       cancelAnimationFrame(frame);
+      window.clearTimeout(wait);
       ro.disconnect();
       reducedMq?.removeEventListener("change", onReduce);
       document.removeEventListener("visibilitychange", onVis);
