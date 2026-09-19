@@ -11,10 +11,16 @@ type Props = {
   onSilicon: () => void;
   onDesert: () => void;
   onEternal: () => void;
+  onSwarm: () => void;
+  onHighway: () => void;
+  onBelt: () => void;
+  onCluster: () => void;
+  onDwarf: () => void;
   compact?: boolean;
+  nudge?: boolean;
 };
 
-export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, compact }: Props) {
+export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm, onHighway, onBelt, onCluster, onDwarf, compact, nudge }: Props) {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
 
@@ -50,7 +56,10 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, compact
     <div ref={root} className="relative shrink-0">
       <Button
         variant="outline"
-        className={cn("h-11 gap-1.5", compact ? "w-11 px-0 sm:w-auto sm:px-3" : "px-3")}
+        className={cn(
+          compact ? "size-11 px-0 sm:h-11 sm:w-auto sm:px-3" : "px-3",
+          nudge && "nudge-ring",
+        )}
         aria-label={copy.skies}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -73,7 +82,8 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, compact
           id="skies-menu"
           role="menu"
           className={cn(
-            "menu-pop absolute right-0 bottom-full z-20 mb-2 min-w-52 overflow-hidden",
+            "menu-pop absolute right-0 bottom-full z-20 mb-2 min-w-52 overflow-y-auto",
+            "max-h-[min(22rem,calc(100dvh-9rem))]",
             "rounded-[var(--radius-md)] bg-bg-elevated py-1 shadow-[var(--shadow-border)]",
           )}
         >
@@ -81,8 +91,13 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, compact
             {copy.skies}
           </p>
           <MenuItem label={copy.ours} onClick={() => pick(onOurs)} />
+          <MenuItem label={copy.presetCluster} onClick={() => pick(onCluster)} />
+          <MenuItem label={copy.presetDwarf} onClick={() => pick(onDwarf)} />
           <MenuItem label={copy.presetSilicon} onClick={() => pick(onSilicon)} />
           <MenuItem label={copy.presetEternal} onClick={() => pick(onEternal)} />
+          <MenuItem label={copy.presetSwarm} onClick={() => pick(onSwarm)} />
+          <MenuItem label={copy.presetHighway} onClick={() => pick(onHighway)} />
+          <MenuItem label={copy.presetBelt} onClick={() => pick(onBelt)} />
           <MenuItem label={copy.presetDesert} onClick={() => pick(onDesert)} />
         </div>
       ) : null}

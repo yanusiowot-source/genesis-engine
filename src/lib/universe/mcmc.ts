@@ -10,6 +10,7 @@ export type McmcSample = {
   lifeProb: number;
   siliconProb: number;
   eternalProb: number;
+  swarmProb: number;
 };
 
 export type McmcResult = {
@@ -26,6 +27,7 @@ export type McmcResult = {
   logLMin: number;
   logLMax: number;
   prior: "uniform";
+  walker: "mh" | "hmc";
 };
 
 const KEYS: ParamKey[] = PARAM_META.map((m) => m.key);
@@ -62,6 +64,7 @@ function measure(params: UniverseParams, target: ResearchTarget): McmcSample {
     lifeProb: ev.lifeProb,
     siliconProb: ev.siliconProb,
     eternalProb: ev.eternalProb,
+    swarmProb: ev.swarmProb ?? 0,
   };
 }
 
@@ -197,9 +200,23 @@ export type PosteriorAnalysis = {
   viableCarbon: number;
   viableSilicon: number;
   viableEternal: number;
+  viableSwarm: number;
   pairing: { a: ParamKey; b: ParamKey; r: number } | null;
   logL: number[];
 };
+
+/**
+ * Thin a 1-D series for a sparkline. Not a second chain.
+ */
+export function downsampleTrace(xs: number[], n = 80): number[] {
+  if (xs.length === 0) return [];
+  if (xs.length <= n) return xs.slice();
+  const step = Math.max(1, Math.floor(xs.length / n));
+  const out: number[] = [];
+  for (let i = 0; i < xs.length; i += step) out.push(xs[i]!);
+  if (out[out.length - 1] !== xs[xs.length - 1]) out.push(xs[xs.length - 1]!);
+  return out;
+}
 
 /**
  * Reading of a finished chain. Quantiles, split-R̂, corridor mass —
@@ -250,13 +267,16 @@ export function analyzePosterior(
   let viableCarbon = 0;
   let viableSilicon = 0;
   let viableEternal = 0;
+  let viableSwarm = 0;
   for (const s of result.samples) {
     const carbon = s.lifeProb;
     const silicon = s.siliconProb;
     const eternal = s.eternalProb;
+    const swarm = s.swarmProb;
     if (carbon >= 0.18) viableCarbon += 1;
     if (silicon >= 0.18) viableSilicon += 1;
     if (eternal >= 0.18) viableEternal += 1;
+    if (swarm >= 0.18) viableSwarm += 1;
   }
 
   const cols = Object.fromEntries(KEYS.map((k) => [k, result.samples.map((s) => s.params[k])])) as Record<
@@ -274,11 +294,7 @@ export function analyzePosterior(
   }
   if (pairing && Math.abs(pairing.r) < 0.18) pairing = null;
 
-  const step = Math.max(1, Math.floor(result.samples.length / 80));
-  const logL: number[] = [];
-  for (let i = 0; i < result.samples.length; i += step) {
-    logL.push(result.samples[i]!.logL);
-  }
+  const logL = downsampleTrace(result.samples.map((s) => s.logL));
 
   return {
     marginals,
@@ -287,6 +303,7 @@ export function analyzePosterior(
     viableCarbon: viableCarbon / n,
     viableSilicon: viableSilicon / n,
     viableEternal: viableEternal / n,
+    viableSwarm: viableSwarm / n,
     pairing,
     logL,
   };
@@ -368,5 +385,180 @@ export function runMcmc(
     logLMin,
     logLMax,
     prior: "uniform",
+    walker: "mh",
   };
+}
+
+function toUnit(params: UniverseParams): number[] {
+  return KEYS.map((k) => {
+    const m = metaOf(k);
+    const span = m.max - m.min || 1;
+    return (params[k] - m.min) / span;
+  });
+}
+
+function fromUnit(x: number[]): UniverseParams {
+  const p = copyParams({
+    gravity: 1,
+    expansion: 1,
+    darkEnergy: 0.69,
+    matter: 0.31,
+    complexity: 0.36,
+    quantumNoise: 0.1,
+  });
+  for (let i = 0; i < KEYS.length; i++) {
+    const k = KEYS[i]!;
+    const m = metaOf(k);
+    const u = Math.min(1, Math.max(0, x[i] ?? 0));
+    p[k] = m.min + u * (m.max - m.min);
+  }
+  return snapParams(p);
+}
+
+function potential(params: UniverseParams, target: ResearchTarget): { U: number; sample: McmcSample } {
+  const sample = measure(params, target);
+  return { U: -sample.logL, sample };
+}
+
+/** Forward difference of U in unit coordinates. Six extra evaluates. Not autodiff. */
+function gradU(params: UniverseParams, target: ResearchTarget, U0: number): number[] {
+  const g: number[] = [];
+  for (const k of KEYS) {
+    const m = metaOf(k);
+    const h = (m.max - m.min) * 0.004;
+    const q = copyParams(params);
+    const hit = Math.min(m.max, q[k] + h);
+    const den = hit - q[k];
+    q[k] = hit;
+    const U1 = -measure(q, target).logL;
+    g.push(den > 1e-10 ? ((U1 - U0) / den) * (m.max - m.min) : 0);
+  }
+  return g;
+}
+
+function bounce(x: number[], p: number[]): void {
+  for (let i = 0; i < x.length; i++) {
+    let u = x[i] ?? 0;
+    let v = p[i] ?? 0;
+    for (let k = 0; k < 6; k++) {
+      if (u < 0) {
+        u = -u;
+        v = -v;
+      } else if (u > 1) {
+        u = 2 - u;
+        v = -v;
+      } else break;
+    }
+    x[i] = Math.min(1, Math.max(0, u));
+    p[i] = v;
+  }
+}
+
+/**
+ * Hamiltonian Monte Carlo on the six knobs. Uniform prior, leapfrog, box bounce.
+ * Gradient of −logL is finite difference through evaluate(). Not NUTS, not Stan.
+ */
+export function runHmc(
+  seed: number,
+  start: UniverseParams,
+  target: ResearchTarget,
+  nSteps = 480,
+  burnIn = 80,
+  thin = 2,
+  leapfrog = 4,
+  epsilon = 0.08,
+): McmcResult {
+  const rng = mulberry32(seed);
+  let current = copyParams(start);
+  let cur = potential(current, target);
+  let accepted = 0;
+  const samples: McmcSample[] = [];
+  let map = cur.sample;
+  let logLMin = cur.sample.logL;
+  let logLMax = cur.sample.logL;
+
+  for (let i = 0; i < nSteps; i++) {
+    const q0 = toUnit(current);
+    const p0 = KEYS.map(() => randn(rng));
+    let x = q0.slice();
+    let p = p0.slice();
+    let g = gradU(current, target, cur.U);
+    for (let d = 0; d < p.length; d++) p[d] = (p[d] ?? 0) - 0.5 * epsilon * (g[d] ?? 0);
+    for (let step = 0; step < leapfrog; step++) {
+      for (let d = 0; d < x.length; d++) x[d] = (x[d] ?? 0) + epsilon * (p[d] ?? 0);
+      bounce(x, p);
+      const q = fromUnit(x);
+      const Umid = potential(q, target).U;
+      g = gradU(q, target, Umid);
+      const last = step === leapfrog - 1;
+      const coeff = last ? 0.5 : 1;
+      for (let d = 0; d < p.length; d++) p[d] = (p[d] ?? 0) - coeff * epsilon * (g[d] ?? 0);
+    }
+    for (let d = 0; d < p.length; d++) p[d] = -(p[d] ?? 0);
+
+    const propParams = fromUnit(x);
+    const prop = potential(propParams, target);
+    const kin0 = p0.reduce((s, v) => s + v * v, 0) / 2;
+    const kin1 = p.reduce((s, v) => s + v * v, 0) / 2;
+    const dH = prop.U + kin1 - (cur.U + kin0);
+    if (dH <= 0 || Math.log(rng()) < -dH) {
+      current = propParams;
+      cur = prop;
+      accepted += 1;
+      if (cur.sample.logL > map.logL) map = cur.sample;
+    }
+    if (i >= burnIn && (i - burnIn) % thin === 0) {
+      samples.push(cur.sample);
+      if (cur.sample.logL < logLMin) logLMin = cur.sample.logL;
+      if (cur.sample.logL > logLMax) logLMax = cur.sample.logL;
+    }
+  }
+
+  return {
+    seed,
+    target,
+    nSteps,
+    burnIn,
+    thin,
+    acceptRate: accepted / Math.max(nSteps, 1),
+    samples,
+    mean: meanParams(samples),
+    map,
+    ess: essOf(samples.map((s) => s.score)),
+    logLMin,
+    logLMax,
+    prior: "uniform",
+    walker: "hmc",
+  };
+}
+
+const RHAT_STICKY = 1.2;
+const ESS_THIN = 24;
+
+/** Higher is a more mixed walk. Homology, not a Gelman–Rubin paper. */
+export function walkScore(result: McmcResult): number {
+  if (result.samples.length < 4) return 0;
+  const rhat = analyzePosterior(result).rhat;
+  return result.ess / Math.max(rhat, 1);
+}
+
+/** Keep the walk that mixed. Tie stays with Metropolis. */
+export function chooseWalk(mh: McmcResult, hmc: McmcResult): McmcResult {
+  return walkScore(hmc) > walkScore(mh) ? hmc : mh;
+}
+
+/**
+ * Metropolis first. If the chain is sticky, a short HMC leapfrog — then pick ESS/R̂.
+ * Not NUTS. Not a Nobel. The desk learns which walker mixed.
+ */
+export function runAdaptiveWalk(
+  seed: number,
+  start: UniverseParams,
+  target: ResearchTarget,
+): McmcResult {
+  const mh = runMcmc(seed, start, target);
+  const reading = analyzePosterior(mh);
+  if (reading.rhat < RHAT_STICKY && mh.ess >= ESS_THIN) return mh;
+  const hmc = runHmc(seed ^ 0x41c, start, target, 64, 12, 2, 3, 0.07);
+  return chooseWalk(mh, hmc);
 }

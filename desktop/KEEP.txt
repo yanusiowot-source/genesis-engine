@@ -1,7 +1,9 @@
-Genesis Engine 1.24 — desktop copy
+Genesis Engine 1.25 — desktop copy
 © 2026 Ян Ярошевич. All rights reserved. Not open source.
 
-This is the copy you take with you. The public lab stays free:
+This folder is the window. Personal use. One operator.
+You wrote on X with a plate. This is the reply.
+The public lab stays free:
 https://yanusiowot-source.github.io/genesis-lab/
 
 Windows
@@ -11,14 +13,16 @@ Windows
 Linux
   Unzip. Run ./genesis-engine
 
-Author: https://x.com/yanusio
+macOS is not in this copy.
 
 ---
 
-Genesis Engine 1.24 — настольная копия
+Genesis Engine 1.25 — настольная копия
 © 2026 Ян Ярошевич. Все права защищены. Исходники не публичные.
 
-Это копия, которую уносят с собой. Лаборатория в сети остаётся свободной:
+Эта папка — окно. Личное пользование. Один оператор.
+Вы написали в X с пластиной. Это ответ.
+Лаборатория в сети остаётся свободной:
 https://yanusiowot-source.github.io/genesis-lab/
 
 Windows
@@ -28,4 +32,4 @@ Windows
 Linux
   Распакуйте. Запустите ./genesis-engine
 
-Автор: https://x.com/yanusio
+macOS в этой копии нет.

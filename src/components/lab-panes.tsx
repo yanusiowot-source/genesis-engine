@@ -7,17 +7,18 @@ type Props = {
   copy: Copy;
   pane: LabPane;
   onChange: (pane: LabPane) => void;
+  nudge?: LabPane | null;
 };
 
-export function LabPanes({ copy, pane, onChange }: Props) {
+export function LabPanes({ copy, pane, onChange, nudge = null }: Props) {
   return (
     <Segmented
       stacked
-      collapseLabel
       className="bg-bg"
       ariaLabel={copy.tabs.lab}
       value={pane}
       onChange={onChange}
+      nudge={nudge}
       items={[
         { id: "constants", label: copy.labPanes.constants, title: copy.labPaneHint.constants, icon: FlaskConical },
         { id: "hunt", label: copy.labPanes.hunt, title: copy.labPaneHint.hunt, icon: ScanSearch },

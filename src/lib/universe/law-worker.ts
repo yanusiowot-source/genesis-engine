@@ -1,7 +1,7 @@
 import { testHypothesis, type Hypothesis } from "./bayes.ts";
 import { discoverLaw } from "./symbolic.ts";
 import { runExpedition, type ResearchTarget } from "./research.ts";
-import { runMcmc } from "./mcmc.ts";
+import { runAdaptiveWalk, runHmc, runMcmc } from "./mcmc.ts";
 import type { UniverseParams } from "./types.ts";
 
 type Request =
@@ -16,6 +16,7 @@ type Request =
       nSteps?: number;
       burnIn?: number;
       thin?: number;
+      walker?: "mh" | "hmc" | "adaptive";
     }
   | {
       id: number;
@@ -41,10 +42,16 @@ self.onmessage = (event: MessageEvent<Request>) => {
       return;
     }
     if (msg.op === "mcmc") {
+      const walk =
+        msg.walker === "hmc"
+          ? runHmc(msg.seed, msg.start, msg.target, msg.nSteps, msg.burnIn, msg.thin)
+          : msg.walker === "mh"
+            ? runMcmc(msg.seed, msg.start, msg.target, msg.nSteps, msg.burnIn, msg.thin)
+            : runAdaptiveWalk(msg.seed, msg.start, msg.target);
       reply({
         id: msg.id,
         ok: true,
-        result: runMcmc(msg.seed, msg.start, msg.target, msg.nSteps, msg.burnIn, msg.thin),
+        result: walk,
       });
       return;
     }

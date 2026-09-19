@@ -112,7 +112,7 @@ export async function downloadPptx(args: ReportArgs): Promise<void> {
     margin: 0,
   });
   title.addText(
-    `${args.record.catalog}  ·  ${copy.fateLabel[ev.fate]}  ·  ${copy.carbon} ${formatPct(ev.lifeProb)}  ·  ${copy.silicon} ${formatPct(ev.siliconProb)}  ·  ${copy.eternal} ${formatPct(ev.eternalProb)}`,
+    `${args.record.catalog}  ·  ${copy.fateLabel[ev.fate]}  ·  ${copy.carbon} ${formatPct(ev.lifeProb)}  ·  ${copy.silicon} ${formatPct(ev.siliconProb)}  ·  ${copy.eternal} ${formatPct(ev.eternalProb)}  ·  ${copy.swarm} ${formatPct(ev.swarmProb ?? 0)}`,
     {
       x: 0.8,
       y: 3.5,

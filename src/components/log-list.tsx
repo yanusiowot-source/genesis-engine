@@ -2,7 +2,9 @@ import { Star, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import { formatPct, formatRelative } from "@/lib/universe/format";
-import { isViable } from "@/lib/universe/archive";
+import { isViable, plateScore } from "@/lib/universe/archive";
+import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
+import { isOurParams } from "@/lib/universe/physics";
 import type { UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +15,8 @@ type Props = {
   locale: Locale;
   archive: UniverseRecord[];
   currentId: string;
+  workLabel?: string;
+  onOpenWork?: () => void;
   onRestore: (record: UniverseRecord) => void;
   onStar: (id: string) => void;
   onRemove: (id: string) => void;
@@ -23,6 +27,8 @@ export function LogList({
   locale,
   archive,
   currentId,
+  workLabel,
+  onOpenWork,
   onRestore,
   onStar,
   onRemove,
@@ -49,6 +55,17 @@ export function LogList({
           {items.length}
         </span>
       </div>
+      {workLabel && onOpenWork ? (
+        <button
+          type="button"
+          onClick={onOpenWork}
+          className="flex min-h-11 items-center justify-between gap-3 rounded-[var(--radius-md)] bg-bg-subtle px-3 text-left"
+        >
+          <span className="font-mono text-[0.6875rem] tracking-[0.16em] text-fg-subtle uppercase">
+            {workLabel}
+          </span>
+        </button>
+      ) : null}
 
       <div className="flex rounded-[var(--radius-md)] bg-bg-subtle p-1">
         {filters.map((f) => {
@@ -81,13 +98,35 @@ export function LogList({
         </p>
       ) : (
         <ul className="flex flex-col gap-1">
-          {items.map((r) => (
+          {items.map((r) => {
+            const reading = plateScore(r);
+            const versus = formatCompareLine(compareToOurs(r.params), copy);
+            const ours = isOurParams(r.params);
+            const pathTone =
+              reading.path === "swarm"
+                ? "text-cyan"
+                : reading.path === "eternal"
+                  ? "text-eternal"
+                  : reading.path === "silicon"
+                    ? "text-silicon"
+                    : isViable(r)
+                      ? "text-life"
+                      : "text-fg-subtle";
+            const pathTag =
+              reading.path === "swarm"
+                ? copy.swarm
+                : reading.path === "eternal"
+                  ? copy.eternal
+                  : reading.path === "silicon"
+                    ? copy.silicon
+                    : null;
+            return (
             <li key={r.id} className="flex items-stretch gap-0.5">
               <button
                 type="button"
                 onClick={() => onRestore(r)}
                 className={cn(
-                  "flex min-w-0 flex-1 items-baseline justify-between gap-3 rounded-[var(--radius-sm)] px-3 py-2.5 text-left",
+                  "flex min-h-11 min-w-0 flex-1 items-start justify-between gap-3 rounded-[var(--radius-sm)] px-3 py-2.5 text-left",
                   "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                   r.id === currentId
                     ? "bg-bg-subtle text-fg"
@@ -95,7 +134,14 @@ export function LogList({
                 )}
               >
                 <span className="min-w-0">
-                  <span className="block truncate text-sm">{r.name}</span>
+                  <span className="block truncate text-sm">
+                    {plateTitle(r.params, copy, r.name)}
+                    {ours ? (
+                      <span className="ml-2 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+                        {copy.oursBadge}
+                      </span>
+                    ) : null}
+                  </span>
                   <span className="mt-0.5 block truncate font-mono text-[0.6875rem] text-fg-subtle">
                     {r.catalog}
                     <span className="mx-1.5 text-fg-subtle/50">·</span>
@@ -104,36 +150,14 @@ export function LogList({
                     {formatRelative(r.createdAt, locale)}
                   </span>
                   <span className="mt-1 block truncate text-[0.6875rem] leading-relaxed text-fg-subtle">
-                    {copy.fateCopy[r.evaluation.fate]}
+                    {versus ?? copy.fateCopy[r.evaluation.fate]}
                   </span>
                 </span>
-                <span
-                  className={cn(
-                    "shrink-0 font-mono text-xs tabular-nums",
-                    isViable(r) ? "text-life" : "text-fg-subtle",
-                    r.evaluation.eternalProb > r.evaluation.lifeProb &&
-                      r.evaluation.eternalProb > r.evaluation.siliconProb &&
-                      "text-eternal",
-                    r.evaluation.siliconProb > r.evaluation.lifeProb &&
-                      r.evaluation.siliconProb >= r.evaluation.eternalProb &&
-                      "text-silicon",
-                  )}
-                >
-                  {formatPct(
-                    Math.max(
-                      r.evaluation.lifeProb,
-                      r.evaluation.siliconProb ?? 0,
-                      r.evaluation.eternalProb ?? 0,
-                    ),
-                  )}
-                  {r.evaluation.eternalProb >
-                  Math.max(r.evaluation.lifeProb, r.evaluation.siliconProb) + 0.02 ? (
+                <span className={cn("shrink-0 font-mono text-xs tabular-nums", pathTone)}>
+                  {formatPct(reading.value)}
+                  {pathTag ? (
                     <span className="ml-1 text-[0.625rem] tracking-wide uppercase">
-                      {copy.eternal}
-                    </span>
-                  ) : r.evaluation.siliconProb > r.evaluation.lifeProb + 0.02 ? (
-                    <span className="ml-1 text-[0.625rem] tracking-wide uppercase">
-                      {copy.silicon}
+                      {pathTag}
                     </span>
                   ) : null}
                 </span>
@@ -158,7 +182,8 @@ export function LogList({
                 <Trash2 className="size-4" />
               </button>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </section>

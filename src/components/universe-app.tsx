@@ -24,18 +24,27 @@ import { EpochTimeline } from "@/components/epoch-timeline";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
 import { HelpSheet } from "@/components/help-sheet";
 import { HubblePanel } from "@/components/hubble-panel";
+import { HaloPanel } from "@/components/halo-panel";
+import { DiskPanel } from "@/components/disk-panel";
+import { AcousticPanel } from "@/components/acoustic-panel";
 import { InstallSheet } from "@/components/install-sheet";
+import { KeepSheet } from "@/components/keep-sheet";
 import { LabPanes } from "@/components/lab-panes";
 import { LifeFactors } from "@/components/life-factors";
 import { LogList } from "@/components/log-list";
+import { MandateSheet } from "@/components/mandate-sheet";
 import { MoreMenu } from "@/components/more-menu";
 import { Onboarding } from "@/components/onboarding";
 import { ParamSliders } from "@/components/param-sliders";
 import { SettingsSheet } from "@/components/settings-sheet";
+import { ScriptureLine } from "@/components/scripture-line";
+import { ScriptureSheet } from "@/components/scripture-sheet";
 import { EternalDossier } from "@/components/eternal-dossier";
 import { EternalPanel } from "@/components/eternal-panel";
 import { SiliconDossier } from "@/components/silicon-dossier";
 import { SiliconPanel } from "@/components/silicon-panel";
+import { SwarmDossier } from "@/components/swarm-dossier";
+import { SwarmPanel } from "@/components/swarm-panel";
 import { SkyModes } from "@/components/sky-modes";
 import { TabBar, type AppTab } from "@/components/tab-bar";
 import { Button } from "@/components/ui/button";
@@ -60,6 +69,8 @@ const ResearchPanel = lazy(() =>
 );
 import {
   loadArchive,
+  kvGet,
+  kvSet,
   removeFromArchive,
   saveArchive,
   toggleStar,
@@ -91,12 +102,14 @@ import {
   pingEgg,
   pingSignal,
   pingBirth,
+  pingImpact,
+  pingContact,
   type MusicSource,
   type PlaylistEntry,
 } from "@/lib/universe/audio";
 import { chronicleUniverse } from "@/lib/universe/chronicle";
 import { fieldNote } from "@/lib/universe/field-note";
-import { formatGyr, formatPct } from "@/lib/universe/format";
+import { formatGyr, formatHudPct, formatPct } from "@/lib/universe/format";
 import {
   haptic,
   loadHapticPref,
@@ -108,23 +121,56 @@ import { detectPlatform, type PlatformInfo } from "@/lib/universe/platform";
 import {
   applyPrefs,
   loadContrast,
+  loadScripture,
   loadTypeScale,
   persistContrast,
+  persistScripture,
   persistTypeScale,
   type TypeScale,
 } from "@/lib/universe/prefs";
-import { intelligenceWindow, formatDiasporaLine } from "@/lib/universe/civilization";
+import { intelligenceWindow } from "@/lib/universe/civilization";
+import {
+  ATLAS_N,
+  MANDATE_COUNT,
+  MANDATE_IDS,
+  MANDATE_KEY,
+  bootstrapLab,
+  emptyMandate,
+  formatAtlasTick,
+  hydrateMandate,
+  isIdleHome,
+  loadMandate,
+  mergeMandate,
+  nextOpen,
+  observe,
+  parseMandate,
+  persistMandate,
+  sealedCount,
+  type MandateAct,
+  type MandateProgress,
+} from "@/lib/universe/mandate";
 import {
   DESERT_EPOCH,
   DESERT_SEED,
   ETERNAL_CORRIDOR,
   ETERNAL_SEED,
+  HIGHWAY_CORRIDOR,
+  HIGHWAY_SEED,
+  BELT_CORRIDOR,
+  BELT_SEED,
+  CLUSTER_SKY,
+  CLUSTER_SEED,
+  DWARF_SKY,
+  DWARF_SEED,
   OUR_SEED,
   OUR_UNIVERSE,
   SILICON_CORRIDOR,
   SILICON_SEED,
+  SWARM_CORRIDOR,
+  SWARM_SEED,
   evaluate,
   isOurParams,
+  knownPlate,
   randomParams,
   refine,
   siliconDossier,
@@ -137,7 +183,7 @@ import {
 } from "@/lib/universe/research";
 import { runExpeditionAsync } from "@/lib/universe/law-client";
 import { buildFieldReport, downloadText, reportFilename } from "@/lib/universe/report";
-import { isAboutHash, isHostedLab } from "@/lib/universe/studio";
+import { isAboutHash, isHostedLab, isKeepHash } from "@/lib/universe/studio";
 import type { DiscoveryResult } from "@/lib/universe/symbolic";
 import type { BayesResult } from "@/lib/universe/bayes";
 import type { CatalogResult, CutoutResult } from "@/lib/universe/mast";
@@ -145,18 +191,22 @@ import type { McmcResult } from "@/lib/universe/mcmc";
 import { loadVotes, type SkyVote } from "@/lib/universe/zooniverse";
 import {
   catalogId,
+  clamp,
   hashParams,
   isAnswerCatalog,
   mulberry32,
-  nameUniverse,
+  namePlate,
   randomSeed,
 } from "@/lib/universe/rng";
-import { ANSWER_SEED, noteEggKey, sliderEgg } from "@/lib/universe/eggs";
+import { ANSWER_SEED, isEggPrefix, noteEggKey, sliderEgg } from "@/lib/universe/eggs";
+import { pickEncounter, type EncounterKind, type SkyEncounter } from "@/lib/universe/encounters";
+import { pickDispatch, type PlotId } from "@/lib/universe/plot";
+import { pickPassage } from "@/lib/universe/scripture";
 import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
-import { compareToOurs, formatCompareFlash, formatCompareLine } from "@/lib/universe/compare";
-import type { LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
+import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
+import type { Fate, LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
-import { nowMarker } from "@/lib/universe/observatory";
+import { nowMarker, epochShown, haloDossier, acousticDossier, diskDossier, NOW_T } from "@/lib/universe/observatory";
 
 const ONBOARD_KEY = "genesis-engine-onboarded-v5";
 
@@ -164,16 +214,29 @@ function makeRecord(params: UniverseParams, visualSeed: number): UniverseRecord 
   const snapped = snapParams(params);
   const evaluation = evaluate(snapped);
   const id = hashParams(snapped, visualSeed);
-  const rng = mulberry32(visualSeed);
   return {
     id,
     catalog: catalogId(id),
-    name: nameUniverse(rng, id),
+    name: namePlate(visualSeed, id),
     visualSeed,
     params: snapped,
     evaluation,
     createdAt: Date.now(),
   };
+}
+
+function voiceFor(record: UniverseRecord, work: MandateProgress, extra?: Partial<Parameters<typeof pickDispatch>[0]>): PlotId {
+  return pickDispatch({
+    births: work.births,
+    fate: record.evaluation.fate,
+    next: nextOpen(work),
+    ours: isOurParams(record.params),
+    plate: knownPlate(record.params),
+    silicon: record.evaluation.siliconProb,
+    eternal: record.evaluation.eternalProb,
+    swarm: record.evaluation.swarmProb ?? 0,
+    ...extra,
+  });
 }
 
 function Fold({ title, children }: { title: string; children: ReactNode }) {
@@ -186,6 +249,12 @@ function Fold({ title, children }: { title: string; children: ReactNode }) {
       <div className="flex flex-col gap-6 border-t border-border px-3 py-4">{children}</div>
     </details>
   );
+}
+
+const HUD_MARK = { carbon: "C", silicon: "Si", eternal: "∞", swarm: "T" } as const;
+
+function corridorReadout(compact: boolean, mark: string, name: string, p: number) {
+  return compact ? `${mark} ${formatHudPct(p)}` : `${name} ${formatPct(p)}`;
 }
 
 interface InstallPromptEvent extends Event {
@@ -205,39 +274,71 @@ export function UniverseApp() {
   const [shared, setShared] = useState(false);
   const [egg, setEgg] = useState<string | null>(null);
   const [birthFlash, setBirthFlash] = useState(false);
-  const [creationLine, setCreationLine] = useState<string | null>(null);
-  const [birthFate, setBirthFate] = useState<string | null>(null);
   const [surveyNudge, setSurveyNudge] = useState(false);
-  const [insideNudge, setInsideNudge] = useState(false);
   const [oursNudge, setOursNudge] = useState(false);
+  const [labNudge, setLabNudge] = useState(false);
+  const [huntNudge, setHuntNudge] = useState(false);
   const [whaleOn, setWhaleOn] = useState(false);
   const [tauOn, setTauOn] = useState(false);
+  const [classifiedOn, setClassifiedOn] = useState(false);
+  const [zoneOn, setZoneOn] = useState(false);
+  const [wowOn, setWowOn] = useState(false);
+  const [witnessOn, setWitnessOn] = useState(false);
+  const [throatOn, setThroatOn] = useState(false);
+  const [impactFate, setImpactFate] = useState<Fate>("void");
+  const [impactKey, setImpactKey] = useState(0);
+  const [impactPower, setImpactPower] = useState(0);
+  const [encounter, setEncounter] = useState<SkyEncounter | null>(null);
+  const encounterLive = useRef<SkyEncounter | null>(null);
+  encounterLive.current = encounter;
+  const [scanning, setScanning] = useState(false);
+  const [dispatchId, setDispatchId] = useState<PlotId>("home");
+  const [caughtKind, setCaughtKind] = useState<EncounterKind | null>(null);
   const kickerTaps = useRef(0);
   const titleTaps = useRef(0);
   const fateTaps = useRef(0);
   const siliconTaps = useRef(0);
   const eternalTaps = useRef(0);
+  const swarmTaps = useRef(0);
   const eggTimer = useRef(0);
   const tauTimer = useRef(0);
+  const classifiedTimer = useRef(0);
+  const zoneTimer = useRef(0);
+  const wowTimer = useRef(0);
+  const witnessTimer = useRef(0);
+  const throatTimer = useRef(0);
+  const whaleTimer = useRef(0);
+  const eggWait = useRef(0);
   const birthFlashTimer = useRef(0);
-  const creationTimer = useRef(0);
   const onboardBirthTimer = useRef(0);
   const copyTimer = useRef(0);
   const shareTimer = useRef(0);
   const reportTimer = useRef(0);
   const surveyNudgeTimer = useRef(0);
-  const insideNudgeTimer = useRef(0);
   const oursNudgeTimer = useRef(0);
+  const labNudgeTimer = useRef(0);
+  const huntNudgeTimer = useRef(0);
+  const huntTimer = useRef(0);
+  const huntGen = useRef(0);
+  const encounterTimer = useRef(0);
+  const encounterGone = useRef(0);
+  const scanTimer = useRef(0);
+  const scanGen = useRef(0);
+  const sculptTimer = useRef(0);
+  const sculptRef = useRef<UniverseRecord | null>(null);
   const keyBuf = useRef("");
   const collisionHinted = useRef(false);
   const dotHinted = useRef(false);
   const tauHinted = useRef(false);
+  const labHinted = useRef(false);
+  const huntHinted = useRef(false);
   const huntAuto = useRef(false);
-  const huntTimer = useRef(0);
-  const huntGen = useRef(0);
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(true);
   const [tab, setTab] = useState<AppTab>("sky");
+  const tabRef = useRef<AppTab>("sky");
+  tabRef.current = tab;
+  const [compact, setCompact] = useState(false);
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
   const [expedition, setExpedition] = useState<ExpeditionResult | null>(null);
@@ -261,12 +362,14 @@ export function UniverseApp() {
     });
   }, []);
   const [evolving, setEvolving] = useState(false);
+  const [evolveUntil, setEvolveUntil] = useState(1);
   const toggleEvolve = useCallback(() => {
     setEvolving((on) => {
       if (on) {
         setCosmicTime(timeRef.current);
         return false;
       }
+      setEvolveUntil(1);
       setCosmicTime((t) => (t >= 0.98 ? 0 : t));
       return true;
     });
@@ -276,8 +379,11 @@ export function UniverseApp() {
   const [installReady, setInstallReady] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aboutIntent, setAboutIntent] = useState(false);
+  const [keepOpen, setKeepOpen] = useState(false);
+  const [keepIntent, setKeepIntent] = useState(false);
   const [siliconOpen, setSiliconOpen] = useState(false);
   const [eternalOpen, setEternalOpen] = useState(false);
+  const [swarmOpen, setSwarmOpen] = useState(false);
   const [hapticsOn, setHapticsOn] = useState(true);
   const [soundOn, setSoundOn] = useState(false);
   const [audioLive, setAudioLive] = useState(false);
@@ -288,6 +394,12 @@ export function UniverseApp() {
   const [ownTracks, setOwnTracks] = useState<PlaylistEntry[]>([]);
   const [playIndex, setPlayIndex] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [scriptureOpen, setScriptureOpen] = useState(false);
+  const [scriptureOn, setScriptureOn] = useState(true);
+  const [mandateOpen, setMandateOpen] = useState(false);
+  const [mandate, setMandate] = useState<MandateProgress>(emptyMandate);
+  const mandateRef = useRef<MandateProgress>(emptyMandate());
+  const mandateReady = useRef(false);
   const [contrast, setContrast] = useState(false);
   const [typeScale, setTypeScale] = useState<TypeScale>("md");
   const [standalone, setStandalone] = useState(false);
@@ -318,6 +430,32 @@ export function UniverseApp() {
     eggTimer.current = window.setTimeout(() => setEgg(null), ms);
   }, []);
 
+  const flashMandate = useCallback((line: string) => {
+    flashEgg(line, 4000);
+  }, [flashEgg]);
+
+  const applyMandate = useCallback(
+    (
+      record: UniverseRecord,
+      event: "see" | "birth" | "chronicle" | "star",
+      opts?: { flash?: boolean },
+    ) => {
+      const civNow = intelligenceWindow(record.params, record.evaluation);
+      const { progress: next, sealed, addedFate } = observe(mandateRef.current, { record, civ: civNow, event });
+      if (next !== mandateRef.current) {
+        mandateRef.current = next;
+        setMandate(next);
+        persistMandate(next);
+        void kvSet(MANDATE_KEY, next);
+      }
+      if (opts?.flash !== false && mandateReady.current && sealed[0]) {
+        flashMandate(copy.mandate.flash[sealed[0]]);
+      }
+      return { sealed, addedFate, progress: mandateRef.current };
+    },
+    [copy.mandate.flash, flashMandate],
+  );
+
   const armTau = useCallback(() => {
     tauHinted.current = true;
     setTab("sky");
@@ -336,6 +474,86 @@ export function UniverseApp() {
     tauTimer.current = window.setTimeout(() => setTauOn(false), 11000);
   }, [copy.eggs.tau]);
 
+  const armClassified = useCallback(() => {
+    setTab("sky");
+    setMode("planetarium");
+    setClassifiedOn(true);
+    flashEgg(copy.eggs.fiftyone, 8000);
+    window.clearTimeout(classifiedTimer.current);
+    classifiedTimer.current = window.setTimeout(() => setClassifiedOn(false), 14000);
+  }, [copy.eggs.fiftyone, flashEgg]);
+
+  const armZone = useCallback(() => {
+    setTab("sky");
+    setZoneOn(true);
+    flashEgg(copy.eggs.zone, 7000);
+    window.clearTimeout(zoneTimer.current);
+    zoneTimer.current = window.setTimeout(() => setZoneOn(false), 8000);
+  }, [copy.eggs.zone, flashEgg]);
+
+  const armWow = useCallback(() => {
+    setTab("sky");
+    setWowOn(true);
+    flashEgg(copy.eggs.wow, 8000);
+    window.clearTimeout(wowTimer.current);
+    wowTimer.current = window.setTimeout(() => setWowOn(false), 10000);
+  }, [copy.eggs.wow, flashEgg]);
+
+  const armWitness = useCallback(() => {
+    setTab("sky");
+    setWitnessOn(true);
+    flashEgg(copy.eggs.witness, 8000);
+    window.clearTimeout(witnessTimer.current);
+    witnessTimer.current = window.setTimeout(() => setWitnessOn(false), 9000);
+  }, [copy.eggs.witness, flashEgg]);
+
+  const armThroat = useCallback(() => {
+    setTab("sky");
+    setThroatOn(true);
+    flashEgg(copy.eggs.throat, 8000);
+    window.clearTimeout(throatTimer.current);
+    throatTimer.current = window.setTimeout(() => setThroatOn(false), 11000);
+  }, [copy.eggs.throat, flashEgg]);
+
+  const catchEncounter = useCallback(
+    (kind: EncounterKind) => {
+      setEncounter(null);
+      window.clearTimeout(encounterGone.current);
+      try {
+        pingContact();
+      } catch {
+        /* never block the catch */
+      }
+      haptic(18);
+      setCaughtKind(kind);
+      setDispatchId(
+        pickDispatch({
+          births: mandateRef.current.births,
+          fate: current.evaluation.fate,
+          next: nextOpen(mandateRef.current),
+          ours: isOurParams(current.params),
+          caught: kind,
+        }),
+      );
+      const el = document.activeElement;
+      if (el instanceof HTMLElement) el.blur();
+      if (kind === "wow") armWow();
+      else if (kind === "throat") armThroat();
+      else if (kind === "classified") armClassified();
+      else if (kind === "tau") armTau();
+      else if (kind === "zone") armZone();
+      else if (kind === "whale") {
+        setCosmicTime(0.97);
+        setEvolving(false);
+        setWhaleOn(true);
+        flashEgg(copy.eggs.whale, 8000);
+        window.clearTimeout(whaleTimer.current);
+        whaleTimer.current = window.setTimeout(() => setWhaleOn(false), 24000);
+      }
+    },
+    [armClassified, armTau, armThroat, armWow, armZone, copy.eggs.whale, current, flashEgg, setCosmicTime],
+  );
+
   const revealHomeSky = useCallback(() => {
     if (!dotHinted.current) {
       dotHinted.current = true;
@@ -348,24 +566,55 @@ export function UniverseApp() {
     tauTimer.current = window.setTimeout(() => setTauOn(false), 9000);
   }, [copy.eggs.dot, flashEgg]);
 
+  const armLabNudge = useCallback(() => {
+    if (labHinted.current) return;
+    if (tabRef.current === "lab") {
+      labHinted.current = true;
+      return;
+    }
+    labHinted.current = true;
+    setLabNudge(true);
+    window.clearTimeout(labNudgeTimer.current);
+    labNudgeTimer.current = window.setTimeout(() => setLabNudge(false), 7200);
+  }, []);
+
   useEffect(() => {
     document.documentElement.lang = bcp47(locale);
   }, [locale]);
 
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const apply = () => setCompact(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
+  useEffect(() => {
     return () => {
       window.clearTimeout(eggTimer.current);
       window.clearTimeout(tauTimer.current);
+      window.clearTimeout(classifiedTimer.current);
+      window.clearTimeout(zoneTimer.current);
+      window.clearTimeout(wowTimer.current);
+      window.clearTimeout(witnessTimer.current);
+      window.clearTimeout(throatTimer.current);
+      window.clearTimeout(whaleTimer.current);
+      window.clearTimeout(eggWait.current);
       window.clearTimeout(birthFlashTimer.current);
-      window.clearTimeout(creationTimer.current);
       window.clearTimeout(onboardBirthTimer.current);
       window.clearTimeout(copyTimer.current);
       window.clearTimeout(shareTimer.current);
       window.clearTimeout(reportTimer.current);
       window.clearTimeout(surveyNudgeTimer.current);
-      window.clearTimeout(insideNudgeTimer.current);
       window.clearTimeout(oursNudgeTimer.current);
+      window.clearTimeout(labNudgeTimer.current);
+      window.clearTimeout(huntNudgeTimer.current);
       window.clearTimeout(huntTimer.current);
+      window.clearTimeout(encounterTimer.current);
+      window.clearTimeout(encounterGone.current);
+      window.clearTimeout(scanTimer.current);
+      window.clearTimeout(sculptTimer.current);
     };
   }, []);
 
@@ -383,11 +632,14 @@ export function UniverseApp() {
     setContrast(contrastPref);
     setTypeScale(typePref);
     applyPrefs(contrastPref, typePref);
+    setScriptureOn(loadScripture());
     if (!fromLinkRef.current) {
       const decoded = decodeUniverse(window.location.search);
       if (decoded) {
         fromLinkRef.current = true;
-        setCurrent(makeRecord(decoded.params, decoded.visualSeed));
+        const rec = makeRecord(decoded.params, decoded.visualSeed);
+        setCurrent(rec);
+        setCosmicTime(nowMarker(rec.params, rec.evaluation));
       }
     }
     try {
@@ -395,18 +647,42 @@ export function UniverseApp() {
     } catch {
       setOnboard(true);
     }
-    if (isAboutHash()) {
+    const loadedWork = loadMandate();
+    mandateRef.current = loadedWork;
+    setMandate(loadedWork);
+    if (isKeepHash()) {
+      setKeepIntent(true);
+    } else if (isAboutHash()) {
       setAboutIntent(true);
     }
   }, []);
 
   useEffect(() => {
     const applyHash = () => {
+      if (isKeepHash()) {
+        setHelpOpen(false);
+        setInstallOpen(false);
+        setSiliconOpen(false);
+        setEternalOpen(false);
+        setSwarmOpen(false);
+        setMandateOpen(false);
+        setSettingsOpen(false);
+        setAboutIntent(false);
+        setKeepIntent(true);
+        try {
+          if (localStorage.getItem(ONBOARD_KEY) === "1") setKeepOpen(true);
+        } catch {
+          /* primer first */
+        }
+        return;
+      }
       if (!isAboutHash()) return;
       setHelpOpen(false);
       setInstallOpen(false);
       setSiliconOpen(false);
       setEternalOpen(false);
+      setMandateOpen(false);
+      setKeepOpen(false);
       setAboutIntent(true);
       try {
         if (localStorage.getItem(ONBOARD_KEY) === "1") setSettingsOpen(true);
@@ -485,6 +761,46 @@ export function UniverseApp() {
   }, [archive, hydrated]);
 
   useEffect(() => {
+    if (!hydrated || mandateReady.current) return;
+    let cancelled = false;
+    void Promise.all([hydrateMandate(), kvGet<unknown>(MANDATE_KEY)]).then(([loaded, remote]) => {
+      if (cancelled) return;
+      const fromKv = remote != null ? parseMandate(remote) : emptyMandate();
+      const civNow = intelligenceWindow(current.params, current.evaluation);
+      const merged = bootstrapLab(
+        mergeMandate(mergeMandate(loaded, fromKv), mandateRef.current),
+        archive,
+        current,
+        civNow,
+        { fromLink: fromLinkRef.current },
+      );
+      mandateRef.current = merged;
+      setMandate(merged);
+      persistMandate(merged);
+      void kvSet(MANDATE_KEY, merged);
+      mandateReady.current = true;
+    });
+    return () => {
+      cancelled = true;
+    };
+    // Bootstrap once from the first hydrated archive. Later skies go through applyMandate.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !mandateReady.current) return;
+    if (
+      !fromLinkRef.current &&
+      isIdleHome(current) &&
+      mandateRef.current.births === 0 &&
+      sealedCount(mandateRef.current) === 0
+    ) {
+      return;
+    }
+    applyMandate(current, "see");
+  }, [applyMandate, current, hydrated]);
+
+  useEffect(() => {
     if (!hydrated) return;
     const qs = encodeUniverse(current.params, current.visualSeed);
     const next = `${window.location.pathname}?${qs}${window.location.hash}`;
@@ -498,72 +814,171 @@ export function UniverseApp() {
     setArchive((prev) => upsertArchive(prev, record));
   }, []);
 
+  const keepSculpt = useCallback(
+    (record: UniverseRecord) => {
+      sculptRef.current = record;
+      window.clearTimeout(sculptTimer.current);
+      sculptTimer.current = window.setTimeout(() => {
+        const rec = sculptRef.current;
+        if (rec) remember(rec);
+      }, 560);
+    },
+    [remember],
+  );
+
+  const hushBeats = useCallback(() => {
+    scanGen.current += 1;
+    window.clearTimeout(encounterTimer.current);
+    window.clearTimeout(encounterGone.current);
+    window.clearTimeout(scanTimer.current);
+    setScanning(false);
+    setEncounter(null);
+    setCaughtKind(null);
+    const el = document.activeElement;
+    if (el instanceof HTMLElement) el.blur();
+  }, []);
+
+  const seatNow = useCallback(
+    (record: UniverseRecord) => {
+      setEvolving(false);
+      setCosmicTime(nowMarker(record.params, record.evaluation));
+    },
+    [setCosmicTime],
+  );
+
   const birthThought = useCallback(() => {
     haptic(12);
+    hushBeats();
     const record = makeRecord(OUR_UNIVERSE, ANSWER_SEED);
     setCurrent(record);
     remember(record);
     setError(null);
     setTab("sky");
+    setMode("galaxy");
+    seatNow(record);
+    setDispatchId("home");
     nudgeSoundscape(record.params);
     flashEgg(copy.eggs.thought);
-  }, [copy.eggs.thought, flashEgg, remember]);
+  }, [copy.eggs.thought, flashEgg, hushBeats, remember, seatNow]);
 
   const witnessBirth = useCallback(
     (record: UniverseRecord) => {
       const fate = record.evaluation.fate;
       const good = fate === "habitable" || fate === "teeming" || fate === "enduring";
-      const versusFlash = formatCompareFlash(compareToOurs(record.params), copy);
-      const line = good ? copy.birthGood : (versusFlash ?? copy.birthWitness);
-      setCreationLine(line);
-      setBirthFate(copy.fateLabel[fate]);
+      const hard = fate === "crunch" || fate === "rip" || fate === "flash";
+      const { sealed, addedFate, progress } = applyMandate(record, "birth", { flash: false });
+      const atlasLine =
+        addedFate && !progress.sealed.atlas
+          ? formatAtlasTick(
+              copy.mandate.atlasTick,
+              copy.fateLabel[addedFate],
+              progress.fates.length,
+            )
+          : null;
+      setCaughtKind(null);
+      setDispatchId(voiceFor(record, progress));
+      setImpactFate(fate);
+      setImpactKey((k) => k + 1);
+      setImpactPower(good ? 0.4 : hard ? 0.36 : 0.2);
+      haptic(good ? 16 : 10);
+      const reduced =
+        typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      setMode("galaxy");
+      if (!reduced) {
+        setEvolveUntil(NOW_T);
+        setCosmicTime(0.03);
+        setEvolving(true);
+      } else {
+        seatNow(record);
+      }
+      const active = document.activeElement;
+      if (active instanceof HTMLElement) active.blur();
       try {
-        pingBirth();
+        pingImpact(good ? "life" : hard ? "end" : "void");
       } catch {
-        /* a missed chord is not a missed sky */
+        try {
+          pingBirth();
+        } catch {
+          /* a missed chord is not a missed sky */
+        }
       }
       setBirthFlash(true);
       window.clearTimeout(birthFlashTimer.current);
-      window.clearTimeout(creationTimer.current);
       window.clearTimeout(surveyNudgeTimer.current);
-      window.clearTimeout(insideNudgeTimer.current);
       window.clearTimeout(oursNudgeTimer.current);
-      birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 1100);
-      creationTimer.current = window.setTimeout(() => {
-        setCreationLine(null);
-        setBirthFate(null);
-      }, good ? 6400 : 4200);
+      window.clearTimeout(labNudgeTimer.current);
+      window.clearTimeout(encounterTimer.current);
+      window.clearTimeout(encounterGone.current);
+      window.clearTimeout(scanTimer.current);
+      setScanning(false);
+      setEncounter(null);
+      birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 520);
+      if (sealed[0]) flashEgg(copy.mandate.flash[sealed[0]], 4000);
+      else if (atlasLine) flashEgg(atlasLine, 4000);
+      const found =
+        record.evaluation.lifeProb >= 0.18 ||
+        record.evaluation.siliconProb >= 0.18 ||
+        record.evaluation.eternalProb >= 0.18 ||
+        (record.evaluation.swarmProb ?? 0) >= 0.18;
+      const bait = found ? null : pickEncounter(record.visualSeed, record.evaluation);
+      if (bait) {
+        encounterTimer.current = window.setTimeout(() => {
+          setEncounter(bait);
+          setDispatchId("blink");
+          try {
+            pingSignal();
+          } catch {
+            /* a missed chirp is not a missed blink */
+          }
+          encounterGone.current = window.setTimeout(() => {
+            setEncounter(null);
+            setDispatchId(voiceFor(record, mandateRef.current));
+          }, 11000);
+        }, reduced ? 500 : 2200);
+      }
       if (good) {
         setSurveyNudge(false);
-        if (isOurParams(record.params)) {
+        if (isOurParams(record.params)) setOursNudge(false);
+        else setOursNudge(true);
+        window.clearTimeout(oursNudgeTimer.current);
+        oursNudgeTimer.current = window.setTimeout(() => {
           setOursNudge(false);
-          setInsideNudge(true);
-          insideNudgeTimer.current = window.setTimeout(() => setInsideNudge(false), 6400);
-        } else {
-          setInsideNudge(false);
-          setOursNudge(true);
-          oursNudgeTimer.current = window.setTimeout(() => setOursNudge(false), 6400);
-        }
+          armLabNudge();
+        }, 6400);
       } else {
-        setInsideNudge(false);
         setOursNudge(false);
         setSurveyNudge(true);
         surveyNudgeTimer.current = window.setTimeout(() => setSurveyNudge(false), 5200);
       }
     },
-    [copy],
+    [copy, applyMandate, armLabNudge, flashEgg, seatNow, setCosmicTime],
   );
 
   const setParams = useCallback((key: ParamKey, value: number) => {
+    let next: UniverseRecord | null = null;
+    let fateMoved = false;
     setCurrent((prev) => {
       const params = { ...prev.params, [key]: value };
-      return { ...makeRecord(params, prev.visualSeed), chronicle: undefined };
+      const built = makeRecord(params, prev.visualSeed);
+      const same = built.id === prev.id;
+      fateMoved =
+        built.evaluation.fate !== prev.evaluation.fate ||
+        isOurParams(built.params) !== isOurParams(prev.params);
+      next = same
+        ? { ...built, starred: prev.starred, chronicle: prev.chronicle }
+        : { ...built, chronicle: undefined };
+      return next;
     });
     setError(null);
-  }, []);
+    if (next && fateMoved && !encounterLive.current && !caughtKind && !scanning) {
+      setDispatchId(voiceFor(next, mandateRef.current));
+    }
+    if (next) keepSculpt(next);
+  }, [caughtKind, keepSculpt, scanning]);
 
   const birth = useCallback(() => {
     haptic(12);
+    hushBeats();
     const seed = randomSeed();
     const record = makeRecord(randomParams(mulberry32(seed)), seed);
     setCurrent(record);
@@ -572,81 +987,110 @@ export function UniverseApp() {
     setTab("sky");
     nudgeSoundscape(record.params);
     witnessBirth(record);
-  }, [remember, witnessBirth]);
+  }, [hushBeats, remember, witnessBirth]);
 
   const resetOurs = useCallback(() => {
     haptic(8);
+    hushBeats();
     const record = makeRecord(OUR_UNIVERSE, OUR_SEED);
     setCurrent(record);
     remember(record);
     setError(null);
     setTab("sky");
+    setMode("galaxy");
     setOursNudge(false);
     setSurveyNudge(false);
+    setCaughtKind(null);
+    setDispatchId("home");
+    seatNow(record);
     nudgeSoundscape(record.params);
-    witnessBirth(record);
     if (mode === "planetarium") revealHomeSky();
-  }, [remember, witnessBirth, mode, revealHomeSky]);
+  }, [hushBeats, remember, seatNow, mode, revealHomeSky]);
 
   const applyPreset = useCallback(
     (params: UniverseParams, seed: number) => {
       haptic(8);
+      hushBeats();
       const record = makeRecord(params, seed);
       setCurrent(record);
       remember(record);
       setError(null);
       setTab("sky");
+      setMode("galaxy");
+      setCaughtKind(null);
+      seatNow(record);
       nudgeSoundscape(record.params);
+      const { progress } = applyMandate(record, "see");
+      setDispatchId(voiceFor(record, progress));
     },
-    [remember],
+    [applyMandate, hushBeats, remember, seatNow],
   );
 
   const runSurvey = useCallback(() => {
     haptic(16);
-    const seed = randomSeed();
-    const results = survey(64, seed);
-    const winner = results[0];
-    if (!winner) return;
-    const record = makeRecord(winner.params, winner.visualSeed);
-    setCurrent(record);
-    setArchive((prev) => {
-      let next = prev;
-      for (const r of results) {
-        if (
-          r.evaluation.lifeProb < 0.18 &&
-          r.evaluation.siliconProb < 0.18 &&
-          r.evaluation.eternalProb < 0.18
-        )
-          continue;
-        next = upsertArchive(next, makeRecord(r.params, r.visualSeed));
-      }
-      return upsertArchive(next, record);
-    });
-    setError(null);
+    setDispatchId("survey");
     setTab("sky");
+    setMode("galaxy");
     setSurveyNudge(false);
-    nudgeSoundscape(record.params);
-    witnessBirth(record);
+    window.clearTimeout(scanTimer.current);
+    const gen = ++scanGen.current;
+    setScanning(true);
+    const reduced =
+      typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    scanTimer.current = window.setTimeout(() => {
+      if (gen !== scanGen.current) return;
+      setScanning(false);
+      const seed = randomSeed();
+      const results = survey(64, seed);
+      const winner = results[0];
+      if (!winner) return;
+      if (gen !== scanGen.current) return;
+      const record = makeRecord(winner.params, winner.visualSeed);
+      setCurrent(record);
+      setArchive((prev) => {
+        let next = prev;
+        for (const r of results) {
+          if (
+            r.evaluation.lifeProb < 0.18 &&
+            r.evaluation.siliconProb < 0.18 &&
+            r.evaluation.eternalProb < 0.18 &&
+            (r.evaluation.swarmProb ?? 0) < 0.18
+          )
+            continue;
+          next = upsertArchive(next, makeRecord(r.params, r.visualSeed));
+        }
+        return upsertArchive(next, record);
+      });
+      setError(null);
+      nudgeSoundscape(record.params);
+      witnessBirth(record);
+    }, reduced ? 240 : 1400);
   }, [witnessBirth]);
 
   const runRefine = useCallback(() => {
     haptic(12);
-    const { lifeProb, siliconProb, eternalProb } = current.evaluation;
+    const { lifeProb, siliconProb, eternalProb, swarmProb } = current.evaluation;
     const target =
-      eternalProb > lifeProb && eternalProb > siliconProb
-        ? "eternal"
-        : siliconProb > lifeProb
-          ? "silicon"
-          : "carbon";
+      swarmProb >= lifeProb && swarmProb >= siliconProb && swarmProb >= eternalProb && swarmProb >= 0.18
+        ? "swarm"
+        : eternalProb > lifeProb && eternalProb > siliconProb
+          ? "eternal"
+          : siliconProb > lifeProb
+            ? "silicon"
+            : "carbon";
     const seed = randomSeed();
     const params = refine(current.params, seed, target);
     const record = makeRecord(params, seed);
+    hushBeats();
     setCurrent(record);
     remember(record);
     setError(null);
     setTab("sky");
+    seatNow(record);
     nudgeSoundscape(record.params);
-  }, [current.evaluation.lifeProb, current.evaluation.siliconProb, current.evaluation.eternalProb, current.params, remember]);
+    const { progress } = applyMandate(record, "see");
+    setDispatchId(voiceFor(record, progress));
+  }, [applyMandate, current.evaluation, current.params, hushBeats, remember, seatNow]);
 
   const launchExpedition = useCallback((opts?: { silent?: boolean }) => {
     const silent = opts?.silent === true;
@@ -684,15 +1128,19 @@ export function UniverseApp() {
 
   const applyFind = useCallback(
     (params: UniverseParams, visualSeed: number) => {
-      haptic(8);
+      haptic(12);
+      hushBeats();
       const record = makeRecord(params, visualSeed);
       setCurrent(record);
       remember(record);
       setError(null);
       setTab("sky");
+      setHuntNudge(false);
+      huntHinted.current = true;
       nudgeSoundscape(record.params);
+      witnessBirth(record);
     },
-    [remember],
+    [hushBeats, remember, witnessBirth],
   );
 
   const saveReport = useCallback(() => {
@@ -718,13 +1166,15 @@ export function UniverseApp() {
     () => formatCompareLine(compareToOurs(current.params), copy),
     [copy, current.params],
   );
-  const diasporaLine = useMemo(
-    () => formatDiasporaLine(intelligenceWindow(current.params, current.evaluation), copy.civ),
-    [copy, current.params, current.evaluation],
-  );
+  const skyLabel = plateTitle(current.params, copy, current.name);
+  const workNext = nextOpen(mandate);
+  const workCount = sealedCount(mandate);
+  const nudgeBirth = workNext === "atlas" || workNext === "witness";
+  const nudgeSurvey = !nudgeBirth && (surveyNudge || workNext === "corridor");
+  const nudgeSkies = !nudgeBirth && !nudgeSurvey && (workNext === "silicon" || workNext === "eternal" || workNext === "tide");
 
   const noteText = current.chronicle ?? fieldNote({
-    name: current.name,
+    name: skyLabel,
     catalog: current.catalog,
     params: current.params,
     evaluation: current.evaluation,
@@ -739,7 +1189,7 @@ export function UniverseApp() {
     setTab("lab");
     const snapshotId = current.id;
     const local = fieldNote({
-      name: current.name,
+      name: skyLabel,
       catalog: current.catalog,
       params: current.params,
       evaluation: current.evaluation,
@@ -753,12 +1203,13 @@ export function UniverseApp() {
       remember(next);
       return next;
     });
+    applyMandate({ ...current, chronicle: local, locale }, "chronicle");
     if (isHostedLab()) return;
     setBusy(true);
     try {
       const result = await chronicleUniverse({
         data: {
-          name: current.name,
+          name: skyLabel,
           catalog: current.catalog,
           locale,
           params: current.params,
@@ -777,7 +1228,7 @@ export function UniverseApp() {
     } finally {
       setBusy(false);
     }
-  }, [busy, current, locale, remember, versusLine]);
+  }, [busy, current, locale, remember, versusLine, applyMandate]);
 
   const copyId = useCallback(async () => {
     const text = current.catalog;
@@ -813,8 +1264,8 @@ export function UniverseApp() {
   const share = useCallback(async () => {
     const url = shareUrl(current.params, current.visualSeed);
     const payload = {
-      title: `${current.name} · ${copy.appName}`,
-      text: `${current.catalog} · ${copy.fateLabel[current.evaluation.fate]} · ${copy.carbon} ${formatPct(current.evaluation.lifeProb)} · ${copy.silicon} ${formatPct(current.evaluation.siliconProb)} · ${copy.eternal} ${formatPct(current.evaluation.eternalProb)}`,
+      title: `${skyLabel} · ${copy.appName}`,
+      text: `${current.catalog} · ${copy.fateLabel[current.evaluation.fate]}\n${copy.plot[dispatchId]}`,
       url,
     };
     try {
@@ -837,28 +1288,65 @@ export function UniverseApp() {
         setShared(false);
       }
     }
-  }, [copy, current]);
+  }, [copy, current, dispatchId, skyLabel]);
 
   const restore = useCallback((record: UniverseRecord) => {
     haptic(8);
+    hushBeats();
     setCurrent(record);
     setError(null);
     setTab("sky");
+    setMode("galaxy");
+    seatNow(record);
     nudgeSoundscape(record.params);
-  }, []);
+    const { progress } = applyMandate(record, "see");
+    setDispatchId(voiceFor(record, progress));
+  }, [applyMandate, hushBeats, seatNow]);
 
   const starCurrent = useCallback(() => {
     haptic(10);
     const next = { ...current, starred: !current.starred };
     setCurrent(next);
     setArchive((list) => upsertArchive(list, next));
-  }, [current]);
+    if (next.starred) applyMandate(next, "star");
+  }, [current, applyMandate]);
 
   const starById = useCallback((id: string) => {
     haptic(8);
+    const row = archive.find((r) => r.id === id);
     setArchive((prev) => toggleStar(prev, id));
     setCurrent((prev) => (prev.id === id ? { ...prev, starred: !prev.starred } : prev));
-  }, []);
+    if (row && !row.starred) applyMandate({ ...row, starred: true }, "star");
+  }, [applyMandate, archive]);
+
+  const runWorkAct = useCallback(
+    (act: MandateAct) => {
+      setMandateOpen(false);
+      if (act === "birth") birth();
+      else if (act === "survey") runSurvey();
+      else if (act === "ours") resetOurs();
+      else if (act === "silicon") applyPreset(SILICON_CORRIDOR, SILICON_SEED);
+      else if (act === "eternal") applyPreset(ETERNAL_CORRIDOR, ETERNAL_SEED);
+      else if (act === "tide") applyPreset(SWARM_CORRIDOR, SWARM_SEED);
+      else if (act === "desert") applyPreset(DESERT_EPOCH, DESERT_SEED);
+      else if (act === "refine") runRefine();
+      else if (act === "chronicle") {
+        setTab("lab");
+        setLabPane("constants");
+        void commission();
+      } else if (act === "star" && !current.starred) starCurrent();
+    },
+    [
+      applyPreset,
+      birth,
+      commission,
+      current.starred,
+      resetOurs,
+      runRefine,
+      runSurvey,
+      starCurrent,
+    ],
+  );
 
   const removeById = useCallback((id: string) => {
     haptic(8);
@@ -876,14 +1364,19 @@ export function UniverseApp() {
     soundOnRef.current = true;
     unlockAndStart(current.params);
     void setSoundscape(true, current.params);
-    if (aboutIntent) {
+    if (keepIntent) {
+      setKeepOpen(true);
+    } else if (aboutIntent) {
       setSettingsOpen(true);
     }
     if (born && !fromLinkRef.current) {
       window.clearTimeout(onboardBirthTimer.current);
       onboardBirthTimer.current = window.setTimeout(() => birth(), 220);
+    } else if (!born && !aboutIntent && !keepIntent) {
+      window.clearTimeout(labNudgeTimer.current);
+      labNudgeTimer.current = window.setTimeout(() => armLabNudge(), 4200);
     }
-  }, [aboutIntent, birth, current.params]);
+  }, [aboutIntent, keepIntent, birth, current.params, armLabNudge]);
 
   const toggleLocale = useCallback(() => {
     setLocale((prev) => {
@@ -910,14 +1403,51 @@ export function UniverseApp() {
     setSettingsOpen(false);
   }, []);
 
-  const overlayOpen = onboard || installOpen || settingsOpen || siliconOpen || eternalOpen || helpOpen;
+  const overlayOpen =
+    onboard || installOpen || settingsOpen || siliconOpen || eternalOpen || swarmOpen || helpOpen || mandateOpen || scriptureOpen || keepOpen;
   const panelOpen = tab === "lab" || tab === "log";
-  const showOverlay = (which: "help" | "silicon" | "eternal" | "settings" | "install") => {
+
+  useEffect(() => {
+    const prev = document.title;
+    document.title = onboard ? copy.appName : `${skyLabel} · ${copy.appName}`;
+    return () => {
+      document.title = prev;
+    };
+  }, [skyLabel, copy.appName, onboard]);
+
+  useEffect(() => {
+    if (!panelOpen) return;
+    asideRef.current?.scrollTo({ top: 0 });
+  }, [tab, panelOpen]);
+
+  const showOverlay = (which: "help" | "silicon" | "eternal" | "swarm" | "settings" | "install" | "keep") => {
     setHelpOpen(which === "help");
     setSiliconOpen(which === "silicon");
     setEternalOpen(which === "eternal");
+    setSwarmOpen(which === "swarm");
     setSettingsOpen(which === "settings");
     setInstallOpen(which === "install");
+    setKeepOpen(which === "keep");
+    setMandateOpen(false);
+    setScriptureOpen(false);
+    if (which === "keep") {
+      const next = `${window.location.pathname}${window.location.search}#keep`;
+      if (window.location.hash !== "#keep") window.history.replaceState(null, "", next);
+    } else if (isKeepHash()) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+  };
+
+  const openCanon = () => {
+    setHelpOpen(false);
+    setSiliconOpen(false);
+    setEternalOpen(false);
+    setSwarmOpen(false);
+    setSettingsOpen(false);
+    setInstallOpen(false);
+    setKeepOpen(false);
+    setMandateOpen(false);
+    setScriptureOpen(true);
   };
 
   useEffect(() => {
@@ -928,6 +1458,38 @@ export function UniverseApp() {
   useEffect(() => {
     asideRef.current?.scrollTo({ top: 0 });
   }, [labPane, tab]);
+
+  useEffect(() => {
+    if (tab !== "lab") return;
+    labHinted.current = true;
+    setLabNudge(false);
+  }, [tab]);
+
+  useEffect(() => {
+    if (tab !== "log") return;
+    const rec = sculptRef.current;
+    if (!rec) return;
+    window.clearTimeout(sculptTimer.current);
+    remember(rec);
+    sculptRef.current = null;
+  }, [tab, remember]);
+
+  useEffect(() => {
+    if (labPane === "hunt") huntHinted.current = true;
+    if (tab !== "lab" || labPane !== "constants") {
+      setHuntNudge(false);
+      window.clearTimeout(huntNudgeTimer.current);
+      return;
+    }
+    if (huntHinted.current) return;
+    huntNudgeTimer.current = window.setTimeout(() => {
+      if (tabRef.current !== "lab" || huntHinted.current) return;
+      huntHinted.current = true;
+      setHuntNudge(true);
+      huntNudgeTimer.current = window.setTimeout(() => setHuntNudge(false), 6400);
+    }, 4800);
+    return () => window.clearTimeout(huntNudgeTimer.current);
+  }, [tab, labPane]);
 
   useEffect(() => {
     if (tab !== "lab" || labPane !== "hunt") return;
@@ -946,41 +1508,95 @@ export function UniverseApp() {
       }
       const tag = (event.target as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (event.key === " " || event.key === "Enter") {
+        if (tabRef.current !== "sky") return;
+        const bait = encounterLive.current;
+        if (bait) {
+          event.preventDefault();
+          catchEncounter(bait.kind);
+        }
+        return;
+      }
+      if (event.key === "[" || event.key === "]") {
+        if (tabRef.current !== "sky") return;
+        event.preventDefault();
+        const dir = event.key === "]" ? 1 : -1;
+        setEvolving(false);
+        setCosmicTime(clamp(timeRef.current + dir * 0.045, 0, 1));
+        return;
+      }
       const key = event.key.toLowerCase();
+      window.clearTimeout(eggWait.current);
       const seq = noteEggKey(keyBuf.current, event.key);
       keyBuf.current = seq.buf;
       if (seq.hit) {
         if (seq.hit === "thought" || seq.hit === "answer") birthThought();
         else if (seq.hit === "tau") armTau();
+        else if (seq.hit === "tide") {
+          applyPreset(SWARM_CORRIDOR, SWARM_SEED);
+          flashEgg(copy.eggs.tide);
+        } else if (seq.hit === "fiftyone") armClassified();
+        else if (seq.hit === "highway") {
+          applyPreset(HIGHWAY_CORRIDOR, HIGHWAY_SEED);
+          flashEgg(copy.eggs.highway);
+        } else if (seq.hit === "ice") {
+          applyPreset(BELT_CORRIDOR, BELT_SEED);
+          flashEgg(copy.eggs.ice);
+        } else if (seq.hit === "zone") armZone();
+        else if (seq.hit === "wow") armWow();
+        else if (seq.hit === "witness") armWitness();
+        else if (seq.hit === "throat") armThroat();
         else flashEgg(copy.eggs[seq.hit]);
-        if (seq.hit === "whale") setWhaleOn(true);
+        if (seq.hit === "whale") {
+          setWhaleOn(true);
+          window.clearTimeout(whaleTimer.current);
+          whaleTimer.current = window.setTimeout(() => setWhaleOn(false), 24000);
+        }
         return;
       }
-      if (key === "b") birth();
-      else if (key === "s") runSurvey();
-      else if (key === "r") runRefine();
-      else if (key === "o") resetOurs();
-      else if (key === "h") {
-        setTab("lab");
-        setLabPane("hunt");
-        launchExpedition();
-      } else if (key === "l") {
-        setTab("lab");
-        setLabPane("laws");
-      } else if (key === "d") {
-        setTab("lab");
-        setLabPane("desk");
-      } else if (key === "e") {
-        toggleEvolve();
-      } else if (key === "1") setTab("sky");
-      else if (key === "2") setTab("lab");
-      else if (key === "3") setTab("log");
+      const runShortcut = () => {
+        if (key === "b") birth();
+        else if (key === "s") runSurvey();
+        else if (key === "r") runRefine();
+        else if (key === "o") resetOurs();
+        else if (key === "h") {
+          setTab("lab");
+          setLabPane("hunt");
+          launchExpedition();
+        } else if (key === "l") {
+          setTab("lab");
+          setLabPane("laws");
+        } else if (key === "d") {
+          setTab("lab");
+          setLabPane("desk");
+        } else if (key === "e") {
+          toggleEvolve();
+        } else if (key === "1") setTab("sky");
+        else if (key === "2") setTab("lab");
+        else if (key === "3") setTab("log");
+      };
+      if (seq.buf && isEggPrefix(seq.buf)) {
+        eggWait.current = window.setTimeout(() => {
+          if (keyBuf.current === seq.buf) {
+            keyBuf.current = "";
+            runShortcut();
+          }
+        }, 560);
+        return;
+      }
+      runShortcut();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [
     birth,
     birthThought,
+    applyPreset,
+    armClassified,
+    armZone,
+    armWow,
+    armWitness,
+    armThroat,
     copy.eggs,
     flashEgg,
     armTau,
@@ -991,6 +1607,8 @@ export function UniverseApp() {
     runRefine,
     runSurvey,
     toggleEvolve,
+    catchEncounter,
+    setCosmicTime,
   ]);
 
   useEffect(() => {
@@ -1008,14 +1626,6 @@ export function UniverseApp() {
     if (!audioLive) return;
     setWakeKey((k) => k + 1);
   }, [audioLive]);
-
-  useEffect(() => {
-    setEvolving(false);
-    setMode("galaxy");
-    setCosmicTime(nowMarker(current.params, current.evaluation));
-    // Reset the observatory when a new sky is born, not when sliders move.
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- visualSeed is the birth identity
-  }, [current.visualSeed]);
 
   useEffect(() => {
     if (!evolving) return;
@@ -1042,8 +1652,31 @@ export function UniverseApp() {
       : ev.eternalProb >= 0.18
         ? "text-fg"
         : "text-fg-subtle";
+  const swarmTone =
+    ev.swarmProb >= 0.45
+      ? "text-cyan"
+      : ev.swarmProb >= 0.18
+        ? "text-fg"
+        : "text-fg-subtle";
   const ours = isOurParams(current.params);
   const slideEgg = sliderEgg(current.params);
+  const [liveTime, setLiveTime] = useState(cosmicTime);
+  useEffect(() => {
+    if (!evolving) {
+      setLiveTime(cosmicTime);
+      return;
+    }
+    const id = window.setInterval(() => setLiveTime(timeRef.current), 200);
+    return () => window.clearInterval(id);
+  }, [evolving, cosmicTime]);
+  const passage = useMemo(
+    () => pickPassage({ epoch: epochShown(liveTime), fate: ev.fate, ours }),
+    [ev.fate, liveTime, ours],
+  );
+  const halo = useMemo(() => haloDossier(current.params, ev), [current.params, ev]);
+  const acoustic = useMemo(() => acousticDossier(current.params, ev), [current.params, ev]);
+  const disk = useMemo(() => diskDossier(current.params, ev), [current.params, ev]);
+  const liveEpoch = epochShown(liveTime);
 
   const stats = useMemo(
     () => [
@@ -1138,7 +1771,7 @@ export function UniverseApp() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
             <div className="min-w-0">
               <p className="truncate font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
                 {copy.carbon}
@@ -1147,7 +1780,7 @@ export function UniverseApp() {
                 {formatPct(ev.lifeProb)}
               </p>
             </div>
-            <div className="min-w-0 text-center">
+            <div className="min-w-0">
               <p className="truncate font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
                 {copy.silicon}
               </p>
@@ -1155,12 +1788,20 @@ export function UniverseApp() {
                 {formatPct(ev.siliconProb)}
               </p>
             </div>
-            <div className="min-w-0 text-right">
+            <div className="min-w-0">
               <p className="truncate font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
                 {copy.eternal}
               </p>
               <p className={cn("mt-1 font-mono text-xl tabular-nums sm:text-2xl", eternalTone)}>
                 {formatPct(ev.eternalProb)}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="truncate font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+                {copy.swarm}
+              </p>
+              <p className={cn("mt-1 font-mono text-xl tabular-nums sm:text-2xl", swarmTone)}>
+                {formatPct(ev.swarmProb)}
               </p>
             </div>
           </div>
@@ -1239,11 +1880,23 @@ export function UniverseApp() {
                 showOverlay("eternal");
               }}
             />
+            <SwarmPanel
+              copy={copy}
+              params={current.params}
+              evaluation={ev}
+              onOpen={() => {
+                haptic(8);
+                showOverlay("swarm");
+              }}
+            />
           </Fold>
 
           <Fold title={copy.foldObs}>
-            <AstroPanel copy={copy} params={current.params} evaluation={ev} />
-            <HubblePanel copy={copy} evaluation={ev} />
+            <AstroPanel copy={copy} params={current.params} evaluation={ev} cosmicTime={liveTime} />
+            <HubblePanel copy={copy} params={current.params} evaluation={ev} />
+            <HaloPanel copy={copy} params={current.params} evaluation={ev} />
+            <DiskPanel copy={copy} params={current.params} evaluation={ev} />
+            <AcousticPanel copy={copy} params={current.params} evaluation={ev} />
             {hydrated ? (
               <HrDiagram
                 copy={copy}
@@ -1261,7 +1914,7 @@ export function UniverseApp() {
   );
 
   return (
-    <div className="relative flex h-dvh flex-col overflow-hidden bg-bg text-fg" data-hydrated={hydrated ? "1" : "0"}>
+    <div className="relative flex h-dvh flex-col overflow-hidden bg-bg text-fg" data-hydrated={hydrated ? "1" : "0"} data-primer={onboard ? "1" : "0"} data-work-count={workCount} data-lab-nudge={labNudge ? "1" : "0"} data-hunt-nudge={huntNudge ? "1" : "0"} data-compact={compact ? "1" : "0"} data-encounter={encounter?.kind ?? ""} data-dispatch={dispatchId} data-scanning={scanning ? "1" : "0"}>
       <div
         className="relative flex min-h-0 flex-1 flex-col"
         inert={overlayOpen ? true : undefined}
@@ -1273,38 +1926,37 @@ export function UniverseApp() {
           cosmicTime={cosmicTime}
           timeRef={timeRef}
           evolving={evolving}
+          evolveUntil={evolveUntil}
           onEvolveEnd={() => {
             setEvolving(false);
             setCosmicTime(timeRef.current);
           }}
           mode={mode}
           collisionKey={collisionKey}
-          eggs={{ whale: whaleOn || isAnswerCatalog(current.catalog), tau: tauOn }}
+          eggs={{
+            whale: whaleOn || isAnswerCatalog(current.catalog),
+            tau: tauOn,
+            classified: classifiedOn,
+            zone: zoneOn,
+            wow: wowOn,
+            witness: witnessOn,
+            throat: throatOn,
+          }}
+          encounter={encounter}
+          onEncounter={catchEncounter}
+          impactKey={impactKey}
+          impactPower={impactPower}
           onVoyager={() => flashEgg(copy.eggs.voyager)}
           onTau={armTau}
           className="absolute inset-0 z-0 h-full w-full"
-          relaxed={tab !== "sky" || overlayOpen}
-          paused={overlayOpen}
+          relaxed={tab !== "sky" || (overlayOpen && !onboard)}
+          paused={(overlayOpen && !onboard) || (panelOpen && compact)}
+          scanning={scanning}
           wakeKey={wakeKey}
           ariaLabel={`${copy.appName} · ${copy.tabs.sky}`}
         />
         {birthFlash ? (
-          <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" />
-        ) : null}
-        {creationLine ? (
-          <div
-            role="status"
-            className="birth-line pointer-events-none absolute inset-x-6 top-[22%] z-[8] text-center sm:top-[28%]"
-          >
-            <p className="font-display text-2xl leading-tight tracking-[-0.03em] text-fg sm:text-4xl">
-              {creationLine}
-            </p>
-            {birthFate ? (
-              <p className="mt-3 font-mono text-[0.6875rem] tracking-[0.22em] text-fg-subtle uppercase">
-                {birthFate}
-              </p>
-            ) : null}
-          </div>
+          <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" data-fate={impactFate} />
         ) : null}
         {hydrated && catalogOverlay && catalog && catalog.ok ? (
           <Suspense fallback={null}>
@@ -1317,14 +1969,14 @@ export function UniverseApp() {
         ) : null}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 sky-glow mix-blend-screen opacity-80"
+          className="pointer-events-none absolute inset-0 sky-glow"
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-bg to-transparent lg:h-52"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-bg via-bg/70 to-transparent lg:h-52"
         />
 
-        <header className="relative z-10 flex items-start justify-between gap-3 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pointer-events-auto sm:px-8">
+        <header className={cn("relative z-10 flex shrink-0 items-start justify-between gap-3 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pointer-events-auto sm:px-8", onboard && "hidden")}>
           <div className="min-w-0 flex-1 pr-2">
             <button
               type="button"
@@ -1334,6 +1986,8 @@ export function UniverseApp() {
                 if (kickerTaps.current < 7) return;
                 kickerTaps.current = 0;
                 setWhaleOn(true);
+                window.clearTimeout(whaleTimer.current);
+                whaleTimer.current = window.setTimeout(() => setWhaleOn(false), 24000);
                 flashEgg(copy.eggs.whale);
               }}
             >
@@ -1342,7 +1996,7 @@ export function UniverseApp() {
             <h1 className="mt-1">
               <button
                 type="button"
-                className="w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-xl leading-none tracking-[-0.03em] text-fg sm:text-2xl lg:text-3xl"
+                className="w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-lg leading-none tracking-[-0.03em] text-fg sm:text-xl"
                 onClick={() => {
                   titleTaps.current += 1;
                   if (titleTaps.current < 3) return;
@@ -1360,11 +2014,7 @@ export function UniverseApp() {
               size="icon"
               className={cn(
                 "size-11",
-                soundOn && audioLive
-                  ? "text-accent"
-                  : soundOn
-                    ? "text-accent hear-pulse"
-                    : "text-fg-muted",
+                soundOn ? "text-accent" : "text-fg-muted",
               )}
               aria-label={
                 soundOn && !audioLive ? copy.tapToHear : soundOn ? copy.soundOn : copy.soundOff
@@ -1445,14 +2095,13 @@ export function UniverseApp() {
             </Button>
           </div>
         </header>
-        <div className="relative z-10 px-5 pt-3 pointer-events-auto sm:px-8">
+        <div className={cn("relative z-10 shrink-0 px-5 pt-2 pointer-events-auto sm:px-8", onboard && "hidden")}>
           <SkyModes
             copy={copy}
             mode={mode}
-            nudge={insideNudge ? "planetarium" : null}
+            collapseLabel
             onChange={(next) => {
               setMode(next);
-              if (next === "planetarium") setInsideNudge(false);
               if (next === "collision") {
                 setCollisionKey((k) => k + 1);
                 if (!collisionHinted.current) {
@@ -1465,8 +2114,8 @@ export function UniverseApp() {
           />
         </div>
 
-        <div className="relative z-10 mt-auto flex min-h-0 flex-col px-5 pb-3 pointer-events-auto sm:px-8 lg:pb-6">
-          <div className="min-h-0 overflow-hidden">
+        <div className={cn("relative z-10 mt-auto flex min-h-0 flex-col px-5 pb-3 pointer-events-auto sm:px-8 lg:pb-6", onboard && "hidden")}>
+          <div className="min-h-0 flex-1 overflow-hidden">
           {hydrated ? (
             <CosmicClock
               copy={copy}
@@ -1483,25 +2132,41 @@ export function UniverseApp() {
               onEggLight={() => flashEgg(copy.eggs.light)}
             />
           ) : (
-            <div className="h-[4.75rem] rounded-[var(--radius-md)] bg-bg-elevated/75" />
+            <div className="h-14" />
           )}
-          <p className="mt-3 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+          <p className="mt-1.5 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase" data-hud-catalog>
             {current.catalog}
             <span className="mx-2 text-fg-subtle/50">/</span>
             {copy.morphology[ev.morphology]}
+            {ev.morphology === "spiral" || ev.morphology === "irregular" ? (
+              <>
+                <span className="mx-2 text-fg-subtle/50">·</span>
+                {copy.obs.diskQ} {disk.Q.toFixed(1)}
+              </>
+            ) : null}
           </p>
+          {hydrated && scriptureOn && tab === "sky" ? (
+            <div className="hidden sm:block">
+              <ScriptureLine
+                copy={copy}
+                locale={locale}
+                passage={passage}
+                onOpen={openCanon}
+              />
+            </div>
+          ) : null}
           {isAnswerCatalog(current.catalog) ? (
-            <p className="mt-1 text-pretty text-xs leading-relaxed text-accent">{copy.eggs.answer}</p>
+            <p className="mt-1 max-w-md text-pretty text-xs leading-relaxed text-accent line-clamp-1">{copy.eggs.answer}</p>
           ) : null}
           {slideEgg ? (
-            <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.eggs[slideEgg]}</p>
+            <p className="mt-1 max-w-md text-pretty text-xs leading-relaxed text-fg-muted line-clamp-1">{copy.eggs[slideEgg]}</p>
           ) : null}
           {egg ? (
-            <p className="mt-1 text-pretty text-xs leading-relaxed text-cyan" role="status">
+            <p className="mt-1 max-w-md text-pretty text-xs leading-relaxed text-cyan line-clamp-1" role="status">
               {egg}
             </p>
           ) : null}
-          <div className="mt-2 flex flex-wrap items-center gap-2" aria-live="polite">
+          <div className="mt-1.5 hud-chips" aria-live="polite">
             <button
               type="button"
               onClick={() => {
@@ -1512,7 +2177,7 @@ export function UniverseApp() {
                 }
               }}
               className={cn(
-                "rounded-full px-2.5 py-1 font-mono text-[0.6875rem] tracking-wide uppercase",
+                "hud-chip rounded-full px-2 py-1 font-mono text-[0.6875rem] tracking-wide uppercase sm:px-2.5",
                 ev.fate === "teeming" || ev.fate === "habitable"
                   ? "bg-life/20 text-life"
                   : ev.fate === "enduring"
@@ -1526,14 +2191,22 @@ export function UniverseApp() {
             >
               {copy.fateLabel[ev.fate]}
             </button>
-            <span
+            <button
+              type="button"
+              onClick={() => {
+                haptic(8);
+                setTab("lab");
+                setLabPane("life");
+              }}
+              aria-label={copy.factorsTitle}
+              title={`${copy.carbon} ${formatPct(ev.lifeProb)}`}
               className={cn(
-                "rounded-full bg-bg-elevated/80 px-2.5 py-1 font-mono text-[0.6875rem] tabular-nums",
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
                 lifeTone,
               )}
             >
-              {copy.carbon} {formatPct(ev.lifeProb)}
-            </span>
+              {corridorReadout(compact, HUD_MARK.carbon, copy.carbon, ev.lifeProb)}
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -1546,12 +2219,13 @@ export function UniverseApp() {
                 showOverlay("silicon");
               }}
               aria-label={copy.siliconOpen}
+              title={`${copy.silicon} ${formatPct(ev.siliconProb)}`}
               className={cn(
-                "rounded-full bg-bg-elevated/80 px-2.5 py-1 font-mono text-[0.6875rem] tabular-nums",
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
                 siliconTone,
               )}
             >
-              {copy.silicon} {formatPct(ev.siliconProb)}
+              {corridorReadout(compact, HUD_MARK.silicon, copy.silicon, ev.siliconProb)}
             </button>
             <button
               type="button"
@@ -1565,30 +2239,96 @@ export function UniverseApp() {
                 showOverlay("eternal");
               }}
               aria-label={copy.eternalOpen}
+              title={`${copy.eternal} ${formatPct(ev.eternalProb)}`}
               className={cn(
-                "rounded-full bg-bg-elevated/80 px-2.5 py-1 font-mono text-[0.6875rem] tabular-nums",
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
                 eternalTone,
               )}
             >
-              {copy.eternal} {formatPct(ev.eternalProb)}
+              {corridorReadout(compact, HUD_MARK.eternal, copy.eternal, ev.eternalProb)}
             </button>
-            {ours ? (
+            <button
+              type="button"
+              onClick={() => {
+                haptic(8);
+                swarmTaps.current += 1;
+                if (swarmTaps.current >= 3) {
+                  swarmTaps.current = 0;
+                  flashEgg(copy.eggs.tide);
+                }
+                showOverlay("swarm");
+              }}
+              aria-label={copy.swarmOpen}
+              title={`${copy.swarm} ${formatPct(ev.swarmProb)}`}
+              className={cn(
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
+                swarmTone,
+              )}
+            >
+              {corridorReadout(compact, HUD_MARK.swarm, copy.swarm, ev.swarmProb)}
+            </button>
+            {ours && !compact ? (
               <button
                 type="button"
                 onClick={() => flashEgg(copy.eggs.dot)}
-                className="rounded-full bg-bg-elevated/80 px-2.5 py-1 font-mono text-[0.6875rem] tracking-wide text-fg-muted uppercase"
+                className="hud-chip rounded-full px-2.5 py-1 font-mono text-[0.6875rem] tracking-wide text-fg-muted uppercase"
               >
                 {copy.oursBadge}
               </button>
             ) : null}
           </div>
-          <div className="mt-2 flex max-w-md items-center justify-between gap-3">
-            <h2
-              key={current.id}
-              className="hud-swap min-w-0 truncate font-display text-xl tracking-[-0.02em] text-fg sm:text-2xl lg:text-3xl"
+          <div className="mt-1 flex max-w-md items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                haptic(8);
+                setHelpOpen(false);
+                setInstallOpen(false);
+                setSiliconOpen(false);
+                setEternalOpen(false);
+                setSwarmOpen(false);
+                setSettingsOpen(false);
+                setScriptureOpen(false);
+                setMandateOpen(true);
+              }}
+              aria-label={copy.mandate.open}
+              data-work={workNext ?? "done"}
+              data-work-count={workCount}
+              title={workNext ? copy.mandate.cue[workNext] : copy.mandate.done}
+              className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-[var(--radius-sm)] bg-transparent p-0 text-left"
+              data-hud-mandate
             >
-              {current.name}
-            </h2>
+              <span className="flex shrink-0 items-center gap-1" aria-hidden>
+                {MANDATE_IDS.map((id) => (
+                  <i
+                    key={id}
+                    className={cn(
+                      "mandate-dot",
+                      mandate.sealed[id] && "is-sealed",
+                      workNext === id && "is-next",
+                    )}
+                  />
+                ))}
+              </span>
+              <span
+                key={current.id}
+                className="hud-swap min-w-0 truncate font-display text-base tracking-[-0.02em] text-fg sm:text-lg"
+              >
+                {skyLabel}
+              </span>
+              {ours && compact ? (
+                <span className="shrink-0 font-mono text-[0.6875rem] tracking-[0.14em] text-fg-subtle uppercase">
+                  {copy.oursBadge}
+                </span>
+              ) : null}
+              <span className="hidden min-w-0 truncate font-mono text-[0.6875rem] tracking-[0.14em] text-fg-subtle uppercase sm:inline" data-hud-mandate-label>
+                {workNext === "atlas"
+                  ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters.atlas.title} ${mandate.fates.length}/${ATLAS_N}`
+                  : workNext
+                    ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters[workNext].title}`
+                    : copy.mandate.done}
+              </span>
+            </button>
             <div className="flex shrink-0 items-center">
               <Button
                 variant="ghost"
@@ -1610,58 +2350,121 @@ export function UniverseApp() {
               </Button>
             </div>
           </div>
-          <p className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-2" data-hud-tall>
-            {copy.fateCopy[ev.fate]}
-          </p>
-          {versusLine ? (
+          {encounter ? (
             <p
-              className="mt-2 max-w-md text-pretty text-sm leading-relaxed text-fg-muted line-clamp-3"
-              data-versus="1"
-              data-hud-tall
+              role="status"
+              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-accent line-clamp-2"
+              data-tap-sky
+              data-dispatch="blink"
+              key="blink"
             >
-              {versusLine}
+              {copy.plot.blink}
             </p>
-          ) : null}
-          {diasporaLine ? (
+          ) : mode === "lensing" ? (
             <p
-              className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2"
-              data-routes="1"
-              data-hud-tall
+              role="status"
+              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
+              data-dispatch="halo"
+              key="halo"
             >
-              {diasporaLine}
+              {copy.obs.haloNiche[halo.niche]}
+              <span className="text-fg-subtle"> · </span>
+              {Math.round(halo.outerKms)} {copy.obs.rotationV}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.haloTheta} {halo.thetaE.toFixed(2)}
+              <span className="text-fg-subtle"> · </span>
+              {formatPct(halo.share)}
             </p>
-          ) : null}
-          {!ours ? (
-            <button
-              type="button"
-              onClick={resetOurs}
-              data-nudge={oursNudge ? "ours" : undefined}
-              className={cn(
-                "mt-2 font-mono text-[0.6875rem] tracking-[0.16em] text-accent uppercase",
-                oursNudge && "nudge-ring rounded-full px-2.5 py-1",
-              )}
+          ) : liveEpoch === "recombination" ? (
+            <p
+              role="status"
+              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
+              data-dispatch="acoustic"
+              key="acoustic"
             >
-              {copy.ours}
-            </button>
-          ) : null}
-          {mode !== "galaxy" ? (
-            <p className="mt-2 max-w-md text-pretty text-xs leading-relaxed text-fg-subtle line-clamp-2" data-hud-tall>
-              {copy.obs.modeHint[mode]}
+              {copy.obs.acousticNiche[acoustic.niche]}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.acousticEll} {Math.round(acoustic.ell1)}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.acousticOddEven} {acoustic.oddEven.toFixed(2)}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.acousticLoad} ×{acoustic.baryonLoad.toFixed(2)}
             </p>
-          ) : null}
+          ) : liveEpoch === "darkAges" ? (
+            <p
+              role="status"
+              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
+              data-dispatch="twentyone"
+              key="twentyone"
+            >
+              {copy.obs.epochs.darkAges}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.twentyOne}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.acousticEll} {Math.round(acoustic.ell1)}
+            </p>
+          ) : liveEpoch === "reionization" ? (
+            <p
+              role="status"
+              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
+              data-dispatch="hii"
+              key="hii"
+            >
+              {copy.obs.epochs.reionization}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.hii}
+              <span className="text-fg-subtle"> · </span>
+              {copy.obs.acousticEll} {Math.round(acoustic.ell1)}
+            </p>
+          ) : (
+            <p
+              role="status"
+              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
+              data-dispatch={dispatchId}
+              key={dispatchId}
+            >
+              {copy.plot[dispatchId]}
+            </p>
+          )}
           {shared ? (
-            <p className="mt-2 font-mono text-xs text-life">{copy.shared}</p>
+            <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
           </div>
-          <div className="mt-3 flex shrink-0 flex-wrap items-center gap-2">
-            <Button onClick={birth} className="min-w-0 flex-1 sm:flex-none">
+          <div className="mt-2 flex shrink-0 flex-nowrap items-center gap-2 pt-1">
+            <Button
+              onClick={birth}
+              className={cn(
+                "min-w-0 flex-1 sm:flex-none",
+                nudgeBirth && "nudge-ring",
+              )}
+            >
               <Aperture />
               <span className="truncate">{copy.birth}</span>
             </Button>
+            {!ours ? (
+              <Button
+                variant="outline"
+                onClick={resetOurs}
+                data-nudge={oursNudge ? "ours" : undefined}
+                className="min-w-0 max-w-[42%] shrink sm:max-w-none"
+              >
+                <span className="truncate">{copy.ours}</span>
+              </Button>
+            ) : null}
             <Button
-              variant="secondary"
-              className={cn("shrink-0", surveyNudge && "nudge-ring")}
-              data-nudge={surveyNudge ? "survey" : undefined}
+              variant="outline"
+              size="icon"
+              className={cn("shrink-0 sm:hidden", nudgeSurvey && "nudge-ring")}
+              data-nudge={nudgeSurvey ? "survey" : undefined}
+              aria-label={copy.survey}
+              onClick={runSurvey}
+            >
+              <ScanSearch />
+            </Button>
+            <Button
+              variant="outline"
+              className={cn("hidden sm:inline-flex", nudgeSurvey && "nudge-ring")}
+              data-nudge={nudgeSurvey ? "survey" : undefined}
               onClick={runSurvey}
             >
               <ScanSearch />
@@ -1678,14 +2481,20 @@ export function UniverseApp() {
             </Button>
             <Button variant="outline" className="hidden sm:inline-flex" onClick={runRefine}>
               <Atom />
-              {copy.refine}
+              <span className="truncate">{copy.refine}</span>
             </Button>
             <MoreMenu
               compact
               copy={copy}
+              nudge={nudgeSkies}
               onOurs={resetOurs}
               onSilicon={() => applyPreset(SILICON_CORRIDOR, SILICON_SEED)}
               onEternal={() => applyPreset(ETERNAL_CORRIDOR, ETERNAL_SEED)}
+              onSwarm={() => applyPreset(SWARM_CORRIDOR, SWARM_SEED)}
+              onHighway={() => applyPreset(HIGHWAY_CORRIDOR, HIGHWAY_SEED)}
+              onBelt={() => applyPreset(BELT_CORRIDOR, BELT_SEED)}
+              onCluster={() => applyPreset(CLUSTER_SKY, CLUSTER_SEED)}
+              onDwarf={() => applyPreset(DWARF_SKY, DWARF_SEED)}
               onDesert={() => applyPreset(DESERT_EPOCH, DESERT_SEED)}
             />
           </div>
@@ -1733,7 +2542,12 @@ export function UniverseApp() {
           </div>
           {tab === "lab" ? (
             <div className="mt-3">
-              <LabPanes copy={copy} pane={labPane} onChange={setLabPane} />
+              <LabPanes
+                copy={copy}
+                pane={labPane}
+                nudge={huntNudge ? "hunt" : null}
+                onChange={setLabPane}
+              />
               <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
                 {copy.labPaneHint[labPane]}
               </p>
@@ -1747,6 +2561,11 @@ export function UniverseApp() {
               locale={locale}
               archive={archive}
               currentId={current.id}
+              workLabel={`${copy.mandate.title} · ${copy.mandate.progress.replace("{n}", String(workCount)).replace("{m}", String(MANDATE_COUNT))}`}
+              onOpenWork={() => {
+                setTab("sky");
+                setMandateOpen(true);
+              }}
               onRestore={restore}
               onStar={starById}
               onRemove={removeById}
@@ -1759,11 +2578,22 @@ export function UniverseApp() {
         </div>
       </aside>
 
-      <div inert={overlayOpen ? true : undefined}>
-        <TabBar copy={copy} tab={tab} onChange={setTab} />
+      <div inert={overlayOpen ? true : undefined} className={cn(onboard && "hidden")}>
+        <TabBar
+          copy={copy}
+          tab={tab}
+          nudge={null}
+          onChange={(next) => {
+            setTab(next);
+            if (next === "lab") {
+              setLabNudge(false);
+              labHinted.current = true;
+            }
+          }}
+        />
       </div>
 
-      {onboard && !settingsOpen && !helpOpen && !installOpen && !siliconOpen && !eternalOpen ? (
+      {onboard && !settingsOpen && !helpOpen && !installOpen && !keepOpen && !siliconOpen && !eternalOpen && !swarmOpen && !scriptureOpen ? (
         <Onboarding copy={copy} locale={locale} onLocale={toggleLocale} onDone={finishOnboard} />
       ) : null}
       {installOpen ? (
@@ -1772,6 +2602,7 @@ export function UniverseApp() {
           platform={platform}
           canNativeInstall={installReady}
           onInstall={() => void runInstall()}
+          onKeep={() => showOverlay("keep")}
           onClose={() => setInstallOpen(false)}
         />
       ) : null}
@@ -1782,6 +2613,7 @@ export function UniverseApp() {
           haptics={hapticsOn}
           sound={soundOn}
           contrast={contrast}
+          scripture={scriptureOn}
           typeScale={typeScale}
           standalone={standalone}
           musicSource={musicSource}
@@ -1805,6 +2637,10 @@ export function UniverseApp() {
             persistContrast(on);
             setContrast(on);
             applyPrefs(on, typeScale);
+          }}
+          onScripture={(on) => {
+            persistScripture(on);
+            setScriptureOn(on);
           }}
           onTypeScale={(scale) => {
             persistTypeScale(scale);
@@ -1883,11 +2719,33 @@ export function UniverseApp() {
             setSettingsOpen(false);
             applyPreset(ETERNAL_CORRIDOR, ETERNAL_SEED);
           }}
+          onSwarm={() => {
+            setSettingsOpen(false);
+            applyPreset(SWARM_CORRIDOR, SWARM_SEED);
+          }}
+          onHighway={() => {
+            setSettingsOpen(false);
+            applyPreset(HIGHWAY_CORRIDOR, HIGHWAY_SEED);
+          }}
+          onBelt={() => {
+            setSettingsOpen(false);
+            applyPreset(BELT_CORRIDOR, BELT_SEED);
+          }}
+          onCluster={() => {
+            setSettingsOpen(false);
+            applyPreset(CLUSTER_SKY, CLUSTER_SEED);
+          }}
+          onDwarf={() => {
+            setSettingsOpen(false);
+            applyPreset(DWARF_SKY, DWARF_SEED);
+          }}
           onDesert={() => {
             setSettingsOpen(false);
             applyPreset(DESERT_EPOCH, DESERT_SEED);
           }}
           onHelp={() => showOverlay("help")}
+          onCanon={openCanon}
+          onKeep={() => showOverlay("keep")}
           onClose={() => {
             setSettingsOpen(false);
             setAboutIntent(false);
@@ -1899,7 +2757,39 @@ export function UniverseApp() {
           openAbout={aboutIntent}
         />
       ) : null}
-      {helpOpen ? <HelpSheet copy={copy} onClose={() => setHelpOpen(false)} /> : null}
+      {keepOpen ? (
+        <KeepSheet
+          copy={copy}
+          onClose={() => {
+            setKeepOpen(false);
+            setKeepIntent(false);
+            if (isKeepHash()) {
+              window.history.replaceState(
+                null,
+                "",
+                `${window.location.pathname}${window.location.search}`,
+              );
+            }
+          }}
+        />
+      ) : null}
+      {helpOpen ? <HelpSheet copy={copy} onKeep={() => showOverlay("keep")} onClose={() => setHelpOpen(false)} /> : null}
+      {scriptureOpen ? (
+        <ScriptureSheet
+          copy={copy}
+          locale={locale}
+          currentId={passage.id}
+          onClose={() => setScriptureOpen(false)}
+        />
+      ) : null}
+      {mandateOpen ? (
+        <MandateSheet
+          copy={copy}
+          progress={mandate}
+          onClose={() => setMandateOpen(false)}
+          onAct={runWorkAct}
+        />
+      ) : null}
       {siliconOpen ? (
         <SiliconDossier
           copy={copy}
@@ -1914,6 +2804,14 @@ export function UniverseApp() {
           params={current.params}
           evaluation={ev}
           onClose={() => setEternalOpen(false)}
+        />
+      ) : null}
+      {swarmOpen ? (
+        <SwarmDossier
+          copy={copy}
+          params={current.params}
+          evaluation={ev}
+          onClose={() => setSwarmOpen(false)}
         />
       ) : null}
     </div>

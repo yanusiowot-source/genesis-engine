@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { mergeCopy } from "./copy-merge.ts";
+import { formatHudPct } from "./format.ts";
 import { copyFor } from "./i18n.ts";
-import { isAboutHash, isHostedLab, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC } from "./studio.ts";
+import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, productOffers } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -50,8 +51,19 @@ describe("copyFor", () => {
     assert.equal(c.birth, "Birth a universe");
     assert.equal(c.onboarding.length, 3);
     assert.match(c.onboarding[0].body, /Survey 64/);
+    assert.match(c.onboarding[0].body, /look/i);
+    assert.match(copyFor("ru").onboarding[0].body, /смотр/i);
+    assert.match(c.shortcutsBody, /Space look/);
+    assert.match(c.shortcutsBody, /\[ \] time/);
+    assert.equal(c.research.target.swarm, "Tide");
+    assert.match(c.research.targetHint.swarm, /von Neumann/i);
+    assert.equal(copyFor("ru").research.target.swarm, "Прилив");
+    assert.equal(copyFor("be").research.target.swarm, "Прыліў");
     assert.match(c.onboarding[1].body, /Sculpt/);
     assert.match(c.labPaneHint.constants, /Sculpt/);
+    assert.match(c.labCue, /Lab/);
+    assert.match(copyFor("ru").labCue, /Лаб/);
+    assert.match(copyFor("be").labCue, /Лаб/);
     assert.equal(copyFor("ru").onboarding.length, 3);
     assert.equal(copyFor("be").onboarding.length, 3);
     assert.match(c.birthWitness, /Most stay empty/);
@@ -68,8 +80,10 @@ describe("copyFor", () => {
     assert.match(c.studioKeepBody, /offline/i);
     assert.match(c.studioKeepBody, /Windows/);
     assert.match(c.studioKeepBody, /unsigned/i);
+    assert.match(c.studioKeepBody, /plate/);
     assert.doesNotMatch(c.studioKeepBody, /is next/);
     assert.doesNotMatch(c.studioKeepBody, /is ready/);
+    assert.doesNotMatch(c.studioKeepBody, /below/i);
     assert.match(c.studioKeepBody, /15 USDT/);
     assert.doesNotMatch(c.payAfter, /zip/i);
     assert.doesNotMatch(c.platforms.windowsBody, /zip/i);
@@ -78,6 +92,35 @@ describe("copyFor", () => {
     assert.match(c.civ.spend, /not a fleet/);
     assert.match(copyFor("ru").civ.spend, /не флот/);
     assert.match(copyFor("be").civ.spend, /не флот/);
+    assert.match(c.aboutBody, /four thin corridors/);
+    assert.match(c.onboarding[2].title, /Four corridors/);
+    assert.match(copyFor("ru").onboarding[2].title, /Четыре/);
+    assert.match(copyFor("be").onboarding[2].title, /Чатыры/);
+    assert.match(c.mandate.title, /work/i);
+    assert.match(c.mandate.hint, /not a score/);
+    assert.equal(Object.keys(c.mandate.chapters).length, 10);
+    assert.match(c.mandate.done, /atlas is sealed/i);
+    assert.match(c.mandate.atlasTick, /Atlas \{n\} of \{m\}/);
+    assert.match(copyFor("ru").mandate.done, /атлас/i);
+    assert.match(copyFor("be").mandate.done, /атлас/i);
+    assert.match(c.helpItems.map((item) => item.title).join(" "), /The work/);
+    assert.match(c.helpItems.map((item) => item.title).join(" "), /Canon/);
+    assert.match(c.helpItems.map((item) => item.title).join(" "), /Side roads/);
+    assert.match(c.eggs.ice, /ice is the only mass/i);
+    assert.match(c.eggs.wow, /hydrogen/i);
+    assert.match(c.eggs.witness, /not to land/i);
+    assert.match(c.eggs.throat, /Morris/i);
+    assert.match(copyFor("ru").eggs.throat, /горловин/i);
+    assert.match(copyFor("be").eggs.throat, /гарлавін/i);
+    assert.match(c.tapSky, /look/i);
+    assert.match(copyFor("ru").tapSky, /Смотр/i);
+    assert.match(c.plot.arrive, /Posted to watch/i);
+    assert.match(copyFor("ru").plot.dice, /шутк/i);
+    assert.match(copyFor("be").plot.done, /Атлас/i);
+    assert.match(c.presetHighway, /long road/i);
+    assert.match(copyFor("be").presetBelt, /Ледзяны/);
+    assert.match(c.scripture.intro, /not a measurement/i);
+    assert.match(copyFor("ru").scripture.title, /Канон/);
     assert.match(c.research.running, /prior/);
     assert.match(copyFor("ru").versusYounger, /Моложе дома/);
     assert.match(copyFor("ru").research.running, /приор/);
@@ -106,11 +149,27 @@ describe("copyFor", () => {
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /уже есть/);
     assert.match(copyFor("ru").studioKeepBody, /разовая/);
     assert.match(copyFor("ru").studioKeepBody, /без сети/);
+    assert.match(copyFor("ru").studioKeepBody, /пластин/);
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /следующий шаг/);
+    assert.doesNotMatch(copyFor("ru").studioKeepBody, /ниже/);
     assert.match(copyFor("ru").studioKeepBody, /15 USDT/);
     assert.match(copyFor("ru").studioReserveCta, /15 USDT/);
     assert.match(copyFor("be").studioKeepBody, /15 USDT/);
+    assert.doesNotMatch(copyFor("be").studioKeepBody, /ніжэй/);
+    assert.match(copyFor("be").studioKeepBody, /пласцін/);
     assert.match(copyFor("be").studioReserveCta, /15 USDT/);
+    assert.match(c.helpItems.map((item) => item.title).join(" "), /A copy/);
+    assert.match(c.keep.openCta, /15 USDT/);
+    assert.match(c.keep.orderText, /\{plate\}/);
+    assert.match(c.keep.orderText, /Windows \/ Linux/);
+    assert.match(c.keep.step3, /not instant/i);
+    assert.match(c.keep.receiptHint, /writes back/i);
+    assert.match(copyFor("ru").keep.step3, /архивом/);
+    assert.match(copyFor("ru").keep.orderText, /Windows \/ Linux/);
+    assert.match(c.keep.roomCta, /room/i);
+    assert.match(copyFor("ru").keep.openCta, /15 USDT/);
+    assert.match(copyFor("be").keep.step2, /пласцін/);
+    assert.equal(c.version, "Version 1.25");
     assert.match(copyFor("ru").platforms.intro, /свободн/);
   });
 
@@ -126,7 +185,12 @@ describe("copyFor", () => {
     assert.match(PAY_USDT_BEP20, /^0xcfbf/);
     assert.doesNotMatch(PAY_USDT_BEP20, /55d39832/i);
     assert.match(PAY_BTC, /^bc1q/);
-    assert.match(copyFor("en").payWarn, /BEP20/);
+    assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
+    assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
+    assert.equal(APP_VERSION, "1.25.0");
+    const offers = productOffers();
+    assert.equal(offers[1]?.price, "15");
+    assert.equal(offers[1]?.priceCurrency, "USD");
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {
@@ -171,5 +235,15 @@ describe("copyFor", () => {
       { nest: { y: 9 } },
     );
     assert.deepEqual(merged, { a: 1, nest: { x: 1, y: 9 } });
+  });
+});
+
+describe("formatHudPct", () => {
+  it("keeps the sky readout short", () => {
+    assert.equal(formatHudPct(0), "0%");
+    assert.equal(formatHudPct(0.0001), "0%");
+    assert.equal(formatHudPct(0.015), "1.5%");
+    assert.equal(formatHudPct(0.481), "48%");
+    assert.equal(formatHudPct(Number.NaN), "—");
   });
 });

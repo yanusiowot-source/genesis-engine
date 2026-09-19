@@ -6,6 +6,7 @@ import {
   nearEternal,
   nearGoldilocks,
   nearSilicon,
+  nearSwarm,
   randomParams,
 } from "./physics.ts";
 import { scoreOf, type ResearchTarget } from "./research.ts";
@@ -207,13 +208,15 @@ type Sample = { params: UniverseParams; y: number };
 function drawSample(rng: () => number, target: ResearchTarget): Sample {
   const roll = rng();
   const params =
-    roll < 0.34
+    roll < 0.3
       ? randomParams(rng)
-      : roll < 0.58
+      : roll < 0.5
         ? nearGoldilocks(rng)
-        : roll < 0.8
+        : roll < 0.66
           ? nearSilicon(rng)
-          : nearEternal(rng);
+          : roll < 0.82
+            ? nearSwarm(rng)
+            : nearEternal(rng);
   return { params, y: scoreOf(evaluate(params), target) };
 }
 

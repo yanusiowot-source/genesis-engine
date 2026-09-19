@@ -88,6 +88,7 @@ export function mcmcVotable(result: McmcResult): string {
       { name: "lifeProb", datatype: "float" },
       { name: "siliconProb", datatype: "float" },
       { name: "eternalProb", datatype: "float" },
+      { name: "swarmProb", datatype: "float" },
     ],
     result.samples.map((s) => [
       s.params.gravity.toFixed(4),
@@ -101,6 +102,7 @@ export function mcmcVotable(result: McmcResult): string {
       s.lifeProb.toFixed(4),
       s.siliconProb.toFixed(4),
       s.eternalProb.toFixed(4),
+      (s.swarmProb ?? 0).toFixed(4),
     ]),
   );
 }
@@ -120,6 +122,8 @@ export function universeVotable(record: UniverseRecord): string {
       ...PARAM_META.map((m) => [m.key, p[m.key].toFixed(4), m.unit]),
       ["lifeProb", ev.lifeProb.toFixed(4), ""],
       ["siliconProb", ev.siliconProb.toFixed(4), ""],
+      ["eternalProb", ev.eternalProb.toFixed(4), ""],
+      ["swarmProb", (ev.swarmProb ?? 0).toFixed(4), ""],
       ["catalog", record.catalog, ""],
       ["fate", ev.fate, ""],
     ],

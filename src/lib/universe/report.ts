@@ -2,6 +2,7 @@ import type { Copy, Locale } from "./i18n";
 import { formatCount, formatGtC, formatGyr, formatPct, formatSci } from "./format";
 import type { SiliconDossier } from "./physics";
 import { PARAM_META, derivedAstro, FATE_LABEL } from "./physics";
+import { haloDossier, acousticDossier } from "./observatory";
 import type { CivModel } from "./civilization";
 import { biosphereOf } from "./biosphere";
 import type { ExpeditionResult } from "./research";
@@ -10,6 +11,7 @@ import type { DiscoveryResult } from "./symbolic";
 import type { BayesResult } from "./bayes";
 import { formatBf } from "./bayes";
 import type { McmcResult } from "./mcmc";
+import { PUBLIC_LAB_URL } from "./studio.ts";
 
 export function buildFieldReport(args: {
   record: UniverseRecord;
@@ -43,8 +45,8 @@ export function buildFieldReport(args: {
   lines.push("");
   lines.push(
     ru
-      ? `Углеродная обитаемость ${formatPct(ev.lifeProb)}; кремниевая (спекулятивная) ${formatPct(ev.siliconProb)} (${copy.siliconNote[ev.siliconNiche]}); Дайсон/вечность ${formatPct(ev.eternalProb)} (${copy.eternalNote[ev.eternalNiche]}). Это гомология по константам, не космологический код.`
-      : `Carbon habitability ${formatPct(ev.lifeProb)}; silicon (speculative) ${formatPct(ev.siliconProb)} (${copy.siliconNote[ev.siliconNiche]}); Dyson/eternal ${formatPct(ev.eternalProb)} (${copy.eternalNote[ev.eternalNiche]}). Homology from the constants, not a Boltzmann solver.`,
+      ? `Углеродная обитаемость ${formatPct(ev.lifeProb)}; кремниевая (спекулятивная) ${formatPct(ev.siliconProb)} (${copy.siliconNote[ev.siliconNiche]}); Дайсон/вечность ${formatPct(ev.eternalProb)} (${copy.eternalNote[ev.eternalNiche]}); прилив фон Неймана ${formatPct(ev.swarmProb ?? 0)} (${copy.swarmNote[ev.swarmNiche ?? "silent"]}). Это гомология по константам, не космологический код.`
+      : `Carbon habitability ${formatPct(ev.lifeProb)}; silicon (speculative) ${formatPct(ev.siliconProb)} (${copy.siliconNote[ev.siliconNiche]}); Dyson/eternal ${formatPct(ev.eternalProb)} (${copy.eternalNote[ev.eternalNiche]}); von Neumann tide ${formatPct(ev.swarmProb ?? 0)} (${copy.swarmNote[ev.swarmNiche ?? "silent"]}). Homology from the constants, not a Boltzmann solver.`,
   );
   lines.push("");
   lines.push(`## ${ru ? "Методы" : "Methods"}`);
@@ -78,6 +80,15 @@ export function buildFieldReport(args: {
   lines.push(`- ${copy.astroCurvature}: ${astro.omegaK.toFixed(3)}`);
   lines.push(
     `- ${ru ? "Доля тёмной материи" : "Dark-matter share"}: ${formatPct(ev.darkMatterFraction)}`,
+  );
+  const halo = haloDossier(p, ev);
+  lines.push(`- ${copy.obs.haloTitle}: ${copy.obs.haloNiche[halo.niche]}`);
+  lines.push(
+    `- ${copy.obs.haloOuter}: ${Math.round(halo.outerKms)} ${copy.obs.rotationV} (${copy.obs.haloBaryonV} ${Math.round(halo.baryonKms)})`,
+  );
+  const ac = acousticDossier(p, ev);
+  lines.push(
+    `- ${copy.obs.acousticTitle}: ${copy.obs.acousticNiche[ac.niche]}, ${copy.obs.acousticEll} ${Math.round(ac.ell1)}`,
   );
   lines.push("");
   lines.push(`## ${ru ? "Кремниевое досье" : "Silicon dossier"}`);
@@ -141,8 +152,8 @@ export function buildFieldReport(args: {
     lines.push("");
     lines.push(
       ru
-        ? `Наблюдатель: ${expedition.sampleN} вселенных из смешанного приора. Цель: ${copy.research.target[expedition.target]}. Углеродно обитаемых ${expedition.viableCarbon}, кремниевых ${expedition.viableSilicon}. Корреляция C–Si: ${expedition.corr.toFixed(2)}.`
-        : `Observer: ${expedition.sampleN} universes from a mixed prior. Target: ${copy.research.target[expedition.target]}. Carbon-viable ${expedition.viableCarbon}, silicon-viable ${expedition.viableSilicon}. C–Si correlation: ${expedition.corr.toFixed(2)}.`,
+        ? `Наблюдатель: ${expedition.sampleN} вселенных из смешанного приора. Цель: ${copy.research.target[expedition.target]}. Углеродно обитаемых ${expedition.viableCarbon}, кремниевых ${expedition.viableSilicon}, открытых Дайсону ${expedition.viableEternal}, открытых приливу ${expedition.viableSwarm}. Корреляция C–Si: ${expedition.corr.toFixed(2)}.`
+        : `Observer: ${expedition.sampleN} universes from a mixed prior. Target: ${copy.research.target[expedition.target]}. Carbon-viable ${expedition.viableCarbon}, silicon-viable ${expedition.viableSilicon}, Dyson-open ${expedition.viableEternal}, tide-open ${expedition.viableSwarm}. C–Si correlation: ${expedition.corr.toFixed(2)}.`,
     );
     lines.push("");
     lines.push(ru ? "Важность признаков (перестановка evaluate, не сеть):" : "Feature importance (permutation of evaluate, not a net):");
@@ -204,6 +215,7 @@ export function buildFieldReport(args: {
   );
   lines.push("");
   lines.push(`— Genesis Engine ${copy.version}`);
+  lines.push(PUBLIC_LAB_URL);
   return lines.join("\n");
 }
 

@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Check, CircleHelp, Download, ExternalLink, Info, Music, RotateCcw, Trash2, X } from "lucide-react";
+import { Check, CircleHelp, Download, ExternalLink, Info, Music, RotateCcw, ScrollText, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { LanguagePicker } from "@/components/language-picker";
-import { PayRails } from "@/components/pay-rails";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import type { MusicSource, PlaylistEntry } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
 import { cn } from "@/lib/utils";
-import { AUTHOR_X_URL, PUBLIC_LAB_URL, isHostedLab, orderCopyUrl } from "@/lib/universe/studio";
+import { AUTHOR_X_URL, PUBLIC_LAB_URL, isHostedLab } from "@/lib/universe/studio";
 
 type Props = {
   copy: Copy;
@@ -16,6 +15,7 @@ type Props = {
   haptics: boolean;
   sound: boolean;
   contrast: boolean;
+  scripture: boolean;
   typeScale: TypeScale;
   standalone: boolean;
   musicSource: MusicSource;
@@ -27,6 +27,7 @@ type Props = {
   onHaptics: (on: boolean) => void;
   onSound: (on: boolean) => void;
   onContrast: (on: boolean) => void;
+  onScripture: (on: boolean) => void;
   onTypeScale: (scale: TypeScale) => void;
   onMusicSource: (source: MusicSource) => void;
   onMusicVolume: (value: number) => void;
@@ -41,7 +42,14 @@ type Props = {
   onSilicon: () => void;
   onDesert: () => void;
   onEternal: () => void;
+  onSwarm: () => void;
+  onHighway: () => void;
+  onBelt: () => void;
+  onCluster: () => void;
+  onDwarf: () => void;
   onHelp: () => void;
+  onCanon: () => void;
+  onKeep: () => void;
   onClose: () => void;
   openAbout?: boolean;
 };
@@ -52,6 +60,7 @@ export function SettingsSheet({
   haptics,
   sound,
   contrast,
+  scripture,
   typeScale,
   standalone,
   musicSource,
@@ -63,6 +72,7 @@ export function SettingsSheet({
   onHaptics,
   onSound,
   onContrast,
+  onScripture,
   onTypeScale,
   onMusicSource,
   onMusicVolume,
@@ -77,7 +87,14 @@ export function SettingsSheet({
   onSilicon,
   onDesert,
   onEternal,
+  onSwarm,
+  onHighway,
+  onBelt,
+  onCluster,
+  onDwarf,
   onHelp,
+  onCanon,
+  onKeep,
   onClose,
   openAbout = false,
 }: Props) {
@@ -175,6 +192,19 @@ export function SettingsSheet({
               checked={contrast}
               label={copy.contrast}
               onChange={onContrast}
+            />
+          </div>
+          <div
+            className={cn(
+              "flex items-center justify-between gap-3 px-4 py-3",
+              "border-b border-border",
+            )}
+          >
+            <span className="text-sm text-fg">{copy.scripture.line}</span>
+            <Switch
+              checked={scripture}
+              label={copy.scripture.line}
+              onChange={onScripture}
             />
           </div>
           <div className="px-4 py-3">
@@ -325,13 +355,19 @@ export function SettingsSheet({
 
         <Group label={copy.skies}>
           <ActionRow icon={RotateCcw} label={copy.ours} onClick={onOurs} />
+          <ActionRow label={copy.presetCluster} onClick={onCluster} />
+          <ActionRow label={copy.presetDwarf} onClick={onDwarf} />
           <ActionRow label={copy.presetSilicon} onClick={onSilicon} />
           <ActionRow label={copy.presetEternal} onClick={onEternal} />
+          <ActionRow label={copy.presetSwarm} onClick={onSwarm} />
+          <ActionRow label={copy.presetHighway} onClick={onHighway} />
+          <ActionRow label={copy.presetBelt} onClick={onBelt} />
           <ActionRow label={copy.presetDesert} last onClick={onDesert} />
         </Group>
 
         <Group>
           <ActionRow icon={CircleHelp} label={copy.help} onClick={onHelp} />
+          <ActionRow icon={ScrollText} label={copy.scripture.title} onClick={onCanon} />
           <ActionRow icon={Info} label={copy.aboutTitle} onClick={scrollToAbout} />
           {!standalone ? (
             <ActionRow icon={Download} label={copy.install} onClick={onInstall} />
@@ -363,6 +399,9 @@ export function SettingsSheet({
           <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">
             {copy.studioHonesty}
           </p>
+          <Button className="mt-4 w-full" onClick={onKeep}>
+            {copy.keep.openCta}
+          </Button>
           <ul className="mt-4 flex flex-col gap-2">
             {(
               [
@@ -384,15 +423,6 @@ export function SettingsSheet({
               </li>
             ))}
           </ul>
-          <div className="mt-4">
-            <PayRails copy={copy} />
-          </div>
-          <Button asChild className="mt-4 w-full">
-            <a href={orderCopyUrl(copy.studioOrderText)} target="_blank" rel="noopener noreferrer">
-              <ExternalLink />
-              {copy.studioReserveCta}
-            </a>
-          </Button>
           {!hosted ? (
             <Button asChild variant="outline" className="mt-2 w-full">
               <a href={PUBLIC_LAB_URL} target="_blank" rel="noopener noreferrer">

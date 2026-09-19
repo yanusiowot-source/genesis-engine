@@ -16,7 +16,7 @@ import { haptic } from "@/lib/universe/haptic";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import { runMcmcAsync } from "@/lib/universe/law-client";
 import type { CatalogResult } from "@/lib/universe/mast";
-import { analyzePosterior, type McmcResult, type PosteriorAnalysis } from "@/lib/universe/mcmc";
+import { analyzePosterior, downsampleTrace, type McmcResult, type PosteriorAnalysis } from "@/lib/universe/mcmc";
 import { PARAM_META, siliconDossier } from "@/lib/universe/physics";
 import {
   downloadBlob,
@@ -134,9 +134,10 @@ export function DeskPanel({
   };
 
   useEffect(() => {
-    if (result?.target === target) return;
-    if (deskPrimedFor === target) return;
-    deskPrimedFor = target;
+    const key = `${record.catalog}:${target}`;
+    if (result?.target === target && deskPrimedFor === key) return;
+    if (deskPrimedFor === key) return;
+    deskPrimedFor = key;
     let live = true;
     void (async () => {
       setBusy(true);
@@ -153,9 +154,9 @@ export function DeskPanel({
     return () => {
       live = false;
     };
-    // first visit per corridor
+    // first visit per sky × corridor
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [target]);
+  }, [target, record.catalog]);
 
   const okCatalog = catalog && catalog.ok ? catalog : null;
 
@@ -458,6 +459,10 @@ function McmcBlock({
   const rows = [
     { k: copy.desk.accept, v: formatPct(result.acceptRate) },
     { k: copy.desk.ess, v: Number.isFinite(result.ess) ? result.ess.toFixed(0) : "—" },
+    {
+      k: copy.desk.walker,
+      v: result.walker === "hmc" ? copy.desk.walkerHmc : copy.desk.walkerMh,
+    },
     { k: copy.desk.rhat, v: Number.isFinite(reading.rhat) ? reading.rhat.toFixed(2) : "—" },
     { k: copy.desk.tau, v: Number.isFinite(reading.tau) ? reading.tau.toFixed(1) : "—" },
     { k: copy.desk.samples, v: String(result.samples.length) },
@@ -468,6 +473,7 @@ function McmcBlock({
       <McmcView copy={copy} result={result} />
       <PosteriorFlat result={result} />
       <LogLTrace copy={copy} values={reading.logL} />
+      <ChainTraces copy={copy} result={result} />
       <p className="font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
         {copy.desk.prior}
       </p>
@@ -504,10 +510,11 @@ function McmcBlock({
         <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">
           {copy.desk.corridorHint}
         </p>
-        <dl className="mt-3 grid grid-cols-3 gap-3">
+        <dl className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Mass k={copy.carbon} v={reading.viableCarbon} tone="life" />
           <Mass k={copy.silicon} v={reading.viableSilicon} tone="silicon" />
           <Mass k={copy.eternal} v={reading.viableEternal} tone="eternal" />
+          <Mass k={copy.swarm} v={reading.viableSwarm} tone="swarm" />
         </dl>
       </div>
 
@@ -544,7 +551,7 @@ function Mass({
 }: {
   k: string;
   v: number;
-  tone: "life" | "silicon" | "eternal";
+  tone: "life" | "silicon" | "eternal" | "swarm";
 }) {
   return (
     <div className="min-w-0">
@@ -557,7 +564,9 @@ function Mass({
               ? "text-eternal"
               : tone === "silicon"
                 ? "text-silicon"
-                : "text-life"
+                : tone === "swarm"
+                  ? "text-cyan"
+                  : "text-life"
             : "text-fg-subtle",
         )}
       >
@@ -652,13 +661,13 @@ function Marginals({ copy, reading }: { copy: Copy; reading: PosteriorAnalysis }
   );
 }
 
-function LogLTrace({ copy, values }: { copy: Copy; values: number[] }) {
+function Sparkline({ values, className }: { values: number[]; className?: string }) {
   if (values.length < 4) return null;
   const lo = Math.min(...values);
   const hi = Math.max(...values);
   const span = Math.max(1e-6, hi - lo);
   const w = 240;
-  const h = 36;
+  const h = 28;
   const d = values
     .map((v, i) => {
       const x = (i / Math.max(values.length - 1, 1)) * w;
@@ -667,11 +676,41 @@ function LogLTrace({ copy, values }: { copy: Copy; values: number[] }) {
     })
     .join(" ");
   return (
+    <svg viewBox={`0 0 ${w} ${h}`} className={cn("h-7 w-full", className)} role="img" aria-hidden>
+      <path d={d} fill="none" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  );
+}
+
+function LogLTrace({ copy, values }: { copy: Copy; values: number[] }) {
+  if (values.length < 4) return null;
+  return (
     <div>
       <p className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.desk.trace}</p>
-      <svg viewBox={`0 0 ${w} ${h}`} className="mt-1 h-9 w-full text-accent" role="img" aria-hidden>
-        <path d={d} fill="none" stroke="currentColor" strokeWidth="1.2" />
-      </svg>
+      <Sparkline values={values} className="mt-1 text-accent" />
+    </div>
+  );
+}
+
+function ChainTraces({ copy, result }: { copy: Copy; result: McmcResult }) {
+  if (result.samples.length < 8) return null;
+  return (
+    <div>
+      <p className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.desk.chains}</p>
+      <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.desk.chainsHint}</p>
+      <ul className="mt-2 flex flex-col gap-2">
+        {PARAM_META.map((meta) => {
+          const values = downsampleTrace(result.samples.map((s) => s.params[meta.key]));
+          return (
+            <li key={meta.key} className="min-w-0">
+              <p className="font-mono text-[0.625rem] tracking-wide text-fg-subtle uppercase">
+                {copy.params[meta.key].label}
+              </p>
+              <Sparkline values={values} className="text-fg-muted" />
+            </li>
+          );
+        })}
+      </ul>
     </div>
   );
 }

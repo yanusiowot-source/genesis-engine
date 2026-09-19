@@ -10,6 +10,8 @@ import type {
   SiliconBlocker,
   SiliconNiche,
   SolventClass,
+  SwarmBlocker,
+  SwarmNiche,
   UniverseParams,
 } from "./types";
 import { clamp, lerp, mulberry32 } from "./rng.ts";
@@ -67,7 +69,7 @@ export const PARAM_META: ParamMeta[] = [
     step: 0.01,
     low: "thin",
     high: "dense",
-    hint: "Fuel for stars and galaxies. Too little and nothing collapses; too much and the universe recollapses or is black-hole dominated.",
+    hint: "Fuel for stars and galaxies — baryons plus the halo. Too little and nothing collapses; too much and the universe recollapses or is black-hole dominated.",
   },
   {
     key: "complexity",
@@ -78,7 +80,7 @@ export const PARAM_META: ParamMeta[] = [
     step: 0.01,
     low: "smooth",
     high: "structured",
-    hint: "How organized the primordial overdensities are. Smooth fields stay fog; too much order without noise makes sterile ellipses.",
+    hint: "How organized the primordial overdensities are. Smooth fields stay fog; too much order without noise makes sterile ellipses. Also loads baryons: more order, thinner halo.",
   },
   {
     key: "quantumNoise",
@@ -141,6 +143,13 @@ function eternalNicheOf(p: number): EternalNiche {
   return "closed";
 }
 
+function swarmNicheOf(p: number): SwarmNiche {
+  if (p >= 0.45) return "tide";
+  if (p >= 0.18) return "bloom";
+  if (p >= 0.05) return "seed";
+  return "silent";
+}
+
 /**
  * Local-density analog. Our universe lands in a group (~0.32).
  * Dense clusters quench spirals into ellipticals — the morphology–density relation.
@@ -168,10 +177,18 @@ export function hubbleMix(env: number): HubbleMix {
   return { spiral: spiral / s, elliptical: elliptical / s, irregular: irregular / s };
 }
 
-/** Ωc / Ωm analog. Our sky is ~0.85, near Planck 0.84. */
+/** Ωb analog. Baryogenesis from initial order, not a share that scales with Ωm.
+ *  Our sky pins at 0.049 (Planck baryons). */
+export function omegaBaryon(params: UniverseParams): number {
+  const load = 0.7 + params.complexity * 0.6;
+  return clamp(0.049 * (load / 0.916), 0.012, 0.12);
+}
+
+/** Ωc / Ωm analog. Our sky is ~0.84, near Planck. More matter at fixed baryons is more halo. */
 export function darkMatterFraction(params: UniverseParams): number {
-  const baryonShare = clamp(0.16 * (0.7 + params.complexity * 0.6), 0.06, 0.4);
-  return clamp(1 - baryonShare, 0.6, 0.94);
+  const ob = omegaBaryon(params);
+  const om = Math.max(params.matter, ob + 1e-4);
+  return clamp(1 - ob / om, 0.6, 0.94);
 }
 
 /** Time from first stars to a quiet wet-chemistry window. Shared with the epoch strip. */
@@ -185,8 +202,11 @@ export function evaluate(params: UniverseParams): Evaluation {
   const c = params.complexity;
   const q = params.quantumNoise;
 
+  const dm = darkMatterFraction(params);
+
   const clustering =
-    gauss(g, 1.0, 0.42) * gauss(m, 0.34, 0.32) * gauss(h, 0.96, 0.38);
+    gauss(g, 1.0, 0.42) * gauss(m, 0.34, 0.32) * gauss(h, 0.96, 0.38) *
+    (0.84 + 0.16 * clamp(dm / 0.84, 0.5, 1.2));
   const seeds = gauss(q, 0.11, 0.1) * gauss(c, 0.38, 0.26);
   const deWindow = gauss(de, 0.68, 0.26);
   const structure = clamp(clustering * seeds * deWindow, 0, 1);
@@ -262,6 +282,27 @@ export function evaluate(params: UniverseParams): Evaluation {
     gauss(g, 0.92, 0.28);
   eternal = clamp(eternal * 0.72, 0, 0.91);
 
+  // Von Neumann / Tipler envelope (Hart 1975, Tipler 1980): if a mind can
+  // build one self-replicating probe, a galaxy-crossing wave is a clock
+  // problem, not a miracle. Fermi's silence on our sky is the point of the
+  // envelope — permission is not a detection. Expansion and a short stellar
+  // clock veto the hop; metals and a host mind open it.
+  const hostMind = Math.max(life, silicon * 0.82);
+  const metals = clamp(
+    structure * sigmoid((generations - 1.35) * 1.55) * gauss(m, 0.48, 0.28),
+    0,
+    1,
+  );
+  const reach =
+    gauss(h, 0.68, 0.16) * gauss(de, 0.52, 0.18) * (1 - 0.92 * runawayRisk);
+  const hopClock =
+    sigmoid((stellarLifetimeGyr - 2.4) * 0.65) * sigmoid((lifeWindowGyr - 0.35) * 1.15);
+  const hostGate = sigmoid((hostMind - 0.14) * 9);
+  let swarm = metals * reach * hopClock * hostGate;
+  swarm *= 1 - 0.82 * recollapseRisk;
+  swarm *= 0.6 + 0.4 * gauss(g, 1.02, 0.28);
+  swarm = clamp(swarm * 1.12, 0, 0.94);
+
   const noStars = g < 0.48 || m < 0.09;
   const shortLived = g > 1.72 && stellarLifetimeGyr < 3.2;
 
@@ -278,7 +319,6 @@ export function evaluate(params: UniverseParams): Evaluation {
 
   const env = environmentDensity(params);
   const mix = hubbleMix(env);
-  const dm = darkMatterFraction(params);
 
   let morphology: Morphology;
   if (fate === "void" || m < 0.12 || structure < 0.05) morphology = "scattered";
@@ -294,6 +334,8 @@ export function evaluate(params: UniverseParams): Evaluation {
     eternalProb: eternal,
     eternalNiche: eternalNicheOf(eternal),
     remnantStructure,
+    swarmProb: swarm,
+    swarmNiche: swarmNicheOf(swarm),
     fate,
     morphology,
     stellarLifetimeGyr,
@@ -368,6 +410,7 @@ export function derivedAstro(
 export type FactorId = "structure" | "time" | "generations" | "stability";
 export type SiliconFactorId = "heat" | "pressure" | "solvent" | "timescale";
 export type EternalFactorId = "horizon" | "remnants" | "longevity" | "future";
+export type SwarmFactorId = "host" | "metals" | "reach" | "clock";
 
 export function lifeFactors(
   ev: Evaluation,
@@ -423,6 +466,47 @@ export function eternalFactors(
     {
       id: "future",
       value: clamp(1 - ev.recollapseRisk - ev.runawayRisk, 0, 1),
+    },
+  ];
+}
+
+export function swarmFactors(
+  params: UniverseParams,
+  ev: Evaluation,
+): { id: SwarmFactorId; value: number }[] {
+  return [
+    {
+      id: "host",
+      value: clamp(sigmoid((Math.max(ev.lifeProb, ev.siliconProb * 0.82) - 0.14) * 9), 0, 1),
+    },
+    {
+      id: "metals",
+      value: clamp(
+        ev.structure *
+          sigmoid((ev.generations - 1.35) * 1.55) *
+          gauss(params.matter, 0.48, 0.28),
+        0,
+        1,
+      ),
+    },
+    {
+      id: "reach",
+      value: clamp(
+        gauss(params.expansion, 0.68, 0.16) *
+          gauss(params.darkEnergy, 0.52, 0.18) *
+          (1 - 0.92 * ev.runawayRisk),
+        0,
+        1,
+      ),
+    },
+    {
+      id: "clock",
+      value: clamp(
+        sigmoid((ev.stellarLifetimeGyr - 2.4) * 0.65) *
+          sigmoid((ev.lifeWindowGyr - 0.35) * 1.15),
+        0,
+        1,
+      ),
     },
   ];
 }
@@ -516,6 +600,45 @@ export function eternalDossier(
   };
 }
 
+export type SwarmDossier = {
+  factors: { id: SwarmFactorId; value: number }[];
+  hops: number;
+  crossingMyr: number;
+  metalIndex: number;
+  host: number;
+  blockers: SwarmBlocker[];
+};
+
+export function swarmDossier(
+  params: UniverseParams,
+  ev: Evaluation,
+): SwarmDossier {
+  const factors = swarmFactors(params, ev);
+  const byId = Object.fromEntries(factors.map((f) => [f.id, f.value])) as Record<
+    SwarmFactorId,
+    number
+  >;
+  const blockers: SwarmBlocker[] = [];
+  if (byId.host < 0.28) blockers.push("host");
+  if (byId.metals < 0.32) blockers.push("metals");
+  if (byId.reach < 0.32) blockers.push("reach");
+  if (byId.clock < 0.32) blockers.push("clock");
+  if (ev.structure < 0.12) blockers.push("fog");
+  if (ev.recollapseRisk > 0.45) blockers.push("crunch");
+  if (ev.runawayRisk > 0.45) blockers.push("rip");
+
+  const crossingMyr = Math.round(lerp(220, 8, byId.reach));
+  const hops = Math.max(1, Math.round(lerp(3, 48, ev.swarmProb)));
+  return {
+    factors,
+    hops,
+    crossingMyr,
+    metalIndex: byId.metals,
+    host: Math.max(ev.lifeProb, ev.siliconProb),
+    blockers,
+  };
+}
+
 export function snapParams(params: UniverseParams): UniverseParams {
   const next = { ...params };
   for (const meta of PARAM_META) {
@@ -588,8 +711,19 @@ export function nearEternal(rng: () => number): UniverseParams {
   });
 }
 
+export function nearSwarm(rng: () => number): UniverseParams {
+  return snapParams({
+    gravity: jitter(rng, 1.0, 0.1, 0.75, 1.3),
+    expansion: jitter(rng, 0.68, 0.08, 0.42, 1.0),
+    darkEnergy: jitter(rng, 0.52, 0.08, 0.2, 0.72),
+    matter: jitter(rng, 0.46, 0.1, 0.22, 0.85),
+    complexity: jitter(rng, 0.44, 0.1, 0.18, 0.9),
+    quantumNoise: jitter(rng, 0.1, 0.03, 0.03, 0.24),
+  });
+}
+
 function interestingScore(ev: Evaluation): number {
-  return Math.max(ev.lifeProb, ev.siliconProb, ev.eternalProb);
+  return Math.max(ev.lifeProb, ev.siliconProb, ev.eternalProb, ev.swarmProb);
 }
 
 export function survey(
@@ -597,9 +731,10 @@ export function survey(
   seed: number,
 ): { params: UniverseParams; evaluation: Evaluation; visualSeed: number }[] {
   const rng = mulberry32(seed);
-  const wild = Math.floor(count * 0.32);
-  const carbon = Math.floor(count * 0.28);
-  const silicon = Math.floor(count * 0.22);
+  const wild = Math.floor(count * 0.28);
+  const carbon = Math.floor(count * 0.24);
+  const silicon = Math.floor(count * 0.18);
+  const swarmN = Math.floor(count * 0.14);
   const out: { params: UniverseParams; evaluation: Evaluation; visualSeed: number }[] =
     [];
   for (let i = 0; i < count; i++) {
@@ -611,6 +746,8 @@ export function survey(
           ? nearGoldilocks(rng)
           : i < wild + carbon + silicon
             ? nearSilicon(rng)
+            : i < wild + carbon + silicon + swarmN
+              ? nearSwarm(rng)
             : nearEternal(rng);
     out.push({ params, evaluation: evaluate(params), visualSeed });
   }
@@ -621,12 +758,18 @@ export function survey(
 export function refine(
   params: UniverseParams,
   seed: number,
-  target: "carbon" | "silicon" | "eternal",
+  target: "carbon" | "silicon" | "eternal" | "swarm",
 ): UniverseParams {
   const rng = mulberry32(seed);
   let best = snapParams(params);
   const scoreOfTarget = (ev: Evaluation) =>
-    target === "silicon" ? ev.siliconProb : target === "eternal" ? ev.eternalProb : ev.lifeProb;
+    target === "silicon"
+      ? ev.siliconProb
+      : target === "eternal"
+        ? ev.eternalProb
+        : target === "swarm"
+          ? ev.swarmProb
+          : ev.lifeProb;
   let bestScore = scoreOfTarget(evaluate(best));
   for (let i = 0; i < 28; i++) {
     const candidate = snapParams({
@@ -686,6 +829,37 @@ export const DESERT_EPOCH: UniverseParams = {
 export const SILICON_SEED = 0x51c011c0;
 export const DESERT_SEED = 0xde5e4700;
 export const ETERNAL_SEED = 0xe7e4a100;
+export const SWARM_SEED = 0xa51c01d;
+export const CLUSTER_SEED = 0xc15e0001;
+export const DWARF_SEED = 0xd4af0001;
+
+/** Cluster elliptical. Magorrian on, MAD / FR I. Not a Virgo census. */
+export const CLUSTER_SKY: UniverseParams = {
+  ...OUR_UNIVERSE,
+  matter: 1.1,
+};
+
+/** Dwarf irregular. Minor encounter, quiet hole. Not a Local Group catalog. */
+export const DWARF_SKY: UniverseParams = {
+  ...OUR_UNIVERSE,
+  matter: 0.1,
+  complexity: 0.15,
+  quantumNoise: 0.45,
+};
+
+function sameSky(params: UniverseParams, plate: UniverseParams): boolean {
+  return PARAM_META.every(
+    (meta) => Math.abs(params[meta.key] - plate[meta.key]) < 1e-6,
+  );
+}
+
+export function isClusterSky(params: UniverseParams): boolean {
+  return sameSky(params, CLUSTER_SKY);
+}
+
+export function isDwarfSky(params: UniverseParams): boolean {
+  return sameSky(params, DWARF_SKY);
+}
 
 /** Open-universe, near-zero Λ. Dyson 1979 loophole; not our sky. */
 export const ETERNAL_CORRIDOR: UniverseParams = {
@@ -696,6 +870,75 @@ export const ETERNAL_CORRIDOR: UniverseParams = {
   complexity: 0.4,
   quantumNoise: 0.11,
 };
+
+/** Long clock, metals, reachable disks — von Neumann envelope. Not a detection. */
+export const SWARM_CORRIDOR: UniverseParams = {
+  gravity: 1.0,
+  expansion: 0.68,
+  darkEnergy: 0.52,
+  matter: 0.46,
+  complexity: 0.44,
+  quantumNoise: 0.1,
+};
+
+/** One road, two lanes, no towns for a Hubble time. Homology, not a franchise. */
+export const HIGHWAY_CORRIDOR: UniverseParams = {
+  gravity: 0.92,
+  expansion: 1.48,
+  darkEnergy: 0.4,
+  matter: 0.14,
+  complexity: 0.32,
+  quantumNoise: 0.07,
+};
+
+/** Sparse ice. The mass that still moves is cold. Homology, not a series. */
+export const BELT_CORRIDOR: UniverseParams = {
+  gravity: 0.84,
+  expansion: 1.14,
+  darkEnergy: 0.5,
+  matter: 0.17,
+  complexity: 0.52,
+  quantumNoise: 0.1,
+};
+
+export const HIGHWAY_SEED = 0x46046000;
+export const BELT_SEED = 0x1cebe170;
+
+export function isHighwayParams(params: UniverseParams): boolean {
+  return PARAM_META.every(
+    (meta) => Math.abs(params[meta.key] - HIGHWAY_CORRIDOR[meta.key]) < 1e-6,
+  );
+}
+
+export function isBeltParams(params: UniverseParams): boolean {
+  return PARAM_META.every(
+    (meta) => Math.abs(params[meta.key] - BELT_CORRIDOR[meta.key]) < 1e-6,
+  );
+}
+
+export type KnownPlate =
+  | "ours"
+  | "cluster"
+  | "dwarf"
+  | "silicon"
+  | "eternal"
+  | "swarm"
+  | "highway"
+  | "belt"
+  | "desert";
+
+export function knownPlate(params: UniverseParams): KnownPlate | null {
+  if (isOurParams(params)) return "ours";
+  if (sameSky(params, CLUSTER_SKY)) return "cluster";
+  if (sameSky(params, DWARF_SKY)) return "dwarf";
+  if (sameSky(params, SILICON_CORRIDOR)) return "silicon";
+  if (sameSky(params, ETERNAL_CORRIDOR)) return "eternal";
+  if (sameSky(params, SWARM_CORRIDOR)) return "swarm";
+  if (sameSky(params, HIGHWAY_CORRIDOR)) return "highway";
+  if (sameSky(params, BELT_CORRIDOR)) return "belt";
+  if (sameSky(params, DESERT_EPOCH)) return "desert";
+  return null;
+}
 
 export const MORPHOLOGY_LABEL: Record<Morphology, string> = {
   scattered: "Field of embers",

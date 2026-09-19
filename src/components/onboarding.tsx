@@ -42,19 +42,12 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex flex-col bg-bg px-6 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(5.5rem,calc(env(safe-area-inset-bottom)+4rem))] pointer-events-auto"
+      className="fixed inset-0 z-[100] flex flex-col px-6 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(5.5rem,calc(env(safe-area-inset-bottom)+4rem))] pointer-events-auto"
       role="dialog"
       aria-modal="true"
       aria-labelledby="onboard-title"
     >
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(ellipse at 50% 12%, color-mix(in oklab, var(--color-nebula) 34%, transparent), transparent 50%), radial-gradient(ellipse at 80% 80%, color-mix(in oklab, var(--color-accent) 18%, transparent), transparent 46%), radial-gradient(ellipse at 10% 70%, color-mix(in oklab, var(--color-cyan) 16%, transparent), transparent 42%)",
-        }}
-      />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-bg/70" />
       <div className="relative z-10 flex items-start justify-between gap-3 pointer-events-auto">
         <p className="font-mono text-[0.6875rem] tracking-[0.22em] text-fg-subtle uppercase">
           {copy.kicker}
@@ -71,22 +64,22 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
       </div>
       <div
         key={step}
-        className="relative z-10 mx-auto flex w-full max-w-md flex-1 flex-col justify-center"
+        className="relative z-10 mx-auto mt-auto flex w-full max-w-md flex-col rounded-[var(--radius-lg)] bg-bg-elevated/85 px-5 py-5"
       >
         <p className="onboard-rise font-mono text-[0.6875rem] tabular-nums text-fg-subtle" aria-live="polite">
           {step + 1} / {copy.onboarding.length}
         </p>
         <h2
           id="onboard-title"
-          className="onboard-rise onboard-rise-2 mt-3 font-display text-4xl leading-tight tracking-[-0.03em] text-fg"
+          className="onboard-rise onboard-rise-2 mt-2 font-display text-3xl leading-tight tracking-[-0.03em] text-fg sm:text-4xl"
         >
           {page.title}
         </h2>
-        <p className="onboard-rise onboard-rise-3 mt-4 max-w-prose text-pretty text-base leading-relaxed text-fg-muted">
+        <p className="onboard-rise onboard-rise-3 mt-3 max-w-prose text-pretty text-sm leading-relaxed text-fg-muted sm:text-base">
           {page.body}
         </p>
       </div>
-      <div className="relative z-10 mx-auto flex w-full max-w-md flex-col gap-5">
+      <div className="relative z-10 mx-auto mt-5 flex w-full max-w-md flex-col gap-5">
         <div className="flex justify-center gap-1.5" aria-hidden>
           {copy.onboarding.map((_, i) => (
             <span

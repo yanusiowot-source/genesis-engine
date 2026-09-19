@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { adaptiveQuality, buildGalaxy, lookCam, projectLook } from "./galaxy.ts";
+import { adaptiveQuality, buildGalaxy, canvasDpr, encounterOf, lookCam, PIXEL_BUDGET, projectLook } from "./galaxy.ts";
 import { evaluate, OUR_UNIVERSE } from "./physics.ts";
 
 describe("inside-sky camera", () => {
@@ -57,7 +57,15 @@ describe("buildGalaxy", () => {
   it("keeps quality in range without a window", () => {
     const q = adaptiveQuality();
     assert.ok(q.scale >= 0.22 && q.scale <= 1);
-    assert.ok(q.dprCap >= 1 && q.dprCap <= 2);
+    assert.ok(q.dprCap >= 1 && q.dprCap <= 1.6);
+  });
+
+  it("caps backing-store pixels on a 4K screen and keeps phones sharp", () => {
+    const dpr4k = canvasDpr(3840, 2160, 1.75, 2);
+    assert.ok(dpr4k * dpr4k * 3840 * 2160 <= PIXEL_BUDGET * 1.02);
+    assert.ok(dpr4k < 0.7);
+    assert.ok(canvasDpr(390, 844, 1.1, 3) >= 1);
+    assert.ok(canvasDpr(1280, 800, 1.5, 2) <= 1.5);
   });
 
   it("still builds a disk at the lowest quality", () => {
@@ -65,5 +73,33 @@ describe("buildGalaxy", () => {
     const model = buildGalaxy(OUR_UNIVERSE, ev, 3, 0.22);
     assert.ok(model.stars.length > 24);
     assert.ok(model.field.length > 10);
+  });
+
+  it("puts a MAD jet on a cluster elliptical and none on our disk", () => {
+    const ours = buildGalaxy(OUR_UNIVERSE, evaluate(OUR_UNIVERSE), 9, 0.5);
+    assert.equal(ours.jet.power, 0);
+    const ellP = { ...OUR_UNIVERSE, matter: 1.1 };
+    const ell = buildGalaxy(ellP, evaluate(ellP), 9, 0.5);
+    assert.equal(evaluate(ellP).morphology, "elliptical");
+    assert.ok(ell.jet.power > 0.1);
+    assert.ok(ell.jet.flicker > 0.15);
+    assert.ok(ell.jet.fill < 0.5);
+    assert.equal(ours.jet.fill, 1);
+    assert.equal(ell.jet.fr, "fri");
+    assert.equal(ours.jet.fr, "none");
+  });
+
+  it("gives our disk a major Andromeda-like encounter and a dwarf a minor one", () => {
+    const ours = encounterOf(OUR_UNIVERSE, evaluate(OUR_UNIVERSE));
+    assert.equal(ours.kind, "major");
+    assert.ok(ours.q > 0.6);
+    const dwarfP = { ...OUR_UNIVERSE, matter: 0.1, quantumNoise: 0.45, complexity: 0.15 };
+    const dwarfE = evaluate(dwarfP);
+    const dwarf = encounterOf(dwarfP, dwarfE);
+    assert.ok(dwarf.q < ours.q);
+    assert.ok(ours.rTide > dwarf.rTide);
+    const built = buildGalaxy(OUR_UNIVERSE, evaluate(OUR_UNIVERSE), 9, 0.5);
+    assert.equal(built.encounter.kind, "major");
+    assert.ok(built.companion.length > 10);
   });
 });

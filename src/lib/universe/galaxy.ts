@@ -1,4 +1,4 @@
-import { sampleMass } from "./observatory.ts";
+import { diskDossier, einsteinRadius, grmhdDossier, hernquistScale, imfHighMass, imfNicheOf, NFW_RVIR, plummerScale, sampleMass } from "./observatory.ts";
 import { isOurParams } from "./physics.ts";
 import { lerp, mulberry32 } from "./rng.ts";
 import type { Evaluation, UniverseParams } from "./types";
@@ -37,6 +37,8 @@ export type GalaxyModel = {
   coreRgb: [number, number, number];
   rotation: number;
   haloRadius: number;
+  jet: { power: number; flicker: number; fill: number; pa: number; fr: "none" | "fri" | "frii" };
+  encounter: { q: number; rTide: number; kind: "minor" | "major" };
 };
 
 export type LookCam = {
@@ -58,21 +60,75 @@ function clamp01(n: number): number {
   return Math.min(1, Math.max(0, n));
 }
 
+/**
+ * Encounter homology — not GADGET, not a live N-body.
+ * q = m2/m1. Jacobi radius at a pericenter of order the primary.
+ */
+export function encounterOf(
+  params: UniverseParams,
+  evaluation: Evaluation,
+): { q: number; rTide: number; kind: "minor" | "major" } {
+  let q: number;
+  if (isOurParams(params)) q = 0.85;
+  else if (evaluation.morphology === "elliptical") q = 0.72;
+  else if (evaluation.morphology === "scattered") q = 0.16;
+  else q = 0.34 + evaluation.structure * 0.28;
+  q = Math.min(1, Math.max(0.12, q));
+  return {
+    q,
+    rTide: 0.58 * Math.pow(q / 3, 1 / 3),
+    kind: q >= 0.4 ? "major" : "minor",
+  };
+}
+
+export const PIXEL_BUDGET = 2_200_000;
+
+export function canvasDpr(cssW: number, cssH: number, cap: number, device = 1): number {
+  const area = Math.max(1, cssW * cssH);
+  const fromBudget = Math.sqrt(PIXEL_BUDGET / area);
+  return Math.max(0.5, Math.min(cap, Math.max(device, 0.5), fromBudget));
+}
+
 export function adaptiveQuality(): { scale: number; dprCap: number } {
-  if (typeof navigator === "undefined") return { scale: 1, dprCap: 2 };
+  if (typeof navigator === "undefined") return { scale: 1, dprCap: 1.5 };
   const cores = navigator.hardwareConcurrency || 4;
   const memory =
     (navigator as Navigator & { deviceMemory?: number }).deviceMemory ?? 4;
   const mobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
   const area =
     typeof window !== "undefined" ? window.innerWidth * window.innerHeight : 1_000_000;
+  const connection = (
+    navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }
+  ).connection;
+  let framed = false;
+  try {
+    framed = typeof window !== "undefined" && window.self !== window.top;
+  } catch {
+    framed = true;
+  }
   let scale = 1;
   if (mobile) scale *= 0.55;
+  if (framed) scale *= 0.72;
   if (cores <= 4) scale *= 0.75;
   if (memory <= 4) scale *= 0.8;
+  if (connection?.saveData) scale *= 0.7;
+  if (connection?.effectiveType === "2g" || connection?.effectiveType === "slow-2g") scale *= 0.65;
   if (area < 420_000) scale *= 0.7;
   if (area < 280_000) scale *= 0.78;
-  return { scale: Math.max(0.22, Math.min(1, scale)), dprCap: mobile ? 1.15 : 1.75 };
+  if (area < 180_000) scale *= 0.72;
+  if (area > 1_600_000) scale *= 0.82;
+  if (area > 2_400_000) scale *= 0.78;
+  if (area > 3_600_000) scale *= 0.75;
+  const tight = mobile || framed || area < 280_000;
+  let dprCap = tight ? 1.1 : 1.5;
+  if (area > 2_000_000) dprCap = Math.min(dprCap, 1.25);
+  if (area > 3_200_000) dprCap = Math.min(dprCap, 1.1);
+  return {
+    scale: Math.max(0.22, Math.min(1, scale)),
+    dprCap,
+  };
 }
 
 function diskZ(rng: () => number, dist: number, thick: number): number {
@@ -162,6 +218,8 @@ function fillMorphology(
   const stars: Star[] = [];
   const morph = evaluation.morphology;
   const first = evaluation.timeToStarsGyr;
+  const imfX = imfHighMass(params, evaluation);
+  const imfN = imfNicheOf(imfX);
 
   const pushStar = (x: number, y: number, z: number, size: number) => {
     const dist = Math.hypot(x, y);
@@ -175,7 +233,7 @@ function fillMorphology(
       rgb: starTint(rng),
       a: clamp01(a),
       phase: rng() * Math.PI * 2,
-      mass: sampleMass(rng),
+      mass: sampleMass(rng, imfX, imfN),
       birthGyr: first + rng() * birthSpan,
     });
   };
@@ -223,16 +281,19 @@ function fillMorphology(
     }
   } else {
     const ours = isOurParams(params);
-    const arms = ours ? 4 : 2 + Math.round(params.complexity * 3);
-    const pitch = 0.2 + (1.15 - params.gravity) * 0.12;
+    const hydro = diskDossier(params, evaluation);
+    const arms = ours ? 4 : hydro.niche === "fragmenting" ? 3 + Math.round(params.complexity * 2) : 2 + Math.round(params.complexity * 2);
+    const wind = 2.6 + 18 / Math.max(hydro.pitchDeg, 6);
+    const scatterHydro =
+      hydro.niche === "fragmenting" ? scatter * 1.45 : hydro.niche === "hot" ? scatter * 1.15 : scatter;
     for (let i = 0; i < n; i++) {
-      const arm = i % arms;
+      const arm = i % Math.max(arms, 1);
       const t = Math.pow(i / n, 0.7);
-      const theta = t * 5.1 + (arm * Math.PI * 2) / arms;
+      const theta = t * wind + (arm * Math.PI * 2) / Math.max(arms, 1);
       const rad = (0.1 + t * 1.4) * spread;
-      const jitter = (rng() - 0.5) * scatter * (0.35 + t);
-      const x = Math.cos(theta) * rad + Math.cos(theta + pitch) * jitter;
-      const y = Math.sin(theta) * rad * 0.78 + Math.sin(theta + pitch) * jitter;
+      const jitter = (rng() - 0.5) * scatterHydro * (0.35 + t);
+      const x = Math.cos(theta) * rad + Math.cos(theta + 0.22) * jitter;
+      const y = Math.sin(theta) * rad * 0.78 + Math.sin(theta + 0.22) * jitter;
       pushStar(x, y, diskZ(rng, rad, 0.16), scale);
     }
     if (ours) {
@@ -265,11 +326,16 @@ export function buildGalaxy(
   quality = 1,
 ): GalaxyModel {
   const rng = mulberry32(seed);
-  const n = Math.max(32, Math.floor((120 + params.matter * 560) * quality));
+  const ours = isOurParams(params);
+  const n = Math.max(
+    32,
+    Math.floor((120 + params.matter * 560) * quality * (ours ? 1.7 : 1)),
+  );
   const spread = 0.48 + params.expansion * 0.32;
   const scatter = 0.025 + params.quantumNoise * 0.38;
   const morph = evaluation.morphology;
   const birthSpan = Math.max(evaluation.stellarLifetimeGyr * 0.7, 0.4);
+  const encounter = encounterOf(params, evaluation);
 
   const stars = fillMorphology(
     rng,
@@ -282,7 +348,7 @@ export function buildGalaxy(
     birthSpan,
   );
 
-  const companionN = Math.max(24, Math.floor(n * 0.38 * quality));
+  const companionN = Math.max(16, Math.floor(n * encounter.q * 0.85 * quality));
   const companion = fillMorphology(
     mulberry32(seed ^ 0x9e3779b9),
     params,
@@ -314,21 +380,23 @@ export function buildGalaxy(
     });
   }
 
-  const bgN = Math.max(10, Math.floor(16 * quality));
+  const te = einsteinRadius(evaluation, params);
+  const bgN = Math.max(18, Math.floor(36 * quality));
   const background: BackgroundGalaxy[] = [];
   for (let i = 0; i < bgN; i++) {
     const ang = rng() * Math.PI * 2;
-    const rad = 1.35 + rng() * 1.15;
+    const aligned = rng() < 0.42;
+    const rad = aligned ? 0.04 + rng() * te * 1.2 : te * 1.15 + rng() * 1.55;
     const spiral = rng() < evaluation.hubbleMix.spiral;
     background.push({
       x: Math.cos(ang) * rad,
-      y: Math.sin(ang) * rad * 0.82,
+      y: Math.sin(ang) * rad * 0.92,
       kind: spiral ? "spiral" : "elliptical",
-      rx: 0.035 + rng() * 0.05,
-      ry: 0.018 + rng() * 0.028,
+      rx: 0.028 + rng() * 0.04,
+      ry: 0.012 + rng() * 0.02,
       rot: rng() * Math.PI,
       rgb: spiral ? [150, 186, 255] : [255, 196, 140],
-      a: 0.42 + rng() * 0.4,
+      a: 0.48 + rng() * 0.4,
     });
   }
 
@@ -340,7 +408,17 @@ export function buildGalaxy(
     [90, 230, 190],
   ];
 
-  const dustCount = morph === "spiral" ? 10 : morph === "irregular" ? 6 : 0;
+  const hydro = diskDossier(params, evaluation);
+  const dustCount =
+    morph === "spiral"
+      ? hydro.niche === "hot"
+        ? 4
+        : hydro.niche === "fragmenting"
+          ? 14
+          : 10
+      : morph === "irregular"
+        ? 6
+        : 0;
   const dust = Array.from({ length: dustCount }, () => {
     const ang = rng() * Math.PI * 2;
     const rad = (0.18 + rng() * 0.95) * spread;
@@ -355,7 +433,14 @@ export function buildGalaxy(
     };
   });
 
-  const clumpN = morph === "scattered" ? 2 : 4 + Math.floor(params.complexity * 3);
+  const clumpN =
+    hydro.niche === "fragmenting"
+      ? 8 + Math.floor(params.complexity * 4)
+      : hydro.niche === "hot" || hydro.niche === "rigid"
+        ? 2
+        : morph === "scattered"
+          ? 2
+          : 4 + Math.floor(params.complexity * 3);
   const clumps = Array.from({ length: clumpN }, () => {
     const ang = rng() * Math.PI * 2;
     const rad = rng() * 0.75 * spread;
@@ -368,7 +453,20 @@ export function buildGalaxy(
     };
   });
 
-  const coreScale = morph === "elliptical" ? 0.62 : morph === "scattered" ? 0.18 : 0.4;
+  const coreScale =
+    morph === "scattered"
+      ? 0.16
+      : morph === "elliptical"
+        ? clamp01(0.16 + hernquistScale(params, evaluation) * 2.4)
+        : clamp01(0.2 + plummerScale(params, evaluation) * 5);
+  const grmhd = grmhdDossier(params, evaluation);
+  const jet = {
+    power: grmhd.state === "mad" ? clamp01(0.14 + 0.2 * Math.min(grmhd.etaBz, 2.2)) : 0,
+    flicker: grmhd.state === "mad" ? grmhd.flicker : 0,
+    fill: grmhd.state === "mad" ? grmhd.fill : 1,
+    pa: ((grmhd.aStar * 2.31 + params.quantumNoise * 1.67 + params.complexity) % Math.PI) - Math.PI / 2,
+    fr: grmhd.fr,
+  };
   const life = evaluation.lifeProb;
   const silicon = evaluation.siliconProb;
   const siliconish = Math.min(1, Math.max(0, (silicon - life + 0.08) / 0.45));
@@ -388,6 +486,8 @@ export function buildGalaxy(
     coreScale,
     coreRgb,
     rotation: (params.gravity * 0.1) / Math.max(spread, 0.3),
-    haloRadius: 0.55 + evaluation.darkMatterFraction * 0.45,
+    haloRadius: NFW_RVIR * 0.72,
+    jet,
+    encounter,
   };
 }

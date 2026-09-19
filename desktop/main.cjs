@@ -74,7 +74,7 @@ async function createWindow() {
     height: 900,
     minWidth: 390,
     minHeight: 640,
-    backgroundColor: "#08090b",
+    backgroundColor: "#09061a",
     title: "Genesis Engine",
     autoHideMenuBar: true,
     show: false,

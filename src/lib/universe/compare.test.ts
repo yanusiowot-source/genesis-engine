@@ -3,6 +3,8 @@ import { describe, it } from "node:test";
 import { copyFor } from "./i18n.ts";
 import {
   DESERT_EPOCH,
+  CLUSTER_SKY,
+  DWARF_SKY,
   OUR_UNIVERSE,
   SILICON_CORRIDOR,
   friedmannAgeGyr,
@@ -12,6 +14,7 @@ import {
   formatCompareFlash,
   formatCompareLine,
   formatDelta,
+  plateTitle,
 } from "./compare.ts";
 
 describe("compareToOurs", () => {
@@ -68,6 +71,17 @@ describe("compareToOurs", () => {
     assert.match(line, /H₀|Ω/);
     const flash = formatCompareFlash(compareToOurs(DESERT_EPOCH), copyFor("en")) ?? "";
     assert.doesNotMatch(flash, /because|therefore|empty|void/i);
+  });
+});
+
+describe("plateTitle", () => {
+  it("names known plates and leaves a random birth alone", () => {
+    const en = copyFor("en");
+    assert.equal(plateTitle(CLUSTER_SKY, en, "Lyra"), en.presetCluster);
+    assert.equal(plateTitle(DWARF_SKY, en, "Lyra"), en.presetDwarf);
+    assert.equal(plateTitle(SILICON_CORRIDOR, en, "Lyra"), en.presetSilicon);
+    assert.equal(plateTitle(DESERT_EPOCH, en, "Lyra"), en.presetDesert);
+    assert.equal(plateTitle(OUR_UNIVERSE, en, "Lyra Minor I"), "Lyra Minor I");
   });
 });
 

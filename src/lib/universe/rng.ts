@@ -86,6 +86,13 @@ export function nameUniverse(rng: () => number, hash: string): string {
   return `${head} ${tail} ${roman(numeral)}`;
 }
 
+/** Name of a plate: seed-stable, unless this catalog hex winks 42. */
+export function namePlate(visualSeed: number, id: string): string {
+  if (/42/i.test(id) || isAnswerCatalog(catalogId(id))) return "Deep Thought";
+  const seedHash = (visualSeed >>> 0).toString(16).padStart(8, "0").toUpperCase();
+  return nameUniverse(mulberry32(visualSeed), seedHash);
+}
+
 function roman(n: number): string {
   const map: [number, string][] = [
     [10, "X"],

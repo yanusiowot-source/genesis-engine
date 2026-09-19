@@ -46,7 +46,7 @@ export function intelligenceWindow(
   params: UniverseParams,
   ev: Evaluation = evaluate(params),
 ): CivModel {
-  const host = Math.max(ev.lifeProb, ev.siliconProb, ev.eternalProb);
+  const host = Math.max(ev.lifeProb, ev.siliconProb, ev.eternalProb, ev.swarmProb ?? 0);
   let path: CivPath = "none";
   if (ev.eternalProb >= 0.18 && ev.eternalProb >= ev.lifeProb && ev.eternalProb >= ev.siliconProb) {
     path = "eternal";
@@ -253,10 +253,13 @@ const SHIPS_FLOOR = 0.05;
 
 export function formatDiasporaLine(
   model: CivModel,
-  copy: { routes: string; spend: string },
+  copy: { routes: string; spend: string; quiet?: string },
+  opts?: { swarmProb?: number },
 ): string | null {
   if (model.path === "none" || model.collapsed || model.ships < SHIPS_FLOOR) return null;
-  return `${copy.routes} ${formatPct(model.ships)}. ${copy.spend}`;
+  const quiet =
+    copy.quiet && (opts?.swarmProb ?? 1) < 0.18 ? ` ${copy.quiet}` : "";
+  return `${copy.routes} ${formatPct(model.ships)}. ${copy.spend}${quiet}`;
 }
 
 export function sparkPath(

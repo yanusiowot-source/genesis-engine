@@ -3,11 +3,12 @@ import { describe, it } from "node:test";
 import {
   ANSWER_SEED,
   answerCatalogForOurs,
+  isEggPrefix,
   noteEggKey,
   sliderEgg,
 } from "./eggs.ts";
-import { OUR_UNIVERSE } from "./physics.ts";
-import { catalogId, hashParams, isAnswerCatalog, nameUniverse, mulberry32 } from "./rng.ts";
+import { OUR_UNIVERSE, DESERT_EPOCH } from "./physics.ts";
+import { catalogId, hashParams, isAnswerCatalog, namePlate, nameUniverse, mulberry32 } from "./rng.ts";
 
 describe("answer seed", () => {
   it("prints 42 in the catalog of our constants", () => {
@@ -16,6 +17,24 @@ describe("answer seed", () => {
     assert.equal(isAnswerCatalog(id), true);
     const name = nameUniverse(mulberry32(ANSWER_SEED), hashParams(OUR_UNIVERSE, ANSWER_SEED));
     assert.equal(name, "Deep Thought");
+    assert.equal(namePlate(ANSWER_SEED, hashParams(OUR_UNIVERSE, ANSWER_SEED)), "Deep Thought");
+  });
+});
+
+describe("namePlate", () => {
+  it("keeps the birth name when the constants move", () => {
+    const seed = 0xabcde;
+    const home = namePlate(seed, hashParams(OUR_UNIVERSE, seed));
+    const desert = namePlate(seed, hashParams(DESERT_EPOCH, seed));
+    assert.equal(home, desert);
+    assert.notEqual(home, "Deep Thought");
+  });
+
+  it("drops Deep Thought when the catalog leaves 42", () => {
+    const ours = hashParams(OUR_UNIVERSE, ANSWER_SEED);
+    const desert = hashParams(DESERT_EPOCH, ANSWER_SEED);
+    assert.equal(namePlate(ANSWER_SEED, ours), "Deep Thought");
+    assert.notEqual(namePlate(ANSWER_SEED, desert), "Deep Thought");
   });
 });
 
@@ -119,5 +138,41 @@ describe("noteEggKey", () => {
       hit = next.hit;
     }
     assert.equal(hit, "tau");
+  });
+
+  it("hears von Neumann, classified, highway, and the zone", () => {
+    const type = (keys: string[]) => {
+      let buf = "";
+      let hit = null as ReturnType<typeof noteEggKey>["hit"];
+      for (const k of keys) {
+        const next = noteEggKey(buf, k);
+        buf = next.buf;
+        hit = next.hit;
+      }
+      return hit;
+    };
+    assert.equal(type(["v", "n", "m"]), "tide");
+    assert.equal(type(["a", "5", "1"]), "fiftyone");
+    assert.equal(type(["r", "6", "0"]), "highway");
+    assert.equal(type(["z", "o", "n"]), "zone");
+    assert.equal(type(["i", "c", "e"]), "ice");
+    assert.equal(type(["w", "o", "w"]), "wow");
+    assert.equal(type(["w", "i", "t"]), "witness");
+    assert.equal(type(["g", "t"]), "throat");
+    assert.equal(type(["v", "n"]), null);
+  });
+
+  it("holds shortcut letters as prefixes of r60, zon, and twl", () => {
+    assert.equal(isEggPrefix("r"), true);
+    assert.equal(isEggPrefix("r6"), true);
+    assert.equal(isEggPrefix("zo"), true);
+    assert.equal(isEggPrefix("tw"), true);
+    assert.equal(isEggPrefix("w"), true);
+    assert.equal(isEggPrefix("wo"), true);
+    assert.equal(isEggPrefix("wi"), true);
+    assert.equal(isEggPrefix("g"), true);
+    assert.equal(isEggPrefix("gt"), false);
+    assert.equal(isEggPrefix("b"), false);
+    assert.equal(isEggPrefix("r60"), false);
   });
 });

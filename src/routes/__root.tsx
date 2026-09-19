@@ -17,7 +17,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt three thin corridors. The physics is not for sale.",
+          "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt four thin corridors. The physics is not for sale.",
       },
       { name: "theme-color", content: "#09061a" },
       { name: "apple-mobile-web-app-capable", content: "yes" },

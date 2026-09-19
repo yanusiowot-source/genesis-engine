@@ -1,5 +1,5 @@
 import { formatGyr, formatPct } from "./format.ts";
-import { derivedAstro, FATE_COPY } from "./physics.ts";
+import { derivedAstro, FATE_COPY, isBeltParams, isHighwayParams } from "./physics.ts";
 import { mulberry32 } from "./rng.ts";
 import type { Evaluation, Fate, Morphology, UniverseParams } from "./types.ts";
 
@@ -78,7 +78,11 @@ function lifeEn(ev: Evaluation, rng: () => number): string {
     ev.eternalProb >= 0.18
       ? ` Dyson’s remnant loophole is ${formatPct(ev.eternalProb)} (${ev.eternalNiche}): unbounded subjective time if Λ stays near zero, not a proof of gods.`
       : " Eternal computation is closed — a de Sitter horizon, or no remnants.";
-  return carbon + silicon + eternal;
+  const swarm =
+    ev.swarmProb >= 0.18
+      ? ` Von Neumann tide ${formatPct(ev.swarmProb)} (${ev.swarmNiche}): a self-replicating wave is a clock, not a census.`
+      : " No machine tide — Fermi still holds, or the hop is vetoed.";
+  return carbon + silicon + eternal + swarm;
 }
 
 function lifeRu(ev: Evaluation): string {
@@ -91,7 +95,11 @@ function lifeRu(ev: Evaluation): string {
     ev.eternalProb >= 0.18
       ? ` Окно Дайсона ${formatPct(ev.eternalProb)} (${ev.eternalNiche}): лазейка Λ≈0, не бессмертие.`
       : " Вечное вычисление закрыто горизонтом де Ситтера.";
-  return carbon + silicon + eternal;
+  const swarm =
+    ev.swarmProb >= 0.18
+      ? ` Прилив фон Неймана ${formatPct(ev.swarmProb)} (${ev.swarmNiche}): самовоспроизводящаяся волна — часы, не перепись.`
+      : " Машинного прилива нет — Ферми держится, или прыжок запрещён.";
+  return carbon + silicon + eternal + swarm;
 }
 
 function lifeBe(ev: Evaluation): string {
@@ -104,7 +112,11 @@ function lifeBe(ev: Evaluation): string {
     ev.eternalProb >= 0.18
       ? ` Акно Дайсана ${formatPct(ev.eternalProb)} (${ev.eternalNiche}): шчыліна Λ≈0, не несмяротнасць.`
       : " Вечнае вылічэнне закрытае гарызонтам дэ Сітэра.";
-  return carbon + silicon + eternal;
+  const swarm =
+    ev.swarmProb >= 0.18
+      ? ` Прыліў фон Нэймана ${formatPct(ev.swarmProb)} (${ev.swarmNiche}): самаўзнаўляльная хваля — гадзіннік, не перапіс.`
+      : " Машыннага прыліву няма — Фермі трымаецца, або скок забаронены.";
+  return carbon + silicon + eternal + swarm;
 }
 
 export function fieldNote(input: FieldNoteInput): string {
@@ -118,13 +130,28 @@ export function fieldNote(input: FieldNoteInput): string {
 
   const versus = (input.versus ?? "").trim();
   const versusBit = versus ? ` ${versus.replace(/\.*$/, ".")}` : "";
+  const roadEn = isHighwayParams(params)
+    ? " One road, two lanes, no towns for a Hubble time."
+    : isBeltParams(params)
+      ? " The ice is the mass that still moves — a belt, not a census."
+      : "";
+  const roadRu = isHighwayParams(params)
+    ? " Одна дорога, две полосы, ни города на время Хаббла."
+    : isBeltParams(params)
+      ? " Лёд — масса, которая ещё движется. Пояс, не перепись."
+      : "";
+  const roadBe = isHighwayParams(params)
+    ? " Адна дарога, дзве палосы, ні горада на час Хабла."
+    : isBeltParams(params)
+      ? " Лёд — маса, якая яшчэ рухаецца. Пояс, не перапіс."
+      : "";
 
   if (locale === "ru") {
-    const p1 = `${name} (${catalog}) — ${MORPH_RU[ev.morphology]}. Возраст ${age}.${versusBit} ${FATE_RU[ev.fate]} Первые звёзды около ${first}; живут ${lives}.`;
+    const p1 = `${name} (${catalog}) — ${MORPH_RU[ev.morphology]}. Возраст ${age}.${versusBit}${roadRu} ${FATE_RU[ev.fate]} Первые звёзды около ${first}; живут ${lives}.`;
     return `${p1}\n\n${lifeRu(ev)}`;
   }
   if (locale === "be") {
-    const p1 = `${name} (${catalog}) — ${MORPH_BE[ev.morphology]}. Узрост ${age}.${versusBit} ${FATE_BE[ev.fate]} Першыя зоркі каля ${first}; жывуць ${lives}.`;
+    const p1 = `${name} (${catalog}) — ${MORPH_BE[ev.morphology]}. Узрост ${age}.${versusBit}${roadBe} ${FATE_BE[ev.fate]} Першыя зоркі каля ${first}; жывуць ${lives}.`;
     return `${p1}\n\n${lifeBe(ev)}`;
   }
 
@@ -133,6 +160,6 @@ export function fieldNote(input: FieldNoteInput): string {
     `${name} (${catalog}) is ${MORPH_EN[ev.morphology]}.`,
     `${MORPH_EN[ev.morphology][0].toUpperCase()}${MORPH_EN[ev.morphology].slice(1)} catalogued ${catalog}: ${name}.`,
   );
-  const p1 = `${opener} Cosmic age ${age}.${versusBit} ${FATE_COPY[ev.fate]} First stars near ${first}; they live ${lives}.`;
+  const p1 = `${opener} Cosmic age ${age}.${versusBit}${roadEn} ${FATE_COPY[ev.fate]} First stars near ${first}; they live ${lives}.`;
   return `${p1}\n\n${lifeEn(ev, rng)}`;
 }

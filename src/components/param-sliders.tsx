@@ -19,10 +19,10 @@ export function ParamSliders({ copy, params, onChange }: Props) {
         return (
           <label key={meta.key} className="flex flex-col gap-2">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="text-sm font-medium text-fg">
+              <span className="min-w-0 truncate text-sm font-medium text-fg">
                 {text.label}
               </span>
-              <span className="font-mono text-xs tabular-nums text-fg-muted">
+              <span className="shrink-0 font-mono text-xs tabular-nums text-fg-muted">
                 {value.toFixed(digits)}
                 <span className="ml-1 text-fg-subtle">{meta.unit}</span>
               </span>
@@ -42,9 +42,9 @@ export function ParamSliders({ copy, params, onChange }: Props) {
               aria-label={text.label}
               title={text.hint}
             />
-            <div className="flex justify-between text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-              <span>{text.low}</span>
-              <span>{text.high}</span>
+            <div className="flex justify-between gap-3 text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+              <span className="min-w-0 truncate">{text.low}</span>
+              <span className="min-w-0 truncate text-right">{text.high}</span>
             </div>
             <p className="text-pretty text-xs leading-relaxed text-fg-muted">{text.hint}</p>
           </label>

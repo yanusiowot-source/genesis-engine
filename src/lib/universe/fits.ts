@@ -328,6 +328,7 @@ export function mcmcTableFits(result: McmcResult): Uint8Array {
       { name: "LIFE", kind: "E", values: samples.map((s) => s.lifeProb) },
       { name: "SILICON", kind: "E", values: samples.map((s) => s.siliconProb) },
       { name: "ETERNAL", kind: "E", values: samples.map((s) => s.eternalProb) },
+      { name: "SWARM", kind: "E", values: samples.map((s) => s.swarmProb) },
     ],
   });
 }

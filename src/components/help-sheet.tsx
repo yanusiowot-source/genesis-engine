@@ -5,10 +5,11 @@ import type { Copy } from "@/lib/universe/i18n";
 
 type Props = {
   copy: Copy;
+  onKeep: () => void;
   onClose: () => void;
 };
 
-export function HelpSheet({ copy, onClose }: Props) {
+export function HelpSheet({ copy, onKeep, onClose }: Props) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -53,19 +54,39 @@ export function HelpSheet({ copy, onClose }: Props) {
           {copy.helpIntro}
         </p>
         <ol className="mt-5 flex flex-col gap-3">
-          {copy.helpItems.map((item, i) => (
-            <li
-              key={item.title}
-              className="help-card rounded-[var(--radius-lg)] px-4 py-3 shadow-[var(--shadow-border)]"
-            >
-              <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
-                {String(i + 1).padStart(2, "0")} · {item.title}
-              </p>
-              <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">
-                {item.body}
-              </p>
-            </li>
-          ))}
+          {copy.helpItems.map((item, i) => {
+            const last = i === copy.helpItems.length - 1;
+            const body = (
+              <>
+                <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
+                  {String(i + 1).padStart(2, "0")} · {item.title}
+                </p>
+                <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">
+                  {item.body}
+                </p>
+              </>
+            );
+            return (
+              <li key={item.title}>
+                {last ? (
+                  <button
+                    type="button"
+                    onClick={onKeep}
+                    className="help-card w-full rounded-[var(--radius-lg)] px-4 py-3 text-left shadow-[var(--shadow-border)]"
+                  >
+                    {body}
+                    <span className="mt-2 block font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
+                      {copy.keep.openCta}
+                    </span>
+                  </button>
+                ) : (
+                  <div className="help-card rounded-[var(--radius-lg)] px-4 py-3 shadow-[var(--shadow-border)]">
+                    {body}
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ol>
         <p className="mt-5 font-mono text-[0.6875rem] leading-relaxed text-fg-subtle">
           {copy.shortcutsTitle}: {copy.shortcutsBody}

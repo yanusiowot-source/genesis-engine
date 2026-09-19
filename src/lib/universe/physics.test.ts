@@ -4,13 +4,23 @@ import { mulberry32 } from "./rng.ts";
 import {
   DESERT_EPOCH,
   ETERNAL_CORRIDOR,
+  HIGHWAY_CORRIDOR,
+  BELT_CORRIDOR,
+  CLUSTER_SKY,
+  DWARF_SKY,
   OUR_UNIVERSE,
+  isClusterSky,
+  isDwarfSky,
+  knownPlate,
   PARAM_META,
   SILICON_CORRIDOR,
+  SWARM_CORRIDOR,
   derivedAstro,
   eternalDossier,
   evaluate,
   friedmannAgeGyr,
+  darkMatterFraction,
+  omegaBaryon,
   randomParams,
   refine,
   siliconDossier,
@@ -27,6 +37,8 @@ describe("evaluate", () => {
     assert.equal(ev.siliconNiche, "impossible");
     assert.ok(ev.eternalProb < 0.03);
     assert.equal(ev.eternalNiche, "closed");
+    assert.ok(ev.swarmProb < 0.18);
+    assert.equal(ev.swarmNiche, "seed");
     assert.equal(ev.morphology, "spiral");
     assert.ok(ev.environmentDensity > 0.28 && ev.environmentDensity < 0.4);
     assert.ok(ev.hubbleMix.spiral > ev.hubbleMix.elliptical);
@@ -35,11 +47,32 @@ describe("evaluate", () => {
     assert.ok(ev.recollapseRisk < 0.05);
   });
 
+  it("pins a cluster elliptical and a dwarf irregular as known plates", () => {
+    assert.equal(evaluate(CLUSTER_SKY).morphology, "elliptical");
+    assert.equal(evaluate(DWARF_SKY).morphology, "scattered");
+    assert.equal(isClusterSky(CLUSTER_SKY), true);
+    assert.equal(isDwarfSky(DWARF_SKY), true);
+    assert.equal(isClusterSky(OUR_UNIVERSE), false);
+    assert.equal(knownPlate(CLUSTER_SKY), "cluster");
+    assert.equal(knownPlate(DWARF_SKY), "dwarf");
+    assert.equal(knownPlate(SILICON_CORRIDOR), "silicon");
+    assert.equal(knownPlate(OUR_UNIVERSE), "ours");
+  });
+
   it("gives the silicon corridor high Si and low carbon", () => {
     const ev = evaluate(SILICON_CORRIDOR);
     assert.ok(ev.siliconProb > 0.45);
     assert.ok(ev.lifeProb < 0.12);
     assert.ok(ev.siliconNiche === "favored" || ev.siliconNiche === "viable");
+    assert.ok(ev.eternalProb < 0.05);
+    assert.ok(ev.swarmProb < 0.05);
+  });
+
+  it("opens a von Neumann tide when disks stay close and metals seed", () => {
+    const ev = evaluate(SWARM_CORRIDOR);
+    assert.ok(ev.swarmProb > 0.45);
+    assert.equal(ev.swarmNiche, "tide");
+    assert.ok(ev.lifeProb > 0.18);
     assert.ok(ev.eternalProb < 0.05);
   });
 
@@ -55,11 +88,38 @@ describe("evaluate", () => {
     assert.ok(ev.runawayRisk < 0.1);
   });
 
-  it("makes the desert epoch empty of all three envelopes", () => {
+  it("makes the desert epoch empty of all four envelopes", () => {
     const ev = evaluate(DESERT_EPOCH);
     assert.ok(ev.lifeProb < 0.08);
     assert.ok(ev.siliconProb < 0.12);
     assert.ok(ev.eternalProb < 0.05);
+    assert.ok(ev.swarmProb < 0.05);
+  });
+
+  it("keeps the long road empty of towns", () => {
+    const ev = evaluate(HIGHWAY_CORRIDOR);
+    assert.ok(ev.lifeProb < 0.12);
+    assert.ok(ev.swarmProb < 0.05);
+    assert.ok(ev.fate === "sterile" || ev.fate === "fog");
+  });
+
+  it("leaves the ice belt thin, not a fleet", () => {
+    const ev = evaluate(BELT_CORRIDOR);
+    assert.ok(ev.lifeProb > 0.12 && ev.lifeProb < 0.4);
+    assert.ok(ev.swarmProb < 0.12);
+    assert.ok(ev.structure > 0.2);
+  });
+
+  it("lets matter raise the halo at fixed baryons", () => {
+    const ours = darkMatterFraction(OUR_UNIVERSE);
+    assert.ok(Math.abs(ours - 0.84) < 0.05);
+    assert.ok(Math.abs(omegaBaryon(OUR_UNIVERSE) - 0.049) < 0.004);
+    const heavy = darkMatterFraction({ ...OUR_UNIVERSE, matter: 0.9 });
+    const thin = darkMatterFraction({ ...OUR_UNIVERSE, matter: 0.12 });
+    assert.ok(heavy > ours);
+    assert.ok(thin < ours);
+    const baryonRich = darkMatterFraction({ ...OUR_UNIVERSE, complexity: 1 });
+    assert.ok(baryonRich < ours);
   });
 
   it("keeps outputs in [0,1] for random draws", () => {
@@ -69,6 +129,7 @@ describe("evaluate", () => {
       assert.ok(ev.lifeProb >= 0 && ev.lifeProb <= 1);
       assert.ok(ev.siliconProb >= 0 && ev.siliconProb <= 1);
       assert.ok(ev.eternalProb >= 0 && ev.eternalProb <= 1);
+      assert.ok(ev.swarmProb >= 0 && ev.swarmProb <= 1);
       assert.ok(ev.structure >= 0 && ev.structure <= 1);
       assert.ok(ev.remnantStructure >= 0 && ev.remnantStructure <= 1);
     }
@@ -196,11 +257,12 @@ describe("eternalDossier", () => {
 });
 
 describe("survey", () => {
-  it("mixes carbon, silicon and eternal corridors for a fixed seed", () => {
+  it("mixes carbon, silicon, eternal and tide corridors for a fixed seed", () => {
     const rows = survey(64, 1);
     assert.equal(rows.length, 64);
     assert.ok(rows.some((r) => r.evaluation.lifeProb > 0.2));
     assert.ok(rows.some((r) => r.evaluation.siliconProb > 0.3));
     assert.ok(rows.some((r) => r.evaluation.eternalProb > 0.3));
+    assert.ok(rows.some((r) => r.evaluation.swarmProb > 0.3));
   });
 });

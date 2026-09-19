@@ -4,15 +4,34 @@ import type {
   EternalBlocker,
   EternalNiche,
   Fate,
+  HaloModelId,
+  HaloNiche,
+  TfNiche,
+  FpNiche,
+  MlBranch,
+  ImfNiche,
+  MassMethodNiche,
+  AgnNiche,
+  AgnMode,
+  AgnDrive,
+  GrmhdState,
+  BzGeometry,
+  FluxTransport,
+  FanaroffRiley,
+  AcousticNiche,
+  DiskNiche,
   Morphology,
   ParamKey,
   SiliconBlocker,
   SiliconNiche,
   SkyMode,
   SolventClass,
+  SwarmBlocker,
+  SwarmNiche,
 } from "./types";
 import type { InsightId, ResearchTarget } from "./research";
 import type { CivStageId } from "./civilization";
+import type { MandateId } from "./mandate";
 import type { GradeId, TaxonId } from "./biosphere";
 import type { SpectralType } from "./citizen";
 import type { SkyClass } from "./zooniverse";
@@ -38,6 +57,34 @@ export type Copy = {
   birth: string;
   birthWitness: string;
   birthGood: string;
+  tapSky: string;
+  scanning: string;
+  plot: {
+    arrive: string;
+    empty: string;
+    dice: string;
+    foothold: string;
+    teeming: string;
+    silicon: string;
+    tide: string;
+    enduring: string;
+    hard: string;
+    blink: string;
+    survey: string;
+    home: string;
+    cluster: string;
+    dwarf: string;
+    highway: string;
+    belt: string;
+    desert: string;
+    caughtWow: string;
+    caughtThroat: string;
+    caughtClassified: string;
+    caughtTau: string;
+    caughtZone: string;
+    caughtWhale: string;
+    done: string;
+  };
   survey: string;
   ours: string;
   fate: string;
@@ -144,12 +191,31 @@ export type Copy = {
   eternalNoVeto: string;
   eternalVsLife: string;
   eternalCaveat: string;
+  swarm: string;
+  swarmTitle: string;
+  swarmHint: string;
+  swarmNote: Record<SwarmNiche, string>;
+  swarmFactors: Record<"host" | "metals" | "reach" | "clock", string>;
+  swarmOpen: string;
+  swarmWhy: string;
+  swarmFacts: [string, string, string];
+  swarmThisSky: string;
+  swarmHops: string;
+  swarmCrossing: string;
+  swarmMetal: string;
+  swarmHost: string;
+  swarmFactorHint: Record<"host" | "metals" | "reach" | "clock", string>;
+  swarmBlockers: string;
+  swarmBlocker: Record<SwarmBlocker, string>;
+  swarmNoVeto: string;
+  swarmCaveat: string;
   refine: string;
   more: string;
   closePanel: string;
   foldCorridors: string;
   foldObs: string;
   foldSculpt: string;
+  labCue: string;
   skies: string;
   appearance: string;
   contrast: string;
@@ -185,6 +251,15 @@ export type Copy = {
   helpTitle: string;
   helpIntro: string;
   helpItems: { title: string; body: string }[];
+  scripture: {
+    title: string;
+    kicker: string;
+    intro: string;
+    open: string;
+    line: string;
+    source: string;
+    hint: string;
+  };
   labPaneHint: Record<"constants" | "hunt" | "life" | "laws" | "desk", string>;
   shortcutsTitle: string;
   shortcutsBody: string;
@@ -200,6 +275,11 @@ export type Copy = {
   presetSilicon: string;
   presetDesert: string;
   presetEternal: string;
+  presetSwarm: string;
+  presetHighway: string;
+  presetBelt: string;
+  presetCluster: string;
+  presetDwarf: string;
   replayIntro: string;
   clearLog: string;
   clearLogConfirm: string;
@@ -220,6 +300,34 @@ export type Copy = {
   payWarn: string;
   payAfter: string;
   payCopy: string;
+  keep: {
+    title: string;
+    kicker: string;
+    lead: string;
+    includedTitle: string;
+    included: string;
+    notTitle: string;
+    notBody: string;
+    stepsTitle: string;
+    step1: string;
+    step2: string;
+    step3: string;
+    amount: string;
+    txLabel: string;
+    txPlaceholder: string;
+    mintCta: string;
+    plateLabel: string;
+    receiptHint: string;
+    writeCta: string;
+    roomTitle: string;
+    roomBody: string;
+    roomCta: string;
+    roomOrderText: string;
+    saveCta: string;
+    invalidTx: string;
+    openCta: string;
+    orderText: string;
+  };
   sourceCode: string;
   version: string;
   eggs: {
@@ -237,6 +345,14 @@ export type Copy = {
     thought: string;
     dot: string;
     tau: string;
+    tide: string;
+    fiftyone: string;
+    highway: string;
+    zone: string;
+    ice: string;
+    wow: string;
+    witness: string;
+    throat: string;
   };
   thisIsOurs: string;
   compareTitle: string;
@@ -269,7 +385,115 @@ export type Copy = {
     env: string;
     envLabel: Record<EnvironmentClass, string>;
     dm: string;
+    baryons: string;
+    dmHint: string;
+    rotationCurve: string;
+    rotationHint: string;
+    rotationBaryon: string;
+    rotationHalo: string;
+    rotationR: string;
+    rotationV: string;
+    tfTitle: string;
+    tfHint: string;
+    tfNiche: Record<TfNiche, string>;
+    tfRatio: string;
+    rarTitle: string;
+    fjTitle: string;
+    fjHint: string;
+    fjSigma: string;
+    fjRatio: string;
+    fpTitle: string;
+    fpHint: string;
+    fpNiche: Record<FpNiche, string>;
+    fpRe: string;
+    fpIe: string;
+    fpResidual: string;
+    fpMl: string;
+    fpMlBranch: Record<MlBranch, string>;
+    fpSersic: string;
+    fpMass: string;
+    imfTitle: string;
+    imfHint: string;
+    imfNiche: Record<ImfNiche, string>;
+    imfSlope: string;
+    imfStar: string;
+    imfMean: string;
+    imfSn: string;
+    imfR: string;
+    imfY: string;
+    massTitle: string;
+    massHint: string;
+    massNiche: Record<MassMethodNiche, string>;
+    massPhot: string;
+    massVirial: string;
+    massLens: string;
+    bhTitle: string;
+    bhHint: string;
+    bhNiche: Record<AgnNiche, string>;
+    bhMagorrian: string;
+    bhSoi: string;
+    agnMode: Record<AgnMode, string>;
+    agnDrive: Record<AgnDrive, string>;
+    agnLambda: string;
+    agnHeat: string;
+    grmhdState: Record<GrmhdState, string>;
+    grmhdSpin: string;
+    grmhdEff: string;
+    grmhdBz: string;
+    grmhdBp: string;
+    grmhdOmega: string;
+    grmhdGeom: Record<BzGeometry, string>;
+    grmhdWin: Record<"bz" | "bp" | "none", string>;
+    grmhdSpinE: string;
+    grmhdEta: string;
+    grmhdBeta: string;
+    grmhdRam: string;
+    fluxAdv: string;
+    fluxNiche: Record<FluxTransport, string>;
+    madSigma: string;
+    madFill: string;
+    madFlicker: string;
+    madAdaf: string;
+    madFr: Record<FanaroffRiley, string>;
+    haloTitle: string;
+    haloHint: string;
+    haloNiche: Record<HaloNiche, string>;
+    haloNicheHint: Record<HaloNiche, string>;
+    haloFactor: Record<"share" | "rotation" | "lens" | "clustering", string>;
+    haloOuter: string;
+    haloBaryonV: string;
+    haloTheta: string;
+    haloC: string;
+    haloRs: string;
+    haloContract: string;
+    haloCore: string;
+    haloKappa: string;
+    haloKs: string;
+    haloEinasto: string;
+    haloModel: Record<HaloModelId, string>;
+    haloCompare: string;
     cmb: string;
+    acousticTitle: string;
+    acousticHint: string;
+    acousticEll: string;
+    acousticEll3: string;
+    acousticOddEven: string;
+    acousticLoad: string;
+    twentyOne: string;
+    hii: string;
+    diskTitle: string;
+    diskHint: string;
+    diskQ: string;
+    diskPitch: string;
+    diskShear: string;
+    diskKappa: string;
+    diskMesh: string;
+    diskQ1: string;
+    diskPlummer: string;
+    diskNiche: Record<DiskNiche, string>;
+    diskNicheHint: Record<DiskNiche, string>;
+    acousticNiche: Record<AcousticNiche, string>;
+    acousticNicheHint: Record<AcousticNiche, string>;
     hrTitle: string;
     hrHint: string;
     hrEmpty: string;
@@ -291,6 +515,7 @@ export type Copy = {
     viableC: string;
     viableSi: string;
     viableEt: string;
+    viableSw: string;
     corr: string;
     percentile: string;
     importance: string;
@@ -314,6 +539,7 @@ export type Copy = {
     ships: string;
     routes: string;
     spend: string;
+    quiet: string;
     collapsed: string;
     persists: string;
     ecology: string;
@@ -321,6 +547,22 @@ export type Copy = {
     minds: string;
     stages: Record<CivStageId, string>;
     stageHint: Record<CivStageId, string>;
+  };
+  mandate: {
+    title: string;
+    hint: string;
+    next: string;
+    sealed: string;
+    openLabel: string;
+    done: string;
+    progress: string;
+    open: string;
+    atlasTick: string;
+    atlasHave: string;
+    atlasNeed: string;
+    chapters: Record<MandateId, { title: string; body: string; hint: string }>;
+    flash: Record<MandateId, string>;
+    cue: Record<MandateId, string>;
   };
   bio: {
     title: string;
@@ -416,6 +658,9 @@ export type Copy = {
     m31: string;
     plate: string;
     plateHint: string;
+    dqComplete: string;
+    dqDet: string;
+    dqNiche: Record<"thin" | "fair" | "clean", string>;
   };
   desk: {
     title: string;
@@ -427,6 +672,9 @@ export type Copy = {
     empty: string;
     accept: string;
     ess: string;
+    walker: string;
+    walkerMh: string;
+    walkerHmc: string;
     map: string;
     mean: string;
     prior: string;
@@ -446,6 +694,8 @@ export type Copy = {
     pairing: string;
     marginals: string;
     trace: string;
+    chains: string;
+    chainsHint: string;
     exportTitle: string;
     fitsGalaxy: string;
     fitsMcmc: string;
@@ -483,6 +733,34 @@ const en: Copy = {
   birth: "Birth a universe",
   birthWitness: "A new sky. Most stay empty. Survey 64 is the foothold.",
   birthGood: "And I saw that it was good.",
+  tapSky: "A blink. Look — do not land.",
+  scanning: "Sixty-four envelopes. Most are silence.",
+  plot: {
+    arrive: "Posted to watch. The first sky is not required to care.",
+    empty: "Another empty. The log still wants a number.",
+    dice: "I have thrown the dice enough to know the joke.",
+    foothold: "Water is allowed. That is not the same as anyone home.",
+    teeming: "Too much life to be a museum. Still not a census.",
+    silicon: "Heat is allowed. Water is not the only solvent.",
+    tide: "A wave is allowed. That is a clock, not a fleet.",
+    enduring: "Remnants could think without bound. I am not one of them.",
+    hard: "This sky ended in a hurry. The work is to log it and throw again.",
+    blink: "A blink in the disk. Look. Do not land.",
+    survey: "Sixty-four envelopes. Most will be silence.",
+    home: "These are our numbers. Birth throws the rest.",
+    cluster: "A cluster elliptical. Magorrian on, a radio lobe. Not Virgo.",
+    dwarf: "A dwarf irregular. Quiet hole, minor encounter. Not a census.",
+    highway: "One road, two lanes. No towns for a Hubble time.",
+    belt: "Sparse ice. The mass that still moves is cold.",
+    desert: "A desert epoch. Expansion won before chemistry.",
+    caughtWow: "Seventy-two seconds at the hydrogen line. Nobody signed it.",
+    caughtThroat: "A throat in the metric. I did not step through.",
+    caughtClassified: "The plate is black. The constants are not.",
+    caughtTau: "Twelve light-years. A quiet G star. Still no alphabet.",
+    caughtZone: "Submitted for your approval: a law you just wrote.",
+    caughtWhale: "Something large in the last ice. I only looked.",
+    done: "The atlas is sealed. I am still on the night shift.",
+  },
   survey: "Survey 64",
   ours: "Our universe",
   fate: "Fate",
@@ -557,15 +835,15 @@ const en: Copy = {
   onboarding: [
     {
       title: "Most skies stay empty",
-      body: "Random constants almost never make stars. Birth anyway. Survey 64 if the sky is empty.",
+      body: "Random constants almost never make stars. Birth anyway. If the disk blinks, look. Do not land. Survey 64 if the sky is empty.",
     },
     {
       title: "Six constants",
       body: "Lab reads this sky first. Levers wait under Sculpt. Grey ticks are home.",
     },
     {
-      title: "Three corridors",
-      body: "Carbon wants quiet water. Silicon, heat. Eternal thought, almost no dark energy.",
+      title: "Four corridors",
+      body: "Carbon wants quiet water. Silicon, heat. Eternal thought, almost no dark energy. A self-replicating tide wants time and metals. Ten skies to witness. That is the work.",
     },
   ],
   fateLabel: {
@@ -620,13 +898,13 @@ const en: Copy = {
       label: "Matter density",
       low: "thin",
       high: "dense",
-      hint: "Fuel for stars and galaxies. Too little and nothing collapses; too much and the universe recollapses.",
+      hint: "Fuel for stars and galaxies — baryons plus the halo. Too little and nothing collapses; too much and the universe recollapses. The dark-matter share is this density after a thin baryon loading.",
     },
     complexity: {
       label: "Initial order",
       low: "smooth",
       high: "structured",
-      hint: "How organized the primordial overdensities are. Smooth fields stay fog.",
+      hint: "How organized the primordial overdensities are. Smooth fields stay fog. Also loads the baryons: more order, thicker baryon share, thinner halo.",
     },
     quantumNoise: {
       label: "Quantum noise",
@@ -668,11 +946,11 @@ const en: Copy = {
   tapToHear: "Tap to hear the sky",
   help: "How this works",
   helpTitle: "How to use the laboratory",
-  helpIntro: "Three rooms: Sky, Lab, Log. Six constants. Three corridors where a mind might live.",
+  helpIntro: "Three rooms: Sky, Lab, Log. Six constants. Four corridors. Known skies include home, a cluster elliptical, a dwarf.",
   helpItems: [
     {
       title: "Sky",
-      body: "Birth draws new constants. Survey 64 hunts a foothold. Inside stands in the disk.",
+      body: "The field is the work. You are posted to watch. Birth is a dispatch. Most skies stay empty. If the disk blinks, look. Do not land. Survey 64 hunts a foothold.",
     },
     {
       title: "Lab · Const",
@@ -706,7 +984,37 @@ const en: Copy = {
       title: "Music",
       body: "The speaker starts a quiet pad. Settings → Music lets you play a file from this device.",
     },
+    {
+      title: "The work",
+      body: "Ten skies to witness. Dots under the chips. Tap them. Physics is not a score.",
+    },
+    {
+      title: "Canon",
+      body: "A quiet line under the clock follows epoch and fate — Genesis, the Psalms, Job, Isaiah. Tap the citation. Settings can hide it. Witness, not a measurement.",
+    },
+    {
+      title: "Tide",
+      body: "A fourth envelope: self-replicating probes as a clock, not a series. Known skies → Tide. Type vnm.",
+    },
+    {
+      title: "Side roads",
+      body: "Codes, not a franchise. a51 classifies a plate. r60 is a Hubble-long road. ice is a thin cold economy. wow is a 72-second spike. wit: look, don’t land. gt is a throat, not a door. zon rewrites the law for a few seconds.",
+    },
+    {
+      title: "A copy",
+      body: "The lab stays free. A Windows or Linux window is 15 USDT. Open the desk, stamp a plate, write on X. Not a lock on the sky.",
+    },
   ],
+  scripture: {
+    title: "Canon",
+    kicker: "Witness",
+    intro:
+      "Ancient lines beside the instrument. Not a measurement, not a proof of the physics. The sky still answers in constants.",
+    open: "Open canon",
+    line: "Scripture under the clock",
+    source: "Read the passage",
+    hint: "The line follows cosmic time and fate. English is KJV; Russian and Belarusian follow the Synodal sense. Links open Bible Gateway.",
+  },
   labPaneHint: {
     constants: "A reading of this sky. Levers under Sculpt. Grey ticks are home.",
     hunt: "The prior, mapped. Load a find onto the sky.",
@@ -715,10 +1023,10 @@ const en: Copy = {
     desk: "The posterior starts walking. Then export, classify.",
   },
   shortcutsTitle: "Keys",
-  shortcutsBody: "B birth · S survey · R refine · E evolve · tau · 1 sky · 2 lab · 3 log · Esc close",
+  shortcutsBody: "B birth · S survey · R refine · E evolve · [ ] time · Space look · tau · 1 sky · 2 lab · 3 log · Esc close",
   astroTitle: "Astrophysics (homology)",
   astroHint:
-    "Scaled from the constants, not a Boltzmann solver. For our universe the numbers sit near Planck H₀, 13.8 Gyr, and a Milky-Way-sized disk.",
+    "Scaled from the constants. For our sky: Planck H₀, 13.8 Gyr, a Milky-Way disk. The clock's Now is today: a=1, T=2.725 K.",
   astroHubble: "Hubble analog",
   astroAge: "Age analog",
   astroGalaxy: "Disk radius",
@@ -729,28 +1037,63 @@ const en: Copy = {
   presetSilicon: "Silicon corridor",
   presetDesert: "Desert epoch",
   presetEternal: "Dyson corridor",
+  presetSwarm: "Tide corridor",
+  presetHighway: "The long road",
+  presetBelt: "Ice belt",
+  presetCluster: "Cluster elliptical",
+  presetDwarf: "Dwarf irregular",
   replayIntro: "Replay introduction",
   clearLog: "Clear log",
   clearLogConfirm: "Tap again to clear",
   aboutTitle: "About",
-  aboutBody: "A cosmological laboratory on this machine. Sculpt the constants, watch a galaxy, hunt three thin corridors where a mind might live.",
+  aboutBody: "A cosmological laboratory on this machine. Sculpt the constants, watch a galaxy, hunt four thin corridors where a mind might live.",
   studioHonesty: "The physics is not for sale. Corridors are envelopes, not a census you can buy.",
   studioFreeTitle: "The lab stays free",
   studioFreeBody: "Sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal stays on this device.",
   studioKeepTitle: "Keep a copy",
-  studioKeepBody: "Install the free lab here. A Windows or Linux copy is one-time, 15 USDT on BNB Smart Chain, or Bitcoin — a window, no browser, offline, after you write on X with the tx. macOS later. Not a lock on the sky. Addresses below. The build is unsigned; SmartScreen may warn.",
+  studioKeepBody: "Install the free lab here. A Windows or Linux copy is one-time, 15 USDT on BNB Smart Chain, or Bitcoin — a window, no browser, offline, after you stamp a plate and write on X. macOS later. Not a lock on the sky. The build is unsigned; SmartScreen may warn.",
   studioSupportTitle: "A copy you can take",
-  studioSupportBody: "One-time, 15 USDT (BEP20) or the same in Bitcoin. Windows and Linux after the tx. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
+  studioSupportBody: "One-time, 15 USDT (BEP20) or the same in Bitcoin. Windows and Linux after the plate. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
   studioEnterCta: "Enter the laboratory",
   studioReserveCta: "Order a copy · 15 USDT",
   studioOrderText: "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Sending the tx.",
   payWarn: "Only BEP20 for USDT, Native Segwit for Bitcoin. Any other network burns the transfer.",
-  payAfter: "After you send, write on X with the transaction. That is how the copy finds you.",
+  payAfter: "After you send, stamp a plate, then write on X. That is how the copy finds you.",
   payCopy: "Copy address",
+  keep: {
+    title: "Keep the instrument",
+    kicker: "Desktop copy",
+    lead: "The lab stays free. A window on your machine is one-time, 15 USDT.",
+    includedTitle: "What you take",
+    included:
+      "Windows or Linux. Offline. The same laboratory. The build is unsigned; SmartScreen may warn. macOS later.",
+    notTitle: "What you do not buy",
+    notBody: "Not the physics. Not a census. Not a lock on the web lab. Not a subscription.",
+    stepsTitle: "Three steps",
+    step1: "Send 15 USDT on BEP20, or the same value in Bitcoin on Native Segwit.",
+    step2: "Paste the transaction. This device writes a plate — your copy of the settlement, not a lock.",
+    step3: "Write on X with the plate and which window you want — Windows or Linux. The author writes back with the zip. Not a store. Not instant.",
+    amount: "one-time",
+    txLabel: "Transaction",
+    txPlaceholder: "0x… or 64-character txid",
+    mintCta: "Make the plate",
+    plateLabel: "Plate",
+    receiptHint: "Keep this. Send it with the tx. The author writes back on X with the window. The lab on the web stays open without it.",
+    writeCta: "Write on X with the plate",
+    roomTitle: "A room, a class, a hall",
+    roomBody: "Classrooms, planetariums, exhibition: write with the size of the room. That license is separate.",
+    roomCta: "Write for a room license",
+    roomOrderText: "Hello. Classroom or planetarium license for Genesis Engine. Room size:",
+    saveCta: "Save the plate",
+    invalidTx: "That does not look like a transaction.",
+    openCta: "Keep a copy · 15 USDT",
+    orderText:
+      "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Plate {plate}. Tx {tx}. Need Windows / Linux:",
+  },
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
-  version: "Version 1.24",
+  version: "Version 1.25",
   eggs: {
     answer: "The catalog of this sky contains 42.",
     whale: "A whale is drifting in the last ice. Jump the clock to End to see it.",
@@ -766,6 +1109,14 @@ const en: Copy = {
     thought: "Deep Thought. The answer was 42. This is that sky.",
     dot: "A pale blue pixel. That’s us — if these constants are our universe.",
     tau: "Tau Ceti is twelve light-years out — a quiet G star with dusty worlds. Nobody has answered. Vysotsky’s song is a homology, not a census: if anyone lives there, they may not share our alphabet, our humour, or our way of becoming more.",
+    tide: "A self-replicating wave is allowed by the clock. Hart and Tipler, not a franchise. Fermi’s silence is still the data.",
+    fiftyone: "The plate is classified. The constants are not.",
+    highway: "One road, two lanes, no towns for a Hubble time. Keep the towel.",
+    zone: "Submitted for your approval: a sky whose only law is the one you just wrote.",
+    ice: "The ice is the only mass that still moves. A belt, not a census — and not a series.",
+    wow: "A narrowband spike, seventy-two seconds, at the hydrogen line. Big Ear, 1977. Homology, not a telegram.",
+    witness: "The work is to look. Not to land. Not to answer for them.",
+    throat: "A traversable throat is allowed by the metric — Morris and Thorne, 1988. Geometry, not a door.",
   },
   thisIsOurs: "These constants match our universe — ΛCDM, as we measure it.",
   compareTitle: "Versus our universe",
@@ -885,12 +1236,60 @@ const en: Copy = {
   eternalVsLife: "Versus carbon and silicon",
   eternalCaveat:
     "Allowed is not inevitable. A mind that lives forever is a loophole in cosmology, still hostage to unknown particle physics.",
+  swarm: "Tide",
+  swarmTitle: "Von Neumann envelope",
+  swarmHint:
+    "Not a television swarm. If a mind can build one self-replicating probe, Hart (1975) and Tipler (1980) argued a galaxy-crossing wave is a clock, not a miracle. Fermi’s silence is the observation. This number is permission, not a detection.",
+  swarmNote: {
+    silent: "No hop. No metals, no host, or the sky rips first.",
+    seed: "A launch is not forbidden. The disk is not eaten. Fermi still holds.",
+    bloom: "Replication and crossing times fit the stellar clock. A wave could run.",
+    tide: "Peak of the envelope. A self-replicating ecology is allowed — not observed.",
+  },
+  swarmFactors: {
+    host: "Host mind",
+    metals: "Metals",
+    reach: "Reach",
+    clock: "Hop clock",
+  },
+  swarmOpen: "Open tide dossier",
+  swarmWhy: "Why the galaxy is not grey",
+  swarmFacts: [
+    "Hart 1975: a technological species with modest probes fills the Milky Way in a few million years — far shorter than the stellar clock.",
+    "Tipler 1980: a self-replicating spacecraft is a von Neumann machine. If physics allows one, physics allows a tide.",
+    "Fermi’s question remains the data: we do not see the tide. The envelope says whether a sky could host one, not that it has.",
+  ],
+  swarmThisSky: "This sky",
+  swarmHops: "Hop analog",
+  swarmCrossing: "Crossing analog",
+  swarmMetal: "Metal index",
+  swarmHost: "Host envelope",
+  swarmFactorHint: {
+    host: "Someone has to build the first machine. Carbon or silicon both count. No mind, no seed.",
+    metals: "Probes eat structure. Generations of stars and a dense disk seed the feedstock.",
+    reach: "Slow Hubble flow and a milder Λ keep disks in range. Our H₀ and ΩΛ stretch the hop.",
+    clock: "The stellar era has to outlast a crossing. A flash sky never launches.",
+  },
+  swarmBlockers: "What vetoes this sky",
+  swarmBlocker: {
+    host: "No mind corridor. Nothing to assemble the first probe.",
+    metals: "Too little structure or too few stellar generations. No feedstock.",
+    reach: "Expansion or dark energy puts the next disk out of range.",
+    clock: "Stars die before a hop completes.",
+    fog: "No galaxies. Nowhere to hop.",
+    crunch: "Recollapse comes before the wave.",
+    rip: "Acceleration shreds the route.",
+  },
+  swarmNoVeto: "No cosmological veto. What remains is engineering we have not seen — and Fermi’s empty sky.",
+  swarmCaveat:
+    "A tide is a loophole of clocks and metals. It is not a census of machines, and it is not a show.",
   refine: "Refine sky",
   more: "More skies",
   closePanel: "Close",
   foldCorridors: "Life corridors",
   foldObs: "Observatory",
   foldSculpt: "Sculpt the constants",
+  labCue: "Read this sky in Lab.",
   skies: "Known skies",
   appearance: "Appearance",
   contrast: "High contrast",
@@ -909,8 +1308,8 @@ const en: Copy = {
     modeHint: {
       galaxy: "Look at the whole disk from outside.",
       planetarium: "Stand on a world inside the disk and drag the sky.",
-      lensing: "Background galaxies warp around the unseen dark-matter halo.",
-      collision: "Two galaxies fall together. Tidal tails, then one remnant.",
+      lensing: "Background sources shear into arcs around the Einstein radius. An SIS halo homology, not a ray tracer.",
+      collision: "Stars beyond the tidal radius become tails. Not GADGET. Mass ratio sets the remnant.",
     },
     evolve: "Play cosmic time",
     evolving: "Pause cosmic time",
@@ -937,11 +1336,11 @@ const en: Copy = {
       inflation:
         "A burst of expansion. The sky is a hot fog; no atoms, no galaxies, no night.",
       recombination:
-        "Electrons lock to nuclei. The universe becomes transparent — the last scattering surface.",
+        "Electrons lock to nuclei. The sky is the last-scattering wall. Cells are enlarged so ℓ₁ is visible.",
       darkAges:
-        "Neutral hydrogen, no stars. Structure is still a whisper in the dark.",
+        "Neutral hydrogen. The wall has cooled. Same acoustic cells, now absorption. 21 cm is a radio line — not a colour.",
       reionization:
-        "The first stars burn holes in the fog. Light returns to the cosmos.",
+        "The first stars burn H II holes in the fog. Light returns to the cosmos.",
       stellar:
         "Galaxies assembled. Stars live, die, and seed metals. This is the era that can host chemistry.",
       degeneracy:
@@ -959,7 +1358,214 @@ const en: Copy = {
     env: "Environment",
     envLabel: { field: "Field", group: "Group", cluster: "Cluster" },
     dm: "Dark matter share",
+    baryons: "Baryons",
+    dmHint:
+      "Ωc / Ωm analog. Baryons are a thin loading from initial order; the rest of the matter is the halo. Not a particle. Halo mode is the detection — arcs sit on the Einstein radius.",
+    rotationCurve: "Rotation curve",
+    rotationHint:
+      "Visible mass falls as 1/√r. A halo holds the outer disk. Homology of Rubin's curves, not a SPARC fit.",
+    rotationBaryon: "Baryons only",
+    rotationHalo: "This sky",
+    rotationR: "radius →",
+    rotationV: "km/s",
+    tfTitle: "Tully–Fisher",
+    tfHint: "Baryonic mass vs v⁴. Our sky pins the ridge. Not SPARC, not MOND.",
+    tfNiche: {
+      below: "Halo-heavy",
+      ridge: "Ridge",
+      above: "Baryon-rich",
+    },
+    tfRatio: "M_b / v⁴",
+    rarTitle: "g_obs vs g_bar",
+    fjTitle: "Faber–Jackson",
+    fjHint: "L ∝ σ⁴ if size scales as √M. A projection of the plane. Noise puffs Re. Not SPARC.",
+    fjSigma: "σ",
+    fjRatio: "L / σ⁴",
+    fpTitle: "Fundamental plane",
+    fpHint: "Dynamical Υ(M) is a U: dwarfs and giants high, L* the valley. Not stellar Υ*, not SPS.",
+    fpNiche: {
+      tight: "On plane",
+      tilted: "Tilted",
+      off: "Off plane",
+    },
+    fpRe: "Re",
+    fpIe: "Ie",
+    fpResidual: "Re / plane",
+    fpMl: "Υ",
+    fpMlBranch: {
+      dwarf: "Dwarf",
+      valley: "Valley",
+      giant: "Giant",
+    },
+    fpSersic: "n",
+    fpMass: "mass →",
+    imfTitle: "IMF",
+    imfHint: "IMF sets recycling, yield and SN heating. Top-heavy returns gas and cores the halo. Bottom-heavy locks mass. Not a chemical model.",
+    imfNiche: {
+      top: "Top-heavy",
+      chabrier: "Chabrier",
+      salpeter: "Salpeter",
+      bottom: "Bottom-heavy",
+    },
+    imfSlope: "x",
+    imfStar: "Υ*",
+    imfMean: "⟨m⟩",
+    imfSn: "m>8",
+    imfR: "R",
+    imfY: "y",
+    massTitle: "Stellar mass",
+    massHint: "Photometry assumes Chabrier. Virial is mass inside Re. Lens is mass inside θE. They are not the same number.",
+    massNiche: {
+      agree: "Agree",
+      imf: "IMF bias",
+      halo: "Halo in the well",
+      split: "Split",
+    },
+    massPhot: "M_phot",
+    massVirial: "M_vir",
+    massLens: "M_lens",
+    bhTitle: "SMBH",
+    bhHint: "The jet is a kpc funnel. Streams, β and Φ live at the horizon. Not HARM, not EHT.",
+    bhNiche: {
+      quiet: "Quiet",
+      maintain: "Radio mode",
+      quasar: "Quasar",
+      quench: "Quenched",
+    },
+    bhMagorrian: "M_BH / M_bulge",
+    bhSoi: "r_soi / Re",
+    agnMode: {
+      off: "Off",
+      wind: "Wind",
+      jet: "Jet",
+    },
+    agnDrive: {
+      none: "—",
+      momentum: "Momentum",
+      energy: "Energy",
+    },
+    agnLambda: "λ",
+    agnHeat: "heat",
+    grmhdState: {
+      sane: "SANE",
+      mad: "MAD",
+      thin: "Thin disk",
+    },
+    grmhdSpin: "a*",
+    grmhdEff: "ε_NT",
+    grmhdBz: "P_BZ",
+    grmhdBp: "P_BP",
+    grmhdOmega: "Ω_F / Ω_H",
+    grmhdGeom: {
+      monopole: "Monopole",
+      parabolic: "Parabolic",
+    },
+    grmhdWin: {
+      bz: "Horizon",
+      bp: "Disk wind",
+      none: "Silent",
+    },
+    grmhdSpinE: "E_spin",
+    grmhdEta: "η_BZ",
+    grmhdBeta: "β",
+    grmhdRam: "P_B / P_ram",
+    fluxAdv: "t_diff / t_adv",
+    fluxNiche: {
+      diffuse: "Slips",
+      advect: "Dragged in",
+      expel: "Expelled",
+    },
+    madSigma: "σ",
+    madFill: "streams r_g",
+    madFlicker: "flicker",
+    madAdaf: "ADAF",
+    madFr: {
+      none: "—",
+      fri: "FR I",
+      frii: "FR II",
+    },
+    haloTitle: "Halo analysis",
+    haloHint:
+      "Einasto in 3D, NFW for the lens, Burkert an empirical core, coreNFW a heated dwarf. Not a live N-body.",
+    haloNiche: {
+      keplerian: "Keplerian",
+      partial: "Partial",
+      held: "Held",
+      heavy: "Heavy",
+    },
+    haloNicheHint: {
+      keplerian: "Outer stars follow the visible mass. The halo is too thin to hold the disk.",
+      partial: "Some extra speed at large radius. Not yet a Rubin curve.",
+      held: "The outer disk is too fast for baryons. This is the detection.",
+      heavy: "Almost all the matter is unseen. The disk sits in a deep well.",
+    },
+    haloFactor: {
+      share: "Dark-matter share",
+      rotation: "Outer-disk support",
+      lens: "Einstein radius",
+      clustering: "Clustering",
+    },
+    haloOuter: "Outer disk",
+    haloBaryonV: "Baryons only",
+    haloTheta: "θE",
+    haloC: "c",
+    haloRs: "rs",
+    haloContract: "Contraction",
+    haloCore: "rc",
+    haloKappa: "⟨κ⟩",
+    haloKs: "κs",
+    haloEinasto: "α",
+    haloModel: {
+      einasto: "Einasto",
+      nfw: "NFW",
+      burkert: "Burkert",
+      corenfw: "coreNFW",
+      isothermal: "Isothermal",
+    },
+    haloCompare: "ρ(r)/ρ(rs)",
     cmb: "CMB",
+    acousticTitle: "Acoustic peaks",
+    acousticHint:
+      "Photon-baryon fluid at last scattering. Odd peaks load with baryons; the third feels the halo. Cells on the wall are enlarged; ℓ₁ is the number.",
+    acousticEll: "ℓ₁",
+    acousticEll3: "ℓ₃",
+    acousticOddEven: "Odd / even",
+    acousticLoad: "Baryon load",
+    twentyOne: "21 cm",
+    hii: "H II",
+    diskTitle: "Disk hydrodynamics",
+    diskHint: "Toomre Q on a radial mesh. Plummer floor at the core. Not SPH, not a live hydro.",
+    diskQ: "Q",
+    diskPitch: "Pitch",
+    diskShear: "Shear",
+    diskKappa: "κ",
+    diskMesh: "Mesh",
+    diskQ1: "Q = 1",
+    diskPlummer: "a",
+    diskNiche: {
+      rigid: "Rigid",
+      hot: "Hot",
+      marginal: "Marginal",
+      fragmenting: "Fragmenting",
+    },
+    diskNicheHint: {
+      rigid: "Little shear. A bulge or elliptical: no density wave.",
+      hot: "Q is high. The disk is too warm to ring into arms.",
+      marginal: "Q ~ 1–2. Spiral waves live here. Inner stars lap the edge.",
+      fragmenting: "Q ≲ 1. Self-gravity wins. The disk breaks into clumps.",
+    },
+    acousticNiche: {
+      silent: "Silent",
+      damped: "Damped",
+      clear: "Clear",
+      loaded: "Loaded",
+    },
+    acousticNicheHint: {
+      silent: "No last-scattering contrast. The wall never rang.",
+      damped: "Silk damping washes the ladder. High-ℓ peaks die.",
+      clear: "A voiced ladder. First peak near ℓ 220 is our sky's scale.",
+      loaded: "Baryons weight the odd compressions. Even peaks sit low.",
+    },
     hrTitle: "Stellar population",
     hrHint:
       "Hertzsprung–Russell analog: temperature against luminosity. Massive stars race off the main sequence; remnants collect at the dim end.",
@@ -973,13 +1579,14 @@ const en: Copy = {
   labPanes: { constants: "Const", hunt: "Hunt", life: "Life", laws: "Laws", desk: "Desk" },
   research: {
     title: "Expedition",
-    hint: "Three agents on the closed-form physics — not a trained net. Observer draws a mixed prior (wild draws plus all three corridors). Theorist hill-climbs. Analyst permutes each constant and measures how hard the score moves.",
+    hint: "Three agents on the closed-form physics — not a trained net. Observer draws a mixed prior (wild draws plus all four corridors). Theorist hill-climbs. Analyst permutes each constant and measures how hard the score moves.",
     run: "Run expedition",
     running: "Mapping the prior…",
     target: {
       carbon: "Carbon",
       silicon: "Silicon",
       eternal: "Eternity",
+      swarm: "Tide",
       overall: "Either",
       diversity: "Both",
     },
@@ -987,13 +1594,15 @@ const en: Copy = {
       carbon: "Search the quiet water corridor.",
       silicon: "Search the hot, reducing corridor.",
       eternal: "Search the near-zero-Λ Dyson loophole.",
-      overall: "Take the better of carbon, silicon, or eternity.",
+      swarm: "Search the von Neumann corridor — a self-replicating reach, not a fifth chemistry.",
+      overall: "Take the better of carbon, silicon, eternity, or the tide.",
       diversity: "Rare skies where both chemistries are open.",
     },
     sample: "Prior",
     viableC: "Carbon-viable",
     viableSi: "Silicon-viable",
     viableEt: "Dyson-open",
+    viableSw: "Tide-open",
     corr: "C–Si correlation",
     percentile: "This sky in the prior",
     importance: "What the prior cares about",
@@ -1031,6 +1640,8 @@ const en: Copy = {
         "Dark energy is the hinge of eternity. A de Sitter horizon (ΩΛ ≳ 0) is the Krauss–Starkman veto.",
       eternalRare:
         "Dyson-open draws are scarce. Most random constants light a horizon, crunch, or leave no remnants.",
+      tideRare:
+        "Tide-open draws are scarce. Most random constants stall the host or stretch disks too far for a self-replicating reach.",
     },
   },
   civ: {
@@ -1048,6 +1659,7 @@ const en: Copy = {
     ships: "Diaspora analog",
     routes: "Thin diaspora analog",
     spend: "Carrying × stellar generations — energy a mind could spend, not a treasury and not a fleet.",
+    quiet: "Nobody is shouting. Fermi’s silence is the datum — not a series.",
     collapsed: "The ecology analog collapses — recollapse, runaway, or extraction outruns growth.",
     persists:
       "Heat death does not close this window. If Λ stays near zero, remnant minds can slow without bound — Dyson, not rapture.",
@@ -1067,6 +1679,95 @@ const en: Copy = {
       complex: "Whether generations of stars seed metals without shredding disks.",
       minds: "Whether stability and order leave room for information-rich systems.",
       tech: "Whether a mind, if it appears, has energy and time to build.",
+    },
+  },
+  mandate: {
+    title: "The work",
+    hint: "An observatory thesis, not a score. Ten skies to witness. Physics is not for sale.",
+    next: "Next",
+    sealed: "Sealed",
+    openLabel: "Open",
+    done: "The atlas is sealed. The sky still turns.",
+    progress: "{n} of {m}",
+    open: "The work",
+    atlasTick: "{fate}. Atlas {n} of {m}.",
+    atlasHave: "Logged",
+    atlasNeed: "Still to see",
+    chapters: {
+      witness: {
+        title: "First light",
+        body: "Witness a sky. Any constants. Most stay empty.",
+        hint: "Birth a universe.",
+      },
+      corridor: {
+        title: "A corridor",
+        body: "Habitable, teeming, or enduring. A foothold for chemistry.",
+        hint: "Survey 64 if the sky is empty.",
+      },
+      home: {
+        title: "Home",
+        body: "Stand in ΛCDM. Grey ticks on the levers are our numbers.",
+        hint: "Our universe.",
+      },
+      silicon: {
+        title: "Silicon niche",
+        body: "Heat and pressure, not water. Speculative, but allowed.",
+        hint: "Known skies → Silicon, or Hunt.",
+      },
+      eternal: {
+        title: "Dyson loophole",
+        body: "Λ near zero. Remnant minds could slow without bound — Dyson, not rapture.",
+        hint: "Known skies → Eternal.",
+      },
+      tide: {
+        title: "Von Neumann tide",
+        body: "A self-replicating wave is a clock problem. Hart, Tipler — not a franchise.",
+        hint: "Known skies → Tide.",
+      },
+      diaspora: {
+        title: "Thin diaspora",
+        body: "Carrying × generations. Energy a mind could spend — not a fleet.",
+        hint: "Refine a living sky.",
+      },
+      atlas: {
+        title: "Five fates",
+        body: "Void, crunch, rip, flash, fog, sterile, enduring, habitable, teeming. Log five.",
+        hint: "Birth until the atlas thickens.",
+      },
+      chronicle: {
+        title: "Field note",
+        body: "Commission a chronicle. Numbers, then a sentence.",
+        hint: "Lab → Const → Write field note.",
+      },
+      keep: {
+        title: "A keeper",
+        body: "Star a sky worth keeping. The log remembers.",
+        hint: "The star next to the name.",
+      },
+    },
+    flash: {
+      witness: "First light. The work begins.",
+      corridor: "A corridor. Something could live.",
+      home: "Home. Grey ticks, our numbers.",
+      silicon: "Silicon niche. Heat, not water.",
+      eternal: "Dyson loophole. Λ almost gone.",
+      tide: "Von Neumann tide. A clock, not a show.",
+      diaspora: "Thin diaspora analog. Not a fleet.",
+      atlas: "Five fates. The atlas thickens.",
+      chronicle: "A field note. The desk remembers.",
+      keep: "A keeper. Starred against the void.",
+    },
+    cue: {
+      witness: "Birth a universe.",
+      corridor: "Survey 64 — hunt a foothold.",
+      home: "Our universe — stand in ΛCDM.",
+      silicon: "Find a silicon niche. Known skies, or Hunt.",
+      eternal: "Find the Dyson loophole. Almost no dark energy.",
+      tide: "Find a von Neumann tide. Closer disks, more metals.",
+      diaspora: "Refine a living sky until a thin diaspora appears.",
+      atlas: "Birth until five fates sit in the log.",
+      chronicle: "Lab → Const. Write a field note.",
+      keep: "Star a sky worth keeping.",
     },
   },
   bio: {
@@ -1180,7 +1881,7 @@ const en: Copy = {
     },
     catalog: "Pan-STARRS plate",
     catalogHint:
-      "A real MAST cone from Pan-STARRS DR2. Plotted in RA/Dec — a separate layer, not mixed into the simulated disk. Default is the M31 nucleus.",
+      "A real MAST cone from Pan-STARRS DR2. Quality is gri completeness and nDet, not a flag bit. Default is the M31 nucleus.",
     ra: "RA °",
     dec: "Dec °",
     radius: "Radius °",
@@ -1198,6 +1899,13 @@ const en: Copy = {
     m31: "M31 nucleus",
     plate: "Pan-STARRS DR2",
     plateHint: "Real catalog, not this simulated sky.",
+    dqComplete: "gri",
+    dqDet: "⟨nDet⟩",
+    dqNiche: {
+      thin: "Thin",
+      fair: "Fair",
+      clean: "Clean",
+    },
   },
   desk: {
     title: "Observatory desk",
@@ -1210,6 +1918,9 @@ const en: Copy = {
     empty: "Run a walk to see the chain in 3D. Most random constants are dead — the cloud should hug a thin corridor if this sky is informative.",
     accept: "Accept",
     ess: "ESS",
+    walker: "Walker",
+    walkerMh: "Metropolis",
+    walkerHmc: "HMC leapfrog",
     map: "MAP",
     mean: "Mean",
     prior: "Uniform prior",
@@ -1230,6 +1941,8 @@ const en: Copy = {
     pairing: "Strongest pairing",
     marginals: "Marginals",
     trace: "log L",
+    chains: "Chains",
+    chainsHint: "Step on the x-axis. A stuck walk is a flat line. Not emcee.",
     exportTitle: "Publish",
     fitsGalaxy: "FITS disk",
     fitsMcmc: "FITS chain",
@@ -1275,6 +1988,34 @@ const ru: Copy = {
   birth: "Родить вселенную",
   birthWitness: "Новое небо. Большинство пусты. Обзор 64 — опора.",
   birthGood: "И увидел я, что это хорошо.",
+  tapSky: "Мигание. Смотрите — не садитесь.",
+  scanning: "Шестьдесят четыре конверта. Большинство — тишина.",
+  plot: {
+    arrive: "Назначен смотреть. Первому небу нет дела, что я здесь.",
+    empty: "Опять пусто. Журналу всё ещё нужна цифра.",
+    dice: "Костей брошено достаточно, чтобы понять шутку.",
+    foothold: "Вода дозволена. Это не то же самое, что кто-то дома.",
+    teeming: "Слишком много жизни для музея. Всё ещё не перепись.",
+    silicon: "Жар дозволен. Вода — не единственный растворитель.",
+    tide: "Волна дозволена. Это часы, не флот.",
+    enduring: "Остатки могли бы мыслить без границы. Я — не они.",
+    hard: "Это небо кончилось быстро. Работа — записать и бросить снова.",
+    blink: "Мигание в диске. Смотреть. Не садиться.",
+    survey: "Шестьдесят четыре конверта. Большинство будут тишиной.",
+    home: "Это наши числа. Рождение бросает остальные.",
+    cluster: "Кластерное эллиптическое. Magorrian включён, радиолопасть. Не Virgo.",
+    dwarf: "Карлик. Тихая дыра, мелкое слияние. Не перепись.",
+    highway: "Одна дорога, две полосы. Ни города за время Хаббла.",
+    belt: "Редкий лёд. Движется только холодная масса.",
+    desert: "Пустынная эпоха. Расширение победило до химии.",
+    caughtWow: "Семьдесят две секунды на линии водорода. Никто не подписался.",
+    caughtThroat: "Горловина в метрике. Я не шагнул.",
+    caughtClassified: "Пластинка чёрная. Константы — нет.",
+    caughtTau: "Двенадцать световых лет. Тихая G-звезда. Алфавита всё нет.",
+    caughtZone: "Представляем вашему вниманию закон, который вы только что написали.",
+    caughtWhale: "В последнем льду что-то большое. Я только смотрел.",
+    done: "Атлас запечатан. Я всё ещё в ночной смене.",
+  },
   survey: "Обзор 64",
   ours: "Наша вселенная",
   fate: "Судьба",
@@ -1349,15 +2090,15 @@ const ru: Copy = {
   onboarding: [
     {
       title: "Большинство небес пусты",
-      body: "Случайные константы почти никогда не дают звёзд. Родите всё равно. Обзор 64 — если небо пустое.",
+      body: "Случайные константы почти никогда не дают звёзд. Родите всё равно. Мигнул диск — смотрите, не садитесь. Обзор 64 — если небо пустое.",
     },
     {
       title: "Шесть констант",
       body: "Лаб сначала читает небо. Рычаги — под «Лепить». Серые метки — дом.",
     },
     {
-      title: "Три коридора",
-      body: "Углероду — тихая вода. Кремнию — жар. Вечной мысли — почти без тёмной энергии.",
+      title: "Четыре коридора",
+      body: "Углероду — тихая вода. Кремнию — жар. Вечной мысли — почти без тёмной энергии. Самовоспроизводящемуся приливу — время и металлы. Десять небес. Это и есть работа.",
     },
   ],
   fateLabel: {
@@ -1412,13 +2153,13 @@ const ru: Copy = {
       label: "Плотность материи",
       low: "редкая",
       high: "густая",
-      hint: "Топливо звёзд и галактик. Слишком мало — нечему схлопнуться; слишком много — всё падает обратно.",
+      hint: "Топливо звёзд и галактик — барионы плюс гало. Слишком мало — нечему схлопнуться; слишком много — всё падает обратно. Доля тёмной материи — это плотность после тонкой барионной загрузки.",
     },
     complexity: {
       label: "Начальный порядок",
       low: "гладко",
       high: "структура",
-      hint: "Насколько организованы первичные сгустки. Гладкое поле остаётся туманом.",
+      hint: "Насколько организованы первичные сгустки. Гладкое поле остаётся туманом. Также грузит барионы: больше порядка — толще барионная доля, тоньше гало.",
     },
     quantumNoise: {
       label: "Квантовый шум",
@@ -1461,11 +2202,11 @@ const ru: Copy = {
   tapToHear: "Нажмите, чтобы услышать небо",
   help: "Как это устроено",
   helpTitle: "Как пользоваться лабораторией",
-  helpIntro: "Три комнаты: Небо, Лаб, Журнал. Шесть констант. Три коридора, где ум может жить.",
+  helpIntro: "Три комнаты: Небо, Лаб, Журнал. Шесть констант. Четыре коридора. В известных небесах — дом, кластерное эллиптическое, карлик.",
   helpItems: [
     {
       title: "Небо",
-      body: "«Родить» бросает константы. «Обзор 64» ищет опору. «Изнутри» — диск.",
+      body: "Поле — это работа. Вас поставили смотреть. «Родить» — депеша. Большинство небес пусты. Мигнул диск — смотрите, не садитесь. «Обзор 64» ищет опору.",
     },
     {
       title: "Лаб · Конст",
@@ -1499,7 +2240,37 @@ const ru: Copy = {
       title: "Музыка",
       body: "Динамик включает тихую подушку. Настройки → Музыка — файл с этого устройства.",
     },
+    {
+      title: "Работа",
+      body: "Десять небес. Точки под чипами. Нажмите. Физика — не очки.",
+    },
+    {
+      title: "Канон",
+      body: "Тихая строка под часами следует за эпохой и судьбой — Бытие, Псалмы, Иов, Исаия. Нажмите ссылку. В настройках можно скрыть. Свидетельство, не измерение.",
+    },
+    {
+      title: "Прилив",
+      body: "Четвёртая огибающая: самовоспроизводящиеся зонды как часы, не сериал. Известные небеса → Прилив. Наберите vnm.",
+    },
+    {
+      title: "Боковые дороги",
+      body: "Коды, не франшиза. a51 засекречивает пластинку. r60 — долгая дорога на время Хаббла. ice — тонкая ледяная экономика. wow — вспышка на 72 секунды. wit: смотреть, не садиться. gt — горловина, не дверь. zon на секунды переписывает закон.",
+    },
+    {
+      title: "Копия",
+      body: "Лаборатория свободная. Окно Windows или Linux — 15 USDT. Откройте стол, выпишите пластину, напишите в X. Не замок на небе.",
+    },
   ],
+  scripture: {
+    title: "Канон",
+    kicker: "Свидетельство",
+    intro:
+      "Древние строки рядом с прибором. Не измерение и не доказательство физики. Небо по-прежнему отвечает константами.",
+    open: "Открыть канон",
+    line: "Писание под часами",
+    source: "Читать отрывок",
+    hint: "Строка следует за космическим временем и судьбой. По-английски — KJV; по-русски и по-белорусски — смысл синодального. Ссылки открывают Bible Gateway.",
+  },
   labPaneHint: {
     constants: "Чтение этого неба. Рычаги — под «Лепить». Серые метки — дом.",
     hunt: "Приор уже картирован. Загрузите находку на небо.",
@@ -1508,10 +2279,10 @@ const ru: Copy = {
     desk: "Постериор уже идёт. Потом экспорт и класс.",
   },
   shortcutsTitle: "Клавиши",
-  shortcutsBody: "B родить · S обзор · R уточнить · E эволюция · тау · 1 небо · 2 лаб · 3 журнал · Esc закрыть",
+  shortcutsBody: "B родить · S обзор · R уточнить · E эволюция · [ ] время · Пробел смотреть · тау · 1 небо · 2 лаб · 3 журнал · Esc закрыть",
   astroTitle: "Астрофизика (гомология)",
   astroHint:
-    "Масштаб от констант, не код Больцмана. Для нашей вселенной числа близки к Planck H₀, 13.8 млрд лет и диску размера Млечного Пути.",
+    "Масштаб от констант. Для нашего неба: Planck H₀, 13.8 млрд лет, диск размера Млечного Пути. Now на часах — сегодня: a=1, T=2.725 K.",
   astroHubble: "Аналог Хаббла",
   astroAge: "Аналог возраста",
   astroGalaxy: "Радиус диска",
@@ -1522,28 +2293,63 @@ const ru: Copy = {
   presetSilicon: "Кремниевый коридор",
   presetDesert: "Пустынная эпоха",
   presetEternal: "Коридор Дайсона",
+  presetSwarm: "Коридор прилива",
+  presetHighway: "Долгая дорога",
+  presetBelt: "Ледяной пояс",
+  presetCluster: "Кластерное эллиптическое",
+  presetDwarf: "Карлик",
   replayIntro: "Показать введение снова",
   clearLog: "Очистить журнал",
   clearLogConfirm: "Нажмите ещё раз",
   aboutTitle: "О приложении",
-  aboutBody: "Космологическая лаборатория на этой машине. Лепите константы, смотрите галактику, ищите три узких коридора, где ум может жить.",
+  aboutBody: "Космологическая лаборатория на этой машине. Лепите константы, смотрите галактику, ищите четыре узких коридора, где ум может жить.",
   studioHonesty: "Физику не продаём. Коридоры — оболочки, не перепись, которую можно купить.",
   studioFreeTitle: "Лаборатория остаётся свободной",
   studioFreeBody: "Лепите, делайте обзор, выгружайте FITS и VOTable, гоняйте MCMC. Без рекламы. Без учётных записей. Без подписки. Журнал остаётся на этом устройстве.",
   studioKeepTitle: "Оставить у себя",
-  studioKeepBody: "Установите свободную лабораторию сюда. Копия для Windows и Linux — разовая, 15 USDT в сети BNB Smart Chain или Bitcoin: окно без браузера, без сети, после письма в X с транзакцией. macOS позже. Не замок на небе. Адреса ниже. Сборка без подписи: SmartScreen может предупредить.",
+  studioKeepBody: "Установите свободную лабораторию сюда. Копия для Windows и Linux — разовая, 15 USDT в сети BNB Smart Chain или Bitcoin: окно без браузера, без сети, после пластины и письма в X. macOS позже. Не замок на небе. Сборка без подписи: SmartScreen может предупредить.",
   studioSupportTitle: "Копия, которую можно унести",
-  studioSupportBody: "Разовая, 15 USDT (BEP20) или столько же в Bitcoin. Windows и Linux после транзакции. macOS позже. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
+  studioSupportBody: "Разовая, 15 USDT (BEP20) или столько же в Bitcoin. Windows и Linux после пластины. macOS позже. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
   studioFollowCta: "Заметки автора в X",
   studioPublicCta: "Открыть публичную лабораторию",
   studioEnterCta: "Войти в лабораторию",
   studioReserveCta: "Забрать копию · 15 USDT",
   studioOrderText: "Здравствуйте. Оплатил 15 USDT BEP20 (или BTC) за настольную копию Genesis Engine. Присылаю транзакцию.",
   payWarn: "Только BEP20 для USDT и Native Segwit для Bitcoin. Другая сеть — перевод сгорит.",
-  payAfter: "После перевода напишите в X с транзакцией. Так копия найдёт вас.",
+  payAfter: "После перевода выпишите пластину, затем напишите в X. Так копия найдёт вас.",
   payCopy: "Скопировать адрес",
+  keep: {
+    title: "Оставить прибор",
+    kicker: "Настольная копия",
+    lead: "Лаборатория остаётся свободной. Окно на вашей машине — разово, 15 USDT.",
+    includedTitle: "Что уносите",
+    included:
+      "Windows или Linux. Без сети. Та же лаборатория. Сборка без подписи; SmartScreen может предупредить. macOS позже.",
+    notTitle: "Что не покупаете",
+    notBody: "Не физику. Не перепись. Не замок на сетевой лаборатории. Не подписку.",
+    stepsTitle: "Три шага",
+    step1: "Отправьте 15 USDT в BEP20 или ту же сумму в Bitcoin на Native Segwit.",
+    step2: "Вставьте транзакцию. Устройство выпишет пластину — копию расчёта, не замок.",
+    step3: "Напишите в X с пластиной и каким окном — Windows или Linux. Автор ответит архивом. Не магазин. Не сразу.",
+    amount: "разовая",
+    txLabel: "Транзакция",
+    txPlaceholder: "0x… или txid из 64 знаков",
+    mintCta: "Выписать пластину",
+    plateLabel: "Пластина",
+    receiptHint: "Сохраните. Отправьте вместе с транзакцией. Автор ответит в X окном. Лаборатория в сети открыта и без неё.",
+    writeCta: "Написать в X с пластиной",
+    roomTitle: "Комната, класс, зал",
+    roomBody: "Школам, планетариям, выставке: напишите размер комнаты. Эта лицензия отдельная.",
+    roomCta: "Написать за лицензию зала",
+    roomOrderText: "Здравствуйте. Лицензия для класса или планетария на Genesis Engine. Размер комнаты:",
+    saveCta: "Сохранить пластину",
+    invalidTx: "Это не похоже на транзакцию.",
+    openCta: "Оставить копию · 15 USDT",
+    orderText:
+      "Здравствуйте. Оплатил 15 USDT BEP20 (или BTC) за настольную копию Genesis Engine. Пластина {plate}. Tx {tx}. Нужно Windows / Linux:",
+  },
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
-  version: "Версия 1.24",
+  version: "Версия 1.25",
   eggs: {
     answer: "В каталоге этого неба есть 42.",
     whale: "В последнем льду плывёт кит. Переведите часы на «Конец», чтобы увидеть.",
@@ -1559,6 +2365,14 @@ const ru: Copy = {
     thought: "Deep Thought. Ответ был 42. Это то небо.",
     dot: "Бледная голубая точка. Это мы — если константы наши.",
     tau: "Тау Кита — двенадцать световых лет, тихая G-звезда с пыльными мирами. Никто не ответил. Песня Высоцкого — гомология, не перепись: если там есть разум, алфавит, юмор и способ продолжаться могут быть не нашими.",
+    tide: "Самовоспроизводящаяся волна дозволена часами. Харт и Типлер, не франшиза. Молчание Ферми — всё ещё данные.",
+    fiftyone: "Пластинка засекречена. Константы — нет.",
+    highway: "Одна дорога, две полосы, ни города на время Хаббла. Полотенце с собой.",
+    zone: "Представляем вашему вниманию небо, чей единственный закон — тот, что вы только что написали.",
+    ice: "Лёд — единственная масса, которая ещё движется. Пояс, не перепись и не сериал.",
+    wow: "Узкая вспышка, семьдесят две секунды, на линии водорода. Big Ear, 1977. Гомология, не телеграмма.",
+    witness: "Работа — смотреть. Не садиться. Не отвечать за них.",
+    throat: "Проходимая горловина дозволена метрикой — Моррис и Торн, 1988. Геометрия, не дверь.",
   },
   thisIsOurs: "Эти константы совпадают с нашей вселенной — ΛCDM, как мы её измеряем.",
   compareTitle: "Против нашей вселенной",
@@ -1678,12 +2492,60 @@ const ru: Copy = {
   eternalVsLife: "Против углерода и кремния",
   eternalCaveat:
     "Дозволено — не значит неизбежно. Вечный ум — лазейка космологии, всё ещё заложница неизвестной физики частиц.",
+  swarm: "Прилив",
+  swarmTitle: "Огибающая фон Неймана",
+  swarmHint:
+    "Не телевизионный рой. Если ум может построить один самовоспроизводящийся зонд, Харт (1975) и Типлер (1980) доказывали: волна через галактику — вопрос часов, не чуда. Молчание Ферми — наблюдение. Это число — разрешение, не обнаружение.",
+  swarmNote: {
+    silent: "Нет прыжка. Нет металлов, нет хозяина, или небо рвётся первым.",
+    seed: "Запуск не запрещён. Диск не съеден. Ферми ещё держится.",
+    bloom: "Репликация и время перелёта умещаются в звёздные часы. Волна могла бы пойти.",
+    tide: "Пик огибающей. Самовоспроизводящаяся экология дозволена — не наблюдена.",
+  },
+  swarmFactors: {
+    host: "Хозяин",
+    metals: "Металлы",
+    reach: "Дальность",
+    clock: "Часы прыжка",
+  },
+  swarmOpen: "Открыть досье прилива",
+  swarmWhy: "Почему галактика не серая",
+  swarmFacts: [
+    "Харт 1975: технологический вид со скромными зондами заполняет Млечный Путь за несколько миллионов лет — гораздо короче звёздных часов.",
+    "Типлер 1980: самовоспроизводящийся аппарат — машина фон Неймана. Если физика позволяет одну, она позволяет прилив.",
+    "Вопрос Ферми остаётся данными: прилива не видно. Огибающая говорит, могло ли небо его нести, а не что оно его несёт.",
+  ],
+  swarmThisSky: "Это небо",
+  swarmHops: "Аналог прыжков",
+  swarmCrossing: "Аналог перелёта",
+  swarmMetal: "Индекс металлов",
+  swarmHost: "Огибающая хозяина",
+  swarmFactorHint: {
+    host: "Кто-то должен собрать первую машину. Углерод или кремний — оба считаются. Нет ума — нет семени.",
+    metals: "Зонды едят структуру. Поколения звёзд и плотный диск сеют сырьё.",
+    reach: "Медленный поток Хаббла и мягче Λ держат диски в пределах. Наши H₀ и ΩΛ растягивают прыжок.",
+    clock: "Звёздная эра должна пережить перелёт. Вспышка не запускает.",
+  },
+  swarmBlockers: "Что закрывает это небо",
+  swarmBlocker: {
+    host: "Нет коридора ума. Некому собрать первый зонд.",
+    metals: "Мало структуры или поколений. Нет сырья.",
+    reach: "Расширение или тёмная энергия уносит следующий диск.",
+    clock: "Звёзды гаснут раньше прыжка.",
+    fog: "Нет галактик. Некуда прыгать.",
+    crunch: "Сжатие раньше волны.",
+    rip: "Ускорение рвёт маршрут.",
+  },
+  swarmNoVeto: "Космологического вето нет. Остаётся инженерия, которой мы не видели — и пустое небо Ферми.",
+  swarmCaveat:
+    "Прилив — лазейка часов и металлов. Это не перепись машин и не сериал.",
   refine: "Уточнить небо",
   more: "Другие небеса",
   closePanel: "Закрыть",
   foldCorridors: "Коридоры жизни",
   foldObs: "Обсерватория",
   foldSculpt: "Лепить константы",
+  labCue: "Прочитайте это небо в Лаборатории.",
   skies: "Известные небеса",
   appearance: "Оформление",
   contrast: "Высокий контраст",
@@ -1702,8 +2564,8 @@ const ru: Copy = {
     modeHint: {
       galaxy: "Диск целиком, снаружи.",
       planetarium: "Стоите на мире внутри диска — тяните небо.",
-      lensing: "Фоновые галактики искривляются вокруг невидимого гало тёмной материи.",
-      collision: "Две галактики падают друг на друга. Приливные хвосты, затем один остаток.",
+      lensing: "Фоновые источники вытягиваются в дуги вокруг радиуса Эйнштейна. Гомология SIS-гало, не трассировка лучей.",
+      collision: "Звёзды за приливным радиусом становятся хвостами. Не GADGET. Массовое отношение задаёт остаток.",
     },
     evolve: "Запустить космическое время",
     evolving: "Пауза космического времени",
@@ -1730,11 +2592,11 @@ const ru: Copy = {
       inflation:
         "Всплеск расширения. Небо — горячий туман: нет атомов, галактик, ночи.",
       recombination:
-        "Электроны садятся на ядра. Вселенная становится прозрачной — поверхность последнего рассеяния.",
+        "Электроны садятся на ядра. Небо — стена последнего рассеяния. Ячейки увеличены, чтобы ℓ₁ было видно.",
       darkAges:
-        "Нейтральный водород, звёзд нет. Структура ещё только шёпот в темноте.",
+        "Нейтральный водород. Стена остыла. Те же акустические ячейки, теперь поглощение. 21 см — радиолиния, не цвет.",
       reionization:
-        "Первые звёзды прожигают дыры в тумане. Свет возвращается в космос.",
+        "Первые звёзды прожигают дыры H II в тумане. Свет возвращается в космос.",
       stellar:
         "Галактики собрались. Звёзды живут, умирают и сеют металлы. Это эра, где возможна химия.",
       degeneracy:
@@ -1752,7 +2614,214 @@ const ru: Copy = {
     env: "Среда",
     envLabel: { field: "Поле", group: "Группа", cluster: "Скопление" },
     dm: "Доля тёмной материи",
+    baryons: "Барионы",
+    dmHint:
+      "Аналог Ωc / Ωm. Барионы — тонкая загрузка от начального порядка; остальная материя — гало. Не частица. Режим «Гало» — это детекция: дуги сидят на радиусе Эйнштейна.",
+    rotationCurve: "Кривая вращения",
+    rotationHint:
+      "Видимая масса падает как 1/√r. Гало держит внешний диск. Гомология кривых Рубин, не подгонка SPARC.",
+    rotationBaryon: "Только барионы",
+    rotationHalo: "Это небо",
+    rotationR: "радиус →",
+    rotationV: "км/с",
+    tfTitle: "Талли–Фишер",
+    tfHint: "Барионная масса против v⁴. Наше небо — гребень. Не SPARC и не MOND.",
+    tfNiche: {
+      below: "Тяжёлое гало",
+      ridge: "Гребень",
+      above: "Барионное",
+    },
+    tfRatio: "M_b / v⁴",
+    rarTitle: "g_obs vs g_bar",
+    fjTitle: "Фабер–Джексон",
+    fjHint: "L ∝ σ⁴, если размер растёт как √M. Проекция плоскости. Шум раздувает Re. Не SPARC.",
+    fjSigma: "σ",
+    fjRatio: "L / σ⁴",
+    fpTitle: "Фундаментальная плоскость",
+    fpHint: "Динамическое Υ(M) — буква U: карлики и гиганты высоки, L* — дно. Не звёздное Υ*, не SPS.",
+    fpNiche: {
+      tight: "На плоскости",
+      tilted: "Наклон",
+      off: "Вне",
+    },
+    fpRe: "Re",
+    fpIe: "Ie",
+    fpResidual: "Re / плоскость",
+    fpMl: "Υ",
+    fpMlBranch: {
+      dwarf: "Карлик",
+      valley: "Дно",
+      giant: "Гигант",
+    },
+    fpSersic: "n",
+    fpMass: "масса →",
+    imfTitle: "IMF",
+    imfHint: "IMF задаёт возврат, выход металлов и нагрев. Top-heavy возвращает газ и корежит гало. Bottom-heavy запирает массу. Не химмодель.",
+    imfNiche: {
+      top: "Тяжёлый верх",
+      chabrier: "Chabrier",
+      salpeter: "Salpeter",
+      bottom: "Тяжёлый низ",
+    },
+    imfSlope: "x",
+    imfStar: "Υ*",
+    imfMean: "⟨m⟩",
+    imfSn: "m>8",
+    imfR: "R",
+    imfY: "y",
+    massTitle: "Звёздная масса",
+    massHint: "Фотометрия предполагает Chabrier. Вириал — масса внутри Re. Линза — внутри θE. Это не одно число.",
+    massNiche: {
+      agree: "Сходятся",
+      imf: "Смещение IMF",
+      halo: "Гало в яме",
+      split: "Расходятся",
+    },
+    massPhot: "M_phot",
+    massVirial: "M_vir",
+    massLens: "M_lens",
+    bhTitle: "СМЧД",
+    bhHint: "Джет — килопарсековая воронка. Ручьи, β и Φ — у горизонта. Не HARM, не EHT.",
+    bhNiche: {
+      quiet: "Тихая",
+      maintain: "Радиорежим",
+      quasar: "Квазар",
+      quench: "Тушение",
+    },
+    bhMagorrian: "M_BH / M_bulge",
+    bhSoi: "r_soi / Re",
+    agnMode: {
+      off: "Выкл",
+      wind: "Ветер",
+      jet: "Джет",
+    },
+    agnDrive: {
+      none: "—",
+      momentum: "Импульс",
+      energy: "Энергия",
+    },
+    agnLambda: "λ",
+    agnHeat: "нагрев",
+    grmhdState: {
+      sane: "SANE",
+      mad: "MAD",
+      thin: "Тонкий диск",
+    },
+    grmhdSpin: "a*",
+    grmhdEff: "ε_NT",
+    grmhdBz: "P_BZ",
+    grmhdBp: "P_BP",
+    grmhdOmega: "Ω_F / Ω_H",
+    grmhdGeom: {
+      monopole: "Монополь",
+      parabolic: "Парабола",
+    },
+    grmhdWin: {
+      bz: "Горизонт",
+      bp: "Диск",
+      none: "Тихо",
+    },
+    grmhdSpinE: "E_spin",
+    grmhdEta: "η_BZ",
+    grmhdBeta: "β",
+    grmhdRam: "P_B / P_ram",
+    fluxAdv: "t_diff / t_adv",
+    fluxNiche: {
+      diffuse: "Скользит",
+      advect: "Тащит внутрь",
+      expel: "Вынос",
+    },
+    madSigma: "σ",
+    madFill: "ручьи r_g",
+    madFlicker: "мерцание",
+    madAdaf: "ADAF",
+    madFr: {
+      none: "—",
+      fri: "FR I",
+      frii: "FR II",
+    },
+    haloTitle: "Анализ гало",
+    haloHint:
+      "Einasto в 3D, NFW для линзы, Burkert — эмпирический кор, coreNFW — нагретый карлик. Не живой N-body.",
+    haloNiche: {
+      keplerian: "Кеплер",
+      partial: "Частично",
+      held: "Держит",
+      heavy: "Тяжёлое",
+    },
+    haloNicheHint: {
+      keplerian: "Внешние звёзды следуют видимой массе. Гало слишком тонкое, чтобы держать диск.",
+      partial: "На большом радиусе есть лишняя скорость. Это ещё не кривая Рубин.",
+      held: "Внешний диск слишком быстр для барионов. Это и есть детекция.",
+      heavy: "Почти вся материя невидима. Диск сидит в глубокой яме.",
+    },
+    haloFactor: {
+      share: "Доля тёмной материи",
+      rotation: "Поддержка внешнего диска",
+      lens: "Радиус Эйнштейна",
+      clustering: "Кластеризация",
+    },
+    haloOuter: "Внешний диск",
+    haloBaryonV: "Только барионы",
+    haloTheta: "θE",
+    haloC: "c",
+    haloRs: "rs",
+    haloContract: "Сжатие",
+    haloCore: "rc",
+    haloKappa: "⟨κ⟩",
+    haloKs: "κs",
+    haloEinasto: "α",
+    haloModel: {
+      einasto: "Einasto",
+      nfw: "NFW",
+      burkert: "Burkert",
+      corenfw: "coreNFW",
+      isothermal: "Изотерма",
+    },
+    haloCompare: "ρ(r)/ρ(rs)",
     cmb: "CMB",
+    acousticTitle: "Акустические пики",
+    acousticHint:
+      "Фотон-барионная жидкость на последнем рассеянии. Нечётные пики грузятся барионами; третий чувствует гало. Ячейки на стене увеличены; ℓ₁ — число.",
+    acousticEll: "ℓ₁",
+    acousticEll3: "ℓ₃",
+    acousticOddEven: "Нечёт / чёт",
+    acousticLoad: "Барионная нагрузка",
+    twentyOne: "21 см",
+    hii: "H II",
+    diskTitle: "Гидродинамика диска",
+    diskHint: "Toomre Q на радиальной сетке. Пол в ядре — Plummer. Не SPH и не живая гидродинамика.",
+    diskQ: "Q",
+    diskPitch: "Шаг",
+    diskShear: "Сдвиг",
+    diskKappa: "κ",
+    diskMesh: "Сетка",
+    diskQ1: "Q = 1",
+    diskPlummer: "a",
+    diskNiche: {
+      rigid: "Жёсткий",
+      hot: "Горячий",
+      marginal: "Пороговый",
+      fragmenting: "Дробится",
+    },
+    diskNicheHint: {
+      rigid: "Почти нет сдвига. Балдж или эллиптическая: нет волны плотности.",
+      hot: "Q высок. Диск слишком тёплый, чтобы звенеть рукавами.",
+      marginal: "Q ~ 1–2. Здесь живут спиральные волны. Внутри звёзды обгоняют край.",
+      fragmenting: "Q ≲ 1. Самогравитация побеждает. Диск ломается на комья.",
+    },
+    acousticNiche: {
+      silent: "Немо",
+      damped: "Затухшие",
+      clear: "Ясные",
+      loaded: "Загруженные",
+    },
+    acousticNicheHint: {
+      silent: "Нет контраста последнего рассеяния. Стена не звенела.",
+      damped: "Затухание Силка смывает лестницу. Высокие ℓ умирают.",
+      clear: "Лестница звучит. Первый пик около ℓ 220 — масштаб нашего неба.",
+      loaded: "Барионы утяжеляют нечётные сжатия. Чётные пики сидят низко.",
+    },
     hrTitle: "Звёздное население",
     hrHint:
       "Аналог диаграммы Герцшпрунга–Рассела: температура против светимости. Массивные звёзды быстро сходят с главной последовательности; остатки копятся внизу.",
@@ -1766,13 +2835,14 @@ const ru: Copy = {
   labPanes: { constants: "Конст", hunt: "Поиск", life: "Жизнь", laws: "Законы", desk: "Стол" },
   research: {
     title: "Экспедиция",
-    hint: "Три агента на замкнутой физике — не обученная сеть. Наблюдатель берёт смешанный приор (дикие броски и все три коридора). Теоретик поднимается в гору. Аналитик перемешивает каждую константу и смотрит, насколько прыгает оценка.",
+    hint: "Три агента на замкнутой физике — не обученная сеть. Наблюдатель берёт смешанный приор (дикие броски и все четыре коридора). Теоретик поднимается в гору. Аналитик перемешивает каждую константу и смотрит, насколько прыгает оценка.",
     run: "Запустить экспедицию",
     running: "Картирую приор…",
     target: {
       carbon: "Углерод",
       silicon: "Кремний",
       eternal: "Вечность",
+      swarm: "Прилив",
       overall: "Любая",
       diversity: "Обе",
     },
@@ -1780,13 +2850,15 @@ const ru: Copy = {
       carbon: "Искать тихий водный коридор.",
       silicon: "Искать горячий восстановительный коридор.",
       eternal: "Искать лазейку Дайсона при Λ ≈ 0.",
-      overall: "Брать лучшее из углерода, кремния или вечности.",
+      swarm: "Искать коридор фон Неймана — самосборка как досягаемость, не пятая химия.",
+      overall: "Брать лучшее из углерода, кремния, вечности или прилива.",
       diversity: "Редкие небеса, где открыты оба химических окна.",
     },
     sample: "Приор",
     viableC: "Углеродно живые",
     viableSi: "Кремниево живые",
     viableEt: "Открытые Дайсону",
+    viableSw: "Открытые приливу",
     corr: "Корреляция C–Si",
     percentile: "Это небо в приоре",
     importance: "Что важно приору",
@@ -1824,6 +2896,8 @@ const ru: Copy = {
         "Тёмная энергия — шарнир вечности. Горизонт де Ситтера (ΩΛ ≳ 0) — вето Краусса–Старкмана.",
       eternalRare:
         "Открытые Дайсону броски редки. Большинство случайных констант зажигают горизонт, сжимаются или не оставляют остатков.",
+      tideRare:
+        "Открытые приливу броски редки. Большинство случайных констант глушат хозяина или растягивают диски слишком далеко для самосборки.",
     },
   },
   civ: {
@@ -1841,6 +2915,7 @@ const ru: Copy = {
     ships: "Аналог диаспоры",
     routes: "Тонкий аналог диаспоры",
     spend: "Ёмкость × поколения звёзд — энергия, которую ум мог бы тратить, не казна и не флот.",
+    quiet: "Никто не кричит. Молчание Ферми — данные, не сериал.",
     collapsed: "Экологический аналог схлопывается — сжатие, разгон или изъятие обгоняет рост.",
     persists:
       "Тепловая смерть не закрывает это окно. Если Λ остаётся почти нулём, умы остатков могут замедляться без границы — Дайсон, не раж.",
@@ -1860,6 +2935,95 @@ const ru: Copy = {
       complex: "Сеют ли поколения звёзд металлы, не разрывая диски.",
       minds: "Оставляют ли устойчивость и порядок место для информационных систем.",
       tech: "Есть ли у ума, если он появится, энергия и время строить.",
+    },
+  },
+  mandate: {
+    title: "Работа",
+    hint: "Тезис обсерватории, не очки. Десять небес. Физика не продаётся.",
+    next: "Дальше",
+    sealed: "Запечатано",
+    openLabel: "Открыто",
+    done: "Атлас запечатан. Небо всё ещё вращается.",
+    progress: "{n} из {m}",
+    open: "Работа",
+    atlasTick: "{fate}. Атлас {n} из {m}.",
+    atlasHave: "В журнале",
+    atlasNeed: "Ещё увидеть",
+    chapters: {
+      witness: {
+        title: "Первый свет",
+        body: "Увидеть небо. Любые константы. Большинство пустые.",
+        hint: "Родить вселенную.",
+      },
+      corridor: {
+        title: "Коридор",
+        body: "Обитаемое, кишащее или стойкое. Опора для химии.",
+        hint: "Обзор 64 — если небо пустое.",
+      },
+      home: {
+        title: "Дом",
+        body: "Встать в ΛCDM. Серые метки на рычагах — наши числа.",
+        hint: "Наша вселенная.",
+      },
+      silicon: {
+        title: "Кремниевая ниша",
+        body: "Жар и давление, не вода. Спекуляция, но не запрещено.",
+        hint: "Известные небеса → Кремний, или Поиск.",
+      },
+      eternal: {
+        title: "Щель Дайсона",
+        body: "Λ почти ноль. Умы остатков могли бы замедляться без границы — Дайсон, не раж.",
+        hint: "Известные небеса → Вечность.",
+      },
+      tide: {
+        title: "Прилив фон Неймана",
+        body: "Самовоспроизводящаяся волна — задача часов. Харт, Типлер — не франшиза.",
+        hint: "Известные небеса → Прилив.",
+      },
+      diaspora: {
+        title: "Тонкая диаспора",
+        body: "Ёмкость × поколения. Энергия, которую ум мог бы тратить — не флот.",
+        hint: "Уточнить живое небо.",
+      },
+      atlas: {
+        title: "Пять судеб",
+        body: "Пустота, сжатие, разрыв, выгорание, туман, немые, стойкие, обитаемые, кишащие. Пять в журнале.",
+        hint: "Родить, пока атлас не загустеет.",
+      },
+      chronicle: {
+        title: "Полевая заметка",
+        body: "Заказать хронику. Сначала числа, потом предложение.",
+        hint: "Лаб → Конст → Написать заметку.",
+      },
+      keep: {
+        title: "Хранитель",
+        body: "Отметить небо, которое стоит оставить. Журнал помнит.",
+        hint: "Звезда рядом с именем.",
+      },
+    },
+    flash: {
+      witness: "Первый свет. Работа начинается.",
+      corridor: "Коридор. Что-то могло бы жить.",
+      home: "Дом. Серые метки, наши числа.",
+      silicon: "Кремниевая ниша. Жар, не вода.",
+      eternal: "Щель Дайсона. Λ почти нет.",
+      tide: "Прилив фон Неймана. Часы, не сериал.",
+      diaspora: "Тонкий аналог диаспоры. Не флот.",
+      atlas: "Пять судеб. Атлас густеет.",
+      chronicle: "Полевая заметка. Стол помнит.",
+      keep: "Хранитель. Отмечено против пустоты.",
+    },
+    cue: {
+      witness: "Родить вселенную.",
+      corridor: "Обзор 64 — искать опору.",
+      home: "Наша вселенная — встать в ΛCDM.",
+      silicon: "Найти кремниевую нишу. Известные небеса или Поиск.",
+      eternal: "Найти щель Дайсона. Почти без тёмной энергии.",
+      tide: "Найти прилив фон Неймана. Ближе диски, больше металлов.",
+      diaspora: "Уточнить живое небо, пока не проявится тонкая диаспора.",
+      atlas: "Родить, пока в журнале не сядут пять судеб.",
+      chronicle: "Лаб → Конст. Написать полевую заметку.",
+      keep: "Отметить небо, которое стоит оставить.",
     },
   },
   bio: {
@@ -1973,7 +3137,7 @@ const ru: Copy = {
     },
     catalog: "Пластинка Pan-STARRS",
     catalogHint:
-      "Настоящий конус MAST, Pan-STARRS DR2. В координатах RA/Dec — отдельный слой, не смешанный с моделируемым диском. По умолчанию ядро M31.",
+      "Настоящий конус MAST, Pan-STARRS DR2. Качество — полнота gri и nDet, не бит флага. По умолчанию ядро M31.",
     ra: "RA °",
     dec: "Dec °",
     radius: "Радиус °",
@@ -1991,6 +3155,13 @@ const ru: Copy = {
     m31: "Ядро M31",
     plate: "Pan-STARRS DR2",
     plateHint: "Настоящий каталог, не это моделируемое небо.",
+    dqComplete: "gri",
+    dqDet: "⟨nDet⟩",
+    dqNiche: {
+      thin: "Редкий",
+      fair: "Сносный",
+      clean: "Чистый",
+    },
   },
   desk: {
     title: "Стол обсерватории",
@@ -2003,6 +3174,9 @@ const ru: Copy = {
     empty: "Запустите цепь, чтобы увидеть облако в 3D. Большинство случайных констант мертвы — если это небо информативно, облако должно прижаться к узкому коридору.",
     accept: "Принято",
     ess: "ESS",
+    walker: "Ходок",
+    walkerMh: "Метрополис",
+    walkerHmc: "HMC leapfrog",
     map: "MAP",
     mean: "Среднее",
     prior: "Равномерный приор",
@@ -2023,6 +3197,8 @@ const ru: Copy = {
     pairing: "Сильнейшая пара",
     marginals: "Маргиналы",
     trace: "log L",
+    chains: "Цепи",
+    chainsHint: "Шаг по оси x. Залипшая прогулка — прямая. Не emcee.",
     exportTitle: "Публикация",
     fitsGalaxy: "FITS диск",
     fitsMcmc: "FITS цепь",

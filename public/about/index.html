@@ -6,7 +6,7 @@
     <title>Genesis Engine — physics is not for sale</title>
     <meta
       name="description"
-      content="A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live. The lab is free. A Windows or Linux copy is one-time, 15 USDT. Not a lock on the sky."
+      content="A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt four thin corridors where a mind might live. The lab is free. A Windows or Linux copy is one-time, 15 USDT. Not a lock on the sky."
     />
     <link rel="canonical" href="https://yanusiowot-source.github.io/genesis-lab/about/" />
     <meta property="og:title" content="Genesis Engine — physics is not for sale" />
@@ -103,6 +103,51 @@
         margin: 1.75rem 0 0;
         border-radius: var(--radius);
         box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.16);
+      }
+      .shots {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: 0.65rem;
+      }
+      .shots img {
+        display: block;
+        width: 100%;
+        height: 7rem;
+        object-fit: cover;
+        border-radius: 8px;
+        box-shadow: 0 0 0 1px rgba(240, 195, 107, 0.16);
+      }
+      .steps {
+        list-style: none;
+        margin: 1.75rem 0 0;
+        padding: 0;
+        display: grid;
+        gap: 0.5rem;
+      }
+      .steps li {
+        display: flex;
+        gap: 0.75rem;
+        align-items: flex-start;
+      }
+      .steps span {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-size: 0.75rem;
+        color: var(--accent);
+        padding-top: 0.15rem;
+      }
+      .steps p {
+        margin: 0;
+        font-size: 0.9375rem;
+        text-wrap: pretty;
+      }
+      .qr {
+        display: block;
+        width: 11rem;
+        height: 11rem;
+        margin: 0.7rem auto 0;
+        background: #fff;
+        border-radius: 4px;
       }
       .actions {
         display: flex;
@@ -230,9 +275,10 @@
         "name": "Genesis Engine",
         "url": "https://yanusiowot-source.github.io/genesis-lab/about/",
         "image": "https://yanusiowot-source.github.io/genesis-lab/og.jpg",
-        "description": "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live. The physics is not for sale.",
+        "description": "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt four thin corridors where a mind might live. The physics is not for sale.",
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "Windows, Linux, Web",
+        "softwareVersion": "1.25.0",
         "author": { "@type": "Person", "name": "Ян Ярошевич", "url": "https://x.com/yanusio" },
         "offers": [
         {
@@ -245,7 +291,9 @@
         {
           "@type": "Offer",
           "name": "Desktop copy",
-          "description": "Windows or Linux copy. One-time. 15 USDT (BEP20) or Bitcoin, then a note on X. Not a lock on the sky."
+          "price": "15",
+          "priceCurrency": "USD",
+          "description": "Windows or Linux copy. One-time. 15 USDT (BEP20) or Bitcoin, then a note on X with the plate. Not a lock on the sky."
         }
       ]
     }
@@ -257,10 +305,35 @@
         <p class="kicker">Cosmological laboratory</p>
         <h1>Genesis Engine</h1>
         <p class="lead">
-          Sculpt ΛCDM, watch a galaxy, hunt three thin corridors where a mind might live.
+          Sculpt ΛCDM, watch a galaxy, hunt four thin corridors where a mind might live.
           Export FITS and VOTable. Run MCMC. No ads, no accounts, no subscription.
         </p>
         <p class="honesty">The physics is not for sale. Corridors are envelopes, not a census you can buy.</p>
+        <div class="pay">
+          <p>Only BEP20 for USDT, Native Segwit for Bitcoin. Any other network burns the transfer.</p>
+          <div class="rail">
+            <h2>USDT · BEP20 · 15</h2>
+            <img class="qr" src="../pay-usdt.svg" width="148" height="148" alt="USDT BEP20 payment QR" />
+            <code id="pay-usdt">0xcfbf90866165174a66aa99bda14917cc67fffb50</code>
+            <button type="button" data-copy="pay-usdt">Copy address</button>
+          </div>
+          <div class="rail">
+            <h2>Bitcoin · Segwit</h2>
+            <img class="qr" src="../pay-btc.svg" width="148" height="148" alt="Bitcoin Segwit payment QR" />
+            <code id="pay-btc">bc1qd6gnul7wjsq4yv78yt5gra82ywsslr6rtcw86v</code>
+            <button type="button" data-copy="pay-btc">Copy address</button>
+          </div>
+          <p>15 USDT, one-time. Scan, send, then open the desk to stamp a plate. Write on X with that plate. Classrooms and planetariums write with the size of the room.</p>
+        </div>
+        <div class="actions">
+          <a class="btn primary" href="../#keep">Open the desk</a>
+          <a class="btn ghost" href="../">Enter the laboratory</a>
+        </div>
+        <ol class="steps">
+          <li><span>1</span><p>Send 15 USDT on BEP20, or the same value in Bitcoin on Native Segwit. Scan the square.</p></li>
+          <li><span>2</span><p>Open the desk. Paste the transaction. The device writes a plate — a copy of the settlement, not a lock.</p></li>
+          <li><span>3</span><p>Write on X with the plate and which window — Windows or Linux. The author writes back with the zip. Not a store. Not instant.</p></li>
+        </ol>
         <img
           class="hero"
           src="../og.jpg"
@@ -268,9 +341,9 @@
           height="630"
           alt="A spiral galaxy in Genesis Engine, lit from the disk, on a dark laboratory sky."
         />
-        <div class="actions">
-          <a class="btn primary" href="../">Enter the laboratory</a>
-          <a class="btn ghost" href="https://x.com/messages/compose?recipient_id=1652518444795928590&text=Hello.%20Paid%2015%20USDT%20BEP20%20(or%20BTC)%20for%20a%20Genesis%20Engine%20desktop%20copy.%20Sending%20the%20tx." rel="noopener noreferrer">Write on X after you pay</a>
+        <div class="shots">
+          <img src="../press/ph-sky.png" width="640" height="400" alt="The observatory sky." />
+          <img src="../press/ph-lab.png" width="640" height="400" alt="The laboratory desk." />
         </div>
         <ul>
           <li>
@@ -279,31 +352,17 @@
           </li>
           <li>
             <h2>Keep a copy</h2>
-            <p>A Windows or Linux copy is one-time, 15 USDT on BNB Smart Chain, or Bitcoin — a window, no browser, offline, after you write on X with the tx. macOS later. Not a lock on the sky. Addresses below. The build is unsigned; SmartScreen may warn.</p>
+            <p>A Windows or Linux copy is one-time, 15 USDT on BNB Smart Chain, or Bitcoin — a window, no browser, offline, after you stamp a plate and write on X. macOS later. Not a lock on the sky. The build is unsigned; SmartScreen may warn.</p>
           </li>
           <li>
             <h2>A copy you can take</h2>
             <p>One-time, 15 USDT (BEP20) or the same in Bitcoin. Classrooms and planetariums write for a license. The lab on the web stays free.</p>
           </li>
         </ul>
-        <div class="pay">
-          <p>Only BEP20 for USDT, Native Segwit for Bitcoin. Any other network burns the transfer.</p>
-          <div class="rail">
-            <h2>USDT · BEP20</h2>
-            <code id="pay-usdt">0xcfbf90866165174a66aa99bda14917cc67fffb50</code>
-            <button type="button" data-copy="pay-usdt">Copy address</button>
-          </div>
-          <div class="rail">
-            <h2>Bitcoin · Segwit</h2>
-            <code id="pay-btc">bc1qd6gnul7wjsq4yv78yt5gra82ywsslr6rtcw86v</code>
-            <button type="button" data-copy="pay-btc">Copy address</button>
-          </div>
-          <p>After you send, write on X with the transaction. That is how the copy finds you.</p>
-        </div>
         <p class="ru">
-          Физику не продаём. Лаборатория свободная. Копия — 15 USDT в сети BNB Smart Chain (BEP20) или Bitcoin. Потом напишите в X с транзакцией.
+          Физику не продаём. Лаборатория свободная. Копия — 15 USDT в сети BNB Smart Chain (BEP20) или Bitcoin. Стол выпишет пластину. Потом напишите в X с пластиной и каким окном. Автор ответит архивом.
         </p>
-        <footer>© 2026 Ян Ярошевич. All rights reserved. Not open source. Version 1.24</footer>
+        <footer>© 2026 Ян Ярошевич. All rights reserved. Not open source. Version 1.25</footer>
       </main>
     </div>
     <script>

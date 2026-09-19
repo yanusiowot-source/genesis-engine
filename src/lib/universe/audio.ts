@@ -875,30 +875,65 @@ export function pingSignal(): void {
   }
 }
 
-/** Soft Dorian triad on birth. No-op if the sky is muted. */
 export function pingBirth(): void {
+  pingImpact("void");
+}
+
+/** Birth chord. Life is brighter; the void drops; a rip bites. */
+export function pingImpact(kind: "life" | "void" | "end" = "void"): void {
   if (!enabled) return;
   const audio = ensureCtx();
   if (!audio || audio.state !== "running") return;
   try {
     const t = audio.currentTime;
-    const triad = [146.83, 174.61, 220];
+    const triad =
+      kind === "life"
+        ? [196, 246.94, 329.63]
+        : kind === "end"
+          ? [98, 116.54, 73.42]
+          : [130.81, 155.56, 196];
+    const peak0 = kind === "life" ? 0.038 : kind === "end" ? 0.03 : 0.022;
     triad.forEach((hz, i) => {
       const osc = audio.createOscillator();
       const gain = audio.createGain();
-      osc.type = "sine";
+      osc.type = kind === "end" ? "sawtooth" : "sine";
       osc.frequency.setValueAtTime(hz, t);
-      const peak = 0.012 - i * 0.002;
-      const start = t + i * 0.05;
+      const peak = peak0 - i * 0.006;
+      const start = t + i * 0.045;
       gain.gain.setValueAtTime(0.0008, start);
-      gain.gain.linearRampToValueAtTime(peak, start + 0.04);
-      gain.gain.exponentialRampToValueAtTime(0.0008, start + 0.62);
+      gain.gain.linearRampToValueAtTime(peak, start + 0.035);
+      gain.gain.exponentialRampToValueAtTime(0.0008, start + (kind === "life" ? 0.9 : 0.55));
       osc.connect(gain);
       gain.connect(audio.destination);
       osc.start(start);
-      osc.stop(start + 0.66);
+      osc.stop(start + 1);
     });
   } catch {
     /* a missed chord is not a missed sky */
+  }
+}
+
+/** Catching a blink in the disk. */
+export function pingContact(): void {
+  if (!enabled) return;
+  const audio = ensureCtx();
+  if (!audio || audio.state !== "running") return;
+  try {
+    const t = audio.currentTime;
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(880, t);
+    osc.frequency.exponentialRampToValueAtTime(1320, t + 0.08);
+    osc.frequency.exponentialRampToValueAtTime(440, t + 0.28);
+    gain.gain.setValueAtTime(0.0008, t);
+    gain.gain.linearRampToValueAtTime(0.04, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0008, t + 0.36);
+    osc.connect(gain);
+    gain.connect(audio.destination);
+    osc.start(t);
+    osc.stop(t + 0.38);
+  } catch {
+    /* never block the catch */
   }
 }

@@ -19,14 +19,58 @@ export type EggKind =
   | "voyager"
   | "thought"
   | "dot"
-  | "tau";
+  | "tau"
+  | "tide"
+  | "fiftyone"
+  | "highway"
+  | "zone"
+  | "ice"
+  | "wow"
+  | "witness"
+  | "throat";
 
 export type EggFlags = {
   whale: boolean;
   tau: boolean;
+  classified: boolean;
+  zone: boolean;
+  wow: boolean;
+  witness: boolean;
+  throat: boolean;
 };
 
-export const QUIET_EGGS: EggFlags = { whale: false, tau: false };
+export const QUIET_EGGS: EggFlags = {
+  whale: false,
+  tau: false,
+  classified: false,
+  zone: false,
+  wow: false,
+  witness: false,
+  throat: false,
+};
+
+/** Incomplete buffers that should hold shortcuts until the code finishes or times out. */
+export const EGG_CODES = [
+  "042",
+  "twl",
+  "tau",
+  "тау",
+  "кита",
+  "uuddlrlr",
+  "vnm",
+  "a51",
+  "r60",
+  "zon",
+  "ice",
+  "wow",
+  "wit",
+  "gt",
+] as const;
+
+export function isEggPrefix(buf: string): boolean {
+  if (!buf) return false;
+  return EGG_CODES.some((code) => code.startsWith(buf) && code.length > buf.length);
+}
 
 export function sliderEgg(params: UniverseParams): "nothing" | "overcooked" | null {
   let lo = 0;
@@ -46,12 +90,20 @@ export function sliderEgg(params: UniverseParams): "nothing" | "overcooked" | nu
 
 /**
  * Key sequences. Regular shortcuts still fire unless the caller
- * swallows the last key of a completed code.
+ * swallows the last key of a completed code — and holds a prefix
+ * (r60, zon, twl) so Refine / Ours / Laws do not steal the joke.
  *
  * 042 — the answer (loads Deep Thought / catalog 42)
- * twl — towel (letters that don't steal birth/survey/evolve)
+ * twl — towel
  * tau / тау / кита — Tau Ceti (Vysotsky homology; not a detection)
- * ↑↑↓↓←→←→ — don't panic
+ * vnm — von Neumann tide
+ * a51 — the plate is classified
+ * r60 — the long road
+ * zon — submitted for your approval
+ * ice — a thin ice economy, not a series
+ * wow — Big Ear 1977, a spike, not a telegram
+ * wit — look, don't land
+ * gt — a traversable throat (Morris–Thorne), not a franchise door
  */
 export function noteEggKey(
   buf: string,
@@ -71,6 +123,14 @@ export function noteEggKey(
   if (next.endsWith("twl")) return { buf: "", hit: "towel" };
   if (next.endsWith("tau") || next.endsWith("тау") || next.endsWith("кита")) return { buf: "", hit: "tau" };
   if (next.endsWith("uuddlrlr")) return { buf: "", hit: "panic" };
+  if (next.endsWith("vnm")) return { buf: "", hit: "tide" };
+  if (next.endsWith("a51")) return { buf: "", hit: "fiftyone" };
+  if (next.endsWith("r60")) return { buf: "", hit: "highway" };
+  if (next.endsWith("zon")) return { buf: "", hit: "zone" };
+  if (next.endsWith("ice")) return { buf: "", hit: "ice" };
+  if (next.endsWith("wow")) return { buf: "", hit: "wow" };
+  if (next.endsWith("wit")) return { buf: "", hit: "witness" };
+  if (next.endsWith("gt")) return { buf: "", hit: "throat" };
   return { buf: next, hit: null };
 }
 

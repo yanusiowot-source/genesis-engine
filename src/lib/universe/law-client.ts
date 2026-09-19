@@ -1,7 +1,7 @@
 import { testHypothesis, type BayesResult, type Hypothesis } from "./bayes";
 import { runExpedition, type ExpeditionResult, type ResearchTarget } from "./research";
 import { discoverLaw, type DiscoveryResult } from "./symbolic";
-import { runMcmc, type McmcResult } from "./mcmc";
+import { runAdaptiveWalk, type McmcResult } from "./mcmc";
 import type { UniverseParams } from "./types";
 
 type WorkerOk = {
@@ -91,9 +91,9 @@ export async function runMcmcAsync(
   burnIn?: number,
   thin?: number,
 ): Promise<McmcResult> {
-  if (!getWorker()) return runMcmc(seed, start, target, nSteps, burnIn, thin);
+  if (!getWorker()) return runAdaptiveWalk(seed, start, target);
   return callWorker<McmcResult>(
-    { op: "mcmc", seed, start, target, nSteps, burnIn, thin },
+    { op: "mcmc", seed, start, target, nSteps, burnIn, thin, walker: "adaptive" },
     28_000,
   );
 }

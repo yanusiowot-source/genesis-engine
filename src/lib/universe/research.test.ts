@@ -6,11 +6,13 @@ import {
   OUR_UNIVERSE,
   PARAM_META,
   SILICON_CORRIDOR,
+  SWARM_CORRIDOR,
   evaluate,
 } from "./physics.ts";
 import {
   localSensitivity,
   permutationImportance,
+  RESEARCH_TARGETS,
   runExpedition,
   scoreOf,
 } from "./research.ts";
@@ -25,6 +27,13 @@ describe("scoreOf", () => {
     assert.ok(scoreOf(ev, "overall") === scoreOf(ev, "carbon"));
     assert.ok(scoreOf(ev, "diversity") < 0.1);
     assert.ok(scoreOf(ev, "eternal") < 0.03);
+  });
+
+  it("ranks the von Neumann corridor on the tide", () => {
+    const ev = evaluate(SWARM_CORRIDOR);
+    assert.equal(scoreOf(ev, "swarm"), ev.swarmProb);
+    assert.ok(scoreOf(ev, "overall") === ev.swarmProb);
+    assert.ok(ev.swarmProb > scoreOf(ev, "carbon"));
   });
 
   it("ranks the silicon corridor on silicon, not carbon", () => {
@@ -77,6 +86,19 @@ describe("runExpedition", () => {
     assert.ok(result.best[0]!.evaluation.eternalProb > 0.3);
     assert.ok(result.thisPercentile > 0.55);
     assert.ok(result.viableEternal >= 1);
+  });
+
+  it("finds tide worlds from a swarm hunt", () => {
+    const result = runExpedition(17, "swarm", SWARM_CORRIDOR);
+    assert.ok(result.best[0]!.evaluation.swarmProb > 0.3);
+    assert.ok(result.thisPercentile > 0.55);
+    assert.ok(result.viableSwarm >= 1);
+    assert.ok(result.meanSwarm > 0);
+  });
+
+  it("exposes the tide as a hunt axis", () => {
+    assert.ok(RESEARCH_TARGETS.includes("swarm"));
+    assert.equal(RESEARCH_TARGETS.length, 6);
   });
 
   it("keeps a desert sky in a low percentile", () => {

@@ -6,12 +6,13 @@ import {
   nearEternal,
   nearGoldilocks,
   nearSilicon,
+  nearSwarm,
   randomParams,
   refine,
   snapParams,
 } from "./physics.ts";
 
-export type ResearchTarget = "carbon" | "silicon" | "eternal" | "overall" | "diversity";
+export type ResearchTarget = "carbon" | "silicon" | "eternal" | "swarm" | "overall" | "diversity";
 
 export type InsightId =
   | "rareViable"
@@ -25,7 +26,8 @@ export type InsightId =
   | "thisSkyLow"
   | "theoristImproved"
   | "darkEnergyDominatesEternal"
-  | "eternalRare";
+  | "eternalRare"
+  | "tideRare";
 
 export type SampleRow = {
   params: UniverseParams;
@@ -45,9 +47,11 @@ export type ExpeditionResult = {
   viableCarbon: number;
   viableSilicon: number;
   viableEternal: number;
+  viableSwarm: number;
   meanCarbon: number;
   meanSilicon: number;
   meanEternal: number;
+  meanSwarm: number;
   corr: number;
   importance: ImportanceRow[];
   localSensitivity: ImportanceRow[];
@@ -75,6 +79,7 @@ export const RESEARCH_TARGETS: ResearchTarget[] = [
   "carbon",
   "silicon",
   "eternal",
+  "swarm",
   "overall",
   "diversity",
 ];
@@ -83,10 +88,12 @@ export function scoreOf(ev: Evaluation, target: ResearchTarget): number {
   const a = ev.lifeProb;
   const b = ev.siliconProb;
   const e = ev.eternalProb;
+  const s = ev.swarmProb ?? 0;
   if (target === "carbon") return a;
   if (target === "silicon") return b;
   if (target === "eternal") return e;
-  if (target === "overall") return Math.max(a, b, e);
+  if (target === "swarm") return s;
+  if (target === "overall") return Math.max(a, b, e, s);
   return (2 * a * b) / (a + b + 1e-9);
 }
 
@@ -223,11 +230,16 @@ function percentileRank(value: number, sample: number[]): number {
 function climbTargetOf(
   target: ResearchTarget,
   start: UniverseParams,
-): "carbon" | "silicon" | "eternal" {
+): "carbon" | "silicon" | "eternal" | "swarm" {
   if (target === "silicon") return "silicon";
   if (target === "eternal") return "eternal";
+  if (target === "swarm") return "swarm";
   if (target === "overall") {
     const ev = evaluate(start);
+    const s = ev.swarmProb ?? 0;
+    if (s >= ev.lifeProb && s >= ev.siliconProb && s >= ev.eternalProb && s >= 0.18) {
+      return "swarm";
+    }
     if (ev.eternalProb >= ev.lifeProb && ev.eternalProb >= ev.siliconProb) return "eternal";
     if (ev.siliconProb > ev.lifeProb) return "silicon";
     return "carbon";
@@ -240,6 +252,7 @@ function pickInsights(args: {
   sampleN: number;
   viableCarbon: number;
   viableEternal: number;
+  viableSwarm: number;
   corr: number;
   importance: ImportanceRow[];
   thisPercentile: number;
@@ -251,6 +264,8 @@ function pickInsights(args: {
   if (viableFrac < 0.22) out.push("rareViable");
   const eternalFrac = args.viableEternal / Math.max(args.sampleN, 1);
   if (args.target === "eternal" && eternalFrac < 0.16) out.push("eternalRare");
+  const swarmFrac = args.viableSwarm / Math.max(args.sampleN, 1);
+  if (args.target === "swarm" && swarmFrac < 0.16) out.push("tideRare");
   const top = args.importance[0]?.key;
   if (top === "gravity" && args.target === "carbon") {
     out.push("gravityDominatesCarbon");
@@ -297,13 +312,15 @@ export function runExpedition(
     const visualSeed = Math.floor(rng() * 0xffffffff) || 1;
     const roll = rng();
     const params =
-      roll < 0.38
+      roll < 0.32
         ? randomParams(rng)
-        : roll < 0.6
+        : roll < 0.5
           ? nearGoldilocks(rng)
-          : roll < 0.8
+          : roll < 0.66
             ? nearSilicon(rng)
-            : nearEternal(rng);
+            : roll < 0.82
+              ? nearSwarm(rng)
+              : nearEternal(rng);
     observer.push(toRow(params, visualSeed, target));
   }
 
@@ -327,14 +344,18 @@ export function runExpedition(
   const carbon = all.map((r) => r.evaluation.lifeProb);
   const silicon = all.map((r) => r.evaluation.siliconProb);
   const eternal = all.map((r) => r.evaluation.eternalProb);
+  const swarm = all.map((r) => r.evaluation.swarmProb ?? 0);
   const viableCarbon = all.filter((r) => r.evaluation.lifeProb >= 0.18).length;
   const viableSilicon = all.filter((r) => r.evaluation.siliconProb >= 0.18)
     .length;
   const viableEternal = all.filter((r) => r.evaluation.eternalProb >= 0.18)
     .length;
+  const viableSwarm = all.filter((r) => (r.evaluation.swarmProb ?? 0) >= 0.18)
+    .length;
   const meanCarbon = carbon.reduce((a, b) => a + b, 0) / all.length;
   const meanSilicon = silicon.reduce((a, b) => a + b, 0) / all.length;
   const meanEternal = eternal.reduce((a, b) => a + b, 0) / all.length;
+  const meanSwarm = swarm.reduce((a, b) => a + b, 0) / all.length;
 
   const fateMap = new Map<Fate, number>();
   for (const f of FATE_ORDER) fateMap.set(f, 0);
@@ -367,6 +388,7 @@ export function runExpedition(
     sampleN: observer.length,
     viableCarbon: observer.filter((r) => r.evaluation.lifeProb >= 0.18).length,
     viableEternal: observer.filter((r) => r.evaluation.eternalProb >= 0.18).length,
+    viableSwarm: observer.filter((r) => (r.evaluation.swarmProb ?? 0) >= 0.18).length,
     corr: pearson(carbon, silicon),
     importance,
     thisPercentile,
@@ -381,9 +403,11 @@ export function runExpedition(
     viableCarbon,
     viableSilicon,
     viableEternal,
+    viableSwarm,
     meanCarbon,
     meanSilicon,
     meanEternal,
+    meanSwarm,
     corr: pearson(carbon, silicon),
     importance,
     localSensitivity: local,

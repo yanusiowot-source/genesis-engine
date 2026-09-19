@@ -54,9 +54,10 @@ describe("intelligenceWindow", () => {
 
   it("reads a thin diaspora on ΛCDM and stays silent on a desert", () => {
     const ours = intelligenceWindow(OUR_UNIVERSE, evaluate(OUR_UNIVERSE));
-    const line = formatDiasporaLine(ours, copyFor("en").civ);
+    const line = formatDiasporaLine(ours, copyFor("en").civ, { swarmProb: evaluate(OUR_UNIVERSE).swarmProb });
     assert.match(line ?? "", /diaspora analog/i);
     assert.match(line ?? "", /not a fleet/i);
+    assert.match(line ?? "", /Fermi/i);
     assert.doesNotMatch(line ?? "", /census|narcotic|gang/i);
     const ru = formatDiasporaLine(ours, copyFor("ru").civ) ?? "";
     assert.match(ru, /не флот/);

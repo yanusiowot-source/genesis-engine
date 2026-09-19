@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { analyzePosterior, essOf, quantile, runMcmc, splitRhat } from "./mcmc.ts";
+import { analyzePosterior, chooseWalk, downsampleTrace, essOf, quantile, runAdaptiveWalk, runHmc, runMcmc, splitRhat } from "./mcmc.ts";
 import { OUR_UNIVERSE } from "./physics.ts";
 import { mcmcTableFits, mcmcImageFits } from "./fits.ts";
 import { mcmcVotable, parseVotableTableName } from "./votable.ts";
@@ -19,6 +19,7 @@ describe("runMcmc", () => {
       assert.ok(s.score >= 0 && s.score <= 1);
     }
     assert.ok(a.acceptRate > 0.05 && a.acceptRate < 0.95);
+    assert.equal(a.walker, "mh");
   });
 
   it("concentrates near the carbon corridor when started at ΛCDM", () => {
@@ -55,6 +56,7 @@ describe("analyzePosterior", () => {
     assert.ok(g.q50 > 0.7 && g.q50 < 1.4, `g50=${g.q50}`);
     assert.ok(a.rhat >= 1 && a.rhat < 3, `rhat=${a.rhat}`);
     assert.ok(a.viableCarbon > a.viableEternal);
+    assert.ok(a.viableSwarm >= 0 && a.viableSwarm <= 1);
     assert.ok(g.here !== undefined && g.here > 0.02 && g.here < 0.98);
     assert.equal(a.marginals.length, 6);
     assert.ok(a.logL.length > 4);
@@ -71,5 +73,49 @@ describe("mcmc exports", () => {
     const xml = mcmcVotable(r);
     assert.equal(parseVotableTableName(xml), "chain");
     assert.match(xml, /<TR>/);
+  });
+});
+
+describe("downsampleTrace", () => {
+  it("keeps a short series and pins the last sample of a long one", () => {
+    assert.deepEqual(downsampleTrace([1, 2, 3], 80), [1, 2, 3]);
+    const long = Array.from({ length: 400 }, (_, i) => i);
+    const thin = downsampleTrace(long, 80);
+    assert.ok(thin.length <= 82);
+    assert.equal(thin[0], 0);
+    assert.equal(thin[thin.length - 1], 399);
+  });
+});
+
+describe("runHmc", () => {
+  it("is deterministic, stays in the box, and is not Metropolis", () => {
+    const a = runHmc(11, OUR_UNIVERSE, "carbon", 48, 8, 2, 3, 0.07);
+    const b = runHmc(11, OUR_UNIVERSE, "carbon", 48, 8, 2, 3, 0.07);
+    assert.equal(a.walker, "hmc");
+    assert.equal(a.samples.length, b.samples.length);
+    assert.equal(a.acceptRate, b.acceptRate);
+    assert.equal(a.map.logL, b.map.logL);
+    assert.ok(a.samples.length > 4);
+    for (const s of a.samples) {
+      assert.ok(s.params.gravity >= 0.35 && s.params.gravity <= 2.2);
+      assert.ok(s.params.matter >= 0.05 && s.params.matter <= 1.8);
+    }
+  });
+});
+
+describe("chooseWalk", () => {
+  it("keeps Metropolis when HMC did not mix better", () => {
+    const mh = runMcmc(5, OUR_UNIVERSE, "carbon", 160, 32, 4);
+    const worse = { ...mh, ess: Math.max(1, mh.ess * 0.2), walker: "hmc" as const };
+    assert.equal(chooseWalk(mh, worse).walker, "mh");
+    const better = { ...mh, ess: mh.ess + 80, walker: "hmc" as const };
+    assert.equal(chooseWalk(mh, better).walker, "hmc");
+  });
+
+  it("starts adaptive on Metropolis and stays in the box", () => {
+    const w = runAdaptiveWalk(9, OUR_UNIVERSE, "carbon");
+    assert.ok(w.walker === "mh" || w.walker === "hmc");
+    assert.ok(w.samples.length > 10);
+    assert.ok(w.map.score >= 0);
   });
 });

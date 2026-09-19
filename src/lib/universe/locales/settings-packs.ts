@@ -29,6 +29,9 @@ type SettingsIn = {
   presetSilicon: string;
   presetDesert: string;
   presetEternal: string;
+  presetSwarm?: string;
+  presetHighway?: string;
+  presetBelt?: string;
   path: string;
   intelligence: string;
   carrying: string;
@@ -49,7 +52,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Musik",
     aboutTitle: "Über",
     aboutBody:
-      "Ein kosmologisches Labor auf diesem Gerät. Konstanten formen, eine Galaxie betrachten, drei schmale Korridore jagen, in denen ein Geist leben könnte.",
+      "Ein kosmologisches Labor auf diesem Gerät. Konstanten formen, eine Galaxie betrachten, vier schmale Korridore jagen, in denen ein Geist leben könnte.",
     textSize: "Textgröße",
     textSizeSm: "Klein",
     textSizeMd: "Normal",
@@ -73,6 +76,9 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     presetSilicon: "Silicium-Korridor",
     presetDesert: "Wüstenepoche",
     presetEternal: "Dyson-Korridor",
+    presetSwarm: "Gezeiten-Korridor",
+    presetHighway: "Die lange Straße",
+    presetBelt: "Eisgürtel",
     path: "Chemischer Pfad",
     intelligence: "P(Geist)",
     carrying: "Tragfähigkeit analog",
@@ -83,7 +89,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Muziek",
     aboutTitle: "Over",
     aboutBody:
-      "Een kosmologisch laboratorium op dit apparaat. Vorm de constanten, bekijk een sterrenstelsel, zoek drie smalle corridors waar een geest kan leven.",
+      "Een kosmologisch laboratorium op dit apparaat. Vorm de constanten, bekijk een sterrenstelsel, zoek vier smalle corridors waar een geest kan leven.",
     textSize: "Tekstgrootte",
     textSizeSm: "Klein",
     textSizeMd: "Normaal",
@@ -107,6 +113,9 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     presetSilicon: "Siliciumcorridor",
     presetDesert: "Woestijnepoch",
     presetEternal: "Dyson-corridor",
+    presetSwarm: "Getijdencorridor",
+    presetHighway: "De lange weg",
+    presetBelt: "IJsgordel",
     path: "Chemisch pad",
     intelligence: "P(intelligentie)",
     carrying: "Draagkracht-analoog",
@@ -117,7 +126,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Musique",
     aboutTitle: "À propos",
     aboutBody:
-      "Un laboratoire cosmologique sur cet appareil. Sculptez les constantes, observez une galaxie, chassez trois corridors étroits où un esprit pourrait vivre.",
+      "Un laboratoire cosmologique sur cet appareil. Sculptez les constantes, observez une galaxie, chassez quatre corridors étroits où un esprit pourrait vivre.",
     textSize: "Taille du texte",
     textSizeSm: "Petit",
     textSizeMd: "Normal",
@@ -141,6 +150,9 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     presetSilicon: "Corridor silicium",
     presetDesert: "Époque désert",
     presetEternal: "Corridor Dyson",
+    presetSwarm: "Corridor de marée",
+    presetHighway: "La longue route",
+    presetBelt: "Ceinture de glace",
     path: "Voie chimique",
     intelligence: "P(intelligence)",
     carrying: "Analogie de capacité",
@@ -151,7 +163,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Música",
     aboutTitle: "Acerca de",
     aboutBody:
-      "Un laboratorio cosmológico en este aparato. Esculpe las constantes, mira una galaxia, caza tres corredores estrechos donde una mente podría vivir.",
+      "Un laboratorio cosmológico en este aparato. Esculpe las constantes, mira una galaxia, caza cuatro corredores estrechos donde una mente podría vivir.",
     textSize: "Tamaño del texto",
     textSizeSm: "Pequeño",
     textSizeMd: "Normal",
@@ -175,6 +187,9 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     presetSilicon: "Corredor de silicio",
     presetDesert: "Época desierto",
     presetEternal: "Corredor Dyson",
+    presetSwarm: "Corredor de marea",
+    presetHighway: "El camino largo",
+    presetBelt: "Cinturón de hielo",
     path: "Camino químico",
     intelligence: "P(inteligencia)",
     carrying: "Análogo de carga",
@@ -185,7 +200,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Música",
     aboutTitle: "Sobre",
     aboutBody:
-      "Um laboratório cosmológico neste aparelho. Esculpe as constantes, olha uma galáxia, caça três corredores estreitos onde uma mente poderia viver.",
+      "Um laboratório cosmológico neste aparelho. Esculpe as constantes, olha uma galáxia, caça quatro corredores estreitos onde uma mente poderia viver.",
     textSize: "Tamanho do texto",
     textSizeSm: "Pequeno",
     textSizeMd: "Normal",
@@ -219,7 +234,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Musica",
     aboutTitle: "Informazioni",
     aboutBody:
-      "Un laboratorio cosmologico su questo dispositivo. Scolpisci le costanti, osserva una galassia, caccia tre corridoi stretti dove una mente potrebbe vivere.",
+      "Un laboratorio cosmologico su questo dispositivo. Scolpisci le costanti, osserva una galassia, caccia quattro corridoi stretti dove una mente potrebbe vivere.",
     textSize: "Dimensione del testo",
     textSizeSm: "Piccolo",
     textSizeMd: "Normale",
@@ -253,7 +268,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Muzyka",
     aboutTitle: "O programie",
     aboutBody:
-      "Laboratorium kosmologiczne na tym urządzeniu. Rzeźb stałe, oglądaj galaktykę, ścigaj trzy wąskie korytarze, w których umysł mógłby żyć.",
+      "Laboratorium kosmologiczne na tym urządzeniu. Rzeźb stałe, oglądaj galaktykę, ścigaj cztery wąskie korytarze, w których umysł mógłby żyć.",
     textSize: "Rozmiar tekstu",
     textSizeSm: "Mały",
     textSizeMd: "Zwykły",
@@ -287,7 +302,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Музика",
     aboutTitle: "Про програму",
     aboutBody:
-      "Космологічна лабораторія на цьому пристрої. Ліпіть константи, дивіться галактику, шукайте три вузькі коридори, де може жити розум.",
+      "Космологічна лабораторія на цьому пристрої. Ліпіть константи, дивіться галактику, шукайте чотири вузькі коридори, де може жити розум.",
     textSize: "Розмір тексту",
     textSizeSm: "Дрібний",
     textSizeMd: "Звичайний",
@@ -320,7 +335,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     appearance: "外观",
     musicTitle: "音乐",
     aboutTitle: "关于",
-    aboutBody: "这台机器上的宇宙学实验室。塑造常数，观看星系，寻找三条可能容得下心智的窄廊。",
+    aboutBody: "这台机器上的宇宙学实验室。塑造常数，观看星系，寻找四条可能容得下心智的窄廊。",
     textSize: "字号",
     textSizeSm: "小",
     textSizeMd: "中",
@@ -354,7 +369,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "音楽",
     aboutTitle: "この実験室について",
     aboutBody:
-      "この機械の上の宇宙論実験室。定数を彫り、銀河を眺め、心が棲みうる三条の細い回廊を探す。",
+      "この機械の上の宇宙論実験室。定数を彫り、銀河を眺め、心が棲みうる四条の細い回廊を探す。",
     textSize: "文字サイズ",
     textSizeSm: "小",
     textSizeMd: "中",
@@ -388,7 +403,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "الموسيقى",
     aboutTitle: "حول",
     aboutBody:
-      "مختبر كوني على هذا الجهاز. انحت الثوابت، راقب مجرة، واصطد ثلاثة ممرات ضيقة قد يعيش فيها عقل.",
+      "مختبر كوني على هذا الجهاز. انحت الثوابت، راقب مجرة، واصطد أربعة ممرات ضيقة قد يعيش فيها عقل.",
     textSize: "حجم النص",
     textSizeSm: "صغير",
     textSizeMd: "عادي",
@@ -422,7 +437,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Müzik",
     aboutTitle: "Hakkında",
     aboutBody:
-      "Bu aygıttaki kozmolojik laboratuvar. Sabitleri yont, bir gökadayı izle, bir zihnin yaşayabileceği üç ince koridoru ara.",
+      "Bu aygıttaki kozmolojik laboratuvar. Sabitleri yont, bir gökadayı izle, bir zihnin yaşayabileceği dört ince koridoru ara.",
     textSize: "Yazı boyutu",
     textSizeSm: "Küçük",
     textSizeMd: "Normal",
@@ -456,7 +471,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "संगीत",
     aboutTitle: "परिचय",
     aboutBody:
-      "इस यंत्र पर एक ब्रह्माण्डीय प्रयोगशाला। नियतांक गढ़ें, एक आकाशगंगा देखें, तीन पतली गलियारों की खोज करें जहाँ कोई मन रह सके।",
+      "इस यंत्र पर एक ब्रह्माण्डीय प्रयोगशाला। नियतांक गढ़ें, एक आकाशगंगा देखें, चार पतली गलियारों की खोज करें जहाँ कोई मन रह सके।",
     textSize: "अक्षर आकार",
     textSizeSm: "छोटा",
     textSizeMd: "सामान्य",
@@ -490,7 +505,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "음악",
     aboutTitle: "이 실험실",
     aboutBody:
-      "이 기계 위의 우주론 실험실. 상수를 조각하고, 은하를 보고, 마음이 살 수 있는 세 가느다란 회랑을 찾습니다.",
+      "이 기계 위의 우주론 실험실. 상수를 조각하고, 은하를 보고, 마음이 살 수 있는 네 가느다란 회랑을 찾습니다.",
     textSize: "글자 크기",
     textSizeSm: "작게",
     textSizeMd: "보통",
@@ -524,7 +539,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     musicTitle: "Muziko",
     aboutTitle: "Pri",
     aboutBody:
-      "Kosmologia laboratorio sur ĉi tiu aparato. Skulptu la konstantojn, rigardu galaksion, ĉasu tri mallarĝajn koridorojn, kie menso povus vivi.",
+      "Kosmologia laboratorio sur ĉi tiu aparato. Skulptu la konstantojn, rigardu galaksion, ĉasu kvar mallarĝajn koridorojn, kie menso povus vivi.",
     textSize: "Teksta grandeco",
     textSizeSm: "Malgranda",
     textSizeMd: "Ordinara",
@@ -557,7 +572,7 @@ export const SETTINGS: Record<string, DeepPartial<Copy>> = {
     appearance: "qul",
     musicTitle: "QoQ",
     aboutTitle: "De'",
-    aboutBody: "qiH QeD. ngoQ yIchen, Hovtay yIbej, HeHom wej yIngh. Qub yInlaH.",
+    aboutBody: "qiH QeD. ngoQ yIchen, Hovtay yIbej, HeHom loS yIngh. Qub yInlaH.",
     textSize: "ghItlh run",
     textSizeSm: "mach",
     textSizeMd: "motlh",

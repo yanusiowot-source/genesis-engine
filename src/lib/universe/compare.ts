@@ -3,6 +3,7 @@ import type { ParamKey, UniverseParams } from "./types.ts";
 import {
   OUR_UNIVERSE,
   friedmannAgeGyr,
+  knownPlate,
   isOurParams,
   paramDeltas,
 } from "./physics.ts";
@@ -37,6 +38,43 @@ export function formatDelta(delta: number): string {
   const digits = Math.abs(delta) < 0.01 && delta !== 0 ? 3 : 2;
   const sign = delta > 0 ? "+" : "−";
   return `${sign}${Math.abs(delta).toFixed(digits)}`;
+}
+
+/** Localized name for a known plate. Random births keep their catalog name. */
+export function plateTitle(
+  params: UniverseParams,
+  copy: {
+    presetCluster: string;
+    presetDwarf: string;
+    presetSilicon: string;
+    presetEternal: string;
+    presetSwarm: string;
+    presetHighway: string;
+    presetBelt: string;
+    presetDesert: string;
+  },
+  fallback: string,
+): string {
+  switch (knownPlate(params)) {
+    case "cluster":
+      return copy.presetCluster;
+    case "dwarf":
+      return copy.presetDwarf;
+    case "silicon":
+      return copy.presetSilicon;
+    case "eternal":
+      return copy.presetEternal;
+    case "swarm":
+      return copy.presetSwarm;
+    case "highway":
+      return copy.presetHighway;
+    case "belt":
+      return copy.presetBelt;
+    case "desert":
+      return copy.presetDesert;
+    default:
+      return fallback;
+  }
 }
 
 export type CompareCopy = {

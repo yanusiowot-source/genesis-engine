@@ -71,8 +71,8 @@ export function Segmented<T extends string>({
       role="tablist"
       aria-label={ariaLabel}
       className={cn(
-        "relative flex p-1",
-        stacked ? "gap-0" : "gap-0.5",
+        "relative flex",
+        stacked ? "gap-0 p-1" : "h-11 gap-0.5 p-0.5",
         "rounded-[var(--radius-sm)] bg-bg-elevated/70",
         className,
       )}
@@ -103,12 +103,12 @@ export function Segmented<T extends string>({
               onChange(id);
             }}
             className={cn(
-              "relative z-[1] inline-flex min-h-11 min-w-11 items-center justify-center",
+              "relative z-[1] inline-flex min-w-11 items-center justify-center",
               "rounded-[var(--radius-xs)] text-[0.625rem] font-medium tracking-wide",
               "transition-[color] duration-[var(--motion-quick)] ease-[var(--ease-out)]",
               stacked
                 ? "h-12 min-w-0 flex-1 flex-col gap-0.5 px-0.5"
-                : "h-11 flex-1 gap-1.5 px-2.5",
+                : "h-full min-h-0 flex-1 gap-1 px-2",
               active ? "text-accent" : "text-fg-subtle hover:text-fg",
               nudge === id && "nudge-ring",
             )}

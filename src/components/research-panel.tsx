@@ -95,6 +95,7 @@ function ResultBlock({
     { k: copy.research.viableC, v: String(result.viableCarbon) },
     { k: copy.research.viableSi, v: String(result.viableSilicon) },
     { k: copy.research.viableEt, v: String(result.viableEternal) },
+    { k: copy.research.viableSw, v: String(result.viableSwarm) },
     { k: copy.research.corr, v: result.corr.toFixed(2) },
     {
       k: copy.research.percentile,
@@ -245,12 +246,19 @@ function FindGroup({
             className="flex items-center justify-between gap-3 rounded-[var(--radius-sm)] bg-bg px-3 py-2"
           >
             <div className="min-w-0">
-              <p className="font-mono text-xs tabular-nums text-fg">
-                {copy.carbon} {formatPct(row.evaluation.lifeProb)}
-                <span className="mx-2 text-fg-subtle/50">/</span>
-                {copy.silicon} {formatPct(row.evaluation.siliconProb)}
-                <span className="mx-2 text-fg-subtle/50">/</span>
-                {copy.eternal} {formatPct(row.evaluation.eternalProb)}
+              <p className="grid grid-cols-2 gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg">
+                <span>
+                  {copy.carbon} {formatPct(row.evaluation.lifeProb)}
+                </span>
+                <span>
+                  {copy.silicon} {formatPct(row.evaluation.siliconProb)}
+                </span>
+                <span>
+                  {copy.eternal} {formatPct(row.evaluation.eternalProb)}
+                </span>
+                <span>
+                  {copy.swarm} {formatPct(row.evaluation.swarmProb ?? 0)}
+                </span>
               </p>
               <p className="mt-0.5 truncate text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
                 {copy.fateLabel[row.evaluation.fate]}

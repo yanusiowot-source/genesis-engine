@@ -22,6 +22,7 @@ import type { Copy } from "@/lib/universe/i18n";
 import { discoverLawAsync, testHypothesisAsync } from "@/lib/universe/law-client";
 import {
   DEFAULT_CONE,
+  catalogQuality,
   fetchPanstarrsCone,
   fetchPanstarrsCutout,
   type CatalogResult,
@@ -29,7 +30,7 @@ import {
 } from "@/lib/universe/mast";
 import { PARAM_META, evaluate } from "@/lib/universe/physics";
 import type { ResearchTarget } from "@/lib/universe/research";
-import { RESEARCH_TARGETS } from "@/lib/universe/research";
+import { RESEARCH_TARGETS, scoreOf } from "@/lib/universe/research";
 import { randomSeed } from "@/lib/universe/rng";
 import { SYM, predictLaw, type DiscoveryResult } from "@/lib/universe/symbolic";
 import type { ParamKey, UniverseParams } from "@/lib/universe/types";
@@ -380,14 +381,7 @@ function LawBlock({
   params: UniverseParams;
 }) {
   const pred = predictLaw(law.best.expr, params);
-  const truth = useMemo(() => {
-    const ev = evaluate(params);
-    if (law.target === "silicon") return ev.siliconProb;
-    if (law.target === "eternal") return ev.eternalProb;
-    if (law.target === "overall") return Math.max(ev.lifeProb, ev.siliconProb, ev.eternalProb);
-    if (law.target === "diversity") return Math.min(ev.lifeProb, ev.siliconProb);
-    return ev.lifeProb;
-  }, [law.target, params]);
+  const truth = useMemo(() => scoreOf(evaluate(params), law.target), [law.target, params]);
   const stats = [
     { k: copy.laws.r2Train, v: law.best.r2Train.toFixed(2) },
     { k: copy.laws.r2Test, v: law.best.r2Test.toFixed(2) },
@@ -472,11 +466,18 @@ function CatalogBlock({
   overlay: boolean;
   onToggleOverlay: () => void;
 }) {
+  const dq = catalogQuality(catalog.stars);
   return (
     <div className="mt-4 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
         <p className="font-mono text-[0.6875rem] tabular-nums text-fg-subtle uppercase">
-          {copy.laws.stars} {catalog.stars.length}
+          {copy.laws.stars} {dq.n}
+          <span className="mx-2 text-fg-subtle/50">·</span>
+          {copy.laws.dqComplete} {formatPct(dq.complete)}
+          <span className="mx-2 text-fg-subtle/50">·</span>
+          {copy.laws.dqDet} {dq.meanDet.toFixed(1)}
+          <span className="mx-2 text-fg-subtle/50">·</span>
+          {copy.laws.dqNiche[dq.niche]}
           {cached ? ` · ${copy.laws.cached}` : ""}
         </p>
         <Button variant="outline" size="sm" onClick={onToggleOverlay}>

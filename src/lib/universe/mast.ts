@@ -104,6 +104,48 @@ export function parsePanstarrsBody(
   };
 }
 
+/**
+ * Cone quality — not Pan-STARRS qualityFlag.
+ * Completeness is gri present. nDet is visits, not S/N.
+ */
+export type CatalogDqNiche = "thin" | "fair" | "clean";
+
+export type CatalogDq = {
+  n: number;
+  complete: number;
+  meanDet: number;
+  dropout: number;
+  colorOk: number;
+  niche: CatalogDqNiche;
+};
+
+export function catalogQuality(stars: CatalogStar[]): CatalogDq {
+  const n = stars.length;
+  if (n === 0) {
+    return { n: 0, complete: 0, meanDet: 0, dropout: 0, colorOk: 0, niche: "thin" };
+  }
+  let gri = 0;
+  let det = 0;
+  let drop = 0;
+  let col = 0;
+  for (const s of stars) {
+    if (s.g != null && s.r != null && s.i != null) gri += 1;
+    else drop += 1;
+    det += s.nDet;
+    if (s.g != null && s.r != null) {
+      const gr = s.g - s.r;
+      if (gr > -0.4 && gr < 2.2) col += 1;
+    }
+  }
+  const complete = gri / n;
+  const meanDet = det / n;
+  const colorOk = col / n;
+  let niche: CatalogDqNiche = "thin";
+  if (n >= 8 && complete >= 0.65 && meanDet >= 8 && colorOk >= 0.5) niche = "clean";
+  else if (n >= 4 && complete >= 0.35) niche = "fair";
+  return { n, complete, meanDet, dropout: drop / n, colorOk, niche };
+}
+
 export const fetchPanstarrsCone = createServerFn({ method: "POST" })
   .validator((input: unknown) => Input.parse(input))
   .handler(async ({ data }): Promise<CatalogResult> => {

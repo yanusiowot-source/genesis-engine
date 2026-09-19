@@ -100,6 +100,9 @@ for (const platform of list) {
   if (existsSync(join(root, "desktop", "KEEP.txt"))) {
     cpSync(join(root, "desktop", "KEEP.txt"), join(unpacked, "KEEP.txt"));
   }
+  if (existsSync(join(root, "LICENSE"))) {
+    cpSync(join(root, "LICENSE"), join(unpacked, "LICENSE.txt"));
+  }
 
   const leftover = join(unpacked, "resources", "default_app.asar");
   if (existsSync(leftover)) rmSync(leftover);

@@ -17,7 +17,7 @@ type Props = {
 
 export function CivPanel({ copy, params, evaluation }: Props) {
   const model = intelligenceWindow(params, evaluation);
-  const routes = formatDiasporaLine(model, copy.civ);
+  const routes = formatDiasporaLine(model, copy.civ, { swarmProb: evaluation.swarmProb });
   return (
     <section className="flex flex-col gap-4">
       <div>

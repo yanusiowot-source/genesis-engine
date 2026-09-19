@@ -5,6 +5,15 @@ export function formatPct(n: number): string {
   return `${(n * 100).toFixed(1)}%`;
 }
 
+/** Short HUD readout: 0%, 1.5%, 48%. Lab tables keep formatPct. */
+export function formatHudPct(n: number): string {
+  if (!Number.isFinite(n)) return "—";
+  const p = n * 100;
+  if (p < 0.05) return "0%";
+  if (p < 10) return `${p.toFixed(1)}%`;
+  return `${Math.round(p)}%`;
+}
+
 export function formatGyr(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return "0 Gyr";
   if (n >= 100) return `${n.toFixed(0)} Gyr`;

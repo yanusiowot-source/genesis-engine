@@ -1,9 +1,8 @@
 import { useEffect } from "react";
-import { AppWindow, ExternalLink, Monitor, Plus, Share, Smartphone, Tablet } from "lucide-react";
+import { AppWindow, Monitor, Plus, Share, Smartphone, Tablet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Copy } from "@/lib/universe/i18n";
 import type { HostKind, PlatformInfo } from "@/lib/universe/platform";
-import { orderCopyUrl } from "@/lib/universe/studio";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -11,10 +10,11 @@ type Props = {
   platform: PlatformInfo;
   canNativeInstall: boolean;
   onInstall: () => void;
+  onKeep: () => void;
   onClose: () => void;
 };
 
-export function InstallSheet({ copy, platform, canNativeInstall, onInstall, onClose }: Props) {
+export function InstallSheet({ copy, platform, canNativeInstall, onInstall, onKeep, onClose }: Props) {
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -116,11 +116,8 @@ export function InstallSheet({ copy, platform, canNativeInstall, onInstall, onCl
         <div className="mt-6 flex flex-col gap-2">
           {canPrompt ? <Button onClick={onInstall}>{copy.installCta}</Button> : null}
           {!platform.native ? (
-            <Button asChild variant="outline">
-              <a href={orderCopyUrl(copy.studioOrderText)} target="_blank" rel="noopener noreferrer">
-                <ExternalLink />
-                {copy.studioReserveCta}
-              </a>
+            <Button type="button" variant="outline" onClick={onKeep}>
+              {copy.keep.openCta}
             </Button>
           ) : null}
           <Button variant="ghost" onClick={onClose}>

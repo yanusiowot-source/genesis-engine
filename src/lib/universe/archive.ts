@@ -1,5 +1,5 @@
-import { evaluate, snapParams } from "./physics";
-import type { UniverseRecord } from "./types";
+import { OUR_SEED, evaluate, isOurParams, snapParams } from "./physics.ts";
+import type { UniverseRecord } from "./types.ts";
 
 const KEY = "genesis-engine-archive-v1";
 const DB_NAME = "genesis-engine";
@@ -196,11 +196,39 @@ export function upsertArchive(
     chronicle: next.chronicle ?? prev?.chronicle,
   };
   const without = records.filter((r) => r.id !== next.id);
-  const combined = [merged, ...without];
+  const trimmed = isLivingDraft(merged)
+    ? without.filter((r) => !(isLivingDraft(r) && r.visualSeed === merged.visualSeed))
+    : without;
+  const combined = [merged, ...trimmed];
   const starred = combined.filter((r) => r.starred);
   const rest = combined.filter((r) => !r.starred);
   const room = Math.max(0, LIMIT - starred.length);
   return [...starred, ...rest.slice(0, room)];
+}
+
+/** Unpinned plate of a birth — sculpting replaces it. Home furniture and stars stay. */
+function isLivingDraft(record: UniverseRecord): boolean {
+  if (record.starred || record.chronicle) return false;
+  if (record.visualSeed === OUR_SEED && isOurParams(record.params)) return false;
+  return true;
+}
+
+export type PlatePath = "carbon" | "silicon" | "eternal" | "swarm" | "none";
+
+export type PlateScore = { value: number; path: PlatePath };
+
+/** Strongest open envelope on a plate — four corridors, not three. */
+export function plateScore(record: UniverseRecord): PlateScore {
+  const a = record.evaluation.lifeProb;
+  const b = record.evaluation.siliconProb ?? 0;
+  const e = record.evaluation.eternalProb ?? 0;
+  const s = record.evaluation.swarmProb ?? 0;
+  const value = Math.max(a, b, e, s);
+  if (value < 0.18) return { value, path: "none" };
+  if (s >= a && s >= b && s >= e) return { value, path: "swarm" };
+  if (e >= a && e >= b) return { value, path: "eternal" };
+  if (b > a) return { value, path: "silicon" };
+  return { value, path: "carbon" };
 }
 
 export function removeFromArchive(
@@ -223,6 +251,7 @@ export function isViable(record: UniverseRecord): boolean {
   return (
     record.evaluation.lifeProb >= 0.18 ||
     record.evaluation.siliconProb >= 0.18 ||
-    record.evaluation.eternalProb >= 0.18
+    record.evaluation.eternalProb >= 0.18 ||
+    (record.evaluation.swarmProb ?? 0) >= 0.18
   );
 }
