@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,7 +8,9 @@ import { test } from "node:test";
 import {
   TTL_MS,
   digestProcessLog,
+  hourInZone,
   isBusy,
+  isQuietHour,
   lockPath,
   parseProcessLog,
   readLock,
@@ -63,15 +65,48 @@ test("digest counts skips and refuses broken lines", () => {
     '{"t":310000,"event":"busy"}',
     '{"t":310000,"event":"acquire"}',
     '{"t":320000,"event":"release"}',
+    '{"t":400000,"event":"quiet"}',
     "",
   ].join("\n");
   const events = parseProcessLog(text);
-  assert.equal(events.length, 5);
+  assert.equal(events.length, 6);
   const d = digestProcessLog(events);
   assert.equal(d.acquire, 2);
   assert.equal(d.busy, 1);
+  assert.equal(d.quiet, 1);
   assert.equal(d.release, 2);
-  assert.ok(Math.abs(d.skipRate - 1 / 3) < 1e-9);
+  assert.ok(Math.abs(d.skipRate - 2 / 4) < 1e-9);
   assert.equal(d.open, false);
   assert.ok(d.meanGapMs > 300000 - 1);
+});
+
+test("Belgrade night is quiet, afternoon is not", () => {
+  // 2026-09-20 02:00 CEST = 00:00 UTC
+  const night = Date.UTC(2026, 8, 20, 0, 0, 0);
+  // 2026-09-20 16:00 CEST = 14:00 UTC
+  const day = Date.UTC(2026, 8, 20, 14, 0, 0);
+  assert.equal(hourInZone(night, "Europe/Belgrade"), 2);
+  assert.equal(isQuietHour(night, "Europe/Belgrade"), true);
+  assert.equal(hourInZone(day, "Europe/Belgrade"), 16);
+  assert.equal(isQuietHour(day, "Europe/Belgrade"), false);
+});
+
+test("acquire logs quiet and does not take the lock at night", () => {
+  const dir = mkdtempSync(join(tmpdir(), "cycle-gate-"));
+  const lock = join(dir, "cycle.lock");
+  const log = join(dir, "cycle.jsonl");
+  const night = String(Date.UTC(2026, 8, 20, 1, 0, 0));
+  const quiet = spawnSync(process.execPath, [SCRIPT, "acquire"], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      GENESIS_CYCLE_LOCK: lock,
+      GENESIS_CYCLE_LOG: log,
+      GENESIS_CYCLE_TZ: "UTC",
+      GENESIS_CYCLE_NOW: night,
+    },
+  });
+  assert.equal(quiet.status, 3);
+  assert.equal(quiet.stdout.trim(), "quiet");
+  assert.equal(existsSync(lock), false);
 });
