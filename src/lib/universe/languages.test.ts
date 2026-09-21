@@ -112,6 +112,11 @@ describe("copyFor", () => {
     assert.match(c.eggs.throat, /Morris/i);
     assert.match(copyFor("ru").eggs.throat, /горловин/i);
     assert.match(copyFor("be").eggs.throat, /гарлавін/i);
+    assert.match(c.obs.modeHint.lensing, /NFW/);
+    assert.doesNotMatch(c.obs.modeHint.lensing, /\bSIS\b/);
+    assert.match(copyFor("ru").obs.modeHint.lensing, /NFW/);
+    assert.doesNotMatch(copyFor("ru").obs.modeHint.lensing, /\bSIS\b/);
+    assert.match(copyFor("be").obs.modeHint.lensing, /NFW/);
     assert.match(c.tapSky, /look/i);
     assert.match(copyFor("ru").tapSky, /Смотр/i);
     assert.match(c.plot.arrive, /Posted to watch/i);
