@@ -17,14 +17,18 @@ import {
 } from "./cycle-gate.mjs";
 
 const SCRIPT = fileURLToPath(new URL("./cycle-gate.mjs", import.meta.url));
+/** Afternoon UTC — not quiet. Live 03:00 Belgrade must not turn "busy" into "quiet". */
+const DAY = Date.UTC(2026, 8, 21, 14, 0, 0);
 
-function run(args, lock, log) {
+function run(args, lock, log, now = DAY) {
   return spawnSync(process.execPath, [SCRIPT, ...args], {
     encoding: "utf8",
     env: {
       ...process.env,
       GENESIS_CYCLE_LOCK: lock,
       GENESIS_CYCLE_LOG: log || join(tmpdir(), "genesis-cycle-test.jsonl"),
+      GENESIS_CYCLE_TZ: "UTC",
+      GENESIS_CYCLE_NOW: String(now),
     },
   });
 }
@@ -42,16 +46,16 @@ test("isBusy treats missing and stale locks as free", () => {
 
 test("acquire refuses a live lock and accepts a stale one", () => {
   const lock = join(mkdtempSync(join(tmpdir(), "cycle-gate-")), "cycle.lock");
-  writeFileSync(lock, JSON.stringify({ at: Date.now() }));
+  writeFileSync(lock, JSON.stringify({ at: DAY }));
   const busy = run(["acquire"], lock);
   assert.equal(busy.status, 2);
   assert.match(busy.stdout, /^busy /);
-  writeFileSync(lock, JSON.stringify({ at: Date.now() - TTL_MS - 50 }));
+  writeFileSync(lock, JSON.stringify({ at: DAY - TTL_MS - 50 }));
   const free = run(["acquire"], lock);
   assert.equal(free.status, 0);
   assert.equal(free.stdout.trim(), "free");
   const held = readLock(lock);
-  assert.ok(held && held.at > Date.now() - 2000);
+  assert.ok(held && held.at === DAY);
   const released = run(["release"], lock);
   assert.equal(released.status, 0);
   assert.equal(run(["status"], lock).status, 0);
