@@ -51,6 +51,10 @@ try {
     process.exit(0);
   }
   const head = git(ROOT, ["rev-parse", "--short", "HEAD"]);
+  const name = git(ROOT, ["config", "user.name"]) || "Genesis Engine";
+  const email = git(ROOT, ["config", "user.email"]) || "genesis@local";
+  git(dir, ["config", "user.name", name]);
+  git(dir, ["config", "user.email", email]);
   execFileSync("git", ["commit", "-m", `Public lab from ${head} (build only, no source)`], {
     cwd: dir,
     stdio: "inherit",
