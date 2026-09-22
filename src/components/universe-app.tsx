@@ -15,57 +15,105 @@ import {
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense, type ReactNode } from "react";
-import { AstroPanel } from "@/components/astro-panel";
-import { CivPanel } from "@/components/civ-panel";
-import { BiospherePanel } from "@/components/biosphere-panel";
-import { CompareOurs } from "@/components/compare-ours";
-import { CosmicClock } from "@/components/cosmic-clock";
-import { EpochTimeline } from "@/components/epoch-timeline";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
-import { HelpSheet } from "@/components/help-sheet";
-import { HubblePanel } from "@/components/hubble-panel";
-import { HaloPanel } from "@/components/halo-panel";
-import { DiskPanel } from "@/components/disk-panel";
-import { AcousticPanel } from "@/components/acoustic-panel";
-import { InstallSheet } from "@/components/install-sheet";
-import { KeepSheet } from "@/components/keep-sheet";
+import { CosmicClock } from "@/components/cosmic-clock";
 import { LabPanes } from "@/components/lab-panes";
-import { LifeFactors } from "@/components/life-factors";
-import { LogList } from "@/components/log-list";
-import { MandateSheet } from "@/components/mandate-sheet";
 import { MoreMenu } from "@/components/more-menu";
 import { Onboarding } from "@/components/onboarding";
-import { ParamSliders } from "@/components/param-sliders";
-import { SettingsSheet } from "@/components/settings-sheet";
 import { ScriptureLine } from "@/components/scripture-line";
-import { ScriptureSheet } from "@/components/scripture-sheet";
-import { EternalDossier } from "@/components/eternal-dossier";
-import { EternalPanel } from "@/components/eternal-panel";
-import { SiliconDossier } from "@/components/silicon-dossier";
-import { SiliconPanel } from "@/components/silicon-panel";
-import { SwarmDossier } from "@/components/swarm-dossier";
-import { SwarmPanel } from "@/components/swarm-panel";
 import { SkyModes } from "@/components/sky-modes";
 import { TabBar, type AppTab } from "@/components/tab-bar";
 import { Button } from "@/components/ui/button";
 
+const AcousticPanel = lazy(() =>
+  import("@/components/acoustic-panel").then((m) => ({ default: m.AcousticPanel })),
+);
+const AstroPanel = lazy(() =>
+  import("@/components/astro-panel").then((m) => ({ default: m.AstroPanel })),
+);
+const BiospherePanel = lazy(() =>
+  import("@/components/biosphere-panel").then((m) => ({ default: m.BiospherePanel })),
+);
 const CatalogOverlay = lazy(() =>
   import("@/components/catalog-overlay").then((m) => ({ default: m.CatalogOverlay })),
 );
 const CitizenPanel = lazy(() =>
   import("@/components/citizen-panel").then((m) => ({ default: m.CitizenPanel })),
 );
+const CivPanel = lazy(() =>
+  import("@/components/civ-panel").then((m) => ({ default: m.CivPanel })),
+);
+const CompareOurs = lazy(() =>
+  import("@/components/compare-ours").then((m) => ({ default: m.CompareOurs })),
+);
 const DeskPanel = lazy(() =>
   import("@/components/desk-panel").then((m) => ({ default: m.DeskPanel })),
+);
+const DiskPanel = lazy(() =>
+  import("@/components/disk-panel").then((m) => ({ default: m.DiskPanel })),
+);
+const EpochTimeline = lazy(() =>
+  import("@/components/epoch-timeline").then((m) => ({ default: m.EpochTimeline })),
+);
+const EternalDossier = lazy(() =>
+  import("@/components/eternal-dossier").then((m) => ({ default: m.EternalDossier })),
+);
+const EternalPanel = lazy(() =>
+  import("@/components/eternal-panel").then((m) => ({ default: m.EternalPanel })),
+);
+const HaloPanel = lazy(() =>
+  import("@/components/halo-panel").then((m) => ({ default: m.HaloPanel })),
+);
+const HelpSheet = lazy(() =>
+  import("@/components/help-sheet").then((m) => ({ default: m.HelpSheet })),
 );
 const HrDiagram = lazy(() =>
   import("@/components/hr-diagram").then((m) => ({ default: m.HrDiagram })),
 );
+const HubblePanel = lazy(() =>
+  import("@/components/hubble-panel").then((m) => ({ default: m.HubblePanel })),
+);
+const InstallSheet = lazy(() =>
+  import("@/components/install-sheet").then((m) => ({ default: m.InstallSheet })),
+);
+const KeepSheet = lazy(() =>
+  import("@/components/keep-sheet").then((m) => ({ default: m.KeepSheet })),
+);
 const LawsPanel = lazy(() =>
   import("@/components/laws-panel").then((m) => ({ default: m.LawsPanel })),
 );
+const LifeFactors = lazy(() =>
+  import("@/components/life-factors").then((m) => ({ default: m.LifeFactors })),
+);
+const LogList = lazy(() =>
+  import("@/components/log-list").then((m) => ({ default: m.LogList })),
+);
+const MandateSheet = lazy(() =>
+  import("@/components/mandate-sheet").then((m) => ({ default: m.MandateSheet })),
+);
+const ParamSliders = lazy(() =>
+  import("@/components/param-sliders").then((m) => ({ default: m.ParamSliders })),
+);
 const ResearchPanel = lazy(() =>
   import("@/components/research-panel").then((m) => ({ default: m.ResearchPanel })),
+);
+const SettingsSheet = lazy(() =>
+  import("@/components/settings-sheet").then((m) => ({ default: m.SettingsSheet })),
+);
+const ScriptureSheet = lazy(() =>
+  import("@/components/scripture-sheet").then((m) => ({ default: m.ScriptureSheet })),
+);
+const SiliconDossier = lazy(() =>
+  import("@/components/silicon-dossier").then((m) => ({ default: m.SiliconDossier })),
+);
+const SiliconPanel = lazy(() =>
+  import("@/components/silicon-panel").then((m) => ({ default: m.SiliconPanel })),
+);
+const SwarmDossier = lazy(() =>
+  import("@/components/swarm-dossier").then((m) => ({ default: m.SwarmDossier })),
+);
+const SwarmPanel = lazy(() =>
+  import("@/components/swarm-panel").then((m) => ({ default: m.SwarmPanel })),
 );
 import {
   loadArchive,
@@ -2556,6 +2604,7 @@ export function UniverseApp() {
         </div>
         <div className="flex min-h-0 flex-col gap-6">
           {tab === "log" ? (
+            <Suspense fallback={<p className="text-sm text-fg-muted">{copy.writing}</p>}>
             <LogList
               copy={copy}
               locale={locale}
@@ -2570,6 +2619,7 @@ export function UniverseApp() {
               onStar={starById}
               onRemove={removeById}
             />
+            </Suspense>
           ) : tab === "lab" ? (
             <Suspense fallback={<p className="text-sm text-fg-muted">{copy.writing}</p>}>
               {lab}
@@ -2596,6 +2646,7 @@ export function UniverseApp() {
       {onboard && !settingsOpen && !helpOpen && !installOpen && !keepOpen && !siliconOpen && !eternalOpen && !swarmOpen && !scriptureOpen ? (
         <Onboarding copy={copy} locale={locale} onLocale={toggleLocale} onDone={finishOnboard} />
       ) : null}
+      <Suspense fallback={null}>
       {installOpen ? (
         <InstallSheet
           copy={copy}
@@ -2814,6 +2865,7 @@ export function UniverseApp() {
           onClose={() => setSwarmOpen(false)}
         />
       ) : null}
+      </Suspense>
     </div>
   );
 }
