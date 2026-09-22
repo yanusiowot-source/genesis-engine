@@ -40,6 +40,23 @@ export function packGalaxyInstances(model: GalaxyModel, into: Float32Array): num
   return disk + packStars(model.field, into, disk * STAR_FLOATS, 0.85);
 }
 
+/**
+ * Face-on disk at t = 0, no Toomre shear: translate → rotate → (x,y)*scale.
+ * Same matrix the 2D canvas uses when stretch is 0. GPU vertex shader copies this.
+ */
+export function diskPlace(
+  x: number,
+  y: number,
+  view: { ox: number; oy: number; scale: number; rot: number },
+): { x: number; y: number } {
+  const c = Math.cos(view.rot);
+  const s = Math.sin(view.rot);
+  return {
+    x: view.ox + (x * c - y * s) * view.scale,
+    y: view.oy + (x * s + y * c) * view.scale,
+  };
+}
+
 /** Homology of the compute cull: after 2D rotation, is the sprite on the canvas? */
 export function instanceOnScreen(
   x: number,
@@ -47,12 +64,9 @@ export function instanceOnScreen(
   r: number,
   view: { ox: number; oy: number; w: number; h: number; scale: number; rot: number; point: number },
 ): boolean {
-  const c = Math.cos(view.rot);
-  const s = Math.sin(view.rot);
-  const px = view.ox + (x * c - y * s) * view.scale;
-  const py = view.oy + (x * s + y * c) * view.scale;
+  const p = diskPlace(x, y, view);
   const size = Math.max(r, 0.45) * view.point;
-  return px + size >= 0 && px - size <= view.w && py + size >= 0 && py - size <= view.h;
+  return p.x + size >= 0 && p.x - size <= view.w && p.y + size >= 0 && p.y - size <= view.h;
 }
 
 const WGSL = /* wgsl */ `

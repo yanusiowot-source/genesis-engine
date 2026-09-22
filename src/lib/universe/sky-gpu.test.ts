@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
   deviceView,
+  diskPlace,
   gpuOffered,
   instanceOnScreen,
   packGalaxyInstances,
@@ -76,5 +77,24 @@ describe("sky-gpu", () => {
     const a = instanceOnScreen(0.4, 0.1, 1.2, { ...css, point: 1 });
     const b = instanceOnScreen(0.4, 0.1, 1.2, gpu);
     assert.equal(a, b);
+  });
+
+  it("places a disk star as the 2D canvas does at t = 0, without shear", () => {
+    const view = { ox: 200, oy: 150, scale: 80, rot: 0.31 };
+    const x = 0.22;
+    const y = -0.07;
+    const gpu = diskPlace(x, y, view);
+    const c = Math.cos(view.rot);
+    const s = Math.sin(view.rot);
+    const canvas = { x: view.ox + (x * c - y * s) * view.scale, y: view.oy + (x * s + y * c) * view.scale };
+    assert.ok(Math.abs(gpu.x - canvas.x) < 1e-9);
+    assert.ok(Math.abs(gpu.y - canvas.y) < 1e-9);
+    const rest = diskPlace(x, y, { ...view, rot: 0 });
+    assert.ok(Math.abs(rest.x - (view.ox + x * view.scale)) < 1e-9);
+    assert.ok(Math.abs(rest.y - (view.oy + y * view.scale)) < 1e-9);
+    const packed = new Float32Array(STAR_FLOATS);
+    packStars([star({ x, y })], packed);
+    assert.ok(Math.abs(packed[0]! - x) < 1e-6);
+    assert.ok(Math.abs(packed[1]! - y) < 1e-6);
   });
 });
