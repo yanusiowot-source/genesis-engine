@@ -9,6 +9,14 @@ export function gpuOffered(): boolean {
   return typeof navigator !== "undefined" && "gpu" in navigator;
 }
 
+/** DOM truth: offered is not live. wait ≠ adapter. */
+export function skyGpuMark(offered: boolean, live: boolean | null): "0" | "wait" | "live" {
+  if (!offered) return "0";
+  if (live === true) return "live";
+  if (live === false) return "0";
+  return "wait";
+}
+
 export function packStars(stars: Star[], into: Float32Array, offset = 0, alphaMul = 1): number {
   const room = Math.floor((into.length - offset) / STAR_FLOATS);
   const n = Math.min(stars.length, room);

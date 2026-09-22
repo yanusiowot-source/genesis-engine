@@ -8,7 +8,7 @@ import {
   type Star,
 } from "@/lib/universe/galaxy";
 import { buildGalaxyAsync, buildGalaxyNow } from "@/lib/universe/sky-client";
-import { createSkyGpu, gpuOffered, type SkyGpu } from "@/lib/universe/sky-gpu";
+import { createSkyGpu, gpuOffered, skyGpuMark, type SkyGpu } from "@/lib/universe/sky-gpu";
 import {
   ACOUSTIC_VISUAL,
   acousticDossier,
@@ -86,6 +86,7 @@ export function GalaxyCanvas({
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<GalaxyModel | null>(null);
   const cosmicRef = useRef(cosmicTime);
   const timeLiveRef = useRef(timeRef);
@@ -208,10 +209,17 @@ export function GalaxyCanvas({
     let frameLite = false;
     let starTarget: CanvasRenderingContext2D = ctx;
     const gpuEl = gpuCanvasRef.current;
+    const wrap = wrapRef.current;
     let gpu: SkyGpu | null = null;
     if (gpuEl && gpuOffered()) {
+      if (wrap) wrap.dataset.skyGpu = skyGpuMark(true, null);
       void createSkyGpu(gpuEl).then((g) => {
-        if (running) gpu = g;
+        if (!running) {
+          g?.destroy();
+          return;
+        }
+        gpu = g;
+        if (wrap) wrap.dataset.skyGpu = skyGpuMark(true, !!g);
       });
     }
     let stress = 0;
@@ -1990,8 +1998,9 @@ export function GalaxyCanvas({
 
   return (
     <div
+      ref={wrapRef}
       className={["sky-canvas", className].filter(Boolean).join(" ")}
-      data-sky-gpu={gpuOffered() ? "1" : "0"}
+      data-sky-gpu={skyGpuMark(gpuOffered(), null)}
       style={{
         position: "absolute",
         inset: 0,

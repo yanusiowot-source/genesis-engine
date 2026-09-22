@@ -8,6 +8,7 @@ import {
   QUAD_INDEX,
   QUAD_VERTS,
   STAR_FLOATS,
+  skyGpuMark,
 } from "./sky-gpu.ts";
 import type { GalaxyModel, Star } from "./galaxy.ts";
 
@@ -27,6 +28,10 @@ const star = (over: Partial<Star> = {}): Star => ({
 describe("sky-gpu", () => {
   it("does not claim a GPU in node", () => {
     assert.equal(gpuOffered(), false);
+    assert.equal(skyGpuMark(false, null), "0");
+    assert.equal(skyGpuMark(true, null), "wait");
+    assert.equal(skyGpuMark(true, false), "0");
+    assert.equal(skyGpuMark(true, true), "live");
   });
 
   it("packs stars as 8 floats without dropping the first", () => {
