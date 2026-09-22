@@ -1313,7 +1313,7 @@ const en: Copy = {
     modeHint: {
       galaxy: "Look at the whole disk from outside.",
       planetarium: "Stand on a world inside the disk and drag the sky.",
-      lensing: "Background sources shear into arcs around the Einstein radius. A Bartelmann NFW halo homology, not a ray tracer.",
+      lensing: "Background sources shear into arcs around the Einstein radius. A Bartelmann NFW halo homology, not a ray tracer. Multiplicity and parity are the map's discrete invariants — not the topology of space.",
       collision: "Stars beyond the tidal radius become tails. Not GADGET. Mass ratio sets the remnant.",
     },
     evolve: "Play cosmic time",
@@ -2607,7 +2607,7 @@ const ru: Copy = {
     modeHint: {
       galaxy: "Диск целиком, снаружи.",
       planetarium: "Стоите на мире внутри диска — тяните небо.",
-      lensing: "Фоновые источники вытягиваются в дуги вокруг радиуса Эйнштейна. Гомология гало NFW (Bartelmann), не трассировка лучей.",
+      lensing: "Фоновые источники вытягиваются в дуги вокруг радиуса Эйнштейна. Гомология гало NFW (Bartelmann), не трассировка лучей. Кратность и чётность — дискретные инварианты карты, не топология пространства.",
       collision: "Звёзды за приливным радиусом становятся хвостами. Не GADGET. Массовое отношение задаёт остаток.",
     },
     evolve: "Запустить космическое время",

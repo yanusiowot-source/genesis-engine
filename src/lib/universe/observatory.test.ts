@@ -96,6 +96,7 @@ import {
   nfwKappa,
   nfwKappaS,
   nfwLensImages,
+  lensMapInvariants,
   coreNfwIndex,
   coreNfwMassFraction,
   coreNfwRadius,
@@ -337,6 +338,15 @@ describe("cosmic clock", () => {
     assert.ok(near.length >= 2);
     assert.ok(near[0] && Math.abs(near[0].x - (0.08 + te)) < 1e-9);
     assert.ok(near[1] && near[1].x < 0);
+    const nearInv = lensMapInvariants(near);
+    assert.equal(nearInv.multiplicity, 2);
+    assert.equal(nearInv.signed, 0);
+    const farAll = lensImages(1.2, 0, te);
+    assert.equal(lensMapInvariants(farAll).multiplicity, 1);
+    assert.equal(lensMapInvariants(farAll).signed, 1);
+    const rot = lensImages(0, 0.08, te);
+    assert.equal(lensMapInvariants(rot).multiplicity, nearInv.multiplicity);
+    assert.equal(lensMapInvariants(rot).signed, nearInv.signed);
     const aligned = lensImages(0, 0, te)[0];
     assert.ok(aligned && Math.abs(Math.hypot(aligned.x, aligned.y) - te) < 1e-6);
     assert.ok(near[0] && far && near[0].stretch > far.stretch);
@@ -473,6 +483,15 @@ describe("cosmic clock", () => {
     const near = nfwLensImages(0.04, 0, rs, ks);
     assert.ok(near.length >= 1);
     assert.ok(near[0] && near[0].stretch >= 1);
+    const farInv = lensMapInvariants(far);
+    assert.equal(farInv.multiplicity, far.length);
+    assert.equal(farInv.signed, far.reduce((s, im) => s + im.parity, 0));
+    const rot = nfwLensImages(0, 1.2, rs, ks);
+    assert.equal(lensMapInvariants(rot).multiplicity, farInv.multiplicity);
+    assert.equal(lensMapInvariants(rot).signed, farInv.signed);
+    const nearRot = nfwLensImages(0, 0.04, rs, ks);
+    assert.equal(lensMapInvariants(near).multiplicity, lensMapInvariants(nearRot).multiplicity);
+    assert.equal(lensMapInvariants(near).signed, lensMapInvariants(nearRot).signed);
     const te = einsteinRadius(ev, OUR_UNIVERSE);
     assert.ok(Math.abs(nfwEinsteinX(ks) * rs - te) / te < 0.12);
   });

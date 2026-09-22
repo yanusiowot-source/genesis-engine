@@ -2150,6 +2150,22 @@ export type LensImage = {
 };
 
 /**
+ * Discrete invariants of a circular lens map.
+ * Multiplicity and signed parity survive rotation of the source.
+ * Not π₁ of the spatial 3-manifold, not CMB topology, not a Betti census.
+ */
+export type LensMapInvariants = {
+  multiplicity: number;
+  signed: number;
+};
+
+export function lensMapInvariants(images: LensImage[]): LensMapInvariants {
+  let signed = 0;
+  for (const im of images) signed += im.parity;
+  return { multiplicity: images.length, signed };
+}
+
+/**
  * SIS homology: β = θ − θE θ̂.
  * Outer image is pushed *out* by θE (arcs). Sources inside ~θE also get a
  * fainter counter-image on the opposite side. Not a ray tracer.
