@@ -492,6 +492,7 @@ export type Copy = {
     diskMesh: string;
     diskQ1: string;
     diskPlummer: string;
+    diskH0: string;
     diskNiche: Record<DiskNiche, string>;
     diskNicheHint: Record<DiskNiche, string>;
     acousticNiche: Record<AcousticNiche, string>;
@@ -1547,6 +1548,7 @@ const en: Copy = {
     diskMesh: "Mesh",
     diskQ1: "Q = 1",
     diskPlummer: "a",
+    diskH0: "H0",
     diskNiche: {
       rigid: "Rigid",
       hot: "Hot",
@@ -2841,6 +2843,7 @@ const ru: Copy = {
     diskMesh: "Сетка",
     diskQ1: "Q = 1",
     diskPlummer: "a",
+    diskH0: "H0",
     diskNiche: {
       rigid: "Жёсткий",
       hot: "Горячий",

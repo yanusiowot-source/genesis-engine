@@ -1047,6 +1047,7 @@ export function makeBe(ru: Copy): Copy {
 			diskMesh: "Сетка",
 			diskQ1: "Q = 1",
 			diskPlummer: "a",
+			diskH0: "H0",
 			diskNiche: {
 				rigid: "Жорсткі",
 				hot: "Гарачы",

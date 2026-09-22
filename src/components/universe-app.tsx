@@ -1922,7 +1922,7 @@ export function UniverseApp() {
             <AstroPanel copy={copy} params={current.params} evaluation={ev} cosmicTime={liveTime} />
             <HubblePanel copy={copy} params={current.params} evaluation={ev} />
             <HaloPanel copy={copy} params={current.params} evaluation={ev} />
-            <DiskPanel copy={copy} params={current.params} evaluation={ev} />
+            <DiskPanel copy={copy} params={current.params} evaluation={ev} visualSeed={current.visualSeed} />
             <AcousticPanel copy={copy} params={current.params} evaluation={ev} />
             {hydrated ? (
               <HrDiagram

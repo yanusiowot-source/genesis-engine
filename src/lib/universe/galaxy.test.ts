@@ -109,7 +109,7 @@ describe("buildGalaxy", () => {
     const dwarf = encounterOf(dwarfP, dwarfE);
     assert.ok(dwarf.q < ours.q);
     assert.ok(ours.rTide > dwarf.rTide);
-    const built = buildGalaxy(OUR_UNIVERSE, evaluate(OUR_UNIVERSE), 9, 0.5);
+    const built = buildGalaxy(OUR_UNIVERSE, evaluate(OUR_UNIVERSE), 9, 0.45);
     assert.equal(built.encounter.kind, "major");
     assert.ok(built.companion.length > 10);
     assert.ok(built.h0Long >= 0);

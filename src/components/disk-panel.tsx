@@ -1,4 +1,6 @@
+import { useMemo } from "react";
 import type { Copy } from "@/lib/universe/i18n";
+import { buildGalaxy } from "@/lib/universe/galaxy";
 import { diskDossier } from "@/lib/universe/observatory";
 import type { Evaluation, UniverseParams } from "@/lib/universe/types";
 
@@ -6,6 +8,7 @@ type Props = {
   copy: Copy;
   params: UniverseParams;
   evaluation: Evaluation;
+  visualSeed: number;
 };
 
 function qPath(
@@ -26,8 +29,12 @@ function qPath(
     .join(" ");
 }
 
-export function DiskPanel({ copy, params, evaluation }: Props) {
+export function DiskPanel({ copy, params, evaluation, visualSeed }: Props) {
   const d = diskDossier(params, evaluation);
+  const h0Long = useMemo(
+    () => buildGalaxy(params, evaluation, visualSeed, 0.45).h0Long,
+    [params, evaluation, visualSeed],
+  );
   const maxR = d.mesh[d.mesh.length - 1]?.r ?? 1;
   const maxQ = 3;
   const path = qPath(d.mesh, maxR, maxQ, 8, 6, 304, 70);
@@ -56,6 +63,10 @@ export function DiskPanel({ copy, params, evaluation }: Props) {
         <div className="text-right">
           <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.diskPlummer}</dt>
           <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{d.plummerA.toFixed(3)}</dd>
+        </div>
+        <div>
+          <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.diskH0}</dt>
+          <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{h0Long}</dd>
         </div>
       </dl>
       <svg
