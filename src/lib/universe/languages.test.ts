@@ -5,7 +5,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { mergeCopy } from "./copy-merge.ts";
 import { formatHudPct } from "./format.ts";
-import { copyFor } from "./i18n.ts";
+import { copyFor, hydratePacks } from "./i18n.ts";
 import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, APP_VERSION_SHORT, productOffers } from "./studio.ts";
 import {
   AUTHORED,
@@ -211,7 +211,8 @@ describe("copyFor", () => {
     assert.equal(offers[1]?.priceCurrency, "USD");
   });
 
-  it("translates authored chrome including Klingon, High Valyrian, and the clock", () => {
+  it("translates authored chrome including Klingon, High Valyrian, and the clock", async () => {
+    await hydratePacks();
     assert.equal(copyFor("de").birth, "Universum gebären");
     assert.equal(copyFor("nl").tabs.sky, "Hemel");
     assert.equal(copyFor("nl").obs.clock, "Kosmische tijd");
@@ -235,11 +236,13 @@ describe("copyFor", () => {
     assert.equal(hasPack("yo"), false);
   });
 
-  it("returns the same object on repeated calls", () => {
+  it("returns the same object on repeated calls", async () => {
+    await hydratePacks();
     assert.equal(copyFor("nl"), copyFor("nl"));
   });
 
-  it("keeps settings chrome translated after cache", () => {
+  it("keeps settings chrome translated after cache", async () => {
+    await hydratePacks();
     const a = copyFor("fr");
     const b = copyFor("fr");
     assert.equal(a, b);

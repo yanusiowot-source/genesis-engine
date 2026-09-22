@@ -37,9 +37,7 @@ import type { SpectralType } from "./citizen";
 import type { SkyClass } from "./zooniverse";
 import { makeBe } from "./i18n-be.ts";
 import { mergeCopy } from "./copy-merge.ts";
-import { PACKS } from "./locales/packs.ts";
-import { HUD } from "./locales/hud-packs.ts";
-import { SETTINGS } from "./locales/settings-packs.ts";
+import type { DeepPartial } from "./copy-merge.ts";
 import { APP_VERSION_SHORT } from "./studio.ts";
 import {
   AUTHORED,
@@ -3316,6 +3314,35 @@ const be = makeBe(ru);
 
 const copyCache = new Map<string, Copy>();
 
+type PackBag = {
+  PACKS: Record<string, DeepPartial<Copy>>;
+  HUD: Record<string, DeepPartial<Copy>>;
+  SETTINGS: Record<string, DeepPartial<Copy>>;
+};
+
+let packBag: PackBag | null = null;
+let packWait: Promise<PackBag> | null = null;
+
+export function coreLocale(id: string): boolean {
+  return id === "en" || id === "ru" || id === "be";
+}
+
+export async function hydratePacks(): Promise<void> {
+  if (packBag) return;
+  if (!packWait) {
+    packWait = Promise.all([
+      import("./locales/packs.ts"),
+      import("./locales/hud-packs.ts"),
+      import("./locales/settings-packs.ts"),
+    ]).then(([p, h, s]) => {
+      packBag = { PACKS: p.PACKS, HUD: h.HUD, SETTINGS: s.SETTINGS };
+      copyCache.clear();
+      return packBag;
+    });
+  }
+  await packWait;
+}
+
 export function copyFor(locale: string): Copy {
   const id = canonicalLocale(locale);
   const hit = copyCache.get(id);
@@ -3323,13 +3350,13 @@ export function copyFor(locale: string): Copy {
   let out: Copy = en;
   if (id === "ru") out = ru;
   else if (id === "be") out = be;
-  else {
-    const overlay = PACKS[id];
+  else if (packBag) {
+    const overlay = packBag.PACKS[id];
     if (overlay) out = mergeCopy(en, overlay);
   }
-  const hud = HUD[id];
+  const hud = packBag?.HUD[id];
   if (hud) out = mergeCopy(out, hud);
-  const extra = SETTINGS[id];
+  const extra = packBag?.SETTINGS[id];
   if (extra) out = mergeCopy(out, extra);
   copyCache.set(id, out);
   return out;

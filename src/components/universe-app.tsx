@@ -163,8 +163,8 @@ import {
   loadHapticPref,
   setHapticEnabled,
 } from "@/lib/universe/haptic";
-import { autonym, bcp47, copyFor, detectLocale, persistLocale, type Locale } from "@/lib/universe/i18n";
-import { loadCatalog } from "@/lib/universe/languages";
+import { autonym, bcp47, copyFor, coreLocale, detectLocale, hydratePacks, persistLocale, type Locale } from "@/lib/universe/i18n";
+
 import { detectPlatform, type PlatformInfo } from "@/lib/universe/platform";
 import {
   applyPrefs,
@@ -318,6 +318,7 @@ export function UniverseApp() {
   );
   const [archive, setArchive] = useState<UniverseRecord[]>([]);
   const [locale, setLocale] = useState<Locale>("en");
+  const [packTick, setPackTick] = useState(0);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -464,7 +465,7 @@ export function UniverseApp() {
   const asideRef = useRef<HTMLElement | null>(null);
   const soundOnRef = useRef(false);
   const paramsRef = useRef(current.params);
-  const copy = useMemo(() => copyFor(locale), [locale]);
+  const copy = useMemo(() => copyFor(locale), [locale, packTick]);
   soundOnRef.current = soundOn;
   paramsRef.current = current.params;
 
@@ -711,6 +712,11 @@ export function UniverseApp() {
       setAboutIntent(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (coreLocale(locale)) return;
+    void hydratePacks().then(() => setPackTick((n) => n + 1));
+  }, [locale]);
 
   useEffect(() => {
     const applyHash = () => {
@@ -1507,7 +1513,7 @@ export function UniverseApp() {
 
   useEffect(() => {
     if (!settingsOpen) return;
-    void loadCatalog();
+    void import("@/lib/universe/languages").then((m) => m.loadCatalog());
   }, [settingsOpen]);
 
   useEffect(() => {

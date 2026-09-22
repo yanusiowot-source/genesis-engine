@@ -30,7 +30,7 @@ export default defineConfig({
           groups: [
             {
               name: "copy",
-              test: /[\\/]src[\\/]lib[\\/]universe[\\/](?:i18n|i18n-be|copy-merge|locales[\\/])/,
+              test: /[\\/]src[\\/]lib[\\/]universe[\\/](?:i18n|i18n-be|copy-merge)/,
               priority: 20,
             },
             {
