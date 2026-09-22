@@ -1,6 +1,14 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { gpuOffered, packGalaxyInstances, packStars, QUAD_INDEX, QUAD_VERTS, STAR_FLOATS } from "./sky-gpu.ts";
+import {
+  gpuOffered,
+  instanceOnScreen,
+  packGalaxyInstances,
+  packStars,
+  QUAD_INDEX,
+  QUAD_VERTS,
+  STAR_FLOATS,
+} from "./sky-gpu.ts";
 import type { GalaxyModel, Star } from "./galaxy.ts";
 
 const star = (over: Partial<Star> = {}): Star => ({
@@ -41,5 +49,14 @@ describe("sky-gpu", () => {
     assert.equal(packGalaxyInstances(model, into), 2);
     assert.ok(Math.abs(into[STAR_FLOATS]! - 0.9) < 1e-6);
     assert.ok(Math.abs(into[STAR_FLOATS + 7]! - 0.85) < 1e-6);
+  });
+
+  it("culls sprites that miss the canvas after rotation", () => {
+    const view = { ox: 200, oy: 150, w: 400, h: 300, scale: 100, rot: 0, point: 1 };
+    assert.equal(instanceOnScreen(0, 0, 1, view), true);
+    assert.equal(instanceOnScreen(8, 0, 1, view), false);
+    assert.equal(instanceOnScreen(0, -8, 1, view), false);
+    const tilted = { ...view, rot: Math.PI / 2 };
+    assert.equal(instanceOnScreen(0.1, 0, 1, tilted), true);
   });
 });
