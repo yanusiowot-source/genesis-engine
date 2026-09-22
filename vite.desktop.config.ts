@@ -23,6 +23,30 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: false,
     target: "es2022",
+    modulePreload: true,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            {
+              name: "copy",
+              test: /[\\/]src[\\/]lib[\\/]universe[\\/](?:i18n|i18n-be|copy-merge|locales[\\/])/,
+              priority: 20,
+            },
+            {
+              name: "sky",
+              test: /[\\/]galaxy-canvas/,
+              priority: 15,
+            },
+            {
+              name: "lucide",
+              test: /[\\/]node_modules[\\/]lucide-react[\\/]/,
+              priority: 12,
+            },
+          ],
+        },
+      },
+    },
   },
   server: {
     host: "0.0.0.0",
