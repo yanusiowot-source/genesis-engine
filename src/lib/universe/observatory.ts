@@ -22,7 +22,7 @@ import type {
 } from "./types";
 import { clamp, lerp, mulberry32 } from "./rng.ts";
 import { derivedAstro, omegaBaryon } from "./physics.ts";
-import { nfwKernel } from "./nfw-wasm.ts";
+import { nfwFillGrid, nfwKernel } from "./nfw-wasm.ts";
 
 export const EPOCH_MARKS: { id: CosmicEpoch; t: number }[] = [
   { id: "inflation", t: 0 },
@@ -734,6 +734,16 @@ export function nfwRadialX(ks: number): number {
   const xE = nfwEinsteinX(ks);
   let prev = 1 - 2 * nfwKappa(0.08, ks) + nfwMeanKappa(0.08, ks);
   const n = 36;
+  const grid = nfwFillGrid(n, 0.08, xE, ks);
+  if (grid) {
+    for (let i = 0; i < grid.kappa.length; i++) {
+      const xx = 0.08 + ((xE - 0.08) * (i + 1)) / n;
+      const lam = 1 - 2 * grid.kappa[i]! + grid.mean[i]!;
+      if (prev > 0 !== lam > 0) return xx;
+      prev = lam;
+    }
+    return 0;
+  }
   for (let i = 1; i <= n; i++) {
     const xx = 0.08 + ((xE - 0.08) * i) / n;
     const lam = 1 - 2 * nfwKappa(xx, ks) + nfwMeanKappa(xx, ks);
@@ -768,26 +778,39 @@ export function nfwLensImages(x: number, y: number, rs: number, ks: number): Len
   const ux = x / b;
   const uy = y / b;
   const ysrc = b / ts;
-  const stretchAt = (xx: number) => {
-    const kt = nfwMeanKappa(xx, ks);
-    const k = nfwKappa(xx, ks);
+  const stretchKM = (k: number, kt: number) => {
     const lamT = 1 - kt;
     const lamR = 1 - 2 * k + kt;
     return Math.min(12, 1 / Math.max(Math.abs(lamT * lamR), 0.05));
   };
+  const stretchAt = (xx: number) => stretchKM(nfwKappa(xx, ks), nfwMeanKappa(xx, ks));
   const images: LensImage[] = [];
   const n = 48;
   let prevOuter = 0.2 - nfwDeflectX(0.2, ks) - ysrc;
   const xHi = Math.max(12, xE * 1.6);
-  for (let i = 1; i <= n; i++) {
-    const xx = 0.2 + ((xHi - 0.2) * i) / n;
-    const val = xx - nfwDeflectX(xx, ks) - ysrc;
-    if (prevOuter <= 0 && val >= 0 && xx > xE * 0.85) {
-      const r = xx * ts;
-      images.push({ x: ux * r, y: uy * r, stretch: stretchAt(xx), parity: 1 });
-      break;
+  const outer = nfwFillGrid(n, 0.2, xHi, ks);
+  if (outer) {
+    for (let i = 0; i < outer.kappa.length; i++) {
+      const xx = 0.2 + ((xHi - 0.2) * (i + 1)) / n;
+      const val = xx * (1 - outer.mean[i]!) - ysrc;
+      if (prevOuter <= 0 && val >= 0 && xx > xE * 0.85) {
+        const r = xx * ts;
+        images.push({ x: ux * r, y: uy * r, stretch: stretchKM(outer.kappa[i]!, outer.mean[i]!), parity: 1 });
+        break;
+      }
+      prevOuter = val;
     }
-    prevOuter = val;
+  } else {
+    for (let i = 1; i <= n; i++) {
+      const xx = 0.2 + ((xHi - 0.2) * i) / n;
+      const val = xx - nfwDeflectX(xx, ks) - ysrc;
+      if (prevOuter <= 0 && val >= 0 && xx > xE * 0.85) {
+        const r = xx * ts;
+        images.push({ x: ux * r, y: uy * r, stretch: stretchAt(xx), parity: 1 });
+        break;
+      }
+      prevOuter = val;
+    }
   }
   if (images.length === 0) {
     const xx = Math.max(ysrc, xE);
@@ -795,15 +818,29 @@ export function nfwLensImages(x: number, y: number, rs: number, ks: number): Len
     images.push({ x: ux * r, y: uy * r, stretch: stretchAt(xx), parity: 1 });
   }
   let prevInner = nfwDeflectX(0.06, ks) - 0.06 - ysrc;
-  for (let i = 1; i <= n; i++) {
-    const xx = 0.06 + ((xE - 0.06) * i) / n;
-    const val = nfwDeflectX(xx, ks) - xx - ysrc;
-    if (prevInner > 0 && val <= 0) {
-      const r = xx * ts;
-      images.push({ x: -ux * r, y: -uy * r, stretch: stretchAt(xx) * 0.7, parity: -1 });
-      break;
+  const inner = nfwFillGrid(n, 0.06, xE, ks);
+  if (inner) {
+    for (let i = 0; i < inner.kappa.length; i++) {
+      const xx = 0.06 + ((xE - 0.06) * (i + 1)) / n;
+      const val = xx * inner.mean[i]! - xx - ysrc;
+      if (prevInner > 0 && val <= 0) {
+        const r = xx * ts;
+        images.push({ x: -ux * r, y: -uy * r, stretch: stretchKM(inner.kappa[i]!, inner.mean[i]!) * 0.7, parity: -1 });
+        break;
+      }
+      prevInner = val;
     }
-    prevInner = val;
+  } else {
+    for (let i = 1; i <= n; i++) {
+      const xx = 0.06 + ((xE - 0.06) * i) / n;
+      const val = nfwDeflectX(xx, ks) - xx - ysrc;
+      if (prevInner > 0 && val <= 0) {
+        const r = xx * ts;
+        images.push({ x: -ux * r, y: -uy * r, stretch: stretchAt(xx) * 0.7, parity: -1 });
+        break;
+      }
+      prevInner = val;
+    }
   }
   return images;
 }

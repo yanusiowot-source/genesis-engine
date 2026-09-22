@@ -2,6 +2,7 @@
 set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT/wasm/nfw-kernel"
+export RUSTFLAGS="${RUSTFLAGS:-} -C target-feature=+simd128"
 cargo build --release --target wasm32-unknown-unknown
 cp target/wasm32-unknown-unknown/release/nfw_kernel.wasm "$ROOT/src/lib/universe/kernels/nfw.wasm"
 cp "$ROOT/src/lib/universe/kernels/nfw.wasm" "$ROOT/public/nfw.wasm"
