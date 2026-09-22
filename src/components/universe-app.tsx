@@ -250,6 +250,7 @@ import { ANSWER_SEED, isEggPrefix, noteEggKey, sliderEgg } from "@/lib/universe/
 import { pickEncounter, type EncounterKind, type SkyEncounter } from "@/lib/universe/encounters";
 import { pickDispatch, type PlotId } from "@/lib/universe/plot";
 import { pickPassage } from "@/lib/universe/scripture";
+import { registerGenesisWorker } from "@/lib/universe/service-worker";
 import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
 import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
 import type { Fate, LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
@@ -629,6 +630,10 @@ export function UniverseApp() {
   useEffect(() => {
     document.documentElement.lang = bcp47(locale);
   }, [locale]);
+
+  useEffect(() => {
+    void registerGenesisWorker();
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia("(max-width: 639px)");
