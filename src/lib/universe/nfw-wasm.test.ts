@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { NFW_WASM_B64 } from "./nfw-bytes.ts";
-import { bootNfwEmbedded, bootNfwKernel, nfwFillGrid, nfwKernel, nfwWasmMark } from "./nfw-wasm.ts";
+import { bootNfwEmbedded, bootNfwKernel, nfwFillGrid, nfwKernel, nfwWasmMark, wasmSimdOffered } from "./nfw-wasm.ts";
 import { nfwF, nfwFJs, nfwKappa, nfwMeanKappa } from "./observatory.ts";
 
 const wasm = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "kernels/nfw.wasm"));
@@ -14,6 +14,15 @@ describe("nfw wasm kernel", () => {
     assert.equal(nfwWasmMark(null), "wait");
     assert.equal(nfwWasmMark(false), "0");
     assert.equal(nfwWasmMark(true), "live");
+    assert.equal(
+      wasmSimdOffered(),
+      WebAssembly.validate(
+        new Uint8Array([
+          0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x05, 0x01, 0x60, 0x00, 0x01, 0x7b, 0x03,
+          0x02, 0x01, 0x00, 0x0a, 0x0a, 0x01, 0x08, 0x00, 0x41, 0x00, 0xfd, 0x0f, 0x0b,
+        ]),
+      ),
+    );
   });
 
   it("boots the embedded module and tracks the JS Bartelmann homology", async () => {

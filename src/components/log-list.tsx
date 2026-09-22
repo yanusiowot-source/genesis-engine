@@ -5,12 +5,13 @@ import { formatPct, formatRelative } from "@/lib/universe/format";
 import { isViable, plateScore, filterByMeta, journalEmptyKind, type PlatePath } from "@/lib/universe/archive";
 import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
 import { isOurParams } from "@/lib/universe/physics";
-import type { Fate, UniverseRecord } from "@/lib/universe/types";
+import type { Fate, Morphology, UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
 
 type Filter = "all" | "viable" | "starred";
 type PathCut = "any" | Exclude<PlatePath, "none">;
 type FateCut = "any" | Fate;
+type MorphCut = "any" | Morphology;
 
 const FATE_CUTS: Fate[] = [
   "habitable",
@@ -23,6 +24,8 @@ const FATE_CUTS: Fate[] = [
   "crunch",
   "rip",
 ];
+
+const MORPH_CUTS: Morphology[] = ["spiral", "elliptical", "irregular", "scattered"];
 
 type Props = {
   copy: Copy;
@@ -50,15 +53,17 @@ export function LogList({
   const [filter, setFilter] = useState<Filter>("all");
   const [pathCut, setPathCut] = useState<PathCut>("any");
   const [fateCut, setFateCut] = useState<FateCut>("any");
+  const [morphCut, setMorphCut] = useState<MorphCut>("any");
 
   const query = {
     viable: filter === "viable" ? true : undefined,
     starred: filter === "starred" ? true : undefined,
     path: pathCut === "any" ? undefined : pathCut,
     fate: fateCut === "any" ? undefined : fateCut,
+    morphology: morphCut === "any" ? undefined : morphCut,
   };
 
-  const items = useMemo(() => filterByMeta(archive, query), [archive, filter, pathCut, fateCut]);
+  const items = useMemo(() => filterByMeta(archive, query), [archive, filter, pathCut, fateCut, morphCut]);
   const emptyKind = journalEmptyKind(archive.length, items.length, query);
 
   const filters: { id: Filter; label: string }[] = [
@@ -146,6 +151,29 @@ export function LogList({
                 key={f.id}
                 type="button"
                 onClick={() => setFateCut(f.id)}
+                aria-pressed={active}
+                className={cn(
+                  "h-11 min-h-11 rounded-[var(--radius-sm)] px-3 text-xs font-medium",
+                  "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
+                  active ? "bg-bg-subtle text-fg" : "text-fg-subtle",
+                )}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+      </div>
+
+      <div className="flex flex-wrap gap-1">
+        {([{ id: "any" as MorphCut, label: copy.filterAll }] as { id: MorphCut; label: string }[])
+          .concat(MORPH_CUTS.map((id) => ({ id, label: copy.morphology[id] })))
+          .map((f) => {
+            const active = morphCut === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setMorphCut(f.id)}
                 aria-pressed={active}
                 className={cn(
                   "h-11 min-h-11 rounded-[var(--radius-sm)] px-3 text-xs font-medium",
