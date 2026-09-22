@@ -1,17 +1,20 @@
 import type { GalaxyModel, Star } from "./galaxy.ts";
 
-/** 8 floats: x y z r  R G B a. Matches the WGSL vertex stride. */
+/** 8 floats per instance: x y z r  R G B a. Quad corners live in a static vertex buffer. */
 export const STAR_FLOATS = 8;
+export const QUAD_VERTS = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
+export const QUAD_INDEX = new Uint16Array([0, 1, 2, 2, 1, 3]);
 
 export function gpuOffered(): boolean {
   return typeof navigator !== "undefined" && "gpu" in navigator;
 }
 
-export function packStars(stars: Star[], into: Float32Array, vis: number): number {
-  const n = Math.min(stars.length, Math.floor(into.length / STAR_FLOATS));
+export function packStars(stars: Star[], into: Float32Array, offset = 0, alphaMul = 1): number {
+  const room = Math.floor((into.length - offset) / STAR_FLOATS);
+  const n = Math.min(stars.length, room);
   for (let i = 0; i < n; i++) {
     const s = stars[i]!;
-    const o = i * STAR_FLOATS;
+    const o = offset + i * STAR_FLOATS;
     into[o] = s.x;
     into[o + 1] = s.y;
     into[o + 2] = s.z;
@@ -19,9 +22,14 @@ export function packStars(stars: Star[], into: Float32Array, vis: number): numbe
     into[o + 4] = s.rgb[0] / 255;
     into[o + 5] = s.rgb[1] / 255;
     into[o + 6] = s.rgb[2] / 255;
-    into[o + 7] = Math.min(1, s.a * vis);
+    into[o + 7] = Math.min(1, s.a * alphaMul);
   }
   return n;
+}
+
+export function packGalaxyInstances(model: GalaxyModel, into: Float32Array): number {
+  const disk = packStars(model.stars, into, 0, 1);
+  return disk + packStars(model.field, into, disk * STAR_FLOATS, 0.85);
 }
 
 const WGSL = /* wgsl */ `
@@ -31,15 +39,10 @@ struct Uniforms {
   scale: f32,
   rot: f32,
   point: f32,
-  pad: f32,
+  vis: f32,
 };
 
 @group(0) @binding(0) var<uniform> u: Uniforms;
-
-struct VertIn {
-  @location(0) pos: vec4f,
-  @location(1) col: vec4f,
-};
 
 struct VertOut {
   @builtin(position) clip: vec4f,
@@ -48,23 +51,23 @@ struct VertOut {
 };
 
 @vertex
-fn vs(v: VertIn, @builtin(vertex_index) vid: u32) -> VertOut {
-  let corner = array<vec2f, 6>(
-    vec2f(-1.0, -1.0), vec2f(1.0, -1.0), vec2f(-1.0, 1.0),
-    vec2f(-1.0, 1.0), vec2f(1.0, -1.0), vec2f(1.0, 1.0),
-  );
+fn vs(
+  @location(0) corner: vec2f,
+  @location(1) pos: vec4f,
+  @location(2) col: vec4f,
+) -> VertOut {
   let c = cos(u.rot);
   let s = sin(u.rot);
-  let x = v.pos.x * c - v.pos.y * s;
-  let y = v.pos.x * s + v.pos.y * c;
+  let x = pos.x * c - pos.y * s;
+  let y = pos.x * s + pos.y * c;
   let px = u.origin.x + x * u.scale;
   let py = u.origin.y + y * u.scale;
-  let size = max(v.pos.w, 0.45) * u.point;
-  let q = corner[vid % 6u] * size;
+  let size = max(pos.w, 0.45) * u.point;
+  let q = corner * size;
   var out: VertOut;
   out.clip = vec4f(((px + q.x) / u.res.x) * 2.0 - 1.0, 1.0 - ((py + q.y) / u.res.y) * 2.0, 0.0, 1.0);
-  out.col = v.col;
-  out.local = corner[vid % 6u];
+  out.col = vec4f(col.rgb, col.a * u.vis);
+  out.local = corner;
   return out;
 }
 
@@ -73,7 +76,8 @@ fn fs(v: VertOut) -> @location(0) vec4f {
   let d = dot(v.local, v.local);
   if (d > 1.0) { discard; }
   let w = 1.0 - d;
-  return vec4f(v.col.rgb * v.col.a * w, v.col.a * w);
+  let a = v.col.a * w;
+  return vec4f(v.col.rgb * a, a);
 }
 `;
 
@@ -83,6 +87,8 @@ type GpuBag = {
   pipeline: GPURenderPipeline;
   uniform: GPUBuffer;
   stars: GPUBuffer;
+  quad: GPUBuffer;
+  index: GPUBuffer;
   bind: GPUBindGroup;
   cap: number;
 };
@@ -119,11 +125,16 @@ export async function createSkyGpu(canvas: HTMLCanvasElement): Promise<SkyGpu | 
         entryPoint: "vs",
         buffers: [
           {
+            arrayStride: 8,
+            stepMode: "vertex",
+            attributes: [{ shaderLocation: 0, offset: 0, format: "float32x2" }],
+          },
+          {
             arrayStride: STAR_FLOATS * 4,
             stepMode: "instance",
             attributes: [
-              { shaderLocation: 0, offset: 0, format: "float32x4" },
-              { shaderLocation: 1, offset: 16, format: "float32x4" },
+              { shaderLocation: 1, offset: 0, format: "float32x4" },
+              { shaderLocation: 2, offset: 16, format: "float32x4" },
             ],
           },
         ],
@@ -135,44 +146,46 @@ export async function createSkyGpu(canvas: HTMLCanvasElement): Promise<SkyGpu | 
       },
       primitive: { topology: "triangle-list" },
     });
-    const uniform = grow(device, 32, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST);
+    const uniform = grow(device, 256, GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST);
+    const quad = grow(device, QUAD_VERTS.byteLength, GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST);
+    const index = grow(device, QUAD_INDEX.byteLength, GPUBufferUsage.INDEX | GPUBufferUsage.COPY_DST);
+    device.queue.writeBuffer(quad, 0, QUAD_VERTS);
+    device.queue.writeBuffer(index, 0, QUAD_INDEX);
     let stars = grow(device, 4096 * STAR_FLOATS * 4, GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST);
     let cap = 4096;
     const bind = device.createBindGroup({
       layout: bindLayout,
       entries: [{ binding: 0, resource: { buffer: uniform } }],
     });
-    const bag: GpuBag = { device, context, pipeline, uniform, stars, bind, cap };
+    const bag: GpuBag = { device, context, pipeline, uniform, stars, quad, index, bind, cap };
     let scratch = new Float32Array(4096 * STAR_FLOATS);
+    let lastModel: GalaxyModel | null = null;
+    let packed = 0;
+    const ubo = new Float32Array(16);
 
     return {
       draw(model, view) {
         const list = model.stars.length + model.field.length;
-        if (list * STAR_FLOATS > scratch.length) {
-          scratch = new Float32Array(list * STAR_FLOATS);
+        if (model !== lastModel) {
+          if (list * STAR_FLOATS > scratch.length) scratch = new Float32Array(list * STAR_FLOATS);
+          if (list > bag.cap) {
+            bag.cap = list;
+            bag.stars.destroy();
+            bag.stars = grow(device, list * STAR_FLOATS * 4, GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST);
+          }
+          packed = packGalaxyInstances(model, scratch);
+          device.queue.writeBuffer(bag.stars, 0, scratch.subarray(0, packed * STAR_FLOATS));
+          lastModel = model;
         }
-        if (list > bag.cap) {
-          bag.cap = list;
-          bag.stars.destroy();
-          bag.stars = grow(device, list * STAR_FLOATS * 4, GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST);
-        }
-        let packed = packStars(model.stars, scratch, view.vis);
-        if (packed + model.field.length <= scratch.length / STAR_FLOATS) {
-          const rest = scratch.subarray(packed * STAR_FLOATS);
-          packed += packStars(model.field, rest, view.vis * 0.85);
-        }
-        device.queue.writeBuffer(bag.stars, 0, scratch.subarray(0, packed * STAR_FLOATS));
-        const u = new Float32Array([
-          view.ox,
-          view.oy,
-          view.w,
-          view.h,
-          view.scale,
-          view.rot,
-          Math.max(view.dpr, 1),
-          0,
-        ]);
-        device.queue.writeBuffer(bag.uniform, 0, u);
+        ubo[0] = view.ox;
+        ubo[1] = view.oy;
+        ubo[2] = view.w;
+        ubo[3] = view.h;
+        ubo[4] = view.scale;
+        ubo[5] = view.rot;
+        ubo[6] = Math.max(view.dpr, 1);
+        ubo[7] = view.vis;
+        device.queue.writeBuffer(bag.uniform, 0, ubo);
         const encoder = device.createCommandEncoder();
         const pass = encoder.beginRenderPass({
           colorAttachments: [
@@ -184,14 +197,20 @@ export async function createSkyGpu(canvas: HTMLCanvasElement): Promise<SkyGpu | 
             },
           ],
         });
-        pass.setPipeline(pipeline);
-        pass.setBindGroup(0, bag.bind);
-        pass.setVertexBuffer(0, bag.stars);
-        pass.draw(6, packed);
+        if (packed > 0) {
+          pass.setPipeline(pipeline);
+          pass.setBindGroup(0, bag.bind);
+          pass.setVertexBuffer(0, bag.quad);
+          pass.setVertexBuffer(1, bag.stars);
+          pass.setIndexBuffer(bag.index, "uint16");
+          pass.drawIndexed(6, packed);
+        }
         pass.end();
         device.queue.submit([encoder.finish()]);
       },
       clear() {
+        lastModel = null;
+        packed = 0;
         const encoder = device.createCommandEncoder();
         const pass = encoder.beginRenderPass({
           colorAttachments: [
@@ -208,6 +227,8 @@ export async function createSkyGpu(canvas: HTMLCanvasElement): Promise<SkyGpu | 
       },
       destroy() {
         bag.stars.destroy();
+        bag.quad.destroy();
+        bag.index.destroy();
         bag.uniform.destroy();
         device.destroy();
       },

@@ -36,12 +36,14 @@ interface GPURenderPassEncoder {
   setPipeline(p: GPURenderPipeline): void;
   setBindGroup(i: number, g: GPUBindGroup): void;
   setVertexBuffer(i: number, b: GPUBuffer): void;
+  setIndexBuffer(b: GPUBuffer, format: string): void;
   draw(v: number, i?: number): void;
+  drawIndexed(indices: number, instances?: number): void;
   end(): void;
 }
 type GPUTextureFormat = string;
 type GPUBufferUsageFlags = number;
-declare const GPUBufferUsage: { UNIFORM: number; COPY_DST: number; VERTEX: number };
+declare const GPUBufferUsage: { UNIFORM: number; COPY_DST: number; VERTEX: number; INDEX: number };
 declare const GPUShaderStage: { VERTEX: number; FRAGMENT: number };
 interface GPUShaderModule {}
 interface GPUBindGroupLayout {}
