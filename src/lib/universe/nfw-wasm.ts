@@ -1,5 +1,3 @@
-import { NFW_WASM_B64 } from "./nfw-bytes.ts";
-
 type NfwApi = {
   nfw_f(x: number): number;
   nfw_kappa(x: number, ks: number): number;
@@ -51,10 +49,11 @@ export function bootNfwKernel(bytes: ArrayBuffer | ArrayBufferView): boolean {
   }
 }
 
-export function bootNfwEmbedded(): boolean {
+export async function bootNfwEmbedded(): Promise<boolean> {
   if (api) return true;
   stamp(null);
   try {
+    const { NFW_WASM_B64 } = await import("./nfw-bytes.ts");
     return bootNfwKernel(bytesFromB64(NFW_WASM_B64));
   } catch {
     stamp(false);
@@ -72,7 +71,7 @@ function wasmHref(): string | null {
 }
 
 export async function bootNfwWasm(): Promise<boolean> {
-  if (bootNfwEmbedded()) return true;
+  if (await bootNfwEmbedded()) return true;
   const href = wasmHref();
   if (!href || typeof fetch === "undefined") return false;
   stamp(null);

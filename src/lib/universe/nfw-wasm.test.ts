@@ -16,8 +16,8 @@ describe("nfw wasm kernel", () => {
     assert.equal(nfwWasmMark(true), "live");
   });
 
-  it("boots the embedded module and tracks the JS Bartelmann homology", () => {
-    assert.equal(bootNfwEmbedded(), true);
+  it("boots the embedded module and tracks the JS Bartelmann homology", async () => {
+    assert.equal(await bootNfwEmbedded(), true);
     const k = nfwKernel();
     assert.ok(k);
     const xs = [1e-8, 0.2, 1, 1.7, 4];

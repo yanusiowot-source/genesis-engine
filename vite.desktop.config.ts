@@ -27,7 +27,7 @@ export default defineConfig({
       resolveDependencies: (_filename: string, deps: string[]) =>
         deps.filter(
           (d) =>
-            !/(?:research-|languages-|packs-|hud-packs-|settings-packs-|three\.module|pptxgen|OrbitControls)/.test(
+            !/(?:research-|languages-|packs-|hud-packs-|settings-packs-|nfw-bytes-|three\.module|pptxgen|OrbitControls)/.test(
               d,
             ),
         ),
