@@ -28,4 +28,4 @@ jobs:
       - run: npm test
       # Full `test:scripts` includes Grok scaffold OG tests that need .grok
       # (not in this repo) and grok.me identity. Lab CI is physics + the lock.
-      - run: node --test scripts/cycle-gate.test.mjs
+      - run: node --test scripts/cycle-gate.test.mjs scripts/monitor.test.mjs
