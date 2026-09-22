@@ -22,6 +22,7 @@ import type {
 } from "./types";
 import { clamp, lerp, mulberry32 } from "./rng.ts";
 import { derivedAstro, omegaBaryon } from "./physics.ts";
+import { nfwKernel } from "./nfw-wasm.ts";
 
 export const EPOCH_MARKS: { id: CosmicEpoch; t: number }[] = [
   { id: "inflation", t: 0 },
@@ -677,7 +678,7 @@ export function einsteinProfile(
  * Bartelmann 1996. x = r / rs.
  * F(x): arctanh (x<1), 1 (x=1), arctan (x>1).
  */
-export function nfwF(x: number): number {
+export function nfwFJs(x: number): number {
   const u = Math.abs(x);
   if (u < 1e-6) return Math.log(2 / Math.max(u, 1e-8));
   if (Math.abs(u - 1) < 1e-5) return 1;
@@ -689,16 +690,25 @@ export function nfwF(x: number): number {
   return Math.atan(d) / d;
 }
 
+export function nfwF(x: number): number {
+  const k = nfwKernel();
+  return k ? k.nfw_f(x) : nfwFJs(x);
+}
+
 export function nfwKappa(x: number, ks: number): number {
+  const k = nfwKernel();
+  if (k) return k.nfw_kappa(x, ks);
   const u = Math.max(Math.abs(x), 1e-5);
   if (Math.abs(u - 1) < 1e-4) return (2 * ks) / 3;
-  return (2 * ks * (1 - nfwF(u))) / (u * u - 1);
+  return (2 * ks * (1 - nfwFJs(u))) / (u * u - 1);
 }
 
 /** Mean convergence inside x. Tangential critical where this is 1. */
 export function nfwMeanKappa(x: number, ks: number): number {
+  const k = nfwKernel();
+  if (k) return k.nfw_mean_kappa(x, ks);
   const u = Math.max(Math.abs(x), 1e-5);
-  return (4 * ks * (Math.log(u / 2) + nfwF(u))) / (u * u);
+  return (4 * ks * (Math.log(u / 2) + nfwFJs(u))) / (u * u);
 }
 
 /** Deflection in units of rs: α/rs = x ⟨κ⟩. */
@@ -707,6 +717,8 @@ export function nfwDeflectX(x: number, ks: number): number {
 }
 
 export function nfwEinsteinX(ks: number): number {
+  const k = nfwKernel();
+  if (k) return k.nfw_einstein_x(ks);
   let lo = 0.15;
   let hi = 14;
   for (let i = 0; i < 22; i++) {

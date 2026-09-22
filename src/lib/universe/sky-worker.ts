@@ -1,6 +1,9 @@
 import { intelligenceWindow } from "./civilization.ts";
 import { buildGalaxy } from "./galaxy.ts";
+import { bootNfwWasm } from "./nfw-wasm.ts";
 import type { Evaluation, UniverseParams } from "./types.ts";
+
+void bootNfwWasm();
 
 type Request = {
   id: number;

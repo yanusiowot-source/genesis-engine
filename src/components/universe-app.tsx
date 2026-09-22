@@ -251,6 +251,7 @@ import { pickEncounter, type EncounterKind, type SkyEncounter } from "@/lib/univ
 import { pickDispatch, type PlotId } from "@/lib/universe/plot";
 import { pickPassage } from "@/lib/universe/scripture";
 import { registerGenesisWorker } from "@/lib/universe/service-worker";
+import { bootNfwWasm } from "@/lib/universe/nfw-wasm";
 import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
 import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
 import type { Fate, LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
@@ -633,6 +634,7 @@ export function UniverseApp() {
 
   useEffect(() => {
     void registerGenesisWorker();
+    void bootNfwWasm();
   }, []);
 
   useEffect(() => {

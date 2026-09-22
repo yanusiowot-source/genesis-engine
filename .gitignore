@@ -34,7 +34,8 @@ startup.sh
 *.log
 .DS_Store
 Thumbs.db
-coverage/
+# rust wasm scratch
+wasm/nfw-kernel/target/
 .idea/
 .vscode/
 *.swp
