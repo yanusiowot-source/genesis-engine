@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { persistH0, persistLong } from "./persist.ts";
+import { persistBottleneck, persistDiagram, persistH0, persistLong } from "./persist.ts";
 
 describe("persist H0", () => {
   it("keeps one infinite bar on a single blob", () => {
@@ -39,5 +39,20 @@ describe("persist H0", () => {
     const far = [...close, [0.9, 0.1, 0.1, 0.1, 0.1, 0.1]];
     assert.equal(persistLong(persistH0(close), 0.5), 0);
     assert.equal(persistLong(persistH0(far), 0.5), 1);
+  });
+
+  it("puts H0 on the death axis and measures bottleneck, not a drawing", () => {
+    const blob: number[][] = [];
+    for (let i = 0; i < 10; i++) blob.push([0.01 * i, 0]);
+    const two: number[][] = [...blob, ...blob.map(([x]) => [x! + 4, 0])];
+    const a = persistH0(blob);
+    const b = persistH0(two);
+    const pd = persistDiagram(b);
+    assert.ok(pd.every((p) => p.birth === 0 && Number.isFinite(p.death)));
+    assert.equal(pd.length, b.length - 1);
+    assert.ok(persistBottleneck(a, a) < 1e-9);
+    const spun = persistH0(two.map(([x, y]) => [-y!, x!]));
+    assert.ok(persistBottleneck(b, spun) < 1e-9);
+    assert.ok(persistBottleneck(a, b) > 1);
   });
 });
