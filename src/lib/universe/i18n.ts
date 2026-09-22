@@ -294,6 +294,8 @@ export type Copy = {
   studioSupportBody: string;
   studioFollowCta: string;
   studioPublicCta: string;
+  studioLabRepoCta: string;
+  studioSourceCta: string;
   studioEnterCta: string;
   studioReserveCta: string;
   studioOrderText: string;
@@ -1057,6 +1059,8 @@ const en: Copy = {
   studioSupportBody: "One-time, 15 USDT (BEP20) or the same in Bitcoin. Windows and Linux after the plate. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
+  studioLabRepoCta: "Lab repository (build only)",
+  studioSourceCta: "Source. All rights reserved.",
   studioEnterCta: "Enter the laboratory",
   studioReserveCta: "Order a copy · 15 USDT",
   studioOrderText: "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Sending the tx.",
@@ -2349,6 +2353,8 @@ const ru: Copy = {
   studioSupportBody: "Разовая, 15 USDT (BEP20) или столько же в Bitcoin. Windows и Linux после пластины. macOS позже. Школам и планетариям — лицензия по письму. Лаборатория в сети остаётся свободной. Без рекламы. Без подписки.",
   studioFollowCta: "Заметки автора в X",
   studioPublicCta: "Открыть публичную лабораторию",
+  studioLabRepoCta: "Репозиторий лаборатории (только сборка)",
+  studioSourceCta: "Исходник. Все права защищены.",
   studioEnterCta: "Войти в лабораторию",
   studioReserveCta: "Забрать копию · 15 USDT",
   studioOrderText: "Здравствуйте. Оплатил 15 USDT BEP20 (или BTC) за настольную копию Genesis Engine. Присылаю транзакцию.",

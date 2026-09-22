@@ -1,6 +1,8 @@
-/** Hosted lab. Source stays in the private repository. */
+/** Hosted lab (Pages). genesis-lab is the build. genesis-engine is source, all rights reserved. */
 export const PUBLIC_LAB_URL = "https://yanusiowot-source.github.io/genesis-lab/";
 export const PUBLIC_ABOUT_URL = `${PUBLIC_LAB_URL}about/`;
+export const PUBLIC_LAB_REPO_URL = "https://github.com/yanusiowot-source/genesis-lab";
+export const PUBLIC_SOURCE_REPO_URL = "https://github.com/yanusiowot-source/genesis-engine";
 export const AUTHOR_X_URL = "https://x.com/yanusio";
 export const AUTHOR_X_ID = "1652518444795928590";
 export const APP_VERSION = "1.28.0";

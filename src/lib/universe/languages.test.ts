@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { mergeCopy } from "./copy-merge.ts";
 import { formatHudPct } from "./format.ts";
 import { copyFor, hydratePacks } from "./i18n.ts";
-import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, APP_VERSION_SHORT, productOffers } from "./studio.ts";
+import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, PUBLIC_LAB_REPO_URL, PUBLIC_SOURCE_REPO_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, APP_VERSION_SHORT, productOffers } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -147,6 +147,10 @@ describe("copyFor", () => {
     assert.match(orderCopyUrl(c.studioOrderText), /messages\/compose/);
     assert.match(orderCopyUrl(c.studioOrderText), /1652518444795928590/);
     assert.match(c.studioPublicCta, /public lab/);
+    assert.match(c.studioLabRepoCta, /build/i);
+    assert.match(c.studioSourceCta, /rights reserved/i);
+    assert.match(PUBLIC_LAB_REPO_URL, /genesis-lab/);
+    assert.match(PUBLIC_SOURCE_REPO_URL, /genesis-engine/);
     assert.match(c.studioEnterCta, /laboratory/);
     assert.match(c.platforms.intro, /free lab/);
     assert.match(c.platforms.windowsBody, /paid portable copy/);
@@ -208,6 +212,8 @@ describe("copyFor", () => {
     );
     assert.match(about, new RegExp(`"softwareVersion": "${APP_VERSION}"`));
     assert.match(about, new RegExp(`Version ${APP_VERSION_SHORT}`));
+    assert.match(about, /github.com\/yanusiowot-source\/genesis-lab/);
+    assert.match(about, /github.com\/yanusiowot-source\/genesis-engine/);
     const offers = productOffers();
     assert.equal(offers[1]?.price, "15");
     assert.equal(offers[1]?.priceCurrency, "USD");

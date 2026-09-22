@@ -7,7 +7,7 @@ import type { Copy, Locale } from "@/lib/universe/i18n";
 import type { MusicSource, PlaylistEntry } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
 import { cn } from "@/lib/utils";
-import { AUTHOR_X_URL, PUBLIC_LAB_URL, isHostedLab } from "@/lib/universe/studio";
+import { AUTHOR_X_URL, PUBLIC_LAB_REPO_URL, PUBLIC_LAB_URL, PUBLIC_SOURCE_REPO_URL, isHostedLab } from "@/lib/universe/studio";
 
 type Props = {
   copy: Copy;
@@ -431,6 +431,18 @@ export function SettingsSheet({
               </a>
             </Button>
           ) : null}
+          <Button asChild variant="outline" className="mt-2 w-full">
+            <a href={PUBLIC_LAB_REPO_URL} target="_blank" rel="noopener noreferrer">
+              <ExternalLink />
+              {copy.studioLabRepoCta}
+            </a>
+          </Button>
+          <Button asChild variant="outline" className="mt-2 w-full">
+            <a href={PUBLIC_SOURCE_REPO_URL} target="_blank" rel="noopener noreferrer">
+              <ExternalLink />
+              {copy.studioSourceCta}
+            </a>
+          </Button>
           {!hosted ? (
             <Button asChild variant="outline" className="mt-2 w-full">
               <a href={AUTHOR_X_URL} target="_blank" rel="noopener noreferrer">

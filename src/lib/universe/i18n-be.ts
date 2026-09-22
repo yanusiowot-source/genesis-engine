@@ -271,6 +271,8 @@ export function makeBe(ru: Copy): Copy {
 		studioSupportBody: "Разавая, 15 USDT (BEP20) або столькі ж у Bitcoin. Windows і Linux пасля пласціны. macOS пазней. Школам і планетарыям — ліцэнзія па пісьме. Лабараторыя ў сетцы застаецца вольнай. Без рэкламы. Без падпіскі.",
 		studioFollowCta: "Нататкі аўтара ў X",
 		studioPublicCta: "Адкрыць публічную лабараторыю",
+		studioLabRepoCta: "Рэпазіторый лабараторыі (толькі зборка)",
+		studioSourceCta: "Зыходнік. Усе правы абаронены.",
 		studioEnterCta: "Увайсці ў лабараторыю",
 		studioReserveCta: "Забраць копію · 15 USDT",
 		studioOrderText: "Добры дзень. Аплаціў 15 USDT BEP20 (або BTC) за настольную копію Genesis Engine. Дасылаю транзакцыю.",
