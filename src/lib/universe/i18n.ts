@@ -1686,7 +1686,7 @@ const en: Copy = {
   },
   mandate: {
     title: "The work",
-    hint: "An observatory thesis, not a score. Ten skies to witness. Physics is not for sale.",
+    hint: "An observatory thesis, not a score. Physics is not for sale.",
     next: "Next",
     sealed: "Sealed",
     openLabel: "Open",
@@ -1747,6 +1747,31 @@ const en: Copy = {
         body: "Star a sky worth keeping. The log remembers.",
         hint: "The star next to the name.",
       },
+      core: {
+        title: "Cored halo",
+        body: "NFW cusp flattened. Burkert or coreNFW — baryons, not a new particle.",
+        hint: "Scatter the disk or raise quantum noise.",
+      },
+      toomre: {
+        title: "Toomre break",
+        body: "Q ≲ 1. Self-gravity wins. The disk fragments into clumps.",
+        hint: "Colder, heavier spiral. Hunt until the disk tears.",
+      },
+      peak: {
+        title: "Loaded peaks",
+        body: "Acoustic odd-even not our 220. Baryons load the CMB, or fog damps it.",
+        hint: "Complexity up, or a noisy fog.",
+      },
+      engine: {
+        title: "Central engine",
+        body: "Quasar or quench. Magnetic pressure, not a light show.",
+        hint: "An elliptical, or a feeding AGN.",
+      },
+      ring: {
+        title: "SIS ring",
+        body: "Isothermal halo. The Einstein ring of a lens, not a texture.",
+        hint: "Elliptical sky. Lensing mode is the eyepiece.",
+      },
     },
     flash: {
       witness: "First light. The work begins.",
@@ -1759,6 +1784,11 @@ const en: Copy = {
       atlas: "Five fates. The atlas thickens.",
       chronicle: "A field note. The desk remembers.",
       keep: "A keeper. Starred against the void.",
+      core: "Cored halo. The cusp gave way.",
+      toomre: "Toomre break. The disk tears.",
+      peak: "Loaded peaks. Not our ℓ 220.",
+      engine: "Central engine. Quasar or quench.",
+      ring: "SIS ring. A lens, not a texture.",
     },
     cue: {
       witness: "Birth a universe.",
@@ -1771,6 +1801,11 @@ const en: Copy = {
       atlas: "Birth until five fates sit in the log.",
       chronicle: "Lab → Const. Write a field note.",
       keep: "Star a sky worth keeping.",
+      core: "Find a cored halo — noisy or scattered.",
+      toomre: "Hunt a fragmenting disk. Q ≲ 1.",
+      peak: "Load or damp the acoustic peaks.",
+      engine: "Find a quasar or a quenched elliptical.",
+      ring: "An isothermal halo. Elliptical sky.",
     },
   },
   bio: {
@@ -2943,7 +2978,7 @@ const ru: Copy = {
   },
   mandate: {
     title: "Работа",
-    hint: "Тезис обсерватории, не очки. Десять небес. Физика не продаётся.",
+    hint: "Тезис обсерватории, не очки. Физика не продаётся.",
     next: "Дальше",
     sealed: "Запечатано",
     openLabel: "Открыто",
@@ -3004,6 +3039,31 @@ const ru: Copy = {
         body: "Отметить небо, которое стоит оставить. Журнал помнит.",
         hint: "Звезда рядом с именем.",
       },
+      core: {
+        title: "Ядро гало",
+        body: "Касп NFW сглажен. Burkert или coreNFW — барионы, не новая частица.",
+        hint: "Рассеять диск или поднять квантовый шум.",
+      },
+      toomre: {
+        title: "Разрыв Тумре",
+        body: "Q ≲ 1. Самогравитация побеждает. Диск ломается на комья.",
+        hint: "Холоднее, тяжелее спираль. Пока диск не рвётся.",
+      },
+      peak: {
+        title: "Нагруженные пики",
+        body: "Акустика не наше ℓ 220. Барионы грузят реликт, или туман глушит.",
+        hint: "Сложность вверх или шумный туман.",
+      },
+      engine: {
+        title: "Центральный двигатель",
+        body: "Квазар или тушение. Магнитное давление, не цирк.",
+        hint: "Эллиптическое небо или сытый AGN.",
+      },
+      ring: {
+        title: "Кольцо SIS",
+        body: "Изотермическое гало. Кольцо Эйнштейна линзы, не текстура.",
+        hint: "Эллиптическое небо. Режим линзирования — окуляр.",
+      },
     },
     flash: {
       witness: "Первый свет. Работа начинается.",
@@ -3016,6 +3076,11 @@ const ru: Copy = {
       atlas: "Пять судеб. Атлас густеет.",
       chronicle: "Полевая заметка. Стол помнит.",
       keep: "Хранитель. Отмечено против пустоты.",
+      core: "Ядро гало. Касп уступил.",
+      toomre: "Разрыв Тумре. Диск рвётся.",
+      peak: "Нагруженные пики. Не наше ℓ 220.",
+      engine: "Центральный двигатель. Квазар или тушение.",
+      ring: "Кольцо SIS. Линза, не текстура.",
     },
     cue: {
       witness: "Родить вселенную.",
@@ -3028,6 +3093,11 @@ const ru: Copy = {
       atlas: "Родить, пока в журнале не сядут пять судеб.",
       chronicle: "Лаб → Конст. Написать полевую заметку.",
       keep: "Отметить небо, которое стоит оставить.",
+      core: "Найти сглаженное гало — шум или рассеянный диск.",
+      toomre: "Искать дробящийся диск. Q ≲ 1.",
+      peak: "Нагрузить или заглушить акустические пики.",
+      engine: "Найти квазар или погашенный эллиптический.",
+      ring: "Изотермическое гало. Эллиптическое небо.",
     },
   },
   bio: {

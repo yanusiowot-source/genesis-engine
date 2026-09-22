@@ -101,7 +101,7 @@ describe("copyFor", () => {
     assert.match(copyFor("be").onboarding[2].title, /Чатыры/);
     assert.match(c.mandate.title, /work/i);
     assert.match(c.mandate.hint, /not a score/);
-    assert.equal(Object.keys(c.mandate.chapters).length, 10);
+    assert.equal(Object.keys(c.mandate.chapters).length, 15);
     assert.match(c.mandate.done, /atlas is sealed/i);
     assert.match(c.mandate.atlasTick, /Atlas \{n\} of \{m\}/);
     assert.match(copyFor("ru").mandate.done, /атлас/i);

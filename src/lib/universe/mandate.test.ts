@@ -49,16 +49,18 @@ function recordOf(params: UniverseParams, seed = 1, extra: Partial<UniverseRecor
 }
 
 describe("mandate", () => {
-  it("starts empty and names ten chapters", () => {
+  it("starts empty and names the thesis chapters", () => {
     const p = emptyMandate();
-    assert.equal(MANDATE_IDS.length, 10);
-    assert.equal(MANDATE_COUNT, 10);
+    assert.equal(MANDATE_IDS.length, 15);
+    assert.equal(MANDATE_COUNT, 15);
     assert.equal(sealedCount(p), 0);
     assert.equal(nextOpen(p), "witness");
     assert.equal(isComplete(p), false);
     assert.equal(actOf("silicon"), "silicon");
     assert.equal(actOf("tide"), "tide");
     assert.equal(actOf("keep"), "star");
+    assert.equal(actOf("core"), "survey");
+    assert.equal(actOf("ring"), "survey");
   });
 
   it("seals home corridor diaspora on ΛCDM and leaves the other corridors open", () => {
@@ -76,6 +78,11 @@ describe("mandate", () => {
     assert.equal(progress.sealed.atlas, undefined);
     assert.equal(progress.sealed.chronicle, undefined);
     assert.equal(progress.sealed.keep, undefined);
+    assert.equal(progress.sealed.core, undefined);
+    assert.equal(progress.sealed.toomre, undefined);
+    assert.equal(progress.sealed.peak, undefined);
+    assert.equal(progress.sealed.engine, undefined);
+    assert.equal(progress.sealed.ring, undefined);
     assert.equal(nextOpen(progress), "silicon");
   });
 
@@ -176,7 +183,10 @@ describe("mandate", () => {
     const en = copyFor("en").mandate;
     const ru = copyFor("ru").mandate;
     const be = copyFor("be").mandate;
-    assert.equal(Object.keys(en.chapters).length, 10);
+    assert.equal(Object.keys(en.chapters).length, 15);
+    assert.match(en.chapters.core.body, /coreNFW/i);
+    assert.match(en.chapters.toomre.body, /Toomre|Q/);
+    assert.doesNotMatch(en.hint, /ten skies/i);
     assert.match(en.chapters.tide.body, /Hart/i);
     assert.match(en.title, /work/i);
     assert.match(en.hint, /not a score/);
@@ -227,5 +237,17 @@ describe("mandate", () => {
     const tick = formatAtlasTick("{fate}. Atlas {n} of {m}.", "The void", 2);
     assert.equal(tick, "The void. Atlas 2 of 5.");
     assert.equal(actOf("atlas"), "birth");
+  });
+
+  it("does not confuse ΛCDM with a cored halo or a SIS ring", () => {
+    const noisy = recordOf({ ...OUR_UNIVERSE, quantumNoise: 0.7 }, 4);
+    const civN = intelligenceWindow(noisy.params, noisy.evaluation);
+    const core = observe(emptyMandate(), { record: noisy, civ: civN, event: "see" });
+    assert.ok(core.sealed.includes("core"), "burkert/corenfw");
+
+    const ell = recordOf({ ...OUR_UNIVERSE, matter: 1.1 }, 5);
+    const civE = intelligenceWindow(ell.params, ell.evaluation);
+    const { sealed } = observe(emptyMandate(), { record: ell, civ: civE, event: "see" });
+    assert.ok(sealed.includes("ring") || sealed.includes("engine"));
   });
 });

@@ -1,10 +1,16 @@
 import { intelligenceWindow, type CivModel } from "./civilization.ts";
+import {
+  acousticDossier,
+  agnNicheOf,
+  diskDossier,
+  haloModel,
+} from "./observatory.ts";
 import { OUR_SEED, isOurParams } from "./physics.ts";
 import type { Fate, UniverseRecord } from "./types.ts";
 
 /**
  * Observatory thesis — not a score, not XP, not a shop.
- * Ten skies to witness. Physics stays honest.
+ * Skies to witness. Physics stays honest.
  */
 export const MANDATE_IDS = [
   "witness",
@@ -17,6 +23,11 @@ export const MANDATE_IDS = [
   "atlas",
   "chronicle",
   "keep",
+  "core",
+  "toomre",
+  "peak",
+  "engine",
+  "ring",
 ] as const;
 
 export type MandateId = (typeof MANDATE_IDS)[number];
@@ -139,6 +150,12 @@ export function actOf(id: MandateId): MandateAct {
       return "chronicle";
     case "keep":
       return "star";
+    case "core":
+    case "toomre":
+    case "peak":
+    case "engine":
+    case "ring":
+      return "survey";
   }
 }
 
@@ -175,6 +192,22 @@ function qualifies(id: MandateId, ctx: ObserveCtx, fates: Fate[]): boolean {
       return ctx.event === "chronicle" || Boolean(ctx.record.chronicle);
     case "keep":
       return ctx.event === "star" || Boolean(ctx.record.starred);
+    case "core": {
+      const h = haloModel(ctx.record.params, ev);
+      return h === "burkert" || h === "corenfw";
+    }
+    case "toomre":
+      return diskDossier(ctx.record.params, ev).niche === "fragmenting";
+    case "peak": {
+      const n = acousticDossier(ctx.record.params, ev).niche;
+      return n === "loaded" || n === "damped";
+    }
+    case "engine": {
+      const a = agnNicheOf(ctx.record.params, ev);
+      return a === "quasar" || a === "quench";
+    }
+    case "ring":
+      return haloModel(ctx.record.params, ev) === "isothermal";
   }
 }
 
