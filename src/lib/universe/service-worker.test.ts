@@ -28,5 +28,6 @@ describe("service worker", () => {
     assert.equal(SW_CACHE_NAME, `genesis-sw-${APP_VERSION_SHORT}`);
     assert.match(sw, /cache-first/);
     assert.match(sw, /network-first/);
+    assert.match(sw, /wasm/);
   });
 });

@@ -28,7 +28,7 @@ function sameOrigin(url) {
 }
 
 function isHashedAsset(url) {
-  return url.pathname.includes("/assets/") || /\.(?:js|css|woff2|png|svg|jpe?g|webp|ico)$/i.test(url.pathname);
+  return url.pathname.includes("/assets/") || /\.(?:js|css|woff2|png|svg|jpe?g|webp|ico|wasm)$/i.test(url.pathname);
 }
 
 function isDocument(request) {
