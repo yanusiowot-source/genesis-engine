@@ -208,6 +208,28 @@ export function projectLook(
   };
 }
 
+/** Pinhole for the inside sky. Not the face-on disk matrix. */
+export const PLANETARIUM_FOV = 1.22;
+
+/**
+ * Screen of a world point in the planetarium.
+ * After ctx.translate(cx,cy) pass cx=0, cy=0.
+ * Not a second projection — projectLook, then scale.
+ */
+export function planetariumScreen(
+  x: number,
+  y: number,
+  z: number,
+  cam: LookCam,
+  cx: number,
+  cy: number,
+  scale: number,
+): { x: number; y: number; depth: number } | null {
+  const p = projectLook(x, y, z, cam, PLANETARIUM_FOV);
+  if (!p) return null;
+  return { x: cx + p.x * scale, y: cy + p.y * scale, depth: p.depth };
+}
+
 function fillMorphology(
   rng: () => number,
   params: UniverseParams,

@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { adaptiveQuality, buildGalaxy, canvasDpr, encounterOf, lookCam, PIXEL_BUDGET, projectLook } from "./galaxy.ts";
+import { adaptiveQuality, buildGalaxy, canvasDpr, encounterOf, lookCam, PIXEL_BUDGET, planetariumScreen, PLANETARIUM_FOV, projectLook } from "./galaxy.ts";
 import { evaluate, OUR_UNIVERSE } from "./physics.ts";
 
 describe("inside-sky camera", () => {
   it("places the bulge in front of the default look", () => {
     const cam = lookCam(0, 0);
-    const bulge = projectLook(0, 0, 0, cam, 1.22);
+    const bulge = projectLook(0, 0, 0, cam, PLANETARIUM_FOV);
     assert.ok(bulge);
     assert.ok(bulge.depth > 0.4);
     assert.ok(Math.abs(bulge.x) < 0.12);
@@ -15,21 +15,32 @@ describe("inside-sky camera", () => {
 
   it("culls stars behind the observer", () => {
     const cam = lookCam(0, 0);
-    assert.equal(projectLook(1.4, 0, 0, cam, 1.22), null);
+    assert.equal(projectLook(1.4, 0, 0, cam, PLANETARIUM_FOV), null);
   });
 
   it("yaw swings the bulge off-center", () => {
-    const left = projectLook(0, 0, 0, lookCam(-0.4, 0), 1.22);
-    const right = projectLook(0, 0, 0, lookCam(0.4, 0), 1.22);
+    const left = projectLook(0, 0, 0, lookCam(-0.4, 0), PLANETARIUM_FOV);
+    const right = projectLook(0, 0, 0, lookCam(0.4, 0), PLANETARIUM_FOV);
     assert.ok(left && right);
     assert.ok(left.x < 0);
     assert.ok(right.x > 0);
   });
 
   it("pitch looking up puts the plane below center", () => {
-    const up = projectLook(0, 0, 0, lookCam(0, 0.35), 1.22);
+    const up = projectLook(0, 0, 0, lookCam(0, 0.35), PLANETARIUM_FOV);
     assert.ok(up);
     assert.ok(up.y > 0);
+  });
+
+  it("places a star only through projectLook, then scale", () => {
+    const cam = lookCam(0.12, 0.05);
+    const ndc = projectLook(0.2, -0.04, 0.01, cam, PLANETARIUM_FOV);
+    const screen = planetariumScreen(0.2, -0.04, 0.01, cam, 200, 150, 80);
+    assert.ok(ndc && screen);
+    assert.ok(Math.abs(screen.x - (200 + ndc.x * 80)) < 1e-9);
+    assert.ok(Math.abs(screen.y - (150 + ndc.y * 80)) < 1e-9);
+    assert.equal(screen.depth, ndc.depth);
+    assert.equal(planetariumScreen(1.4, 0, 0, lookCam(0, 0), 0, 0, 80), null);
   });
 });
 

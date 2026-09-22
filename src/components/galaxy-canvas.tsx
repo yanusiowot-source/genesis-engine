@@ -3,6 +3,8 @@ import {
   adaptiveQuality,
   canvasDpr,
   lookCam,
+  planetariumScreen,
+  PLANETARIUM_FOV,
   projectLook,
   type GalaxyModel,
   type Star,
@@ -631,7 +633,7 @@ export function GalaxyCanvas({
       time: number,
     ) => {
       const cam = lookCam(yaw, pitch);
-      const fov = 1.22;
+      const fov = PLANETARIUM_FOV;
       const limX = (w / scale) * 0.72;
       const limY = (h / scale) * 0.72;
 
@@ -745,11 +747,11 @@ export function GalaxyCanvas({
       ctx.fillRect(0, h * 0.68, w, h * 0.32);
 
       if (isOurParams(paramsRef.current)) {
-        const sol = projectLook(cam.ox - 0.04, cam.oy - 0.008, cam.oz - 0.004, cam, fov);
-        const tau = projectLook(cam.ox - 0.02, cam.oy + 0.03, cam.oz + 0.006, cam, fov);
-        if (sol && Math.abs(sol.x) < limX && Math.abs(sol.y) < limY) {
-          const x = cx + sol.x * scale;
-          const y = cy + sol.y * scale;
+        const sol = planetariumScreen(cam.ox - 0.04, cam.oy - 0.008, cam.oz - 0.004, cam, cx, cy, scale);
+        const tau = planetariumScreen(cam.ox - 0.02, cam.oy + 0.03, cam.oz + 0.006, cam, cx, cy, scale);
+        if (sol && Math.abs(sol.x - cx) < limX * scale && Math.abs(sol.y - cy) < limY * scale) {
+          const x = sol.x;
+          const y = sol.y;
           ctx.fillStyle = "rgb(150, 190, 255)";
           ctx.beginPath();
           ctx.arc(x, y, 1.6, 0, Math.PI * 2);
@@ -759,13 +761,11 @@ export function GalaxyCanvas({
           ctx.arc(x, y, 4.5, 0, Math.PI * 2);
           ctx.fill();
         }
-        if (tau && Math.abs(tau.x) < limX && Math.abs(tau.y) < limY) {
-          const tx = cx + tau.x * scale;
-          const ty = cy + tau.y * scale;
+        if (tau && Math.abs(tau.x - cx) < limX * scale && Math.abs(tau.y - cy) < limY * scale) {
           const hot = eggsRef.current.tau;
-          drawTauBeacon(tx, ty, time, hot, tau.x < 0 ? "right" : "left");
-          tauHit.x = tx;
-          tauHit.y = ty;
+          drawTauBeacon(tau.x, tau.y, time, hot, tau.x < cx ? "right" : "left");
+          tauHit.x = tau.x;
+          tauHit.y = tau.y;
           tauHit.r = 36;
           tauHit.live = true;
         }
