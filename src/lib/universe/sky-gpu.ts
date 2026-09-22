@@ -172,8 +172,43 @@ type GpuBag = {
   cap: number;
 };
 
+export type SkyView = {
+  ox: number;
+  oy: number;
+  w: number;
+  h: number;
+  scale: number;
+  rot: number;
+  vis: number;
+  dpr: number;
+};
+
+/** WebGPU framebuffer is device pixels. 2D canvas setTransform(dpr) hid this. */
+export function deviceView(view: SkyView): {
+  ox: number;
+  oy: number;
+  w: number;
+  h: number;
+  scale: number;
+  rot: number;
+  point: number;
+  vis: number;
+} {
+  const dpr = Math.max(view.dpr, 1);
+  return {
+    ox: view.ox * dpr,
+    oy: view.oy * dpr,
+    w: view.w * dpr,
+    h: view.h * dpr,
+    scale: view.scale * dpr,
+    rot: view.rot,
+    point: dpr,
+    vis: view.vis,
+  };
+}
+
 export type SkyGpu = {
-  draw: (model: GalaxyModel, view: { ox: number; oy: number; scale: number; rot: number; vis: number; w: number; h: number; dpr: number }) => void;
+  draw: (model: GalaxyModel, view: SkyView) => void;
   clear: () => void;
   destroy: () => void;
 };
@@ -304,14 +339,15 @@ export async function createSkyGpu(canvas: HTMLCanvasElement): Promise<SkyGpu | 
           device.queue.writeBuffer(stars, 0, scratch.subarray(0, packed * STAR_FLOATS));
           lastModel = model;
         }
-        uboF[0] = view.ox;
-        uboF[1] = view.oy;
-        uboF[2] = view.w;
-        uboF[3] = view.h;
-        uboF[4] = view.scale;
-        uboF[5] = view.rot;
-        uboF[6] = Math.max(view.dpr, 1);
-        uboF[7] = view.vis;
+        const gpu = deviceView(view);
+        uboF[0] = gpu.ox;
+        uboF[1] = gpu.oy;
+        uboF[2] = gpu.w;
+        uboF[3] = gpu.h;
+        uboF[4] = gpu.scale;
+        uboF[5] = gpu.rot;
+        uboF[6] = gpu.point;
+        uboF[7] = gpu.vis;
         uboU[8] = packed;
         device.queue.writeBuffer(uniform, 0, uboBytes);
         const encoder = device.createCommandEncoder();

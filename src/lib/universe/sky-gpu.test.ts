@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  deviceView,
   gpuOffered,
   instanceOnScreen,
   packGalaxyInstances,
@@ -63,5 +64,17 @@ describe("sky-gpu", () => {
     assert.equal(instanceOnScreen(0, -8, 1, view), false);
     const tilted = { ...view, rot: Math.PI / 2 };
     assert.equal(instanceOnScreen(0.1, 0, 1, tilted), true);
+  });
+
+  it("does not mix CSS pixels with a device framebuffer", () => {
+    const css = { ox: 200, oy: 150, w: 400, h: 300, scale: 100, rot: 0.2, vis: 1, dpr: 2 };
+    const gpu = deviceView(css);
+    assert.equal(gpu.w, 800);
+    assert.equal(gpu.ox, 400);
+    assert.equal(gpu.scale, 200);
+    assert.equal(gpu.point, 2);
+    const a = instanceOnScreen(0.4, 0.1, 1.2, { ...css, point: 1 });
+    const b = instanceOnScreen(0.4, 0.1, 1.2, gpu);
+    assert.equal(a, b);
   });
 });
