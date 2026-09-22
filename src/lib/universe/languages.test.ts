@@ -1,9 +1,12 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { mergeCopy } from "./copy-merge.ts";
 import { formatHudPct } from "./format.ts";
 import { copyFor } from "./i18n.ts";
-import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, productOffers } from "./studio.ts";
+import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, APP_VERSION_SHORT, productOffers } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -174,7 +177,7 @@ describe("copyFor", () => {
     assert.match(c.keep.roomCta, /room/i);
     assert.match(copyFor("ru").keep.openCta, /15 USDT/);
     assert.match(copyFor("be").keep.step2, /пласцін/);
-    assert.equal(c.version, "Version 1.25");
+    assert.equal(c.version, `Version ${APP_VERSION_SHORT}`);
     assert.match(copyFor("ru").platforms.intro, /свободн/);
   });
 
@@ -192,7 +195,11 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.25.0");
+    assert.equal(APP_VERSION, "1.26.0");
+    const pkg = JSON.parse(
+      readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../../package.json"), "utf8"),
+    ) as { version: string };
+    assert.equal(APP_VERSION, pkg.version);
     const offers = productOffers();
     assert.equal(offers[1]?.price, "15");
     assert.equal(offers[1]?.priceCurrency, "USD");

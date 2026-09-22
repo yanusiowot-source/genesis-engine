@@ -1,5 +1,6 @@
 import type { Copy } from "../i18n";
 import type { DeepPartial } from "../copy-merge.ts";
+import { APP_VERSION_SHORT } from "../studio.ts";
 
 type FateL = Copy["fateLabel"];
 type Tabs = Copy["tabs"];
@@ -125,7 +126,7 @@ function chrome(c: Chrome): DeepPartial<Copy> {
   };
 }
 
-const v = "1.25";
+const v = APP_VERSION_SHORT;
 
 export const PACKS: Record<string, DeepPartial<Copy>> = {
   de: chrome({

@@ -1,4 +1,5 @@
 import type { Copy } from "./i18n";
+import { APP_VERSION_SHORT } from "./studio.ts";
 
 export function makeBe(ru: Copy): Copy {
 
@@ -306,7 +307,7 @@ export function makeBe(ru: Copy): Copy {
 				"Добры дзень. Аплаціў 15 USDT BEP20 (або BTC) за настольную копію Genesis Engine. Пласціна {plate}. Tx {tx}. Трэба Windows / Linux:",
 		},
 		sourceCode: "© 2026 Ян Ярошевіч. Усе правы абаронены.",
-		version: "Версія 1.25",
+		version: `Версія ${APP_VERSION_SHORT}`,
 		eggs: {
 			answer: "У каталогу гэтага неба ёсць 42.",
 			whale: "У апошнім лёдзе плыве кіт. Перавядзіце гадзіннік на «Канец», каб убачыць.",

@@ -40,6 +40,7 @@ import { mergeCopy } from "./copy-merge.ts";
 import { PACKS } from "./locales/packs.ts";
 import { HUD } from "./locales/hud-packs.ts";
 import { SETTINGS } from "./locales/settings-packs.ts";
+import { APP_VERSION_SHORT } from "./studio.ts";
 import {
   AUTHORED,
   autonym,
@@ -1093,7 +1094,7 @@ const en: Copy = {
       "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Plate {plate}. Tx {tx}. Need Windows / Linux:",
   },
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
-  version: "Version 1.25",
+  version: `Version ${APP_VERSION_SHORT}`,
   eggs: {
     answer: "The catalog of this sky contains 42.",
     whale: "A whale is drifting in the last ice. Jump the clock to End to see it.",
@@ -2349,7 +2350,7 @@ const ru: Copy = {
       "Здравствуйте. Оплатил 15 USDT BEP20 (или BTC) за настольную копию Genesis Engine. Пластина {plate}. Tx {tx}. Нужно Windows / Linux:",
   },
   sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
-  version: "Версия 1.25",
+  version: `Версия ${APP_VERSION_SHORT}`,
   eggs: {
     answer: "В каталоге этого неба есть 42.",
     whale: "В последнем льду плывёт кит. Переведите часы на «Конец», чтобы увидеть.",
