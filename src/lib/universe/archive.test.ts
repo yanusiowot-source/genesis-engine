@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { plateScore, upsertArchive } from "./archive.ts";
+import { filterByMeta, plateScore, upsertArchive } from "./archive.ts";
 import {
   ETERNAL_CORRIDOR,
   OUR_SEED,
@@ -106,5 +106,37 @@ describe("plateScore", () => {
     assert.equal(plateScore(plate({ params: ETERNAL_CORRIDOR })).path, "eternal");
     assert.equal(plateScore(plate({ params: SWARM_CORRIDOR })).path, "swarm");
     assert.ok(plateScore(plate({ params: SWARM_CORRIDOR })).value > 0.4);
+  });
+});
+
+describe("filterByMeta", () => {
+  it("ANDs named fields and ignores absent keys", () => {
+    const home = plate({ id: "H" });
+    const tide = plate({ id: "S", params: SWARM_CORRIDOR });
+    const starred = plate({ id: "K", starred: true, params: SILICON_CORRIDOR });
+    const rows = [home, tide, starred];
+    assert.equal(filterByMeta(rows, {}).length, 3);
+    assert.deepEqual(
+      filterByMeta(rows, { path: "swarm" }).map((r) => r.id),
+      ["S"],
+    );
+    assert.deepEqual(
+      filterByMeta(rows, { starred: true, path: "silicon" }).map((r) => r.id),
+      ["K"],
+    );
+    assert.equal(filterByMeta(rows, { fate: "void", path: "swarm" }).length, 0);
+    assert.equal(
+      filterByMeta([tide], { path: "swarm", fate: tide.evaluation.fate }).length,
+      1,
+    );
+    const tagged = plate({ id: "C", catalog: "GE-CCCCCC" });
+    assert.equal(filterByMeta([home, tide, tagged], { catalog: "GE-CCCCCC" }).length, 1);
+    assert.equal(
+      filterByMeta([tagged], {
+        morphology: tagged.evaluation.morphology,
+        catalog: "GE-CCCCCC",
+      }).length,
+      1,
+    );
   });
 });

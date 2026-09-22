@@ -2,13 +2,14 @@ import { Star, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import { formatPct, formatRelative } from "@/lib/universe/format";
-import { isViable, plateScore } from "@/lib/universe/archive";
+import { isViable, plateScore, filterByMeta, type PlatePath } from "@/lib/universe/archive";
 import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
 import { isOurParams } from "@/lib/universe/physics";
 import type { UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
 
 type Filter = "all" | "viable" | "starred";
+type PathCut = "any" | Exclude<PlatePath, "none">;
 
 type Props = {
   copy: Copy;
@@ -34,17 +35,29 @@ export function LogList({
   onRemove,
 }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
+  const [pathCut, setPathCut] = useState<PathCut>("any");
 
-  const items = useMemo(() => {
-    if (filter === "viable") return archive.filter(isViable);
-    if (filter === "starred") return archive.filter((r) => r.starred);
-    return archive;
-  }, [archive, filter]);
+  const items = useMemo(
+    () =>
+      filterByMeta(archive, {
+        viable: filter === "viable" ? true : undefined,
+        starred: filter === "starred" ? true : undefined,
+        path: pathCut === "any" ? undefined : pathCut,
+      }),
+    [archive, filter, pathCut],
+  );
 
   const filters: { id: Filter; label: string }[] = [
     { id: "all", label: copy.filterAll },
     { id: "viable", label: copy.filterViable },
     { id: "starred", label: copy.filterStarred },
+  ];
+  const paths: { id: PathCut; label: string }[] = [
+    { id: "any", label: copy.filterAll },
+    { id: "carbon", label: copy.carbon },
+    { id: "silicon", label: copy.silicon },
+    { id: "eternal", label: copy.eternal },
+    { id: "swarm", label: copy.swarm },
   ];
 
   return (
@@ -80,6 +93,27 @@ export function LogList({
                 "h-11 min-h-11 flex-1 rounded-[var(--radius-sm)] text-xs font-medium",
                 "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                 active ? "bg-bg-elevated text-fg shadow-[var(--shadow-border)]" : "text-fg-subtle",
+              )}
+            >
+              {f.label}
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="flex flex-wrap gap-1">
+        {paths.map((f) => {
+          const active = pathCut === f.id;
+          return (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setPathCut(f.id)}
+              aria-pressed={active}
+              className={cn(
+                "h-11 min-h-11 rounded-[var(--radius-sm)] px-3 text-xs font-medium",
+                "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
+                active ? "bg-bg-subtle text-fg" : "text-fg-subtle",
               )}
             >
               {f.label}

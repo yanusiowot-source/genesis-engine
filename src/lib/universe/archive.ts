@@ -1,5 +1,5 @@
 import { OUR_SEED, evaluate, isOurParams, snapParams } from "./physics.ts";
-import type { UniverseRecord } from "./types.ts";
+import type { Fate, Morphology, UniverseRecord } from "./types.ts";
 
 const KEY = "genesis-engine-archive-v1";
 const DB_NAME = "genesis-engine";
@@ -254,4 +254,42 @@ export function isViable(record: UniverseRecord): boolean {
     record.evaluation.eternalProb >= 0.18 ||
     (record.evaluation.swarmProb ?? 0) >= 0.18
   );
+}
+
+/** AND of named plate fields. Absent keys are not a cut. */
+export type ArchiveMetaQuery = {
+  viable?: boolean;
+  starred?: boolean;
+  path?: PlatePath;
+  fate?: Fate;
+  morphology?: Morphology;
+  catalog?: string;
+};
+
+export function matchesMeta(record: UniverseRecord, q: ArchiveMetaQuery): boolean {
+  if (q.viable && !isViable(record)) return false;
+  if (q.starred && !record.starred) return false;
+  if (q.path && q.path !== "none" && plateScore(record).path !== q.path) return false;
+  if (q.path === "none" && plateScore(record).path !== "none") return false;
+  if (q.fate && record.evaluation.fate !== q.fate) return false;
+  if (q.morphology && record.evaluation.morphology !== q.morphology) return false;
+  if (q.catalog && record.catalog !== q.catalog) return false;
+  return true;
+}
+
+export function filterByMeta(
+  records: UniverseRecord[],
+  q: ArchiveMetaQuery,
+): UniverseRecord[] {
+  if (
+    q.viable !== true &&
+    q.starred !== true &&
+    !q.path &&
+    !q.fate &&
+    !q.morphology &&
+    !q.catalog
+  ) {
+    return records;
+  }
+  return records.filter((r) => matchesMeta(r, q));
 }
