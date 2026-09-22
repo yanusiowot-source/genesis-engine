@@ -1,7 +1,7 @@
 import type { EncounterKind } from "./encounters.ts";
-import type { MandateId } from "./mandate.ts";
-import type { KnownPlate } from "./physics.ts";
-import type { Fate } from "./types.ts";
+import { nextOpen, type MandateId, type MandateProgress } from "./mandate.ts";
+import { isOurParams, knownPlate, type KnownPlate } from "./physics.ts";
+import type { Fate, UniverseRecord } from "./types.ts";
 
 /** Field dispatch — the plot is watching, not a title card. */
 export type PlotId =
@@ -85,4 +85,22 @@ export function pickDispatch(input: PlotInput): PlotId {
   if (input.births <= 1) return "arrive";
   if (input.births >= 5) return "dice";
   return "empty";
+}
+
+export function voiceFor(
+  record: UniverseRecord,
+  work: MandateProgress,
+  extra?: Partial<PlotInput>,
+): PlotId {
+  return pickDispatch({
+    births: work.births,
+    fate: record.evaluation.fate,
+    next: nextOpen(work),
+    ours: isOurParams(record.params),
+    plate: knownPlate(record.params),
+    silicon: record.evaluation.siliconProb,
+    eternal: record.evaluation.eternalProb,
+    swarm: record.evaluation.swarmProb ?? 0,
+    ...extra,
+  });
 }

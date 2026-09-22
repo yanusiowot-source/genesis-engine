@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { pickDispatch } from "./plot.ts";
+import { pickDispatch, voiceFor } from "./plot.ts";
+import { emptyMandate } from "./mandate.ts";
+import { makeRecord } from "./archive.ts";
+import { OUR_SEED, OUR_UNIVERSE } from "./physics.ts";
 
 describe("pickDispatch", () => {
   it("opens on arrival, then empty, then the joke of the dice", () => {
@@ -70,5 +73,10 @@ describe("pickDispatch", () => {
       pickDispatch({ births: 3, fate: "void", next: "corridor", plate: "desert" }),
       "desert",
     );
+  });
+
+  it("voices our sky as home through the plate, not a canvas mood", () => {
+    const record = makeRecord(OUR_UNIVERSE, OUR_SEED);
+    assert.equal(voiceFor(record, emptyMandate()), "home");
   });
 });

@@ -123,6 +123,7 @@ import {
   saveArchive,
   toggleStar,
   upsertArchive,
+  makeRecord,
 } from "@/lib/universe/archive";
 import {
   DEFAULT_MUSIC_VOLUME,
@@ -216,13 +217,10 @@ import {
   SILICON_SEED,
   SWARM_CORRIDOR,
   SWARM_SEED,
-  evaluate,
   isOurParams,
-  knownPlate,
   randomParams,
   refine,
   siliconDossier,
-  snapParams,
   survey,
 } from "@/lib/universe/physics";
 import {
@@ -238,17 +236,14 @@ import type { CatalogResult, CutoutResult } from "@/lib/universe/mast";
 import type { McmcResult } from "@/lib/universe/mcmc";
 import { loadVotes, type SkyVote } from "@/lib/universe/zooniverse";
 import {
-  catalogId,
   clamp,
-  hashParams,
   isAnswerCatalog,
   mulberry32,
-  namePlate,
   randomSeed,
 } from "@/lib/universe/rng";
 import { ANSWER_SEED, isEggPrefix, noteEggKey, sliderEgg } from "@/lib/universe/eggs";
 import { pickEncounter, type EncounterKind, type SkyEncounter } from "@/lib/universe/encounters";
-import { pickDispatch, type PlotId } from "@/lib/universe/plot";
+import { pickDispatch, voiceFor, type PlotId } from "@/lib/universe/plot";
 import { pickPassage } from "@/lib/universe/scripture";
 import { registerGenesisWorker } from "@/lib/universe/service-worker";
 import { bootNfwWasm } from "@/lib/universe/nfw-wasm";
@@ -259,35 +254,6 @@ import { cn } from "@/lib/utils";
 import { nowMarker, epochShown, haloDossier, acousticDossier, diskDossier, NOW_T } from "@/lib/universe/observatory";
 
 const ONBOARD_KEY = "genesis-engine-onboarded-v5";
-
-function makeRecord(params: UniverseParams, visualSeed: number): UniverseRecord {
-  const snapped = snapParams(params);
-  const evaluation = evaluate(snapped);
-  const id = hashParams(snapped, visualSeed);
-  return {
-    id,
-    catalog: catalogId(id),
-    name: namePlate(visualSeed, id),
-    visualSeed,
-    params: snapped,
-    evaluation,
-    createdAt: Date.now(),
-  };
-}
-
-function voiceFor(record: UniverseRecord, work: MandateProgress, extra?: Partial<Parameters<typeof pickDispatch>[0]>): PlotId {
-  return pickDispatch({
-    births: work.births,
-    fate: record.evaluation.fate,
-    next: nextOpen(work),
-    ours: isOurParams(record.params),
-    plate: knownPlate(record.params),
-    silicon: record.evaluation.siliconProb,
-    eternal: record.evaluation.eternalProb,
-    swarm: record.evaluation.swarmProb ?? 0,
-    ...extra,
-  });
-}
 
 function Fold({ title, children }: { title: string; children: ReactNode }) {
   return (

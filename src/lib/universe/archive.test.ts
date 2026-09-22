@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { filterByMeta, journalEmptyKind, plateScore, upsertArchive } from "./archive.ts";
+import { filterByMeta, journalEmptyKind, makeRecord, plateScore, upsertArchive } from "./archive.ts";
 import {
   ETERNAL_CORRIDOR,
   OUR_SEED,
@@ -8,6 +8,7 @@ import {
   SILICON_CORRIDOR,
   SWARM_CORRIDOR,
   evaluate,
+  snapParams,
 } from "./physics.ts";
 import type { UniverseRecord } from "./types.ts";
 
@@ -147,5 +148,14 @@ describe("filterByMeta", () => {
     assert.equal(journalEmptyKind(3, 0, { viable: true }), "viable");
     assert.equal(journalEmptyKind(3, 0, { path: "swarm" }), "cut");
     assert.equal(journalEmptyKind(3, 0, { fate: "void" }), "cut");
+  });
+
+  it("stamps a plate only through evaluate", () => {
+    const noisy = { ...OUR_UNIVERSE, gravity: 1.7 };
+    const record = makeRecord(noisy, OUR_SEED);
+    const snapped = snapParams(noisy);
+    assert.deepEqual(record.params, snapped);
+    assert.deepEqual(record.evaluation, evaluate(snapped));
+    assert.equal(record.visualSeed, OUR_SEED);
   });
 });

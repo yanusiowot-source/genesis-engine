@@ -1,5 +1,6 @@
 import { OUR_SEED, evaluate, isOurParams, snapParams } from "./physics.ts";
-import type { Fate, Morphology, UniverseRecord } from "./types.ts";
+import { catalogId, hashParams, namePlate } from "./rng.ts";
+import type { Fate, Morphology, UniverseParams, UniverseRecord } from "./types.ts";
 
 const KEY = "genesis-engine-archive-v1";
 const DB_NAME = "genesis-engine";
@@ -7,6 +8,22 @@ const STORE = "kv";
 const LIMIT = 32;
 let idbReadable = false;
 let saveGen = 0;
+
+/** Plate of a sky. Always evaluate(snap). The canvas does not invent a fate. */
+export function makeRecord(params: UniverseParams, visualSeed: number): UniverseRecord {
+  const snapped = snapParams(params);
+  const evaluation = evaluate(snapped);
+  const id = hashParams(snapped, visualSeed);
+  return {
+    id,
+    catalog: catalogId(id),
+    name: namePlate(visualSeed, id),
+    visualSeed,
+    params: snapped,
+    evaluation,
+    createdAt: Date.now(),
+  };
+}
 
 function revive(record: UniverseRecord): UniverseRecord {
   const params = snapParams(record.params);
