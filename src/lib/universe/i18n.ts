@@ -844,7 +844,7 @@ const en: Copy = {
     },
     {
       title: "Four corridors",
-      body: "Carbon wants quiet water. Silicon, heat. Eternal thought, almost no dark energy. A self-replicating tide wants time and metals. Ten skies to witness. That is the work.",
+      body: "Carbon wants quiet water. Silicon, heat. Eternal thought, almost no dark energy. A self-replicating tide wants time and metals. The work is a thesis, not a score.",
     },
   ],
   fateLabel: {
@@ -987,7 +987,7 @@ const en: Copy = {
     },
     {
       title: "The work",
-      body: "Ten skies to witness. Dots under the chips. Tap them. Physics is not a score.",
+      body: "Skies to witness. Dots under the chips. Tap them. Physics is not a score.",
     },
     {
       title: "Canon",
@@ -2135,7 +2135,7 @@ const ru: Copy = {
     },
     {
       title: "Четыре коридора",
-      body: "Углероду — тихая вода. Кремнию — жар. Вечной мысли — почти без тёмной энергии. Самовоспроизводящемуся приливу — время и металлы. Десять небес. Это и есть работа.",
+      body: "Углероду — тихая вода. Кремнию — жар. Вечной мысли — почти без тёмной энергии. Самовоспроизводящемуся приливу — время и металлы. Работа — тезис, не очки.",
     },
   ],
   fateLabel: {
@@ -2279,7 +2279,7 @@ const ru: Copy = {
     },
     {
       title: "Работа",
-      body: "Десять небес. Точки под чипами. Нажмите. Физика — не очки.",
+      body: "Небеса, которые надо увидеть. Точки под чипами. Нажмите. Физика — не очки.",
     },
     {
       title: "Канон",

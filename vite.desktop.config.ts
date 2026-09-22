@@ -23,7 +23,15 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: false,
     target: "es2022",
-    modulePreload: true,
+    modulePreload: {
+      resolveDependencies: (_filename: string, deps: string[]) =>
+        deps.filter(
+          (d) =>
+            !/(?:research-|languages-|packs-|hud-packs-|settings-packs-|three\.module|pptxgen|OrbitControls)/.test(
+              d,
+            ),
+        ),
+    },
     rolldownOptions: {
       output: {
         codeSplitting: {

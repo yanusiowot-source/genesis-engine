@@ -102,6 +102,8 @@ describe("copyFor", () => {
     assert.match(c.mandate.title, /work/i);
     assert.match(c.mandate.hint, /not a score/);
     assert.equal(Object.keys(c.mandate.chapters).length, 15);
+    assert.doesNotMatch(c.onboarding.map((s) => s.body).join(" "), /ten skies/i);
+    assert.doesNotMatch(copyFor("ru").onboarding.map((s) => s.body).join(" "), /Десять небес/);
     assert.match(c.mandate.done, /atlas is sealed/i);
     assert.match(c.mandate.atlasTick, /Atlas \{n\} of \{m\}/);
     assert.match(copyFor("ru").mandate.done, /атлас/i);
@@ -195,7 +197,7 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.27.0");
+    assert.equal(APP_VERSION, "1.28.0");
     const pkg = JSON.parse(
       readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../../package.json"), "utf8"),
     ) as { version: string };
