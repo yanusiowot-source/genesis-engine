@@ -8,6 +8,7 @@ import {
   type Star,
 } from "@/lib/universe/galaxy";
 import { buildGalaxyAsync, buildGalaxyNow } from "@/lib/universe/sky-client";
+import { createSkyGpu, gpuOffered, type SkyGpu } from "@/lib/universe/sky-gpu";
 import {
   ACOUSTIC_VISUAL,
   acousticDossier,
@@ -84,6 +85,7 @@ export function GalaxyCanvas({
   ariaLabel,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
   const modelRef = useRef<GalaxyModel | null>(null);
   const cosmicRef = useRef(cosmicTime);
   const timeLiveRef = useRef(timeRef);
@@ -205,6 +207,13 @@ export function GalaxyCanvas({
     let painted = false;
     let frameLite = false;
     let starTarget: CanvasRenderingContext2D = ctx;
+    const gpuEl = gpuCanvasRef.current;
+    let gpu: SkyGpu | null = null;
+    if (gpuEl && gpuOffered()) {
+      void createSkyGpu(gpuEl).then((g) => {
+        if (running) gpu = g;
+      });
+    }
     let stress = 0;
     const evoCache = new WeakMap<Star, { k: number; st: StarState }>();
     const qualityRef = { current: adaptiveQuality() };
@@ -229,6 +238,10 @@ export function GalaxyCanvas({
       dpr = canvasDpr(w, h, cap, window.devicePixelRatio || 1);
       canvas.width = Math.max(1, Math.floor(w * dpr));
       canvas.height = Math.max(1, Math.floor(h * dpr));
+      if (gpuEl) {
+        gpuEl.width = canvas.width;
+        gpuEl.height = canvas.height;
+      }
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.imageSmoothingEnabled = false;
       idlePaint = false;
@@ -398,6 +411,7 @@ export function GalaxyCanvas({
       late: boolean,
       eternalProb: number,
       tidal?: { dirX: number; dirY: number; rTide: number; pull: number },
+      skipStars = false,
     ) => {
       const g = starTarget;
       g.save();
@@ -567,9 +581,11 @@ export function GalaxyCanvas({
       g.globalCompositeOperation = "source-over";
 
       g.globalCompositeOperation = "lighter";
+      if (!skipStars) {
       for (const s of stars) {
         const p = orbit(s.x, s.y, 0.32);
         drawStar(s, p.x, p.y, ageGyr, vis, time);
+      }
       }
       if (model.jet.power > 0 && vis > 0.12 && !frameLite) {
         const pulse = 0.74 + 0.26 * Math.sin(time * (0.85 + model.jet.flicker * 3.2));
@@ -1614,10 +1630,12 @@ export function GalaxyCanvas({
         }
 
         ctx.globalCompositeOperation = "lighter";
+        if (!(gpu && skyMode === "galaxy")) {
         for (const s of model.field) {
           ctx.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${s.a * (late ? 0.08 + vis * 0.35 + eternalProb * 0.18 : 0.7 + vis * 0.5)})`;
           const fr = Math.max(0.35, s.r);
           ctx.fillRect(s.x * scale - fr * 0.5, s.y * scale - fr * 0.5, fr, fr);
+        }
         }
         ctx.globalCompositeOperation = "source-over";
 
@@ -1721,6 +1739,8 @@ export function GalaxyCanvas({
             diskVis,
             late,
             eternalProb,
+            undefined,
+            !!(gpu && skyMode === "galaxy"),
           );
           const mesh = hydro.mesh;
           const bad = mesh.filter((s) => s.Q < 1.05);
@@ -1918,6 +1938,12 @@ export function GalaxyCanvas({
 
       if (shook) ctx.restore();
 
+      if (gpu && skyMode === "galaxy" && vis > 0.08 && !late) {
+        gpu.draw(model, { ox: cx, oy: cy, scale, rot, vis, w, h, dpr });
+      } else {
+        gpu?.clear();
+      }
+
       idlePaint =
         skyMode !== "planetarium" &&
         (skyMode !== "collision" || collisionT >= 0.999) &&
@@ -1952,6 +1978,7 @@ export function GalaxyCanvas({
       window.clearTimeout(wait);
       window.clearTimeout(resizeWait);
       ro.disconnect();
+      gpu?.destroy();
       reducedMq?.removeEventListener("change", onReduce);
       document.removeEventListener("visibilitychange", onVis);
       canvas.removeEventListener("pointerdown", onDown);
@@ -1962,9 +1989,30 @@ export function GalaxyCanvas({
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
       className={["sky-canvas", className].filter(Boolean).join(" ")}
+      data-sky-gpu={gpuOffered() ? "1" : "0"}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+      }}
+    >
+      <canvas
+        ref={gpuCanvasRef}
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 1,
+        }}
+      />
+      <canvas
+      ref={canvasRef}
       role="img"
       data-sky-mode={mode}
       data-paused={paused ? "1" : "0"}
@@ -1977,7 +2025,9 @@ export function GalaxyCanvas({
         touchAction: "none",
         cursor: mode === "planetarium" ? "grab" : encounter ? "crosshair" : "default",
         pointerEvents: "auto",
+        zIndex: 0,
       }}
     />
+    </div>
   );
 }
