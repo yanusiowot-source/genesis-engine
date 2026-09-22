@@ -1,13 +1,13 @@
 import { useEffect, useRef } from "react";
 import {
   adaptiveQuality,
-  buildGalaxy,
   canvasDpr,
   lookCam,
   projectLook,
   type GalaxyModel,
   type Star,
 } from "@/lib/universe/galaxy";
+import { buildGalaxyAsync, buildGalaxyNow } from "@/lib/universe/sky-client";
 import {
   ACOUSTIC_VISUAL,
   acousticDossier,
@@ -29,7 +29,6 @@ import {
 import type { CosmicEpoch, Evaluation, SkyMode, UniverseParams } from "@/lib/universe/types";
 import { isBeltParams, isHighwayParams, isOurParams } from "@/lib/universe/physics";
 import { mulberry32 } from "@/lib/universe/rng";
-import { intelligenceWindow } from "@/lib/universe/civilization";
 import { QUIET_EGGS, type EggFlags } from "@/lib/universe/eggs";
 import type { EncounterKind, SkyEncounter } from "@/lib/universe/encounters";
 
@@ -133,21 +132,31 @@ export function GalaxyCanvas({
 
   useEffect(() => {
     const q = adaptiveQuality();
+    let cancelled = false;
+    const apply = (built: { model: GalaxyModel; ships: number }) => {
+      if (cancelled) return;
+      modelRef.current = built.model;
+      shipsRef.current = built.ships;
+      builtSeed.current = visualSeed;
+    };
     const rebuild = () => {
-      try {
-        modelRef.current = buildGalaxy(params, evaluation, visualSeed, q.scale);
-        builtSeed.current = visualSeed;
-        shipsRef.current = intelligenceWindow(params, evaluation).ships;
-      } catch {
-        /* keep the last intact sky rather than blank the canvas */
-      }
+      void buildGalaxyAsync(params, evaluation, visualSeed, q.scale)
+        .then(apply)
+        .catch(() => {
+          if (!cancelled) apply(buildGalaxyNow(params, evaluation, visualSeed, q.scale));
+        });
     };
     if (builtSeed.current !== visualSeed || !modelRef.current) {
       rebuild();
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
     const id = window.setTimeout(rebuild, 90);
-    return () => window.clearTimeout(id);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(id);
+    };
   }, [params, evaluation, visualSeed]);
 
   useEffect(() => {
@@ -1463,14 +1472,15 @@ export function GalaxyCanvas({
       try {
       if (!modelRef.current) {
         try {
-          modelRef.current = buildGalaxy(
+          const built = buildGalaxyNow(
             paramsRef.current,
             evRef.current,
             seedRef.current,
             qualityRef.current.scale,
           );
+          modelRef.current = built.model;
+          shipsRef.current = built.ships;
           builtSeed.current = seedRef.current;
-          shipsRef.current = intelligenceWindow(paramsRef.current, evRef.current).ships;
         } catch {
           /* keep a black field rather than throw */
         }
