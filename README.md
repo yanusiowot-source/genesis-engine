@@ -19,7 +19,7 @@ Twenty authored interfaces. A catalog of about 7,000 living language names; chro
 
 Web app, installable PWA, portable Windows and Linux. Same codebase can wrap for Android and iOS.
 
-© 2026 Ян Ярошевич. All rights reserved. Source is not public. This private repository is the 1.25 checkpoint. It is not open source. “Free” means you may run the lab, not that you may copy the source.
+© 2026 Ян Ярошевич. All rights reserved. Source is not public. This private repository is the 1.26 checkpoint. It is not open source. “Free” means you may run the lab, not that you may copy the source.
 
 Notes from the author: https://x.com/yanusio
 

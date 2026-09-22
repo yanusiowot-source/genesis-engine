@@ -1,7 +1,7 @@
 {
   "name": "genesis-engine",
   "private": true,
-  "version": "1.25.0",
+  "version": "1.26.0",
   "license": "UNLICENSED",
   "description": "Cosmological laboratory: sculpt ΛCDM, hunt four corridors of mind, watch a galaxy.",
   "author": "Ян Ярошевич",
@@ -24,6 +24,7 @@
     "typecheck": "tsc --noEmit",
     "check:auth": "node scripts/check-auth-invariant.mjs",
     "desktop:build": "node scripts/with-app-env.mjs vite build --config vite.desktop.config.ts",
+    "lab:publish": "npm run desktop:build && node scripts/publish-lab.mjs",
     "desktop:pack": "npm run desktop:build && node desktop/assemble.mjs",
     "desktop:pack:win": "npm run desktop:build && node desktop/assemble.mjs win32",
     "desktop:pack:linux": "npm run desktop:build && node desktop/assemble.mjs linux",
