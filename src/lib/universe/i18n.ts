@@ -105,6 +105,7 @@ export type Copy = {
   logEmpty: string;
   logEmptyStarred: string;
   logEmptyViable: string;
+  logEmptyCut: string;
   english: string;
   russian: string;
   belarusian: string;
@@ -786,6 +787,7 @@ const en: Copy = {
   logEmpty: "Every universe you birth is kept here.",
   logEmptyStarred: "No starred skies yet.",
   logEmptyViable: "No corridor is open in this log yet.",
+  logEmptyCut: "Nothing in the log matches this cut.",
   english: "English",
   russian: "Русский",
   belarusian: "Беларуская",
@@ -2041,6 +2043,7 @@ const ru: Copy = {
   logEmpty: "Здесь собираются рождённые небеса.",
   logEmptyStarred: "Пока нет отмеченных небес.",
   logEmptyViable: "В журнале пока нет открытого коридора.",
+  logEmptyCut: "Под этот срез в журнале ничего нет.",
   english: "English",
   russian: "Русский",
   switchToRu: "Переключить интерфейс на русский",

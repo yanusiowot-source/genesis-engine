@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { filterByMeta, plateScore, upsertArchive } from "./archive.ts";
+import { filterByMeta, journalEmptyKind, plateScore, upsertArchive } from "./archive.ts";
 import {
   ETERNAL_CORRIDOR,
   OUR_SEED,
@@ -138,5 +138,14 @@ describe("filterByMeta", () => {
       }).length,
       1,
     );
+  });
+
+  it("does not call a path miss a closed corridor", () => {
+    assert.equal(journalEmptyKind(0, 0, {}), "empty");
+    assert.equal(journalEmptyKind(3, 2, { path: "swarm" }), "none");
+    assert.equal(journalEmptyKind(3, 0, { starred: true }), "starred");
+    assert.equal(journalEmptyKind(3, 0, { viable: true }), "viable");
+    assert.equal(journalEmptyKind(3, 0, { path: "swarm" }), "cut");
+    assert.equal(journalEmptyKind(3, 0, { fate: "void" }), "cut");
   });
 });

@@ -61,6 +61,7 @@ export function makeBe(ru: Copy): Copy {
 		logEmpty: "Тут збіраюцца народжаныя нябёсы.",
 		logEmptyStarred: "Пакуль няма адзначаных нябёсаў.",
 		logEmptyViable: "У журнале пакуль няма адкрытага калідора.",
+		logEmptyCut: "Пад гэты зрэз у журнале нічога няма.",
 		belarusian: "Беларуская",
 		switchToRu: "Пераключыць інтэрфейс на рускую",
 		switchToEn: "Пераключыць інтэрфейс на англійскую",

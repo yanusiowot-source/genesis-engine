@@ -293,3 +293,15 @@ export function filterByMeta(
   }
   return records.filter((r) => matchesMeta(r, q));
 }
+
+export function journalEmptyKind(
+  archiveLen: number,
+  resultLen: number,
+  q: ArchiveMetaQuery,
+): "none" | "empty" | "starred" | "viable" | "cut" {
+  if (resultLen > 0) return "none";
+  if (archiveLen === 0) return "empty";
+  if (q.starred) return "starred";
+  if (q.viable) return "viable";
+  return "cut";
+}

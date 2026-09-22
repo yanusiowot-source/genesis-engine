@@ -2,14 +2,27 @@ import { Star, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import { formatPct, formatRelative } from "@/lib/universe/format";
-import { isViable, plateScore, filterByMeta, type PlatePath } from "@/lib/universe/archive";
+import { isViable, plateScore, filterByMeta, journalEmptyKind, type PlatePath } from "@/lib/universe/archive";
 import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
 import { isOurParams } from "@/lib/universe/physics";
-import type { UniverseRecord } from "@/lib/universe/types";
+import type { Fate, UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
 
 type Filter = "all" | "viable" | "starred";
 type PathCut = "any" | Exclude<PlatePath, "none">;
+type FateCut = "any" | Fate;
+
+const FATE_CUTS: Fate[] = [
+  "habitable",
+  "teeming",
+  "enduring",
+  "sterile",
+  "fog",
+  "flash",
+  "void",
+  "crunch",
+  "rip",
+];
 
 type Props = {
   copy: Copy;
@@ -36,16 +49,17 @@ export function LogList({
 }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
   const [pathCut, setPathCut] = useState<PathCut>("any");
+  const [fateCut, setFateCut] = useState<FateCut>("any");
 
-  const items = useMemo(
-    () =>
-      filterByMeta(archive, {
-        viable: filter === "viable" ? true : undefined,
-        starred: filter === "starred" ? true : undefined,
-        path: pathCut === "any" ? undefined : pathCut,
-      }),
-    [archive, filter, pathCut],
-  );
+  const query = {
+    viable: filter === "viable" ? true : undefined,
+    starred: filter === "starred" ? true : undefined,
+    path: pathCut === "any" ? undefined : pathCut,
+    fate: fateCut === "any" ? undefined : fateCut,
+  };
+
+  const items = useMemo(() => filterByMeta(archive, query), [archive, filter, pathCut, fateCut]);
+  const emptyKind = journalEmptyKind(archive.length, items.length, query);
 
   const filters: { id: Filter; label: string }[] = [
     { id: "all", label: copy.filterAll },
@@ -122,13 +136,38 @@ export function LogList({
         })}
       </div>
 
+      <div className="flex flex-wrap gap-1">
+        {([{ id: "any" as FateCut, label: copy.filterAll }] as { id: FateCut; label: string }[])
+          .concat(FATE_CUTS.map((id) => ({ id, label: copy.fateLabel[id] })))
+          .map((f) => {
+            const active = fateCut === f.id;
+            return (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setFateCut(f.id)}
+                aria-pressed={active}
+                className={cn(
+                  "h-11 min-h-11 rounded-[var(--radius-sm)] px-3 text-xs font-medium",
+                  "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
+                  active ? "bg-bg-subtle text-fg" : "text-fg-subtle",
+                )}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+      </div>
+
       {items.length === 0 ? (
         <p className="py-6 text-sm text-fg-subtle">
-          {archive.length === 0
+          {emptyKind === "empty"
             ? copy.logEmpty
-            : filter === "starred"
+            : emptyKind === "starred"
               ? copy.logEmptyStarred
-              : copy.logEmptyViable}
+              : emptyKind === "viable"
+                ? copy.logEmptyViable
+                : copy.logEmptyCut}
         </p>
       ) : (
         <ul className="flex flex-col gap-1">
