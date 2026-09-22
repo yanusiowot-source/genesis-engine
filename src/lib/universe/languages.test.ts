@@ -200,6 +200,12 @@ describe("copyFor", () => {
       readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../../package.json"), "utf8"),
     ) as { version: string };
     assert.equal(APP_VERSION, pkg.version);
+    const about = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../../public/about/index.html"),
+      "utf8",
+    );
+    assert.match(about, new RegExp(`"softwareVersion": "${APP_VERSION}"`));
+    assert.match(about, new RegExp(`Version ${APP_VERSION_SHORT}`));
     const offers = productOffers();
     assert.equal(offers[1]?.price, "15");
     assert.equal(offers[1]?.priceCurrency, "USD");
