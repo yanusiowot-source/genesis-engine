@@ -1,4 +1,5 @@
 import { diskDossier, einsteinRadius, grmhdDossier, hernquistScale, imfHighMass, imfNicheOf, NFW_RVIR, plummerScale, sampleMass } from "./observatory.ts";
+import { persistH0, persistLong } from "./persist.ts";
 import { isOurParams } from "./physics.ts";
 import { lerp, mulberry32 } from "./rng.ts";
 import type { Evaluation, UniverseParams } from "./types";
@@ -39,6 +40,8 @@ export type GalaxyModel = {
   haloRadius: number;
   jet: { power: number; flicker: number; fill: number; pa: number; fr: "none" | "fri" | "frii" };
   encounter: { q: number; rTide: number; kind: "minor" | "major" };
+  /** Finite H0 bars of the star cloud past 0.18. Not H₁. */
+  h0Long: number;
 };
 
 export type LookCam = {
@@ -489,5 +492,9 @@ export function buildGalaxy(
     haloRadius: NFW_RVIR * 0.72,
     jet,
     encounter,
+    h0Long: persistLong(
+      persistH0(stars.map((s) => [s.x, s.y])),
+      0.18,
+    ),
   };
 }

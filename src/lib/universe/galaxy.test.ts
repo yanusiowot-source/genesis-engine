@@ -101,5 +101,7 @@ describe("buildGalaxy", () => {
     const built = buildGalaxy(OUR_UNIVERSE, evaluate(OUR_UNIVERSE), 9, 0.5);
     assert.equal(built.encounter.kind, "major");
     assert.ok(built.companion.length > 10);
+    assert.ok(built.h0Long >= 0);
+    assert.equal(Number.isInteger(built.h0Long), true);
   });
 });

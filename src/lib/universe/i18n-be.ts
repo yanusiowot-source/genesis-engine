@@ -1039,7 +1039,7 @@ export function makeBe(ru: Copy): Copy {
 			twentyOne: "21 см",
 			hii: "H II",
 			diskTitle: "Гідрадынаміка дыска",
-			diskHint: "Toomre Q на радыяльнай сетцы. Падлога ў ядры — Plummer. Не SPH і не жывая гідрадынаміка.",
+			diskHint: "Toomre Q на радыяльнай сетцы. Падлога ў ядры — Plummer. Не SPH і не жывая гідрадынаміка. Персістэнтная H0 воблака зорак лічыць камякі, што жывуць даўжэй за маштаб — не H₁ і не прастора-час.",
 			diskQ: "Q",
 			diskPitch: "Крок",
 			diskShear: "Зрух",
