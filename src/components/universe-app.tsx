@@ -2168,9 +2168,7 @@ export function UniverseApp() {
             {ev.morphology === "spiral" || ev.morphology === "irregular" ? (
               <>
                 <span className="mx-2 text-fg-subtle/50">·</span>
-                <span className={disk.niche === "fragmenting" ? "text-sterile" : undefined}>
-                  {copy.obs.diskQ} {disk.Q.toFixed(1)}
-                </span>
+                {copy.obs.diskQ} {disk.Q.toFixed(1)}
               </>
             ) : null}
           </p>

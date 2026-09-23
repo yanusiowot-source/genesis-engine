@@ -285,6 +285,11 @@ describe("disk panel", () => {
     assert.match(panel, /marginal:\s*"text-fg"/);
     assert.match(panel, /d\.unstable > 0 \? 0\.7 : 0\.22/);
     assert.doesNotMatch(panel, /barcode|toomreAt|toomreProfile/);
+    const hud = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/universe-app.tsx"),
+      "utf8",
+    );
+    assert.doesNotMatch(hud, /disk\.niche === "fragmenting" \? "text-sterile"/);
     for (const c of [copyFor("en"), copyFor("ru"), copyFor("be")]) {
       assert.notEqual(c.obs.diskNiche.fragmenting, c.obs.diskNiche.hot);
       assert.notEqual(c.obs.diskNiche.marginal, c.obs.diskNiche.rigid);
