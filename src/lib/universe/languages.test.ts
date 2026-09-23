@@ -150,6 +150,8 @@ describe("copyFor", () => {
     assert.match(c.studioLabRepoCta, /build/i);
     assert.match(c.studioSourceCta, /rights reserved/i);
     assert.equal(c.obs.diskH0, "H0");
+    assert.match(c.obs.haloOffChart, /not on the density/);
+    assert.match(copyFor("ru").obs.haloOffChart, /не на графике/);
     assert.match(PUBLIC_LAB_REPO_URL, /genesis-lab/);
     assert.match(PUBLIC_SOURCE_REPO_URL, /genesis-engine/);
     assert.match(c.studioEnterCta, /laboratory/);

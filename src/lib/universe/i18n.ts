@@ -474,6 +474,7 @@ export type Copy = {
     haloEinasto: string;
     haloModel: Record<HaloModelId, string>;
     haloCompare: string;
+    haloOffChart: string;
     cmb: string;
     acousticTitle: string;
     acousticHint: string;
@@ -1529,6 +1530,7 @@ const en: Copy = {
       isothermal: "Isothermal",
     },
     haloCompare: "ρ(r)/ρ(rs)",
+    haloOffChart: "This sky's law is not on the density plot.",
     cmb: "CMB",
     acousticTitle: "Acoustic peaks",
     acousticHint:
@@ -2824,6 +2826,7 @@ const ru: Copy = {
       isothermal: "Изотерма",
     },
     haloCompare: "ρ(r)/ρ(rs)",
+    haloOffChart: "Закон этого неба не на графике плотности.",
     cmb: "CMB",
     acousticTitle: "Акустические пики",
     acousticHint:

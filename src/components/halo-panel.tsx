@@ -115,22 +115,24 @@ export function HaloPanel({ copy, params, evaluation }: Props) {
               return `${i === 0 ? "M" : "L"}${x.toFixed(1)} ${y.toFixed(1)}`;
             })
             .join(" ");
-          const solid = key === "einasto";
-          const mid = key === "burkert";
+          const law = key === d.model;
           return (
             <path
               key={key}
               d={dpath}
               fill="none"
               stroke="currentColor"
-              strokeWidth={solid ? 1.7 : 1.2}
-              strokeOpacity={solid ? 1 : mid ? 0.55 : 0.35}
-              strokeDasharray={solid ? undefined : mid ? "1 3" : "3 4"}
+              strokeWidth={law ? 2.2 : 1.15}
+              strokeOpacity={law ? 1 : key === "nfw" ? 0.32 : 0.48}
+              strokeDasharray={law ? undefined : key === "nfw" ? "3 4" : "1 3"}
             />
           );
         })}
       </svg>
       <p className="font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+        {d.model === "einasto" || d.model === "burkert" || d.model === "nfw"
+          ? null
+          : `${copy.obs.haloModel[d.model]} · ${copy.obs.haloOffChart} `}
         {copy.obs.haloModel.einasto} dlnρ {d.slopeE.toFixed(2)}
         <span className="text-fg-subtle/50"> · </span>
         {copy.obs.haloModel.nfw} {d.slopeN.toFixed(2)}
