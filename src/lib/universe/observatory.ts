@@ -1123,9 +1123,12 @@ export function coreNfwCircular(
   return Math.sqrt(Math.max(0, (mass * coreNfwMassFraction(x, rs, c, rc, n)) / x));
 }
 
+/** Empirical core once δ is high enough to reach on the lever (max 0.5). Scattered still wins. */
+export const BURKERT_NOISE = 0.42;
+
 export function haloModel(params: UniverseParams, ev: Evaluation): HaloModelId {
   if (ev.morphology === "scattered") return "corenfw";
-  if (params.quantumNoise >= 0.55) return "burkert";
+  if (params.quantumNoise >= BURKERT_NOISE) return "burkert";
   if (ev.morphology === "elliptical") return "isothermal";
   return "einasto";
 }

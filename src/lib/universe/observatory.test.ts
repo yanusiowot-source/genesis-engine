@@ -92,6 +92,7 @@ import {
   logSlope,
   haloModel,
   haloWashShape,
+  BURKERT_NOISE,
   nfwCoreRadius,
   nfwEinsteinX,
   nfwF,
@@ -125,6 +126,7 @@ import {
   environmentDensity,
   evaluate,
   hubbleMix,
+  PARAM_META,
 } from "./physics.ts";
 import { mulberry32 } from "./rng.ts";
 
@@ -524,6 +526,15 @@ describe("cosmic clock", () => {
     assert.ok(burkertRho(0.001) > burkertRho(3));
     const d = haloDossier(OUR_UNIVERSE, evaluate(OUR_UNIVERSE));
     assert.equal(d.model, "einasto");
+    const lever = PARAM_META.find((m) => m.key === "quantumNoise");
+    assert.ok(lever && lever.max >= BURKERT_NOISE);
+    assert.ok(BURKERT_NOISE < 0.55);
+    const under = { ...OUR_UNIVERSE, quantumNoise: BURKERT_NOISE - 0.01 };
+    assert.notEqual(haloModel(under, evaluate(under)), "burkert");
+    const over = { ...OUR_UNIVERSE, quantumNoise: lever!.max };
+    const overEv = evaluate(over);
+    const overModel = haloModel(over, overEv);
+    assert.ok(overModel === "burkert" || overModel === "corenfw");
     const quietGlow = haloWashShape("einasto");
     const coreGlow = haloWashShape("burkert");
     const cuspGlow = haloWashShape("nfw");

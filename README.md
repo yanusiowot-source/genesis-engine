@@ -21,7 +21,7 @@ Twenty authored interfaces. A catalog of about 7,000 living language names; chro
 
 Web app, installable PWA, portable Windows and Linux. Same codebase can wrap for Android and iOS.
 
-© 2026 Ян Ярошевич. All rights reserved. This is not open source. “Free” means you may run the lab, not that you may treat the source as a license to fork. The public lab is a build. The source repository is published with all rights reserved. Version 1.28.
+© 2026 Ян Ярошевич. All rights reserved. This is not open source. “Free” means you may run the lab, not that you may treat the source as a license to fork. The public lab is a build. The source repository is published with all rights reserved. Version 1.29.
 
 Notes from the author: https://x.com/yanusio
 

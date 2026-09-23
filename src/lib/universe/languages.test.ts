@@ -207,7 +207,7 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.28.0");
+    assert.equal(APP_VERSION, "1.29.0");
     const pkg = JSON.parse(
       readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../../package.json"), "utf8"),
     ) as { version: string };
