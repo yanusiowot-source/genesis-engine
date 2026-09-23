@@ -1755,7 +1755,7 @@ const en: Copy = {
       },
       core: {
         title: "Cored halo",
-        body: "NFW cusp flattened. Burkert or coreNFW — baryons, not a new particle.",
+        body: "Two cores, not one. Burkert is an empirical floor. coreNFW is an NFW cusp heated by stars. Not a new particle.",
         hint: "Scatter the disk or raise quantum noise.",
       },
       toomre: {
@@ -3051,7 +3051,7 @@ const ru: Copy = {
       },
       core: {
         title: "Ядро гало",
-        body: "Касп NFW сглажен. Burkert или coreNFW — барионы, не новая частица.",
+        body: "Два ядра, не одно. Burkert — эмпирическая полка. coreNFW — касп NFW, нагретый звёздами. Не новая частица.",
         hint: "Рассеять диск или поднять квантовый шум.",
       },
       toomre: {

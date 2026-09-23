@@ -185,6 +185,9 @@ describe("mandate", () => {
     const be = copyFor("be").mandate;
     assert.equal(Object.keys(en.chapters).length, 15);
     assert.match(en.chapters.core.body, /coreNFW/i);
+    assert.match(en.chapters.core.body, /empirical/i);
+    assert.match(ru.chapters.core.body, /эмпирическ/);
+    assert.doesNotMatch(en.chapters.core.body, /Burkert or coreNFW/);
     assert.match(en.chapters.toomre.body, /Toomre|Q/);
     assert.doesNotMatch(en.hint, /ten skies/i);
     assert.match(en.chapters.tide.body, /Hart/i);

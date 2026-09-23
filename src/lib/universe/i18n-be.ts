@@ -733,7 +733,7 @@ export function makeBe(ru: Copy): Copy {
 				},
 				core: {
 					title: "Ядро гало",
-					body: "Касп NFW згладжаны. Burkert або coreNFW — барыёны, не новая часціца.",
+					body: "Два ядры, не адно. Burkert — эмпірычная паліца. coreNFW — касп NFW, нагрэты зоркамі. Не новая часціца.",
 					hint: "Рассеяць дыск або падняць квантавы шум.",
 				},
 				toomre: {
