@@ -291,6 +291,21 @@ describe("disk panel", () => {
   });
 });
 
+describe("acoustic panel", () => {
+  it("paints the wall niche and fattens odd peaks only when baryons load", () => {
+    const panel = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/acoustic-panel.tsx"),
+      "utf8",
+    );
+    assert.match(panel, /loaded:\s*"text-life"/);
+    assert.match(panel, /clear:\s*"text-fg"/);
+    assert.match(panel, /damped:\s*"text-fg-subtle"/);
+    assert.match(panel, /silent:\s*"text-fg-muted"/);
+    assert.match(panel, /d\.baryonLoad > 1\.15/);
+    assert.doesNotMatch(panel, /camb|planck/i);
+  });
+});
+
 describe("formatHudPct", () => {
   it("keeps the sky readout short", () => {
     assert.equal(formatHudPct(0), "0%");

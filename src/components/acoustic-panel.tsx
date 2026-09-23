@@ -1,11 +1,18 @@
 import type { Copy } from "@/lib/universe/i18n";
 import { acousticDossier } from "@/lib/universe/observatory";
-import type { Evaluation, UniverseParams } from "@/lib/universe/types";
+import type { AcousticNiche, Evaluation, UniverseParams } from "@/lib/universe/types";
 
 type Props = {
   copy: Copy;
   params: UniverseParams;
   evaluation: Evaluation;
+};
+
+const NICHE_TONE: Record<AcousticNiche, string> = {
+  loaded: "text-life",
+  clear: "text-fg",
+  damped: "text-fg-subtle",
+  silent: "text-fg-muted",
 };
 
 function pathOf(pts: { x: number; y: number }[]): string {
@@ -29,7 +36,9 @@ export function AcousticPanel({ copy, params, evaluation }: Props) {
           {copy.obs.acousticEll} {Math.round(d.ell1)}
         </span>
       </div>
-      <p className="font-mono text-xl tracking-wide text-fg uppercase">{copy.obs.acousticNiche[d.niche]}</p>
+      <p className={`font-mono text-xl tracking-wide uppercase ${NICHE_TONE[d.niche]}`}>
+        {copy.obs.acousticNiche[d.niche]}
+      </p>
       <p className="text-pretty text-xs leading-relaxed text-fg-muted">
         {copy.obs.acousticNicheHint[d.niche]} {copy.obs.acousticHint}
       </p>
@@ -40,18 +49,25 @@ export function AcousticPanel({ copy, params, evaluation }: Props) {
         aria-label={copy.obs.acousticTitle}
       >
         <line x1="16" y1="80" x2="308" y2="80" stroke="currentColor" strokeOpacity="0.12" />
-        <path d={pathOf(samples)} fill="none" stroke="currentColor" strokeWidth="1.75" />
+        <path
+          d={pathOf(samples)}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={d.niche === "loaded" ? 2.1 : 1.5}
+          strokeOpacity={d.niche === "silent" ? 0.35 : 1}
+        />
         {d.peaks.map((p) => {
           const x = 16 + (p.ell / maxEll) * 292;
           if (x > 312) return null;
+          const heavy = p.odd && d.baryonLoad > 1.15;
           return (
             <circle
               key={p.n}
               cx={x}
               cy={8 + (1 - p.dtt / maxD) * 72}
-              r={p.odd ? 2.4 : 1.8}
+              r={heavy ? 3.2 : p.odd ? 2.2 : 1.6}
               fill="currentColor"
-              opacity={p.odd ? 0.9 : 0.45}
+              opacity={heavy ? 1 : p.odd ? 0.75 : 0.38}
             />
           );
         })}
