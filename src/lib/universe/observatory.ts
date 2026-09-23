@@ -17,6 +17,7 @@ import type {
   FanaroffRiley,
   AcousticNiche,
   DiskNiche,
+  Fate,
   StellarStage,
   UniverseParams,
 } from "./types";
@@ -96,6 +97,14 @@ function fateSky(ev: Evaluation): number {
   if (ev.fate === "crunch") return 0.1;
   if (ev.fate === "flash") return 0.16;
   return 1;
+}
+
+/** Color of an ended sky. Habitable skies get none — the disk is the show. */
+export function fateWash(fate: Fate): { r: number; g: number; b: number; a: number } | null {
+  if (fate === "rip") return { r: 255, g: 72, b: 48, a: 0.18 };
+  if (fate === "crunch") return { r: 255, g: 128, b: 32, a: 0.16 };
+  if (fate === "flash") return { r: 255, g: 220, b: 140, a: 0.14 };
+  return null;
 }
 
 export function galaxyVisibility(t: number, ev: Evaluation): number {

@@ -74,6 +74,7 @@ import {
   EVOLVE_RATE,
   evolveStar,
   galaxyVisibility,
+  fateWash,
   haloDossier,
   LENS_SIGMA_CRIT,
   lensImages,
@@ -529,6 +530,11 @@ describe("cosmic clock", () => {
     assert.ok(coreGlow.core > quietGlow.core);
     assert.ok(cuspGlow.core < quietGlow.core);
     assert.equal(haloWashShape("isothermal").core, coreGlow.core);
+    const rip = fateWash("rip");
+    const home = fateWash("habitable");
+    assert.ok(rip && rip.a > 0.1);
+    assert.equal(home, null);
+    assert.equal(fateWash("void"), null);
   });
 
   it("gives Burkert a quiet core, r⁻³ fall, and a peak near 3.24 r₀", () => {

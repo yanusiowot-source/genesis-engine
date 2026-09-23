@@ -27,6 +27,7 @@ import {
   epochShown,
   epochBlend,
   evolveStar,
+  fateWash,
   galaxyVisibility,
   stepCosmicTime,
   type StarState,
@@ -1892,6 +1893,12 @@ export function GalaxyCanvas({
           : tide
             ? `rgba(120, 230, 235, ${flash * 0.28})`
             : `rgba(255, 214, 150, ${flash * 0.3})`;
+        ctx.fillRect(0, 0, w, h);
+      }
+
+      const ended = fateWash(ev.fate);
+      if (ended && skyMode !== "planetarium") {
+        ctx.fillStyle = `rgba(${ended.r},${ended.g},${ended.b},${ended.a})`;
         ctx.fillRect(0, 0, w, h);
       }
 
