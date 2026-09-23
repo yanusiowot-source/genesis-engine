@@ -1121,6 +1121,15 @@ export function haloModel(params: UniverseParams, ev: Evaluation): HaloModelId {
   return "einasto";
 }
 
+/** Face-on glow, in units of the halo radius. Not a density integral. */
+export function haloWashShape(model: HaloModelId): { core: number; shoulder: number } {
+  if (model === "burkert" || model === "corenfw" || model === "isothermal") {
+    return { core: 0.22, shoulder: 0.55 };
+  }
+  if (model === "nfw") return { core: 0.03, shoulder: 0.22 };
+  return { core: 0.08, shoulder: 0.34 };
+}
+
 export function haloCircular(
   r: number,
   params: UniverseParams,

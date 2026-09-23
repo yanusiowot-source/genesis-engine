@@ -18,6 +18,8 @@ import {
   cosmicAgeGyr,
   diskDossier,
   einsteinRadius,
+  haloModel,
+  haloWashShape,
   nfwKappaS,
   nfwLensImages,
   nfwRadialX,
@@ -1621,13 +1623,14 @@ export function GalaxyCanvas({
         if (skyMode === "lensing" || (skyMode === "galaxy" && vis > 0.28 && !late)) {
           const haloR = model.haloRadius * scale;
           const strong = skyMode === "lensing";
-          const wash = ctx.createRadialGradient(0, 0, scale * 0.05, 0, 0, haloR);
+          const washShape = haloWashShape(strong ? "nfw" : haloModel(pms, ev));
+          const wash = ctx.createRadialGradient(0, 0, haloR * washShape.core, 0, 0, haloR);
           wash.addColorStop(
             0,
             `rgba(150,185,255,${(strong ? 0.1 : 0.03) + ev.darkMatterFraction * (strong ? 0.12 : 0.04)})`,
           );
           wash.addColorStop(
-            0.32,
+            washShape.shoulder,
             `rgba(110,150,230,${(strong ? 0.07 : 0.02) + ev.darkMatterFraction * (strong ? 0.09 : 0.03)})`,
           );
           wash.addColorStop(1, "rgba(9,6,26,0)");

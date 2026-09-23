@@ -90,6 +90,7 @@ import {
   haloDensityCompare,
   logSlope,
   haloModel,
+  haloWashShape,
   nfwCoreRadius,
   nfwEinsteinX,
   nfwF,
@@ -522,6 +523,12 @@ describe("cosmic clock", () => {
     assert.ok(burkertRho(0.001) > burkertRho(3));
     const d = haloDossier(OUR_UNIVERSE, evaluate(OUR_UNIVERSE));
     assert.equal(d.model, "einasto");
+    const quietGlow = haloWashShape("einasto");
+    const coreGlow = haloWashShape("burkert");
+    const cuspGlow = haloWashShape("nfw");
+    assert.ok(coreGlow.core > quietGlow.core);
+    assert.ok(cuspGlow.core < quietGlow.core);
+    assert.equal(haloWashShape("isothermal").core, coreGlow.core);
   });
 
   it("gives Burkert a quiet core, r⁻³ fall, and a peak near 3.24 r₀", () => {
