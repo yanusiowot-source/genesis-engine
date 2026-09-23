@@ -2168,7 +2168,9 @@ export function UniverseApp() {
             {ev.morphology === "spiral" || ev.morphology === "irregular" ? (
               <>
                 <span className="mx-2 text-fg-subtle/50">·</span>
-                {copy.obs.diskQ} {disk.Q.toFixed(1)}
+                <span className={disk.niche === "fragmenting" ? "text-sterile" : undefined}>
+                  {copy.obs.diskQ} {disk.Q.toFixed(1)}
+                </span>
               </>
             ) : null}
           </p>
@@ -2209,9 +2211,9 @@ export function UniverseApp() {
                   ? "bg-life/20 text-life"
                   : ev.fate === "enduring"
                     ? "bg-eternal/20 text-eternal"
-                  : ev.fate === "sterile"
+                  : ev.fate === "sterile" || ev.fate === "rip" || ev.fate === "flash"
                     ? "bg-sterile/15 text-sterile"
-                    : ev.fate === "flash" || ev.fate === "crunch" || ev.fate === "rip"
+                    : ev.fate === "crunch"
                       ? "bg-silicon/20 text-silicon"
                       : "bg-nebula/20 text-cyan",
               )}
