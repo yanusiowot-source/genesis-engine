@@ -159,6 +159,9 @@ describe("copyFor", () => {
     assert.match(c.platforms.windowsBody, /paid portable copy/);
     assert.match(c.platforms.windowsBody, /SmartScreen/);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
+    assert.match(copyFor("ru").plot.home, /этом небе/);
+    assert.match(copyFor("en").plot.home, /standing in this sky/);
+    assert.doesNotMatch(copyFor("en").plot.home, /numbers/);
     assert.match(copyFor("ru").studioHonesty, /не прода/);
     assert.match(copyFor("ru").birthWitness, /Обзор 64/);
     assert.match(copyFor("be").eggs.tau, /гамалог/);
