@@ -270,6 +270,27 @@ describe("copyFor", () => {
   });
 });
 
+describe("disk panel", () => {
+  it("paints the Toomre niche and lifts the Q=1 line only when the mesh crosses it", () => {
+    const panel = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/disk-panel.tsx"),
+      "utf8",
+    );
+    assert.match(panel, /fragmenting:\s*"text-life"/);
+    assert.match(panel, /hot:\s*"text-fg-subtle"/);
+    assert.match(panel, /rigid:\s*"text-fg-muted"/);
+    assert.match(panel, /marginal:\s*"text-fg"/);
+    assert.match(panel, /d\.unstable > 0 \? 0\.7 : 0\.22/);
+    assert.doesNotMatch(panel, /barcode|toomreAt|toomreProfile/);
+    for (const c of [copyFor("en"), copyFor("ru"), copyFor("be")]) {
+      assert.notEqual(c.obs.diskNiche.fragmenting, c.obs.diskNiche.hot);
+      assert.notEqual(c.obs.diskNiche.marginal, c.obs.diskNiche.rigid);
+      assert.match(c.obs.diskNicheHint.fragmenting, /Q/);
+      assert.match(c.obs.diskNicheHint.hot, /Q/);
+    }
+  });
+});
+
 describe("formatHudPct", () => {
   it("keeps the sky readout short", () => {
     assert.equal(formatHudPct(0), "0%");

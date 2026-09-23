@@ -2,13 +2,20 @@ import { useMemo } from "react";
 import type { Copy } from "@/lib/universe/i18n";
 import { buildGalaxy } from "@/lib/universe/galaxy";
 import { diskDossier } from "@/lib/universe/observatory";
-import type { Evaluation, UniverseParams } from "@/lib/universe/types";
+import type { DiskNiche, Evaluation, UniverseParams } from "@/lib/universe/types";
 
 type Props = {
   copy: Copy;
   params: UniverseParams;
   evaluation: Evaluation;
   visualSeed: number;
+};
+
+const NICHE_TONE: Record<DiskNiche, string> = {
+  fragmenting: "text-life",
+  hot: "text-fg-subtle",
+  rigid: "text-fg-muted",
+  marginal: "text-fg",
 };
 
 function qPath(
@@ -43,7 +50,9 @@ export function DiskPanel({ copy, params, evaluation, visualSeed }: Props) {
   return (
     <section className="flex flex-col gap-3">
       <h3 className="text-sm font-medium">{copy.obs.diskTitle}</h3>
-      <p className="font-mono text-xl tracking-wide text-fg uppercase">{copy.obs.diskNiche[d.niche]}</p>
+      <p className={`font-mono text-xl tracking-wide uppercase ${NICHE_TONE[d.niche]}`}>
+        {copy.obs.diskNiche[d.niche]}
+      </p>
       <p className="text-pretty text-xs leading-relaxed text-fg-muted">
         {copy.obs.diskNicheHint[d.niche]} {copy.obs.diskHint}
       </p>
@@ -76,7 +85,15 @@ export function DiskPanel({ copy, params, evaluation, visualSeed }: Props) {
         aria-label={copy.obs.diskTitle}
       >
         <line x1="8" y1="76" x2="312" y2="76" stroke="currentColor" strokeOpacity="0.12" />
-        <line x1="8" y1={q1y} x2="312" y2={q1y} stroke="currentColor" strokeOpacity="0.22" strokeDasharray="3 4" />
+        <line
+          x1="8"
+          y1={q1y}
+          x2="312"
+          y2={q1y}
+          stroke="currentColor"
+          strokeOpacity={d.unstable > 0 ? 0.7 : 0.22}
+          strokeDasharray="3 4"
+        />
         <path d={path} fill="none" stroke="currentColor" strokeWidth="1.6" />
       </svg>
       <p className="font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
