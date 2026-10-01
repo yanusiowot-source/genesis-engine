@@ -254,13 +254,12 @@ export function HubblePanel({ copy, params, evaluation }: Props) {
             <span>{copy.obs.fpMass}</span>
             <span>{copy.obs.fpResidual}</span>
           </div>
-          <p className="mt-2 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-            {copy.obs.fpTitle}
-            <span className="mx-2 text-fg-subtle/50">·</span>
-            {copy.obs.fpNiche[scale.fpNiche]}
-            <span className="mx-2 text-fg-subtle/50">·</span>
-            {copy.obs.fjTitle} {scale.fjRatio.toFixed(2)}
-          </p>
+          <dl className="mt-2 grid grid-cols-2 gap-x-4">
+            <div>
+              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.fjTitle}</dt>
+              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.fjRatio.toFixed(2)}</dd>
+            </div>
+          </dl>
           <p className="mt-1 text-pretty text-xs leading-relaxed text-fg-muted">{copy.obs.massHint}</p>
           <dl className="mt-2 grid grid-cols-3 gap-x-3 gap-y-2">
             <div>
@@ -276,11 +275,12 @@ export function HubblePanel({ copy, params, evaluation }: Props) {
               <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.massEst.mLens.toFixed(3)}</dd>
             </div>
           </dl>
-          <p className="mt-1 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-            {copy.obs.massTitle}
-            <span className="mx-2 text-fg-subtle/50">·</span>
-            {copy.obs.massNiche[scale.massEst.niche]}
-          </p>
+          <dl className="mt-2 grid grid-cols-2 gap-x-4">
+            <div>
+              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.massTitle}</dt>
+              <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.massNiche[scale.massEst.niche]}</dd>
+            </div>
+          </dl>
           <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-muted">{copy.obs.bhHint}</p>
           <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
             <div>
@@ -304,20 +304,19 @@ export function HubblePanel({ copy, params, evaluation }: Props) {
               <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.agnHeat}</dt>
               <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.agn.heat.toFixed(2)}</dd>
             </div>
-          </dl>
-          <p className="mt-1 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-            {copy.obs.bhTitle}
-            <span className="mx-2 text-fg-subtle/50">·</span>
-            {copy.obs.bhNiche[scale.agnNiche]}
+            <div>
+              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.bhTitle}</dt>
+              <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.bhNiche[scale.agnNiche]}</dd>
+            </div>
             {scale.agn.mode !== "off" ? (
-              <>
-                <span className="mx-2 text-fg-subtle/50">·</span>
-                {copy.obs.agnMode[scale.agn.mode]}
-                <span className="mx-2 text-fg-subtle/50">·</span>
-                {copy.obs.agnDrive[scale.agn.drive]}
-              </>
+              <div className="text-right">
+                <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+                  {copy.obs.agnMode[scale.agn.mode]}
+                </dt>
+                <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.agnDrive[scale.agn.drive]}</dd>
+              </div>
             ) : null}
-          </p>
+          </dl>
           {scale.agn.mode !== "off" ? (
             <>
           <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
@@ -335,21 +334,35 @@ export function HubblePanel({ copy, params, evaluation }: Props) {
               </dd>
             </div>
           </dl>
-          <p className="mt-1 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-            {copy.obs.grmhdWin[scale.grmhd.winner]}
-            <span className="mx-2 text-fg-subtle/50">·</span>
-            {copy.obs.grmhdEta} {scale.grmhd.etaBz.toFixed(2)}
-            <span className="mx-2 text-fg-subtle/50">·</span>
-            {copy.obs.grmhdBeta} {scale.grmhd.beta.toFixed(1)}
-            <span className="mx-2 text-fg-subtle/50">·</span>
-            {copy.obs.fluxNiche[scale.grmhd.fluxNiche]}
-          </p>
+          <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
+            <div>
+              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdEta}</dt>
+              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.grmhd.etaBz.toFixed(2)}</dd>
+            </div>
+            <div className="text-right">
+              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdBeta}</dt>
+              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.grmhd.beta.toFixed(1)}</dd>
+            </div>
+            <div>
+              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+                {copy.obs.grmhdWin[scale.grmhd.winner]}
+              </dt>
+              <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.fluxNiche[scale.grmhd.fluxNiche]}</dd>
+            </div>
+          </dl>
           {scale.grmhd.state === "mad" ? (
-            <p className="mt-1 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-              {copy.obs.madSigma} {scale.grmhd.sigma.toFixed(1)}
-              <span className="mx-2 text-fg-subtle/50">·</span>
-              {copy.obs.madFill} {(scale.grmhd.fill * 100).toFixed(0)}%
-            </p>
+            <dl className="mt-2 grid grid-cols-2 gap-x-4">
+              <div>
+                <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.madSigma}</dt>
+                <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.grmhd.sigma.toFixed(1)}</dd>
+              </div>
+              <div className="text-right">
+                <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.madFill}</dt>
+                <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
+                  {(scale.grmhd.fill * 100).toFixed(0)}%
+                </dd>
+              </div>
+            </dl>
           ) : null}
             </>
           ) : null}
