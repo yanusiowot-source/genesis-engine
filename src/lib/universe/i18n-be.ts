@@ -50,6 +50,8 @@ export function makeBe(ru: Copy): Copy {
 		chronicle: "Хроніка",
 		chronicleHint: "Кароткая палявая нататка па гэтых лічбах. Не навучаная мадэль.",
 		chronicleError: "Хроніка не ўдалася. Паспрабуйце яшчэ.",
+		chronicleTimeout: "Час хронікі выйшаў. Нататка на месцы.",
+		chronicleUnreachable: "Хроніка не дайшла да сеткі. Нататка на месцы.",
 		writing: "Піша…",
 		rewrite: "Перапісаць",
 		commission: "Напісаць нататку",

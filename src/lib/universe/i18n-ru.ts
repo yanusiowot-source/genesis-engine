@@ -48,6 +48,8 @@ export const ru: Copy = {
   chronicle: "Хроника",
   chronicleHint: "Короткая полевая заметка по этим числам. Не обученная модель.",
   chronicleError: "Не удалось написать хронику. Попробуйте ещё раз.",
+  chronicleTimeout: "Время хроники вышло. Заметка на месте.",
+  chronicleUnreachable: "Хроника не дошла до сети. Заметка на месте.",
   writing: "Пишет…",
   rewrite: "Переписать",
   commission: "Написать заметку",

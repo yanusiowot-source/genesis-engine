@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { fetchFault } from "./fetch-fault.ts";
 
 export type CatalogStar = {
   name: string;
@@ -162,17 +163,21 @@ export const fetchPanstarrsCone = createServerFn({ method: "POST" })
     let res: Response;
     try {
       res = await fetch(url, { signal: AbortSignal.timeout(14_000) });
-    } catch {
-      return { ok: false, error: "MAST timed out. Try a smaller cone." };
+    } catch (error) {
+      const timedOut = fetchFault(error) === "timeout";
+      return { ok: false, error: timedOut ? "MAST timed out. Try a smaller cone." : "MAST could not be reached." };
     }
     if (!res.ok) {
       return { ok: false, error: `MAST returned ${res.status}.` };
     }
 
-    const body = (await res.json()) as {
-      info?: { name: string }[];
-      data?: unknown[][];
-    };
+    let body: { info?: { name: string }[]; data?: unknown[][] };
+    try {
+      body = (await res.json()) as { info?: { name: string }[]; data?: unknown[][] };
+    } catch (error) {
+      const timedOut = fetchFault(error) === "timeout";
+      return { ok: false, error: timedOut ? "MAST timed out. Try a smaller cone." : "MAST could not be read." };
+    }
     return parsePanstarrsBody(body, data);
   });
 
@@ -202,11 +207,19 @@ export const fetchPanstarrsCutout = createServerFn({ method: "POST" })
     let namesRes: Response;
     try {
       namesRes = await fetch(namesUrl, { signal: AbortSignal.timeout(10_000) });
-    } catch {
-      return { ok: false, error: "PS1 filenames timed out." };
+    } catch (error) {
+      const timedOut = fetchFault(error) === "timeout";
+      return { ok: false, error: timedOut ? "PS1 filenames timed out." : "PS1 filenames could not be reached." };
     }
     if (!namesRes.ok) return { ok: false, error: `PS1 filenames ${namesRes.status}.` };
-    const files = parseFilenamesTsv(await namesRes.text());
+    let namesText: string;
+    try {
+      namesText = await namesRes.text();
+    } catch (error) {
+      const timedOut = fetchFault(error) === "timeout";
+      return { ok: false, error: timedOut ? "PS1 filenames timed out." : "PS1 filenames could not be read." };
+    }
+    const files = parseFilenamesTsv(namesText);
     const red = files.i ?? files.r ?? files.g;
     const green = files.r ?? files.g ?? files.i;
     const blue = files.g ?? files.r ?? files.i;
@@ -228,11 +241,18 @@ export const fetchPanstarrsCutout = createServerFn({ method: "POST" })
     let img: Response;
     try {
       img = await fetch(jpegUrl, { signal: AbortSignal.timeout(14_000) });
-    } catch {
-      return { ok: false, error: "PS1 cutout timed out." };
+    } catch (error) {
+      const timedOut = fetchFault(error) === "timeout";
+      return { ok: false, error: timedOut ? "PS1 cutout timed out." : "PS1 cutout could not be reached." };
     }
     if (!img.ok) return { ok: false, error: `PS1 cutout ${img.status}.` };
-    const buf = Buffer.from(await img.arrayBuffer());
+    let buf: Buffer;
+    try {
+      buf = Buffer.from(await img.arrayBuffer());
+    } catch (error) {
+      const timedOut = fetchFault(error) === "timeout";
+      return { ok: false, error: timedOut ? "PS1 cutout timed out." : "PS1 cutout could not be read." };
+    }
     if (buf.byteLength < 800) return { ok: false, error: "PS1 cutout was empty." };
     const mime = img.headers.get("content-type")?.split(";")[0] || "image/jpeg";
     if (!mime.startsWith("image/")) {

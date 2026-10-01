@@ -91,6 +91,8 @@ export type Copy = {
   chronicle: string;
   chronicleHint: string;
   chronicleError: string;
+  chronicleTimeout: string;
+  chronicleUnreachable: string;
   writing: string;
   rewrite: string;
   commission: string;
@@ -778,6 +780,8 @@ const en: Copy = {
   chronicle: "Chronicle",
   chronicleHint: "A short field note from these numbers. Not a trained model.",
   chronicleError: "Chronicle failed. Try again.",
+  chronicleTimeout: "The chronicle timed out. The field note stands.",
+  chronicleUnreachable: "The chronicle could not be reached. The field note stands.",
   writing: "Writing…",
   rewrite: "Rewrite",
   commission: "Write field note",

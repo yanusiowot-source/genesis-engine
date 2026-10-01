@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { fetchFault } from "./fetch-fault.ts";
 import { FATE_LABEL } from "./physics";
 import type { Evaluation, UniverseParams } from "./types";
 import { autonym, bcp47 } from "./languages-core.ts";
@@ -54,9 +55,11 @@ const Input = z.object({
   }),
 });
 
+export type ChronicleFault = "timeout" | "network" | "status" | "body" | "empty" | "off";
+
 export type ChronicleResult =
   | { ok: true; text: string }
-  | { ok: false; error: string };
+  | { ok: false; fault: ChronicleFault; error: string };
 
 function buildPrompt(
   name: string,
@@ -158,7 +161,7 @@ export const chronicleUniverse = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<ChronicleResult> => {
     const apiKey = process.env.XAI_API_KEY;
     if (!apiKey) {
-      return { ok: false, error: "Chronicle is unavailable in this environment." };
+      return { ok: false, fault: "off", error: "Chronicle is unavailable in this environment." };
     }
 
     let res: Response;
@@ -196,18 +199,29 @@ export const chronicleUniverse = createServerFn({ method: "POST" })
           ],
         }),
       });
-    } catch {
-      return { ok: false, error: "Chronicle timed out. Try again." };
+    } catch (error) {
+      const fault = fetchFault(error);
+      return {
+        ok: false,
+        fault,
+        error: fault === "timeout" ? "Chronicle timed out. Try again." : "Chronicle could not be reached. Try again.",
+      };
     }
 
     if (!res.ok) {
-      return { ok: false, error: `Chronicle failed (${res.status}). Try again.` };
+      return { ok: false, fault: "status", error: `Chronicle failed (${res.status}). Try again.` };
     }
 
-    const body = (await res.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
+    let body: { choices?: { message?: { content?: string } }[] };
+    try {
+      body = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+    } catch (error) {
+      if (fetchFault(error) === "timeout") {
+        return { ok: false, fault: "timeout", error: "Chronicle timed out. Try again." };
+      }
+      return { ok: false, fault: "body", error: "The chronicle came back unreadable." };
+    }
     const text = body.choices?.[0]?.message?.content?.trim() ?? "";
-    if (!text) return { ok: false, error: "The chronicle came back empty." };
+    if (!text) return { ok: false, fault: "empty", error: "The chronicle came back empty." };
     return { ok: true, text };
   });

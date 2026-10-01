@@ -1324,7 +1324,18 @@ export function UniverseApp() {
         });
         const result = await Promise.race([remote, stopped]);
         if (result == null || controller.signal.aborted || gen !== chronicleGen.current) return;
-        if (!result.ok) return;
+        if (!result.ok) {
+          if (gen === chronicleGen.current) {
+            setError(
+              result.fault === "timeout"
+                ? copy.chronicleTimeout
+                : result.fault === "network"
+                  ? copy.chronicleUnreachable
+                  : copy.chronicleError,
+            );
+          }
+          return;
+        }
         setCurrent((prev) => {
           if (prev.id !== snapshotId) return prev;
           const next = { ...prev, chronicle: result.text, locale };
@@ -1340,7 +1351,7 @@ export function UniverseApp() {
     } finally {
       chronicleLock.current = false;
     }
-  }, [busy, current, locale, remember, versusLine, applyMandate]);
+  }, [busy, copy.chronicleError, copy.chronicleTimeout, copy.chronicleUnreachable, current, locale, remember, versusLine, applyMandate]);
 
   const copyId = useCallback(async () => {
     const text = current.catalog;
