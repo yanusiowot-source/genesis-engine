@@ -2076,7 +2076,7 @@ export function UniverseApp() {
         />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-bg via-bg/70 to-transparent lg:h-52"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-bg via-bg/85 to-transparent sm:h-48 lg:h-52"
         />
 
         <header className={cn("relative z-10 flex shrink-0 items-start justify-between gap-3 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pointer-events-auto sm:px-8", onboard && "hidden")}>
@@ -2535,23 +2535,24 @@ export function UniverseApp() {
             <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
           </div>
-          <div className="mt-2 flex shrink-0 flex-nowrap items-center gap-2 pt-1">
+          <div className="mt-2 flex flex-col gap-2 pt-1 sm:flex-row sm:items-center">
             <Button
               onClick={birth}
               className={cn(
-                "min-w-0 flex-1 sm:flex-none",
+                "w-full sm:w-auto",
                 nudgeBirth && "nudge-ring",
               )}
             >
               <Aperture />
-              <span className="truncate">{copy.birth}</span>
+              {copy.birth}
             </Button>
+            <div className="flex min-w-0 items-center gap-2">
             {!ours ? (
               <Button
                 variant="outline"
                 onClick={resetOurs}
                 data-nudge={oursNudge ? "ours" : undefined}
-                className="min-w-0 max-w-[42%] shrink sm:max-w-none"
+                className="min-w-0 flex-1 sm:max-w-none sm:flex-none"
               >
                 <span className="truncate">{copy.ours}</span>
               </Button>
@@ -2602,6 +2603,7 @@ export function UniverseApp() {
               onDwarf={() => applyPreset(DWARF_SKY, DWARF_SEED)}
               onDesert={() => applyPreset(DESERT_EPOCH, DESERT_SEED)}
             />
+            </div>
           </div>
         </div>
       </div>
@@ -2630,7 +2632,7 @@ export function UniverseApp() {
         aria-hidden={!panelOpen}
         inert={overlayOpen || !panelOpen ? true : undefined}
       >
-        <div className="sticky top-0 z-10 -mx-5 mb-5 border-b border-border bg-bg-elevated px-5 pt-6 pb-3">
+        <div className="sticky top-0 z-10 -mx-5 mb-5 border-b border-border bg-bg-elevated px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-3">
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-display text-2xl tracking-[-0.02em] text-fg">
               {tab === "log" ? copy.log : copy.tabs.lab}

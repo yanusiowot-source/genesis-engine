@@ -146,6 +146,7 @@ describe("filterByMeta", () => {
     assert.equal(journalEmptyKind(3, 2, { path: "swarm" }), "none");
     assert.equal(journalEmptyKind(3, 0, { starred: true }), "starred");
     assert.equal(journalEmptyKind(3, 0, { viable: true }), "viable");
+    assert.equal(journalEmptyKind(3, 0, { viable: true, path: "eternal" }), "cut");
     assert.equal(journalEmptyKind(3, 0, { path: "swarm" }), "cut");
     assert.equal(journalEmptyKind(3, 0, { fate: "void" }), "cut");
   });

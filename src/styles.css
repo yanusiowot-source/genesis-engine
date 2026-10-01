@@ -284,30 +284,23 @@
 
 .hud-chips {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 0.25rem 0.375rem;
   max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.hud-chips::-webkit-scrollbar {
+  display: none;
 }
 
 .hud-chip {
   flex: 0 0 auto;
   white-space: nowrap;
-}
-
-@media (min-width: 640px) {
-  .hud-chips {
-    flex-wrap: nowrap;
-    max-width: 28rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .hud-chips::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 .scripture-line {

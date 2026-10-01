@@ -318,6 +318,7 @@ export function journalEmptyKind(
 ): "none" | "empty" | "starred" | "viable" | "cut" {
   if (resultLen > 0) return "none";
   if (archiveLen === 0) return "empty";
+  if (q.path || q.fate || q.morphology || q.catalog) return "cut";
   if (q.starred) return "starred";
   if (q.viable) return "viable";
   return "cut";

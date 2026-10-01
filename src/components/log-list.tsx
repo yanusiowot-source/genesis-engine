@@ -1,4 +1,4 @@
-import { Star, Trash2 } from "lucide-react";
+import { ChevronRight, Star, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Copy, Locale } from "@/lib/universe/i18n";
 import { formatPct, formatRelative } from "@/lib/universe/format";
@@ -26,6 +26,33 @@ const FATE_CUTS: Fate[] = [
 ];
 
 const MORPH_CUTS: Morphology[] = ["spiral", "elliptical", "irregular", "scattered"];
+
+function CutSelect<T extends string>({
+  value,
+  onChange,
+  options,
+}: {
+  value: T;
+  onChange: (id: T) => void;
+  options: { id: T; label: string }[];
+}) {
+  const named = options.find((o) => o.id !== "any") ?? options[0];
+  return (
+    <select
+      aria-label={named?.label ?? ""}
+      value={value}
+      onChange={(event) => onChange(event.target.value as T)}
+      className="h-11 min-w-0 truncate rounded-[var(--radius-sm)] bg-bg-subtle px-2 text-xs text-fg"
+      style={{ colorScheme: "dark" }}
+    >
+      {options.map((o) => (
+        <option key={o.id} value={o.id}>
+          {o.label}
+        </option>
+      ))}
+    </select>
+  );
+}
 
 type Props = {
   copy: Copy;
@@ -81,12 +108,6 @@ export function LogList({
 
   return (
     <section className="flex flex-col gap-3 pb-8">
-      <div className="flex items-center justify-between gap-3">
-        <h3 className="text-sm font-medium">{copy.log}</h3>
-        <span className="font-mono text-[0.6875rem] tabular-nums text-fg-subtle">
-          {items.length}
-        </span>
-      </div>
       {workLabel && onOpenWork ? (
         <button
           type="button"
@@ -96,96 +117,61 @@ export function LogList({
           <span className="font-mono text-[0.6875rem] tracking-[0.16em] text-fg-subtle uppercase">
             {workLabel}
           </span>
+          <ChevronRight className="size-4 shrink-0 text-fg-subtle" />
         </button>
       ) : null}
 
-      <div className="flex rounded-[var(--radius-md)] bg-bg-subtle p-1">
-        {filters.map((f) => {
-          const active = filter === f.id;
-          return (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => setFilter(f.id)}
-              aria-pressed={active}
-              className={cn(
-                "h-11 min-h-11 flex-1 rounded-[var(--radius-sm)] text-xs font-medium",
-                "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
-                active ? "bg-bg-elevated text-fg shadow-[var(--shadow-border)]" : "text-fg-subtle",
+      {archive.length > 0 ? (
+        <>
+          <div className="flex items-center gap-2">
+            <div className="flex min-w-0 flex-1 rounded-[var(--radius-md)] bg-bg-subtle p-1">
+              {filters.map((f) => {
+                const active = filter === f.id;
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setFilter(f.id)}
+                    aria-pressed={active}
+                    className={cn(
+                      "h-11 min-h-11 min-w-0 flex-1 rounded-[var(--radius-sm)] px-1 text-xs font-medium",
+                      "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
+                      active ? "bg-bg-elevated text-fg shadow-[var(--shadow-border)]" : "text-fg-subtle",
+                    )}
+                  >
+                    {f.label}
+                  </button>
+                );
+              })}
+            </div>
+            <span className="w-8 shrink-0 text-right font-mono text-[0.6875rem] tabular-nums text-fg-subtle">
+              {items.length}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            <CutSelect
+              value={pathCut}
+              onChange={setPathCut}
+              options={paths}
+            />
+            <CutSelect
+              value={fateCut}
+              onChange={setFateCut}
+              options={([{ id: "any" as FateCut, label: copy.filterAll }] as { id: FateCut; label: string }[]).concat(
+                FATE_CUTS.map((id) => ({ id, label: copy.fateLabel[id] })),
               )}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="flex flex-wrap gap-1">
-        {paths.map((f) => {
-          const active = pathCut === f.id;
-          return (
-            <button
-              key={f.id}
-              type="button"
-              onClick={() => setPathCut(f.id)}
-              aria-pressed={active}
-              className={cn(
-                "h-11 min-h-11 rounded-[var(--radius-sm)] px-3 text-xs font-medium",
-                "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
-                active ? "bg-bg-subtle text-fg" : "text-fg-subtle",
+            />
+            <CutSelect
+              value={morphCut}
+              onChange={setMorphCut}
+              options={([{ id: "any" as MorphCut, label: copy.filterAll }] as { id: MorphCut; label: string }[]).concat(
+                MORPH_CUTS.map((id) => ({ id, label: copy.morphology[id] })),
               )}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="flex flex-wrap gap-1">
-        {([{ id: "any" as FateCut, label: copy.filterAll }] as { id: FateCut; label: string }[])
-          .concat(FATE_CUTS.map((id) => ({ id, label: copy.fateLabel[id] })))
-          .map((f) => {
-            const active = fateCut === f.id;
-            return (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setFateCut(f.id)}
-                aria-pressed={active}
-                className={cn(
-                  "h-11 min-h-11 rounded-[var(--radius-sm)] px-3 text-xs font-medium",
-                  "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
-                  active ? "bg-bg-subtle text-fg" : "text-fg-subtle",
-                )}
-              >
-                {f.label}
-              </button>
-            );
-          })}
-      </div>
-
-      <div className="flex flex-wrap gap-1">
-        {([{ id: "any" as MorphCut, label: copy.filterAll }] as { id: MorphCut; label: string }[])
-          .concat(MORPH_CUTS.map((id) => ({ id, label: copy.morphology[id] })))
-          .map((f) => {
-            const active = morphCut === f.id;
-            return (
-              <button
-                key={f.id}
-                type="button"
-                onClick={() => setMorphCut(f.id)}
-                aria-pressed={active}
-                className={cn(
-                  "h-11 min-h-11 rounded-[var(--radius-sm)] px-3 text-xs font-medium",
-                  "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
-                  active ? "bg-bg-subtle text-fg" : "text-fg-subtle",
-                )}
-              >
-                {f.label}
-              </button>
-            );
-          })}
-      </div>
+            />
+          </div>
+        </>
+      ) : null}
 
       {items.length === 0 ? (
         <p className="py-6 text-sm text-fg-subtle">

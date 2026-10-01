@@ -13,7 +13,7 @@ type Props = {
 export function SkyModes({ copy, mode, onChange, collapseLabel = false }: Props) {
   return (
     <Segmented
-      className="w-full max-w-md bg-transparent"
+      className="w-full max-w-md bg-bg-elevated/80"
       ariaLabel={copy.obs.modesLabel}
       value={mode}
       onChange={onChange}
