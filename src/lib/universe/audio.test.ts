@@ -46,6 +46,7 @@ describe("audio prefs", () => {
     assert.match(app, /from "@\/lib\/universe\/audio-gate"/);
     assert.doesNotMatch(app, /from "@\/lib\/universe\/audio"/);
     assert.match(gate, /import\("\.\/audio\.ts"\)/);
+    assert.match(gate, /pendingPing/);
     assert.doesNotMatch(gate, /from "\.\/audio\.ts"/);
   });
 

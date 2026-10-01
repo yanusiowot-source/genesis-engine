@@ -16,6 +16,21 @@ let mod: Engine | null = null;
 let wait: Promise<Engine> | null = null;
 let pendingUnlock = false;
 let pendingParams: UniverseParams | undefined;
+type PendingPing =
+  | { kind: "egg" }
+  | { kind: "signal" }
+  | { kind: "birth" }
+  | { kind: "impact"; impact: "life" | "void" | "end" }
+  | { kind: "contact" };
+let pendingPing: PendingPing | null = null;
+
+function playPing(loaded: Engine, ping: PendingPing) {
+  if (ping.kind === "egg") loaded.pingEgg();
+  else if (ping.kind === "signal") loaded.pingSignal();
+  else if (ping.kind === "birth") loaded.pingBirth();
+  else if (ping.kind === "impact") loaded.pingImpact(ping.impact);
+  else loaded.pingContact();
+}
 
 function boot(): Promise<Engine> {
   if (!wait) {
@@ -26,6 +41,11 @@ function boot(): Promise<Engine> {
         pendingUnlock = false;
         pendingParams = undefined;
         loaded.unlockAndStart(params);
+      }
+      if (pendingPing) {
+        const ping = pendingPing;
+        pendingPing = null;
+        playPing(loaded, ping);
       }
       return loaded;
     });
@@ -71,29 +91,38 @@ export function nudgeSoundscape(params: UniverseParams): void {
   void boot().then((loaded) => loaded.nudgeSoundscape(params));
 }
 
+function rememberPing(ping: PendingPing) {
+  if (mod) {
+    playPing(mod, ping);
+    return;
+  }
+  pendingPing = ping;
+  void boot();
+}
+
 export function releaseAudio(): void {
   if (!mod) return;
   mod.releaseAudio();
 }
 
 export function pingEgg(): void {
-  mod?.pingEgg();
+  rememberPing({ kind: "egg" });
 }
 
 export function pingSignal(): void {
-  mod?.pingSignal();
+  rememberPing({ kind: "signal" });
 }
 
 export function pingBirth(): void {
-  mod?.pingBirth();
+  rememberPing({ kind: "birth" });
 }
 
 export function pingImpact(kind: "life" | "void" | "end" = "void"): void {
-  mod?.pingImpact(kind);
+  rememberPing({ kind: "impact", impact: kind });
 }
 
 export function pingContact(): void {
-  mod?.pingContact();
+  rememberPing({ kind: "contact" });
 }
 
 export function persistMusicSource(next: "cosmos" | "own"): void {
