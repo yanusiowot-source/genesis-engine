@@ -347,6 +347,9 @@ export function UniverseApp() {
   const labNudgeTimer = useRef(0);
   const huntNudgeTimer = useRef(0);
   const huntTimer = useRef(0);
+  const chronicleGen = useRef(0);
+  const chronicleLock = useRef(false);
+  const chronicleTimer = useRef(0);
   const huntGen = useRef(0);
   const encounterTimer = useRef(0);
   const encounterGone = useRef(0);
@@ -652,6 +655,8 @@ export function UniverseApp() {
       window.clearTimeout(labNudgeTimer.current);
       window.clearTimeout(huntNudgeTimer.current);
       window.clearTimeout(huntTimer.current);
+      chronicleGen.current += 1;
+      window.clearTimeout(chronicleTimer.current);
       window.clearTimeout(encounterTimer.current);
       window.clearTimeout(encounterGone.current);
       window.clearTimeout(scanTimer.current);
@@ -1264,58 +1269,76 @@ export function UniverseApp() {
   }, [tab, labPane, current, locale, skyLabel, versusLine]);
 
   const commission = useCallback(async () => {
-    if (busy) return;
+    if (busy || chronicleLock.current) return;
+    chronicleLock.current = true;
     setError(null);
     setTab("lab");
-    let fieldNote: (typeof import("@/lib/universe/field-note"))["fieldNote"];
     try {
-      ({ fieldNote } = await import("@/lib/universe/field-note"));
-    } catch {
-      return;
-    }
-    const snapshotId = current.id;
-    const local = fieldNote({
-      name: skyLabel,
-      catalog: current.catalog,
-      params: current.params,
-      evaluation: current.evaluation,
-      locale,
-      salt: (Date.now() ^ current.visualSeed) >>> 0,
-      versus: versusLine,
-    });
-    setCurrent((prev) => {
-      if (prev.id !== snapshotId) return prev;
-      const next = { ...prev, chronicle: local, locale };
-      remember(next);
-      return next;
-    });
-    applyMandate({ ...current, chronicle: local, locale }, "chronicle");
-    if (isHostedLab()) return;
-    setBusy(true);
-    const timer = window.setTimeout(() => setBusy(false), 12_000);
-    try {
-      const { chronicleUniverse } = await import("@/lib/universe/chronicle");
-      const result = await chronicleUniverse({
-        data: {
-          name: skyLabel,
-          catalog: current.catalog,
-          locale,
-          params: current.params,
-          evaluation: current.evaluation,
-        },
+      let fieldNote: (typeof import("@/lib/universe/field-note"))["fieldNote"];
+      try {
+        ({ fieldNote } = await import("@/lib/universe/field-note"));
+      } catch {
+        return;
+      }
+      const snapshotId = current.id;
+      const local = fieldNote({
+        name: skyLabel,
+        catalog: current.catalog,
+        params: current.params,
+        evaluation: current.evaluation,
+        locale,
+        salt: (Date.now() ^ current.visualSeed) >>> 0,
+        versus: versusLine,
       });
-      if (!result.ok) return;
       setCurrent((prev) => {
         if (prev.id !== snapshotId) return prev;
-        const next = { ...prev, chronicle: result.text, locale };
+        const next = { ...prev, chronicle: local, locale };
         remember(next);
         return next;
       });
-    } catch {
-      /* the field note already stands */
+      applyMandate({ ...current, chronicle: local, locale }, "chronicle");
+      if (isHostedLab()) return;
+      const gen = ++chronicleGen.current;
+      setBusy(true);
+      const controller = new AbortController();
+      window.clearTimeout(chronicleTimer.current);
+      chronicleTimer.current = window.setTimeout(() => controller.abort(), 12_000);
+      try {
+        const { chronicleUniverse } = await import("@/lib/universe/chronicle");
+        if (controller.signal.aborted || gen !== chronicleGen.current) return;
+        const remote = chronicleUniverse({
+          data: {
+            name: skyLabel,
+            catalog: current.catalog,
+            locale,
+            params: current.params,
+            evaluation: current.evaluation,
+          },
+        }).then(
+          (result) => result,
+          () => null,
+        );
+        const stopped = new Promise<null>((resolve) => {
+          if (controller.signal.aborted) resolve(null);
+          else controller.signal.addEventListener("abort", () => resolve(null), { once: true });
+        });
+        const result = await Promise.race([remote, stopped]);
+        if (result == null || controller.signal.aborted || gen !== chronicleGen.current) return;
+        if (!result.ok) return;
+        setCurrent((prev) => {
+          if (prev.id !== snapshotId) return prev;
+          const next = { ...prev, chronicle: result.text, locale };
+          remember(next);
+          return next;
+        });
+      } catch {
+        /* the field note already stands */
+      } finally {
+        window.clearTimeout(chronicleTimer.current);
+        if (gen === chronicleGen.current) setBusy(false);
+      }
     } finally {
-      window.clearTimeout(timer);
-      setBusy(false);
+      chronicleLock.current = false;
     }
   }, [busy, current, locale, remember, versusLine, applyMandate]);
 
