@@ -31,6 +31,7 @@
     "test": "node --experimental-strip-types --test src/lib/universe/physics.test.ts src/lib/universe/observatory.test.ts src/lib/universe/galaxy.test.ts src/lib/universe/research.test.ts src/lib/universe/civilization.test.ts src/lib/universe/citizen.test.ts src/lib/universe/symbolic.test.ts src/lib/universe/bayes.test.ts src/lib/universe/mast.test.ts src/lib/universe/fits.test.ts src/lib/universe/mcmc.test.ts src/lib/universe/zooniverse.test.ts src/lib/universe/eggs.test.ts src/lib/universe/archive.test.ts src/lib/universe/audio.test.ts src/lib/universe/biosphere.test.ts src/lib/universe/languages.test.ts src/lib/universe/field-note.test.ts src/lib/universe/compare.test.ts src/lib/universe/mandate.test.ts src/lib/universe/scripture.test.ts src/lib/universe/plot.test.ts src/lib/universe/encounters.test.ts src/lib/universe/license.test.ts src/lib/universe/qr.test.ts src/lib/app-data/app-data.test.ts src/lib/auth/gate-identity.test.ts src/lib/universe/service-worker.test.ts src/lib/universe/sky-client.test.ts src/lib/universe/nfw-wasm.test.ts src/lib/universe/sky-gpu.test.ts src/lib/universe/persist.test.ts",
     "test:scripts": "node --test 'scripts/**/*.test.mjs'",
     "monitor": "node scripts/monitor.mjs",
+    "alert": "node scripts/alert.mjs",
     "hygiene": "node scripts/repo-hygiene.mjs",
     "hygiene:apply": "node scripts/repo-hygiene.mjs --apply",
     "lint": "eslint .",
