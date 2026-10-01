@@ -1,9 +1,23 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { fieldNote } from "./field-note.ts";
 import { evaluate, OUR_UNIVERSE } from "./physics.ts";
 
 describe("fieldNote", () => {
+  it("stays off the sky until the lab constants pane or the commission button", () => {
+    const app = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/universe-app.tsx"),
+      "utf8",
+    );
+    assert.doesNotMatch(app, /import \{ fieldNote \}/);
+    assert.match(app, /import\("@\/lib\/universe\/field-note"\)/);
+    assert.doesNotMatch(app, /import \{ loadVotes/);
+    assert.match(app, /import\("@\/components\/lab-panes"\)/);
+  });
+
   it("writes ΛCDM as a habitable envelope with a Friedmann age", () => {
     const ev = evaluate(OUR_UNIVERSE);
     const text = fieldNote({

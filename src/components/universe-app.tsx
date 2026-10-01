@@ -17,7 +17,6 @@ import {
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
 import { CosmicClock } from "@/components/cosmic-clock";
-import { LabPanes } from "@/components/lab-panes";
 import { MoreMenu } from "@/components/more-menu";
 import { Onboarding } from "@/components/onboarding";
 import { SkyModes } from "@/components/sky-modes";
@@ -99,6 +98,9 @@ const ResearchPanel = lazy(() =>
 const SettingsSheet = lazy(() =>
   import("@/components/settings-sheet").then((m) => ({ default: m.SettingsSheet })),
 );
+const LabPanes = lazy(() =>
+  import("@/components/lab-panes").then((m) => ({ default: m.LabPanes })),
+);
 const ScriptureSheet = lazy(() =>
   import("@/components/scripture-sheet").then((m) => ({ default: m.ScriptureSheet })),
 );
@@ -158,7 +160,6 @@ import {
   type MusicSource,
   type PlaylistEntry,
 } from "@/lib/universe/audio";
-import { fieldNote } from "@/lib/universe/field-note";
 import { formatGyr, formatHudPct, formatPct } from "@/lib/universe/format";
 import {
   haptic,
@@ -233,7 +234,7 @@ import type { DiscoveryResult } from "@/lib/universe/symbolic";
 import type { BayesResult } from "@/lib/universe/bayes";
 import type { CatalogResult, CutoutResult } from "@/lib/universe/mast";
 import type { McmcResult } from "@/lib/universe/mcmc";
-import { loadVotes, type SkyVote } from "@/lib/universe/zooniverse";
+import type { SkyVote } from "@/lib/universe/zooniverse";
 import {
   clamp,
   isAnswerCatalog,
@@ -367,6 +368,7 @@ export function UniverseApp() {
   const [catalogOverlay, setCatalogOverlay] = useState(false);
   const [reportSaved, setReportSaved] = useState(false);
   const [reportFailed, setReportFailed] = useState(false);
+  const [draftNote, setDraftNote] = useState<string | null>(null);
   const [mode, setMode] = useState<SkyMode>("galaxy");
   const timeRef = useRef(0.55);
   const [cosmicTime, setCosmicTimeState] = useState(0.55);
@@ -766,7 +768,6 @@ export function UniverseApp() {
     const host = detectPlatform();
     setPlatform(host);
     setStandalone(host.standalone);
-    setVotes(loadVotes());
 
     const onGesture = () => {
       if (soundOnRef.current) unlockAndStart(paramsRef.current);
@@ -1221,20 +1222,42 @@ export function UniverseApp() {
   const nudgeSurvey = !nudgeBirth && (surveyNudge || workNext === "corridor");
   const nudgeSkies = !nudgeBirth && !nudgeSurvey && (workNext === "silicon" || workNext === "eternal" || workNext === "tide");
 
-  const noteText = current.chronicle ?? fieldNote({
-    name: skyLabel,
-    catalog: current.catalog,
-    params: current.params,
-    evaluation: current.evaluation,
-    locale,
-    salt: current.visualSeed,
-    versus: versusLine,
-  });
+  const noteText = current.chronicle ?? draftNote ?? "";
+  useEffect(() => {
+    if (current.chronicle) return;
+    setDraftNote(null);
+    if (tab !== "lab" || labPane !== "constants") return;
+    let dead = false;
+    const shot = current;
+    void import("@/lib/universe/field-note").then(({ fieldNote }) => {
+      if (dead) return;
+      setDraftNote(
+        fieldNote({
+          name: skyLabel,
+          catalog: shot.catalog,
+          params: shot.params,
+          evaluation: shot.evaluation,
+          locale,
+          salt: shot.visualSeed,
+          versus: versusLine,
+        }),
+      );
+    });
+    return () => {
+      dead = true;
+    };
+  }, [tab, labPane, current, locale, skyLabel, versusLine]);
 
   const commission = useCallback(async () => {
     if (busy) return;
     setError(null);
     setTab("lab");
+    let fieldNote: (typeof import("@/lib/universe/field-note"))["fieldNote"];
+    try {
+      ({ fieldNote } = await import("@/lib/universe/field-note"));
+    } catch {
+      return;
+    }
     const snapshotId = current.id;
     const local = fieldNote({
       name: skyLabel,
@@ -2622,12 +2645,14 @@ export function UniverseApp() {
           </div>
           {tab === "lab" ? (
             <div className="mt-3">
-              <LabPanes
-                copy={copy}
-                pane={labPane}
-                nudge={huntNudge ? "hunt" : null}
-                onChange={setLabPane}
-              />
+              <Suspense fallback={null}>
+                <LabPanes
+                  copy={copy}
+                  pane={labPane}
+                  nudge={huntNudge ? "hunt" : null}
+                  onChange={setLabPane}
+                />
+              </Suspense>
               <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
                 {copy.labPaneHint[labPane]}
               </p>

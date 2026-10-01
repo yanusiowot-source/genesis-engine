@@ -37,6 +37,7 @@ import {
 import {
   SKY_CLASSES,
   goldClass,
+  loadVotes,
   rankedVotes,
   recordVote,
   zooniverseClassificationsCsv,
@@ -83,6 +84,9 @@ export function DeskPanel({
   const [saved, setSaved] = useState<string | null>(null);
   const [klass, setKlass] = useState<SkyClass>("habitable");
   const [rating, setRating] = useState(3);
+  useEffect(() => {
+    onVotes(loadVotes());
+  }, [onVotes]);
   const silicon = useMemo(
     () => siliconDossier(record.params, record.evaluation),
     [record.params, record.evaluation],
