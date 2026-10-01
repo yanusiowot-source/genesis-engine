@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { copyFor } from "./i18n.ts";
+import { copyFor, hydrateBe } from "./i18n.ts";
 import {
   DESERT_EPOCH,
   CLUSTER_SKY,
@@ -16,6 +16,8 @@ import {
   formatDelta,
   plateTitle,
 } from "./compare.ts";
+
+await hydrateBe();
 
 describe("compareToOurs", () => {
   it("is silent on ΛCDM", () => {

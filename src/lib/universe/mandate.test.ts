@@ -31,7 +31,9 @@ import {
 } from "./physics.ts";
 import { catalogId, hashParams } from "./rng.ts";
 import type { Fate, UniverseParams, UniverseRecord } from "./types.ts";
-import { copyFor } from "./i18n.ts";
+import { copyFor, hydrateBe } from "./i18n.ts";
+
+await hydrateBe();
 
 function recordOf(params: UniverseParams, seed = 1, extra: Partial<UniverseRecord> = {}): UniverseRecord {
   const evaluation = evaluate(params);

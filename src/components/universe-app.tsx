@@ -164,7 +164,7 @@ import {
   loadHapticPref,
   setHapticEnabled,
 } from "@/lib/universe/haptic";
-import { autonym, bcp47, copyFor, coreLocale, detectLocale, hydratePacks, persistLocale, type Locale } from "@/lib/universe/i18n";
+import { autonym, bcp47, copyFor, detectLocale, hydrateLocale, persistLocale, type Locale } from "@/lib/universe/i18n";
 
 import { detectPlatform, type PlatformInfo } from "@/lib/universe/platform";
 import {
@@ -227,8 +227,6 @@ import {
   type ExpeditionResult,
   type ResearchTarget,
 } from "@/lib/universe/research";
-import { runExpeditionAsync } from "@/lib/universe/law-client";
-import { buildFieldReport, downloadText, reportFilename } from "@/lib/universe/report";
 import { isAboutHash, isHostedLab, isKeepHash } from "@/lib/universe/studio";
 import type { DiscoveryResult } from "@/lib/universe/symbolic";
 import type { BayesResult } from "@/lib/universe/bayes";
@@ -642,8 +640,9 @@ export function UniverseApp() {
 
   useLayoutEffect(() => {
     const next = detectLocale();
-    setLocale(next);
     document.documentElement.lang = bcp47(next);
+    if (next === "en" || next === "ru") setLocale(next);
+    else void hydrateLocale(next).then(() => setLocale(next));
     setHapticsOn(loadHapticPref());
     setSoundOn(loadSoundPref());
     setMusicSource(loadMusicSource());
@@ -680,8 +679,14 @@ export function UniverseApp() {
   }, []);
 
   useEffect(() => {
-    if (coreLocale(locale)) return;
-    void hydratePacks().then(() => setPackTick((n) => n + 1));
+    if (locale === "en" || locale === "ru") return;
+    let dead = false;
+    void hydrateLocale(locale).then(() => {
+      if (!dead) setPackTick((n) => n + 1);
+    });
+    return () => {
+      dead = true;
+    };
   }, [locale]);
 
   useEffect(() => {
@@ -1133,7 +1138,8 @@ export function UniverseApp() {
     setHunting(true);
     window.clearTimeout(huntTimer.current);
     huntTimer.current = window.setTimeout(() => {
-      void runExpeditionAsync(seed, target, params)
+      void import("@/lib/universe/law-client")
+        .then(({ runExpeditionAsync }) => runExpeditionAsync(seed, target, params))
         .then((result) => {
           if (gen !== huntGen.current) return;
           setExpedition(result);
@@ -1172,21 +1178,23 @@ export function UniverseApp() {
 
   const saveReport = useCallback(() => {
     haptic(8);
-    const text = buildFieldReport({
-      record: current,
-      locale,
-      copy,
-      silicon: siliconDossier(current.params, current.evaluation),
-      civ: intelligenceWindow(current.params, current.evaluation),
-      expedition,
-      law: lawResult,
-      bayes: bayesResult,
-      mcmc: mcmcResult,
+    void import("@/lib/universe/report").then(({ buildFieldReport, downloadText, reportFilename }) => {
+      const text = buildFieldReport({
+        record: current,
+        locale,
+        copy,
+        silicon: siliconDossier(current.params, current.evaluation),
+        civ: intelligenceWindow(current.params, current.evaluation),
+        expedition,
+        law: lawResult,
+        bayes: bayesResult,
+        mcmc: mcmcResult,
+      });
+      downloadText(reportFilename(current), text);
+      setReportSaved(true);
+      window.clearTimeout(reportTimer.current);
+      reportTimer.current = window.setTimeout(() => setReportSaved(false), 1400);
     });
-    downloadText(reportFilename(current), text);
-    setReportSaved(true);
-    window.clearTimeout(reportTimer.current);
-    reportTimer.current = window.setTimeout(() => setReportSaved(false), 1400);
   }, [copy, current, expedition, lawResult, bayesResult, mcmcResult, locale]);
 
   const versusLine = useMemo(
@@ -1411,13 +1419,19 @@ export function UniverseApp() {
       const i = order.indexOf(prev as (typeof order)[number]);
       const next = order[i < 0 ? 0 : (i + 1) % order.length];
       persistLocale(next);
-      return next;
+      if (next === "en" || next === "ru") return next;
+      void hydrateLocale(next).then(() => setLocale(next));
+      return prev;
     });
   }, []);
 
   const setLocaleExplicit = useCallback((next: Locale) => {
     persistLocale(next);
-    setLocale(next);
+    if (next === "en" || next === "ru") {
+      setLocale(next);
+      return;
+    }
+    void hydrateLocale(next).then(() => setLocale(next));
   }, []);
 
   const runInstall = useCallback(async () => {

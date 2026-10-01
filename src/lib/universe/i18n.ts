@@ -35,7 +35,6 @@ import type { MandateId } from "./mandate";
 import type { GradeId, TaxonId } from "./biosphere";
 import type { SpectralType } from "./citizen";
 import type { SkyClass } from "./zooniverse";
-import { makeBe } from "./i18n-be.ts";
 import { mergeCopy } from "./copy-merge.ts";
 import type { DeepPartial } from "./copy-merge.ts";
 import { APP_VERSION_SHORT } from "./studio.ts";
@@ -3322,37 +3321,81 @@ const ru: Copy = {
   },
 };
 
-const be = makeBe(ru);
-
 const copyCache = new Map<string, Copy>();
+let beCopy: Copy | null = null;
+let beWait: Promise<void> | null = null;
 
-type PackBag = {
-  PACKS: Record<string, DeepPartial<Copy>>;
-  HUD: Record<string, DeepPartial<Copy>>;
-  SETTINGS: Record<string, DeepPartial<Copy>>;
+/** Belarusian is a full authored copy. Load it only when the locale is be. */
+export function hydrateBe(): Promise<void> {
+  if (beCopy) return Promise.resolve();
+  if (!beWait) {
+    beWait = import("./i18n-be.ts").then(({ makeBe }) => {
+      beCopy = makeBe(ru);
+      copyCache.delete("be");
+    });
+  }
+  return beWait;
+}
+
+const PACK_LOCALES = [
+  "de",
+  "nl",
+  "fr",
+  "es",
+  "pt",
+  "it",
+  "pl",
+  "uk",
+  "zh",
+  "ja",
+  "ar",
+  "tr",
+  "hi",
+  "ko",
+  "eo",
+  "tlh",
+  "hv",
+] as const;
+
+type LocaleOverlay = {
+  pack: DeepPartial<Copy>;
+  hud: DeepPartial<Copy>;
+  settings: DeepPartial<Copy>;
 };
 
-let packBag: PackBag | null = null;
-let packWait: Promise<PackBag> | null = null;
+const overlays = new Map<string, LocaleOverlay>();
+const packWaits = new Map<string, Promise<void>>();
 
 export function coreLocale(id: string): boolean {
   return id === "en" || id === "ru" || id === "be";
 }
 
-export async function hydratePacks(): Promise<void> {
-  if (packBag) return;
-  if (!packWait) {
-    packWait = Promise.all([
-      import("./locales/packs.ts"),
-      import("./locales/hud-packs.ts"),
-      import("./locales/settings-packs.ts"),
-    ]).then(([p, h, s]) => {
-      packBag = { PACKS: p.PACKS, HUD: h.HUD, SETTINGS: s.SETTINGS };
-      copyCache.clear();
-      return packBag;
+/** One authored overlay. Other locales in the same family stay unloaded. */
+export function hydratePack(id: string): Promise<void> {
+  const locale = canonicalLocale(id);
+  if (!(PACK_LOCALES as readonly string[]).includes(locale)) return Promise.resolve();
+  if (overlays.has(locale)) return Promise.resolve();
+  let wait = packWaits.get(locale);
+  if (!wait) {
+    wait = import(`./locales/one/${locale}.ts`).then((mod) => {
+      overlays.set(locale, { pack: mod.pack, hud: mod.hud, settings: mod.settings });
+      copyCache.delete(locale);
     });
+    packWaits.set(locale, wait);
   }
-  await packWait;
+  return wait;
+}
+
+/** en/ru are already in the first chunk. be and one overlay load on demand. */
+export function hydrateLocale(id: string): Promise<void> {
+  const locale = canonicalLocale(id);
+  if (locale === "en" || locale === "ru") return Promise.resolve();
+  if (locale === "be") return hydrateBe();
+  return hydratePack(locale);
+}
+
+export async function hydratePacks(): Promise<void> {
+  await Promise.all(PACK_LOCALES.map((id) => hydratePack(id)));
 }
 
 export function copyFor(locale: string): Copy {
@@ -3361,15 +3404,17 @@ export function copyFor(locale: string): Copy {
   if (hit) return hit;
   let out: Copy = en;
   if (id === "ru") out = ru;
-  else if (id === "be") out = be;
-  else if (packBag) {
-    const overlay = packBag.PACKS[id];
-    if (overlay) out = mergeCopy(en, overlay);
+  else if (id === "be") {
+    if (!beCopy) throw new Error("be copy is not loaded");
+    out = beCopy;
+  } else {
+    const over = overlays.get(id);
+    if (over) {
+      out = mergeCopy(en, over.pack);
+      out = mergeCopy(out, over.hud);
+      out = mergeCopy(out, over.settings);
+    }
   }
-  const hud = packBag?.HUD[id];
-  if (hud) out = mergeCopy(out, hud);
-  const extra = packBag?.SETTINGS[id];
-  if (extra) out = mergeCopy(out, extra);
   copyCache.set(id, out);
   return out;
 }
@@ -3377,7 +3422,6 @@ export function copyFor(locale: string): Copy {
 export const COPY: Record<string, Copy> = {
   en,
   ru,
-  be,
 };
 
 export function nextLocale(locale: Locale): Locale {

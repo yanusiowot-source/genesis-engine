@@ -5,7 +5,7 @@ import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { mergeCopy } from "./copy-merge.ts";
 import { formatHudPct } from "./format.ts";
-import { copyFor, hydratePacks } from "./i18n.ts";
+import { copyFor, hydrateBe, hydratePack, hydratePacks } from "./i18n.ts";
 import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, PUBLIC_LAB_REPO_URL, PUBLIC_SOURCE_REPO_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, APP_VERSION_SHORT, productOffers } from "./studio.ts";
 import {
   AUTHORED,
@@ -17,6 +17,8 @@ import {
   loadCatalog,
   searchLanguages,
 } from "./languages.ts";
+
+await hydrateBe();
 
 describe("language catalog", () => {
   it("loads ISO living languages plus constructed ones", async () => {
@@ -223,6 +225,17 @@ describe("copyFor", () => {
     const offers = productOffers();
     assert.equal(offers[1]?.price, "15");
     assert.equal(offers[1]?.priceCurrency, "USD");
+  });
+
+  it("loads one locale from its own module", async () => {
+    const { PACKS } = await import("./locales/packs.ts");
+    const { HUD } = await import("./locales/hud-packs.ts");
+    const { SETTINGS } = await import("./locales/settings-packs.ts");
+    await hydratePack("de");
+    assert.equal(copyFor("de").birth, PACKS.de?.birth);
+    assert.equal(copyFor("de").obs.clock, HUD.de?.obs?.clock);
+    assert.equal(copyFor("de").appearance, SETTINGS.de?.appearance);
+    assert.equal(copyFor("nl").birth, "Birth a universe");
   });
 
   it("translates authored chrome including Klingon, High Valyrian, and the clock", async () => {

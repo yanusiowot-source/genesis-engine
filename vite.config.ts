@@ -180,6 +180,9 @@ export default defineConfig(({ command, isPreview }) => ({
     port: 8081,
     strictPort: true,
   },
+  build: {
+    sourcemap: true,
+  },
   optimizeDeps: {
     include: [
       "docx",
