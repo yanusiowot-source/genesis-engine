@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import {
   DEFAULT_MUSIC_VOLUME,
   getAudioStatus,
@@ -36,6 +39,16 @@ function mockStorage() {
 }
 
 describe("audio prefs", () => {
+  it("keeps the engine off the first import of the app", () => {
+    const here = dirname(fileURLToPath(import.meta.url));
+    const app = readFileSync(join(here, "../../components/universe-app.tsx"), "utf8");
+    const gate = readFileSync(join(here, "audio-gate.ts"), "utf8");
+    assert.match(app, /from "@\/lib\/universe\/audio-gate"/);
+    assert.doesNotMatch(app, /from "@\/lib\/universe\/audio"/);
+    assert.match(gate, /import\("\.\/audio\.ts"\)/);
+    assert.doesNotMatch(gate, /from "\.\/audio\.ts"/);
+  });
+
   it("defaults sound on when storage is empty", () => {
     mockStorage();
     assert.equal(loadSoundPref(), true);

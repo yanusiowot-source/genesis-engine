@@ -1,19 +1,33 @@
 import type { UniverseParams } from "./types";
+import {
+  DEFAULT_MUSIC_VOLUME,
+  NAME_KEY,
+  SOUND_KEY,
+  SOURCE_KEY,
+  VOLUME_KEY,
+  loadMusicSource,
+  loadMusicVolume,
+  loadOwnTrackName,
+  loadSoundPref,
+  type MusicSource,
+  type PlaylistEntry,
+} from "./audio-prefs.ts";
 
-const SOUND_KEY = "genesis-engine-sound-v2";
-const SOURCE_KEY = "genesis-engine-music-source";
-const VOLUME_KEY = "genesis-engine-music-volume-v3";
-const NAME_KEY = "genesis-engine-music-name";
+export {
+  DEFAULT_MUSIC_VOLUME,
+  loadMusicSource,
+  loadMusicVolume,
+  loadOwnTrackName,
+  loadSoundPref,
+  type MusicSource,
+  type PlaylistEntry,
+} from "./audio-prefs.ts";
+
 const TRACK_KEY = "own-track";
 const META_KEY = "own-playlist";
 const TRACK_PREFIX = "own-track:";
 const DB_NAME = "genesis-engine";
 const STORE = "kv";
-
-export const DEFAULT_MUSIC_VOLUME = 0.38;
-
-export type MusicSource = "cosmos" | "own";
-export type PlaylistEntry = { id: string; name: string };
 
 export type AudioStatus = {
   wanted: boolean;
@@ -61,44 +75,6 @@ const DORIAN: number[][] = [
   [3, 7, 10, 15, 19],
   [7, 10, 14, 17, 19],
 ];
-
-export function loadSoundPref(): boolean {
-  try {
-    const v = localStorage.getItem(SOUND_KEY);
-    if (v === "0") return false;
-    return true;
-  } catch {
-    return true;
-  }
-}
-
-export function loadMusicSource(): MusicSource {
-  try {
-    return localStorage.getItem(SOURCE_KEY) === "own" ? "own" : "cosmos";
-  } catch {
-    return "cosmos";
-  }
-}
-
-export function loadMusicVolume(): number {
-  try {
-    const raw = localStorage.getItem(VOLUME_KEY);
-    if (raw == null || raw === "") return DEFAULT_MUSIC_VOLUME;
-    const n = Number(raw);
-    if (Number.isFinite(n)) return Math.min(1, Math.max(0, n));
-  } catch {
-    /* ignore */
-  }
-  return DEFAULT_MUSIC_VOLUME;
-}
-
-export function loadOwnTrackName(): string {
-  try {
-    return localStorage.getItem(NAME_KEY) ?? "";
-  } catch {
-    return "";
-  }
-}
 
 export function persistSound(on: boolean): void {
   enabled = on;

@@ -159,7 +159,7 @@ import {
   pingContact,
   type MusicSource,
   type PlaylistEntry,
-} from "@/lib/universe/audio";
+} from "@/lib/universe/audio-gate";
 import { formatGyr, formatHudPct, formatPct } from "@/lib/universe/format";
 import {
   haptic,
