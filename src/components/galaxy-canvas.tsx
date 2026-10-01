@@ -791,23 +791,6 @@ export function GalaxyCanvas({
         drawTauBeacon(cx + scale * 0.16, h * 0.56, time, true, "right");
       }
 
-      if (eggsRef.current.classified) {
-        const px = w * 0.62;
-        const py = Math.min(h * 0.28, h * 0.22 + 36);
-        ctx.save();
-        ctx.fillStyle = "rgba(8, 6, 18, 0.82)";
-        ctx.fillRect(px - 34, py - 10, 68, 20);
-        ctx.strokeStyle = "rgba(255, 214, 160, 0.45)";
-        ctx.lineWidth = 0.8;
-        ctx.strokeRect(px - 34, py - 10, 68, 20);
-        ctx.fillStyle = "rgba(255, 214, 160, 0.7)";
-        ctx.font = "600 9px ui-monospace, SFMono-Regular, Menlo, monospace";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText("— — —", px, py);
-        ctx.restore();
-      }
-
       if (yawTravel > Math.PI * 2) {
         const px = w * 0.18;
         const py = h * 0.86;

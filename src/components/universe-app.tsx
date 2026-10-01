@@ -510,11 +510,11 @@ export function UniverseApp() {
     tauTimer.current = window.setTimeout(() => setTauOn(false), 11000);
   }, [copy.eggs.tau]);
 
-  const armClassified = useCallback(() => {
+  const armClassified = useCallback((announce = true) => {
     setTab("sky");
     setMode("planetarium");
     setClassifiedOn(true);
-    flashEgg(copy.eggs.fiftyone, 8000);
+    if (announce) flashEgg(copy.eggs.fiftyone, 8000);
     window.clearTimeout(classifiedTimer.current);
     classifiedTimer.current = window.setTimeout(() => setClassifiedOn(false), 14000);
   }, [copy.eggs.fiftyone, flashEgg]);
@@ -575,7 +575,7 @@ export function UniverseApp() {
       if (el instanceof HTMLElement) el.blur();
       if (kind === "wow") armWow();
       else if (kind === "throat") armThroat();
-      else if (kind === "classified") armClassified();
+      else if (kind === "classified") armClassified(false);
       else if (kind === "tau") armTau();
       else if (kind === "zone") armZone();
       else if (kind === "whale") {
@@ -1292,6 +1292,7 @@ export function UniverseApp() {
     applyMandate({ ...current, chronicle: local, locale }, "chronicle");
     if (isHostedLab()) return;
     setBusy(true);
+    const timer = window.setTimeout(() => setBusy(false), 12_000);
     try {
       const { chronicleUniverse } = await import("@/lib/universe/chronicle");
       const result = await chronicleUniverse({
@@ -1313,6 +1314,7 @@ export function UniverseApp() {
     } catch {
       /* the field note already stands */
     } finally {
+      window.clearTimeout(timer);
       setBusy(false);
     }
   }, [busy, current, locale, remember, versusLine, applyMandate]);
@@ -1942,15 +1944,15 @@ export function UniverseApp() {
                 {autonym(locale)}
               </span>
             </div>
-            {busy ? (
-              <p className="chronicle-write mt-2 text-pretty text-sm leading-relaxed text-fg-muted">
-                {copy.writing}
-              </p>
-            ) : (
+            {noteText ? (
               <p className="mt-2 text-pretty text-sm leading-relaxed whitespace-pre-wrap text-fg-muted">
                 {noteText}
               </p>
-            )}
+            ) : busy ? (
+              <p className="chronicle-write mt-2 text-pretty text-sm leading-relaxed text-fg-muted">
+                {copy.writing}
+              </p>
+            ) : null}
             <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
               {copy.chronicleHint}
             </p>

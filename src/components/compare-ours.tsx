@@ -1,5 +1,5 @@
 import type { Copy } from "@/lib/universe/i18n";
-import { compareToOurs, formatCompareLine } from "@/lib/universe/compare";
+import { compareLines, compareToOurs } from "@/lib/universe/compare";
 import { isOurParams } from "@/lib/universe/physics";
 import type { UniverseParams } from "@/lib/universe/types";
 
@@ -18,12 +18,18 @@ export function CompareOurs({ copy, params }: Props) {
     );
   }
 
-  const line = formatCompareLine(compareToOurs(params), copy);
-  if (!line) return null;
+  const lines = compareLines(compareToOurs(params), copy);
+  if (lines.length === 0) return null;
   return (
     <section className="flex flex-col gap-2">
       <h3 className="text-sm font-medium">{copy.compareTitle}</h3>
-      <p className="text-pretty text-sm leading-relaxed text-fg-muted">{line}</p>
+      <ul className="flex flex-col gap-1">
+        {lines.map((line) => (
+          <li key={line} className="text-pretty text-sm leading-relaxed text-fg-muted">
+            {line}
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

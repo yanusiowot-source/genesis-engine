@@ -95,6 +95,18 @@ export function formatCompareFlash(reading: CompareReading, copy: CompareCopy): 
   return agePhrase(reading, copy) || copy.versusHome;
 }
 
+export function compareLines(reading: CompareReading, copy: CompareCopy): string[] {
+  if (reading.ours) return [];
+  const lines: string[] = [];
+  const age = agePhrase(reading, copy);
+  if (age) lines.push(`${age}.`);
+  for (const knob of reading.knobs) {
+    lines.push(`${copy.params[knob.key].label} ${formatDelta(knob.delta)} ${knob.unit}.`);
+  }
+  if (lines.length === 0) lines.push(copy.versusHome);
+  return lines;
+}
+
 export function formatCompareLine(reading: CompareReading, copy: CompareCopy): string | null {
   if (reading.ours) return null;
   const knobs = reading.knobs

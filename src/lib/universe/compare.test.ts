@@ -13,6 +13,7 @@ import {
   compareToOurs,
   formatCompareFlash,
   formatCompareLine,
+  compareLines,
   formatDelta,
   plateTitle,
 } from "./compare.ts";
@@ -37,6 +38,9 @@ describe("compareToOurs", () => {
     assert.ok(Math.abs(reading.knobs[0]!.delta - 0.4) < 1e-9);
     const line = formatCompareLine(reading, copyFor("en"));
     assert.match(line ?? "", /Gravity \+0\.40 G₀/);
+    const parts = compareLines(reading, copyFor("en"));
+    assert.ok(parts.length >= 1);
+    assert.ok(parts.every((part) => !part.startsWith("·")));
     const younger = friedmannAgeGyr(heavy) < friedmannAgeGyr(OUR_UNIVERSE);
     if (younger) assert.match(line ?? "", /Younger than home/);
   });
