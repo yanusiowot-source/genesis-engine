@@ -238,6 +238,19 @@ describe("copyFor", () => {
     assert.equal(copyFor("nl").birth, "Birth a universe");
   });
 
+  it("matches every authored pack to its source bag", async () => {
+    const { PACKS } = await import("./locales/packs.ts");
+    const { HUD } = await import("./locales/hud-packs.ts");
+    const { SETTINGS } = await import("./locales/settings-packs.ts");
+    await hydratePacks();
+    for (const id of Object.keys(PACKS)) {
+      const copy = copyFor(id);
+      assert.equal(copy.birth, PACKS[id]?.birth, id);
+      assert.equal(copy.obs.clock, HUD[id]?.obs?.clock, id);
+      assert.equal(copy.appearance, SETTINGS[id]?.appearance, id);
+    }
+  });
+
   it("translates authored chrome including Klingon, High Valyrian, and the clock", async () => {
     await hydratePacks();
     assert.equal(copyFor("de").birth, "Universum gebären");

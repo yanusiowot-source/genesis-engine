@@ -640,7 +640,6 @@ export function UniverseApp() {
 
   useLayoutEffect(() => {
     const next = detectLocale();
-    document.documentElement.lang = bcp47(next);
     if (next === "en") setLocale(next);
     else void hydrateLocale(next).then(() => setLocale(next));
     setHapticsOn(loadHapticPref());
