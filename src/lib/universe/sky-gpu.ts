@@ -1,21 +1,12 @@
 import type { GalaxyModel, Star } from "./galaxy.ts";
+import { faceOnLocal } from "./sky-place.ts";
+
+export { faceOnLocal, gpuOffered, skyGpuMark } from "./sky-place.ts";
 
 /** 8 floats per instance: x y z r  R G B a. Quad corners live in a static vertex buffer. */
 export const STAR_FLOATS = 8;
 export const QUAD_VERTS = new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]);
 export const QUAD_INDEX = new Uint16Array([0, 1, 2, 2, 1, 3]);
-
-export function gpuOffered(): boolean {
-  return typeof navigator !== "undefined" && "gpu" in navigator;
-}
-
-/** DOM truth: offered is not live. wait ≠ adapter. */
-export function skyGpuMark(offered: boolean, live: boolean | null): "0" | "wait" | "live" {
-  if (!offered) return "0";
-  if (live === true) return "live";
-  if (live === false) return "0";
-  return "wait";
-}
 
 export function packStars(stars: Star[], into: Float32Array, offset = 0, alphaMul = 1): number {
   const room = Math.floor((into.length - offset) / STAR_FLOATS);
@@ -38,11 +29,6 @@ export function packStars(stars: Star[], into: Float32Array, offset = 0, alphaMu
 export function packGalaxyInstances(model: GalaxyModel, into: Float32Array): number {
   const disk = packStars(model.stars, into, 0, 1);
   return disk + packStars(model.field, into, disk * STAR_FLOATS, 0.85);
-}
-
-/** Local face-on point before the canvas rotate. Stretch and tide stay outside. */
-export function faceOnLocal(x: number, y: number, scale: number): { x: number; y: number } {
-  return { x: x * scale, y: y * scale };
 }
 
 /**

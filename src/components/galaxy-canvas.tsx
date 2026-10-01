@@ -10,7 +10,7 @@ import {
   type Star,
 } from "@/lib/universe/galaxy";
 import { buildGalaxyAsync, buildGalaxyNow } from "@/lib/universe/sky-client";
-import { createSkyGpu, faceOnLocal, gpuOffered, skyGpuMark, type SkyGpu } from "@/lib/universe/sky-gpu";
+import { faceOnLocal, gpuOffered, skyGpuMark } from "@/lib/universe/sky-place";
 import {
   ACOUSTIC_VISUAL,
   acousticDossier,
@@ -215,17 +215,26 @@ export function GalaxyCanvas({
     let starTarget: CanvasRenderingContext2D = ctx;
     const gpuEl = gpuCanvasRef.current;
     const wrap = wrapRef.current;
-    let gpu: SkyGpu | null = null;
+    let gpu: {
+      draw: (
+        model: GalaxyModel,
+        view: { ox: number; oy: number; scale: number; rot: number; vis: number; w: number; h: number; dpr: number },
+      ) => void;
+      clear: () => void;
+      destroy: () => void;
+    } | null = null;
     if (gpuEl && gpuOffered()) {
       if (wrap) wrap.dataset.skyGpu = skyGpuMark(true, null);
-      void createSkyGpu(gpuEl).then((g) => {
-        if (!running) {
-          g?.destroy();
-          return;
-        }
-        gpu = g;
-        if (wrap) wrap.dataset.skyGpu = skyGpuMark(true, !!g);
-      });
+      void import("@/lib/universe/sky-gpu").then(({ createSkyGpu }) =>
+        createSkyGpu(gpuEl).then((g) => {
+          if (!running) {
+            g?.destroy();
+            return;
+          }
+          gpu = g;
+          if (wrap) wrap.dataset.skyGpu = skyGpuMark(true, !!g);
+        }),
+      );
     }
     let stress = 0;
     const evoCache = new WeakMap<Star, { k: number; st: StarState }>();

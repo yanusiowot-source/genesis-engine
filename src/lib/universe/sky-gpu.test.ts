@@ -105,6 +105,9 @@ describe("sky-gpu", () => {
     const canvas = readFileSync(join(here, "../../components/galaxy-canvas.tsx"), "utf8");
     const shader = readFileSync(join(here, "sky-gpu.ts"), "utf8");
     assert.match(canvas, /faceOnLocal\(x, y, scale\)/);
+    assert.match(canvas, /from "@\/lib\/universe\/sky-place"/);
+    assert.doesNotMatch(canvas, /from "@\/lib\/universe\/sky-gpu"/);
+    assert.match(canvas, /import\("@\/lib\/universe\/sky-gpu"\)/);
     assert.doesNotMatch(canvas, /px = x \* scale/);
     assert.match(shader, /let x = pos\.x \* c - pos\.y \* s;/);
     assert.match(shader, /let y = pos\.x \* s \+ pos\.y \* c;/);
