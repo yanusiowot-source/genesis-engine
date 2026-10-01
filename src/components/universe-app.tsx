@@ -366,6 +366,7 @@ export function UniverseApp() {
   const [cutout, setCutout] = useState<CutoutResult | null>(null);
   const [catalogOverlay, setCatalogOverlay] = useState(false);
   const [reportSaved, setReportSaved] = useState(false);
+  const [reportFailed, setReportFailed] = useState(false);
   const [mode, setMode] = useState<SkyMode>("galaxy");
   const timeRef = useRef(0.55);
   const [cosmicTime, setCosmicTimeState] = useState(0.55);
@@ -1152,6 +1153,7 @@ export function UniverseApp() {
             });
           }
         })
+        .catch(() => {})
         .finally(() => {
           if (gen === huntGen.current) setHunting(false);
         });
@@ -1177,23 +1179,31 @@ export function UniverseApp() {
 
   const saveReport = useCallback(() => {
     haptic(8);
-    void import("@/lib/universe/report").then(({ buildFieldReport, downloadText, reportFilename }) => {
-      const text = buildFieldReport({
-        record: current,
-        locale,
-        copy,
-        silicon: siliconDossier(current.params, current.evaluation),
-        civ: intelligenceWindow(current.params, current.evaluation),
-        expedition,
-        law: lawResult,
-        bayes: bayesResult,
-        mcmc: mcmcResult,
+    void import("@/lib/universe/report")
+      .then(({ buildFieldReport, downloadText, reportFilename }) => {
+        const text = buildFieldReport({
+          record: current,
+          locale,
+          copy,
+          silicon: siliconDossier(current.params, current.evaluation),
+          civ: intelligenceWindow(current.params, current.evaluation),
+          expedition,
+          law: lawResult,
+          bayes: bayesResult,
+          mcmc: mcmcResult,
+        });
+        downloadText(reportFilename(current), text);
+        setReportFailed(false);
+        setReportSaved(true);
+        window.clearTimeout(reportTimer.current);
+        reportTimer.current = window.setTimeout(() => setReportSaved(false), 1400);
+      })
+      .catch(() => {
+        setReportSaved(false);
+        setReportFailed(true);
+        window.clearTimeout(reportTimer.current);
+        reportTimer.current = window.setTimeout(() => setReportFailed(false), 2200);
       });
-      downloadText(reportFilename(current), text);
-      setReportSaved(true);
-      window.clearTimeout(reportTimer.current);
-      reportTimer.current = window.setTimeout(() => setReportSaved(false), 1400);
-    });
   }, [copy, current, expedition, lawResult, bayesResult, mcmcResult, locale]);
 
   const versusLine = useMemo(
@@ -1889,7 +1899,7 @@ export function UniverseApp() {
               </Button>
               <Button variant="outline" onClick={saveReport}>
                 <FileDown />
-                {reportSaved ? copy.report.downloaded : copy.report.download}
+                {reportFailed ? copy.report.failed : reportSaved ? copy.report.downloaded : copy.report.download}
               </Button>
             </div>
           </div>

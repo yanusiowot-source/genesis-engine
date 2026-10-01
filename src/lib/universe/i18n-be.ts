@@ -471,7 +471,8 @@ export function makeBe(ru: Copy): Copy {
 		report: {
 			...ru.report,
 			download: "Спампаваць палявую справаздачу",
-			downloaded: "Справаздача захавана"
+			downloaded: "Справаздача захавана",
+			failed: "Справаздача не захавалася",
 		},
 		presetSilicon: "Крэмніевы калідор",
 		presetDesert: "Пустынная эпоха",

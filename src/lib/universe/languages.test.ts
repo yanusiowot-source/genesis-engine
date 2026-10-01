@@ -64,6 +64,9 @@ describe("copyFor", () => {
     assert.match(c.research.targetHint.swarm, /von Neumann/i);
     assert.equal(copyFor("ru").research.target.swarm, "Прилив");
     assert.equal(copyFor("be").research.target.swarm, "Прыліў");
+    assert.equal(c.report.failed, "Report did not save");
+    assert.equal(copyFor("ru").report.failed, "Отчёт не сохранился");
+    assert.equal(copyFor("be").report.failed, "Справаздача не захавалася");
     assert.match(c.onboarding[1].body, /Sculpt/);
     assert.match(c.labPaneHint.constants, /Sculpt/);
     assert.match(c.labCue, /Lab/);

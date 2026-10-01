@@ -40,20 +40,26 @@ export function packGalaxyInstances(model: GalaxyModel, into: Float32Array): num
   return disk + packStars(model.field, into, disk * STAR_FLOATS, 0.85);
 }
 
+/** Local face-on point before the canvas rotate. Stretch and tide stay outside. */
+export function faceOnLocal(x: number, y: number, scale: number): { x: number; y: number } {
+  return { x: x * scale, y: y * scale };
+}
+
 /**
- * Face-on disk at t = 0, no Toomre shear: translate → rotate → (x,y)*scale.
- * Same matrix the 2D canvas uses when stretch is 0. GPU vertex shader copies this.
+ * Face-on disk at t = 0, no differential rotation: translate, rotate, faceOnLocal.
+ * The GPU vertex shader copies this multiply. Anisotropic stretch is not this path.
  */
 export function diskPlace(
   x: number,
   y: number,
   view: { ox: number; oy: number; scale: number; rot: number },
 ): { x: number; y: number } {
+  const local = faceOnLocal(x, y, view.scale);
   const c = Math.cos(view.rot);
   const s = Math.sin(view.rot);
   return {
-    x: view.ox + (x * c - y * s) * view.scale,
-    y: view.oy + (x * s + y * c) * view.scale,
+    x: view.ox + local.x * c - local.y * s,
+    y: view.oy + local.y * c + local.x * s,
   };
 }
 

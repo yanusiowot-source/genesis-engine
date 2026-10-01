@@ -10,7 +10,7 @@ import {
   type Star,
 } from "@/lib/universe/galaxy";
 import { buildGalaxyAsync, buildGalaxyNow } from "@/lib/universe/sky-client";
-import { createSkyGpu, gpuOffered, skyGpuMark, type SkyGpu } from "@/lib/universe/sky-gpu";
+import { createSkyGpu, faceOnLocal, gpuOffered, skyGpuMark, type SkyGpu } from "@/lib/universe/sky-gpu";
 import {
   ACOUSTIC_VISUAL,
   acousticDossier,
@@ -440,8 +440,9 @@ export function GalaxyCanvas({
         let px: number;
         let py: number;
         if (!shear) {
-          px = x * scale;
-          py = y * scale;
+          const local = faceOnLocal(x, y, scale);
+          px = local.x;
+          py = local.y;
         } else {
           const rd = Math.hypot(x, y) || 1e-3;
           const omega = circularOmega(rd, pms, evn) * 0.55;

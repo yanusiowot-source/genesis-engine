@@ -1148,6 +1148,7 @@ export const ru: Copy = {
   report: {
     download: "Скачать полевой отчёт",
     downloaded: "Отчёт сохранён",
+    failed: "Отчёт не сохранился",
   },
   laws: {
     title: "Законы",

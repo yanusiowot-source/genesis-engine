@@ -604,6 +604,7 @@ export type Copy = {
   report: {
     download: string;
     downloaded: string;
+    failed: string;
   };
   laws: {
     title: string;
@@ -1876,6 +1877,7 @@ const en: Copy = {
   report: {
     download: "Download field report",
     downloaded: "Report saved",
+    failed: "Report did not save",
   },
   laws: {
     title: "Laws",
