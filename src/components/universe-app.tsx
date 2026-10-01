@@ -156,7 +156,6 @@ import {
   type MusicSource,
   type PlaylistEntry,
 } from "@/lib/universe/audio";
-import { chronicleUniverse } from "@/lib/universe/chronicle";
 import { fieldNote } from "@/lib/universe/field-note";
 import { formatGyr, formatHudPct, formatPct } from "@/lib/universe/format";
 import {
@@ -1251,6 +1250,7 @@ export function UniverseApp() {
     if (isHostedLab()) return;
     setBusy(true);
     try {
+      const { chronicleUniverse } = await import("@/lib/universe/chronicle");
       const result = await chronicleUniverse({
         data: {
           name: skyLabel,
