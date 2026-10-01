@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { intelligenceWindow, sparkPath, stageReached, formatDiasporaLine } from "./civilization.ts";
 import { DESERT_EPOCH, ETERNAL_CORRIDOR, OUR_UNIVERSE, SILICON_CORRIDOR, evaluate } from "./physics.ts";
-import { copyFor } from "./i18n.ts";
+import { copyFor, hydrateRu } from "./i18n.ts";
+
+await hydrateRu();
 
 describe("intelligenceWindow", () => {
   it("puts our universe on a carbon path with a modest intelligence envelope", () => {

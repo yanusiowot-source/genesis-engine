@@ -641,7 +641,7 @@ export function UniverseApp() {
   useLayoutEffect(() => {
     const next = detectLocale();
     document.documentElement.lang = bcp47(next);
-    if (next === "en" || next === "ru") setLocale(next);
+    if (next === "en") setLocale(next);
     else void hydrateLocale(next).then(() => setLocale(next));
     setHapticsOn(loadHapticPref());
     setSoundOn(loadSoundPref());
@@ -679,7 +679,7 @@ export function UniverseApp() {
   }, []);
 
   useEffect(() => {
-    if (locale === "en" || locale === "ru") return;
+    if (locale === "en") return;
     let dead = false;
     void hydrateLocale(locale).then(() => {
       if (!dead) setPackTick((n) => n + 1);
@@ -1419,7 +1419,7 @@ export function UniverseApp() {
       const i = order.indexOf(prev as (typeof order)[number]);
       const next = order[i < 0 ? 0 : (i + 1) % order.length];
       persistLocale(next);
-      if (next === "en" || next === "ru") return next;
+      if (next === "en") return next;
       void hydrateLocale(next).then(() => setLocale(next));
       return prev;
     });
@@ -1427,7 +1427,7 @@ export function UniverseApp() {
 
   const setLocaleExplicit = useCallback((next: Locale) => {
     persistLocale(next);
-    if (next === "en" || next === "ru") {
+    if (next === "en") {
       setLocale(next);
       return;
     }
