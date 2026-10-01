@@ -369,6 +369,7 @@ export function UniverseApp() {
   const [reportSaved, setReportSaved] = useState(false);
   const [reportFailed, setReportFailed] = useState(false);
   const [draftNote, setDraftNote] = useState<string | null>(null);
+  const draftFor = useRef("");
   const [mode, setMode] = useState<SkyMode>("galaxy");
   const timeRef = useRef(0.55);
   const [cosmicTime, setCosmicTimeState] = useState(0.55);
@@ -1225,12 +1226,13 @@ export function UniverseApp() {
   const noteText = current.chronicle ?? draftNote ?? "";
   useEffect(() => {
     if (current.chronicle) return;
-    setDraftNote(null);
     if (tab !== "lab" || labPane !== "constants") return;
-    let dead = false;
     const shot = current;
+    if (draftFor.current !== shot.id) setDraftNote(null);
+    let dead = false;
     void import("@/lib/universe/field-note").then(({ fieldNote }) => {
       if (dead) return;
+      draftFor.current = shot.id;
       setDraftNote(
         fieldNote({
           name: skyLabel,
