@@ -20,7 +20,6 @@ import { CosmicClock } from "@/components/cosmic-clock";
 import { LabPanes } from "@/components/lab-panes";
 import { MoreMenu } from "@/components/more-menu";
 import { Onboarding } from "@/components/onboarding";
-import { ScriptureLine } from "@/components/scripture-line";
 import { SkyModes } from "@/components/sky-modes";
 import { TabBar, type AppTab } from "@/components/tab-bar";
 import { Button } from "@/components/ui/button";
@@ -102,6 +101,9 @@ const SettingsSheet = lazy(() =>
 );
 const ScriptureSheet = lazy(() =>
   import("@/components/scripture-sheet").then((m) => ({ default: m.ScriptureSheet })),
+);
+const ScriptureLine = lazy(() =>
+  import("@/components/scripture-line").then((m) => ({ default: m.ScriptureLine })),
 );
 const SiliconDossier = lazy(() =>
   import("@/components/silicon-dossier").then((m) => ({ default: m.SiliconDossier })),
@@ -241,7 +243,6 @@ import {
 import { ANSWER_SEED, isEggPrefix, noteEggKey, sliderEgg } from "@/lib/universe/eggs";
 import { pickEncounter, type EncounterKind, type SkyEncounter } from "@/lib/universe/encounters";
 import { pickDispatch, voiceFor, type PlotId } from "@/lib/universe/plot";
-import { pickPassage } from "@/lib/universe/scripture";
 import { registerGenesisWorker } from "@/lib/universe/service-worker";
 import { bootNfwWasm } from "@/lib/universe/nfw-wasm";
 import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
@@ -411,6 +412,10 @@ export function UniverseApp() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [scriptureOpen, setScriptureOpen] = useState(false);
   const [scriptureOn, setScriptureOn] = useState(true);
+  const [scriptureReady, setScriptureReady] = useState(false);
+  const pickPassageRef = useRef<
+    ((typeof import("@/lib/universe/scripture"))["pickPassage"]) | null
+  >(null);
   const [mandateOpen, setMandateOpen] = useState(false);
   const [mandate, setMandate] = useState<MandateProgress>(emptyMandate);
   const mandateRef = useRef<MandateProgress>(emptyMandate());
@@ -1719,10 +1724,33 @@ export function UniverseApp() {
     const id = window.setInterval(() => setLiveTime(timeRef.current), 200);
     return () => window.clearInterval(id);
   }, [evolving, cosmicTime]);
-  const passage = useMemo(
-    () => pickPassage({ epoch: epochShown(liveTime), fate: ev.fate, ours }),
-    [ev.fate, liveTime, ours],
-  );
+  useEffect(() => {
+    if (!scriptureOn) return;
+    const wide = window.matchMedia("(min-width: 640px)");
+    let dead = false;
+    const load = () => {
+      if (!wide.matches) return;
+      if (pickPassageRef.current) {
+        setScriptureReady(true);
+        return;
+      }
+      void import("@/lib/universe/scripture").then(({ pickPassage }) => {
+        if (dead) return;
+        pickPassageRef.current = pickPassage;
+        setScriptureReady(true);
+      });
+    };
+    load();
+    wide.addEventListener("change", load);
+    return () => {
+      dead = true;
+      wide.removeEventListener("change", load);
+    };
+  }, [scriptureOn]);
+  const passage = useMemo(() => {
+    if (!scriptureOn || !scriptureReady || !pickPassageRef.current) return null;
+    return pickPassageRef.current({ epoch: epochShown(liveTime), fate: ev.fate, ours });
+  }, [ev.fate, liveTime, ours, scriptureOn, scriptureReady]);
   const halo = useMemo(() => haloDossier(current.params, ev), [current.params, ev]);
   const acoustic = useMemo(() => acousticDossier(current.params, ev), [current.params, ev]);
   const disk = useMemo(() => diskDossier(current.params, ev), [current.params, ev]);
@@ -2195,14 +2223,16 @@ export function UniverseApp() {
               </>
             ) : null}
           </p>
-          {hydrated && scriptureOn && tab === "sky" ? (
+          {hydrated && scriptureOn && tab === "sky" && passage ? (
             <div className="hidden sm:block">
-              <ScriptureLine
-                copy={copy}
-                locale={locale}
-                passage={passage}
-                onOpen={openCanon}
-              />
+              <Suspense fallback={null}>
+                <ScriptureLine
+                  copy={copy}
+                  locale={locale}
+                  passage={passage}
+                  onOpen={openCanon}
+                />
+              </Suspense>
             </div>
           ) : null}
           {isAnswerCatalog(current.catalog) ? (
@@ -2827,7 +2857,7 @@ export function UniverseApp() {
         />
       ) : null}
       {helpOpen ? <HelpSheet copy={copy} onKeep={() => showOverlay("keep")} onClose={() => setHelpOpen(false)} /> : null}
-      {scriptureOpen ? (
+      {scriptureOpen && passage ? (
         <ScriptureSheet
           copy={copy}
           locale={locale}

@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
+import { fileURLToPath } from "node:url";
 import { OUR_UNIVERSE, evaluate } from "./physics.ts";
 import {
   PASSAGES,
@@ -11,6 +14,18 @@ import {
 } from "./scripture.ts";
 
 describe("scripture canon", () => {
+  it("stays off the first frame until a wide sky asks for the line", () => {
+    const app = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/universe-app.tsx"),
+      "utf8",
+    );
+    assert.doesNotMatch(app, /import \{[^}]*\} from "@\/lib\/universe\/scripture"/);
+    assert.doesNotMatch(app, /import \{ ScriptureLine \}/);
+    assert.match(app, /import\("@\/lib\/universe\/scripture"\)/);
+    assert.match(app, /import\("@\/components\/scripture-line"\)/);
+    assert.match(app, /min-width: 640px/);
+  });
+
   it("has unique ids and gateway queries", () => {
     const ids = new Set(PASSAGES.map((p) => p.id));
     assert.equal(ids.size, PASSAGES.length);
