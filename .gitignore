@@ -17,6 +17,7 @@ desktop/.cache/
 .nitro/
 .tanstack/
 .vercel/
+ci-logs/
 *.tsbuildinfo
 
 # sandbox (Grok Build contract — not part of the lab)

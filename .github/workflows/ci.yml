@@ -23,9 +23,38 @@ jobs:
         with:
           node-version: "22"
           cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
+      - name: Prepare CI logs
+        run: mkdir -p ci-logs
+      - id: install
+        run: |
+          set -o pipefail
+          npm ci 2>&1 | tee ci-logs/install.log
+      - id: typecheck
+        run: |
+          set -o pipefail
+          npm run typecheck 2>&1 | tee ci-logs/typecheck.log
+      - id: test
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee ci-logs/test.log
       # Full `test:scripts` includes Grok scaffold OG tests that need .grok
       # (not in this repo) and grok.me identity. Lab CI is physics + the lock.
-      - run: node --test scripts/cycle-gate.test.mjs scripts/monitor.test.mjs scripts/alert.test.mjs scripts/repo-hygiene.test.mjs
+      - id: scripts
+        run: |
+          set -o pipefail
+          node --test scripts/cycle-gate.test.mjs scripts/monitor.test.mjs scripts/alert.test.mjs scripts/ci-log.test.mjs scripts/repo-hygiene.test.mjs 2>&1 | tee ci-logs/scripts.log
+      - name: Index CI logs
+        if: always()
+        run: |
+          node scripts/ci-log.mjs ci-logs/steps.jsonl install "${{ steps.install.outcome }}" ci-logs/install.log
+          node scripts/ci-log.mjs ci-logs/steps.jsonl typecheck "${{ steps.typecheck.outcome }}" ci-logs/typecheck.log
+          node scripts/ci-log.mjs ci-logs/steps.jsonl test "${{ steps.test.outcome }}" ci-logs/test.log
+          node scripts/ci-log.mjs ci-logs/steps.jsonl scripts "${{ steps.scripts.outcome }}" ci-logs/scripts.log
+      - name: Upload CI logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ci-logs
+          path: ci-logs/
+          retention-days: 14
+          if-no-files-found: warn
