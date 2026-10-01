@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
 import { adaptiveQuality, buildGalaxy, canvasDpr, encounterOf, lookCam, PIXEL_BUDGET, planetariumScreen, PLANETARIUM_FOV, projectLook } from "./galaxy.ts";
 import { evaluate, OUR_UNIVERSE } from "./physics.ts";
@@ -114,5 +115,9 @@ describe("buildGalaxy", () => {
     assert.ok(built.companion.length > 10);
     assert.ok(built.h0Long >= 0);
     assert.equal(Number.isInteger(built.h0Long), true);
+    const panel = readFileSync(new URL("../../components/disk-panel.tsx", import.meta.url), "utf8");
+    assert.doesNotMatch(panel, /buildGalaxy/);
+    const canvas = readFileSync(new URL("../../components/galaxy-canvas.tsx", import.meta.url), "utf8");
+    assert.match(canvas, /onSkyH0Ref\.current\?\.\(built\.model\.h0Long\)/);
   });
 });

@@ -355,6 +355,7 @@ export function UniverseApp() {
   const tabRef = useRef<AppTab>("sky");
   tabRef.current = tab;
   const [compact, setCompact] = useState(false);
+  const [skyH0, setSkyH0] = useState<number | null>(null);
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
   const [expedition, setExpedition] = useState<ExpeditionResult | null>(null);
@@ -1998,7 +1999,7 @@ export function UniverseApp() {
             <AstroPanel copy={copy} params={current.params} evaluation={ev} cosmicTime={liveTime} />
             <HubblePanel copy={copy} params={current.params} evaluation={ev} />
             <HaloPanel copy={copy} params={current.params} evaluation={ev} />
-            <DiskPanel copy={copy} params={current.params} evaluation={ev} visualSeed={current.visualSeed} />
+            <DiskPanel copy={copy} params={current.params} evaluation={ev} h0Long={skyH0} />
             <AcousticPanel copy={copy} params={current.params} evaluation={ev} />
             {hydrated ? (
               <HrDiagram
@@ -2056,6 +2057,7 @@ export function UniverseApp() {
           paused={(overlayOpen && !onboard) || (panelOpen && compact)}
           scanning={scanning}
           wakeKey={wakeKey}
+          onSkyH0={setSkyH0}
           ariaLabel={`${copy.appName} · ${copy.tabs.sky}`}
         />
         {birthFlash ? (

@@ -62,6 +62,7 @@ type Props = {
   scanning?: boolean;
   wakeKey?: number;
   ariaLabel?: string;
+  onSkyH0?: (h0Long: number) => void;
 };
 
 export function GalaxyCanvas({
@@ -88,6 +89,7 @@ export function GalaxyCanvas({
   scanning,
   wakeKey,
   ariaLabel,
+  onSkyH0,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -98,6 +100,7 @@ export function GalaxyCanvas({
   const evolvingRef = useRef(!!evolving);
   const evolveUntilRef = useRef(evolveUntil ?? 1);
   const onEvolveEndRef = useRef(onEvolveEnd);
+  const onSkyH0Ref = useRef(onSkyH0);
   const modeRef = useRef(mode);
   const paramsRef = useRef(params);
   const evRef = useRef(evaluation);
@@ -120,6 +123,7 @@ export function GalaxyCanvas({
   evolvingRef.current = !!evolving;
   evolveUntilRef.current = evolveUntil ?? 1;
   onEvolveEndRef.current = onEvolveEnd;
+  onSkyH0Ref.current = onSkyH0;
   if (!timeRef) cosmicRef.current = cosmicTime;
   modeRef.current = mode;
   paramsRef.current = params;
@@ -146,6 +150,7 @@ export function GalaxyCanvas({
       modelRef.current = built.model;
       shipsRef.current = built.ships;
       builtSeed.current = visualSeed;
+      onSkyH0Ref.current?.(built.model.h0Long);
     };
     const rebuild = () => {
       void buildGalaxyAsync(params, evaluation, visualSeed, q.scale)
