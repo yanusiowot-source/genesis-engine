@@ -107,7 +107,7 @@ export function Segmented<T extends string>({
               "rounded-[var(--radius-xs)] text-[0.625rem] font-medium tracking-wide",
               "transition-[color] duration-[var(--motion-quick)] ease-[var(--ease-out)]",
               stacked
-                ? "h-12 min-w-0 flex-1 flex-col gap-0.5 px-0.5"
+                ? cn("min-w-0 flex-1 flex-col gap-0.5 px-0.5", collapseLabel ? "h-11 sm:h-12" : "h-12")
                 : "h-full min-h-0 flex-1 gap-1 px-2",
               active ? "text-accent" : "text-fg-subtle hover:text-fg",
               nudge === id && "nudge-ring",

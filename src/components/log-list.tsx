@@ -114,7 +114,7 @@ export function LogList({
           onClick={onOpenWork}
           className="flex min-h-11 items-center justify-between gap-3 rounded-[var(--radius-md)] bg-bg-subtle px-3 text-left"
         >
-          <span className="font-mono text-[0.6875rem] tracking-[0.16em] text-fg-subtle uppercase">
+          <span className="min-w-0 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase">
             {workLabel}
           </span>
           <ChevronRight className="size-4 shrink-0 text-fg-subtle" />
@@ -149,7 +149,7 @@ export function LogList({
             </span>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
             <CutSelect
               value={pathCut}
               onChange={setPathCut}
