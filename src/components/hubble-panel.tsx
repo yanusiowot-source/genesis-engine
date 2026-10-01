@@ -87,18 +87,34 @@ export function HubblePanel({ copy, params, evaluation }: Props) {
           <path d={burkertPath} fill="none" stroke="currentColor" strokeOpacity="0.22" strokeWidth="1.15" strokeDasharray="1 3" />
           <path d={haloPath} fill="none" stroke="currentColor" strokeWidth="1.75" />
         </svg>
-        <div className="flex justify-between gap-3 font-mono text-[0.6875rem] text-fg-subtle uppercase">
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-4 border-t border-dashed border-current opacity-60" />
-            {copy.obs.rotationBaryon}
-          </span>
-          <span>{copy.obs.rotationR}</span>
-          <span className="flex items-center gap-1.5">
-            <span className="inline-block w-4 border-t border-current" />
+        <p className="text-right font-mono text-[0.6875rem] text-fg-subtle uppercase">{copy.obs.rotationR}</p>
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-1 font-mono text-[0.6875rem] text-fg-subtle uppercase">
+          <li className="flex items-center gap-1.5">
+            <svg width="16" height="4" aria-hidden className="shrink-0 text-fg">
+              <line x1="0" y1="2" x2="16" y2="2" stroke="currentColor" strokeWidth="1.75" />
+            </svg>
             {copy.obs.rotationHalo}
-            <span className="text-fg-subtle/70"> {copy.obs.haloModel[halo.model]}</span>
-          </span>
-        </div>
+            <span className="text-fg-subtle/70">{copy.obs.haloModel[halo.model]}</span>
+          </li>
+          <li className="flex items-center gap-1.5">
+            <svg width="16" height="4" aria-hidden className="shrink-0 text-fg">
+              <line x1="0" y1="2" x2="16" y2="2" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.7" />
+            </svg>
+            {copy.obs.rotationBaryon}
+          </li>
+          <li className="flex items-center gap-1.5">
+            <svg width="16" height="4" aria-hidden className="shrink-0 text-fg">
+              <line x1="0" y1="2" x2="16" y2="2" stroke="currentColor" strokeWidth="1.2" strokeDasharray="2 4" opacity="0.7" />
+            </svg>
+            {copy.obs.haloModel.nfw}
+          </li>
+          <li className="flex items-center gap-1.5">
+            <svg width="16" height="4" aria-hidden className="shrink-0 text-fg">
+              <line x1="0" y1="2" x2="16" y2="2" stroke="currentColor" strokeWidth="1.15" strokeDasharray="1 3" opacity="0.7" />
+            </svg>
+            {copy.obs.haloModel.burkert}
+          </li>
+        </ul>
       </div>
       <div>
         <div className="flex items-baseline justify-between gap-3">
@@ -391,27 +407,24 @@ export function HubblePanel({ copy, params, evaluation }: Props) {
             );
           })()}
         </svg>
-        <p className="mt-2 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-          {copy.obs.imfTitle}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.imfNiche[scale.imfNiche]}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.imfSlope} {scale.imfX.toFixed(2)}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.imfMean} {scale.imfMean.toFixed(2)}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.imfSn} {(scale.imfSn * 100).toFixed(1)}%
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.imfR} {scale.imfR.toFixed(2)}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.imfY} {scale.imfY.toFixed(3)}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.massPhot} {scale.massEst.mPhot.toFixed(3)}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.massNiche[scale.massEst.niche]}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.obs.bhTitle} {copy.obs.bhNiche[scale.agnNiche]}
-        </p>
+        <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
+          <div>
+            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.imfTitle}</dt>
+            <dd className="mt-0.5 font-mono text-sm text-fg uppercase">{copy.obs.imfNiche[scale.imfNiche]}</dd>
+          </div>
+          <div className="text-right">
+            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.imfSlope}</dt>
+            <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.imfX.toFixed(2)}</dd>
+          </div>
+          <div>
+            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.massPhot}</dt>
+            <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.massEst.mPhot.toFixed(3)}</dd>
+          </div>
+          <div className="text-right">
+            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.bhTitle}</dt>
+            <dd className="mt-0.5 font-mono text-sm text-fg uppercase">{copy.obs.bhNiche[scale.agnNiche]}</dd>
+          </div>
+        </dl>
           </>
         )}
       </div>
