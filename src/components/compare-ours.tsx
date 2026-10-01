@@ -23,9 +23,16 @@ export function CompareOurs({ copy, params }: Props) {
   return (
     <section className="flex flex-col gap-2">
       <h3 className="text-sm font-medium">{copy.compareTitle}</h3>
-      <ul className="flex flex-col gap-1">
-        {lines.map((line) => (
-          <li key={line} className="text-pretty text-sm leading-relaxed text-fg-muted">
+      <ul className="flex flex-col gap-1.5">
+        {lines.map((line, index) => (
+          <li
+            key={line}
+            className={
+              index === 0
+                ? "text-pretty text-sm leading-relaxed text-fg"
+                : "text-pretty text-sm leading-relaxed text-fg-muted"
+            }
+          >
             {line}
           </li>
         ))}

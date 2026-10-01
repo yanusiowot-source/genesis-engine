@@ -277,9 +277,10 @@
   }
 }
 
-.birth-line {
-  text-shadow: 0 0 18px color-mix(in oklab, var(--color-accent) 28%, transparent);
-  animation: birth-line-in 280ms var(--ease-out) both;
+.sky-ink {
+  text-shadow:
+    0 1px 2px color-mix(in oklab, var(--color-bg) 88%, transparent),
+    0 8px 24px color-mix(in oklab, var(--color-bg) 55%, transparent);
 }
 
 .hud-chips {

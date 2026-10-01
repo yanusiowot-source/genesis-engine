@@ -1990,7 +1990,7 @@ export function UniverseApp() {
             <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
               {copy.chronicleHint}
             </p>
-            {error ? <p className="text-sm text-sterile">{error}</p> : null}
+            {error ? <p className="mt-2 text-pretty text-sm leading-relaxed text-fg-muted">{error}</p> : null}
             <div className="mt-3 flex flex-wrap gap-2">
               <Button onClick={() => void commission()} disabled={busy}>
                 <ScrollText />
@@ -2126,14 +2126,18 @@ export function UniverseApp() {
         />
         <div
           aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-32 bg-gradient-to-b from-bg via-bg/75 to-transparent"
+        />
+        <div
+          aria-hidden
           className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-bg via-bg/85 to-transparent sm:h-48 lg:h-52"
         />
 
-        <header className={cn("relative z-10 flex shrink-0 items-start justify-between gap-3 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pointer-events-auto sm:px-8", onboard && "hidden")}>
+        <header className={cn("relative z-10 flex shrink-0 items-start justify-between gap-3 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pointer-events-auto sm:px-8", onboard && "hidden")}>
           <div className="min-w-0 flex-1 pr-2">
             <button
               type="button"
-              className="bg-transparent p-0 text-left font-mono text-[0.6875rem] tracking-[0.22em] text-fg-subtle uppercase"
+              className="sky-ink block w-full truncate bg-transparent p-0 text-left font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
               onClick={() => {
                 kickerTaps.current += 1;
                 if (kickerTaps.current < 7) return;
@@ -2149,7 +2153,7 @@ export function UniverseApp() {
             <h1 className="mt-1">
               <button
                 type="button"
-                className="w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-lg leading-none tracking-[-0.03em] text-fg sm:text-xl"
+                className="sky-ink w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-xl leading-none tracking-[-0.03em] text-fg sm:text-2xl"
                 onClick={() => {
                   titleTaps.current += 1;
                   if (titleTaps.current < 3) return;
@@ -2287,7 +2291,7 @@ export function UniverseApp() {
           ) : (
             <div className="h-14" />
           )}
-          <p className="mt-1.5 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase" data-hud-catalog>
+          <p className="sky-ink mt-1.5 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase" data-hud-catalog>
             {current.catalog}
             <span className="mx-2 text-fg-subtle/50">/</span>
             {copy.morphology[ev.morphology]}
