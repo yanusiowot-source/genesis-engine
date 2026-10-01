@@ -74,7 +74,7 @@ describe("copyFor", () => {
     assert.match(copyFor("be").labCue, /Лаб/);
     assert.equal(copyFor("ru").onboarding.length, 3);
     assert.equal(copyFor("be").onboarding.length, 3);
-    assert.match(c.birthWitness, /Most stay empty/);
+    assert.match(c.birthWitness, /Most corridors stay closed/);
     assert.match(c.birthWitness, /Survey 64/);
     assert.match(c.birthGood, /it was good/);
     assert.match(copyFor("ru").birthGood, /хорошо/);
@@ -129,9 +129,12 @@ describe("copyFor", () => {
     assert.match(copyFor("be").obs.modeHint.lensing, /NFW/);
     assert.match(c.tapSky, /look/i);
     assert.match(copyFor("ru").tapSky, /Смотр/i);
-    assert.match(c.plot.arrive, /Posted to watch/i);
-    assert.match(copyFor("ru").plot.dice, /шутк/i);
-    assert.match(copyFor("be").plot.done, /Атлас/i);
+    assert.match(c.plot.arrive, /First plate/);
+    assert.match(copyFor("ru").plot.dice, /пластин/);
+    assert.doesNotMatch(copyFor("ru").plot.dice, /шутк/);
+    assert.match(copyFor("be").plot.done, /Атлас/);
+    assert.match(c.plot.caughtWow, /No source is identified/);
+    assert.match(copyFor("ru").plot.caughtWow, /Источник не установлен/);
     assert.match(c.presetHighway, /long road/i);
     assert.match(copyFor("be").presetBelt, /Ледзяны/);
     assert.match(c.scripture.intro, /not a measurement/i);
@@ -164,9 +167,10 @@ describe("copyFor", () => {
     assert.match(c.platforms.windowsBody, /paid portable copy/);
     assert.match(c.platforms.windowsBody, /SmartScreen/);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
-    assert.match(copyFor("ru").plot.home, /этом небе/);
-    assert.match(copyFor("en").plot.home, /standing in this sky/);
+    assert.match(copyFor("ru").plot.home, /параметрами/);
+    assert.match(copyFor("en").plot.home, /our parameters/);
     assert.doesNotMatch(copyFor("en").plot.home, /numbers/);
+    assert.doesNotMatch(copyFor("en").plot.home, /standing in this sky/);
     assert.match(copyFor("ru").studioHonesty, /не прода/);
     assert.match(copyFor("ru").birthWitness, /Обзор 64/);
     assert.match(copyFor("be").eggs.tau, /гамалог/);
