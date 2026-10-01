@@ -255,13 +255,25 @@ import { nowMarker, epochShown, haloDossier, acousticDossier, diskDossier, NOW_T
 const ONBOARD_KEY = "genesis-engine-onboarded-v5";
 
 function Fold({ title, children }: { title: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
-    <details className="lab-fold group rounded-[var(--radius-md)] bg-bg/50">
+    <details
+      className="lab-fold group rounded-[var(--radius-md)] bg-bg/50"
+      open={open}
+      onToggle={(event) => {
+        const next = event.currentTarget.open;
+        setOpen((prev) => (prev === next ? prev : next));
+      }}
+    >
       <summary className="flex min-h-11 cursor-pointer items-center justify-between gap-3 px-3 py-2 text-sm font-medium text-fg">
         <span>{title}</span>
         <ChevronDown className="size-4 shrink-0 text-fg-subtle transition-transform duration-[var(--motion-quick)] ease-[var(--ease-out)] group-open:rotate-180" />
       </summary>
-      <div className="flex flex-col gap-6 border-t border-border px-3 py-4">{children}</div>
+      {open ? (
+        <Suspense fallback={<div className="min-h-11 border-t border-border" />}>
+          <div className="flex flex-col gap-6 border-t border-border px-3 py-4">{children}</div>
+        </Suspense>
+      ) : null}
     </details>
   );
 }

@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { Copy } from "@/lib/universe/i18n";
 import { formatPct } from "@/lib/universe/format";
 import { environmentClass } from "@/lib/universe/physics";
@@ -31,7 +32,7 @@ function curvePath<T extends { r: number }>(
     .join(" ");
 }
 
-export function HubblePanel({ copy, params, evaluation }: Props) {
+export const HubblePanel = memo(function HubblePanel({ copy, params, evaluation }: Props) {
   const env = evaluation.environmentDensity;
   const klass = environmentClass(env);
   const mix = evaluation.hubbleMix;
@@ -462,4 +463,4 @@ export function HubblePanel({ copy, params, evaluation }: Props) {
       </ul>
     </section>
   );
-}
+});
