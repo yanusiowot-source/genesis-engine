@@ -17,9 +17,10 @@ export function HaloPanel({ copy, params, evaluation }: Props) {
   return (
     <section className="flex flex-col gap-3">
       <h3 className="text-sm font-medium">{copy.obs.haloTitle}</h3>
-      <p className="font-mono text-xl tracking-wide text-fg uppercase">
+      <p className="font-display text-xl tracking-[-0.02em] text-fg">
         {copy.obs.haloNiche[d.niche]}
-        <span className="text-fg-subtle"> · </span>
+      </p>
+      <p className="font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
         {copy.obs.haloModel[d.model]}
       </p>
       <p className="text-pretty text-xs leading-relaxed text-fg-muted">

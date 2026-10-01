@@ -49,7 +49,7 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
     >
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-bg/70" />
       <div className="relative z-10 flex items-start justify-between gap-3 pointer-events-auto">
-        <p className="font-mono text-[0.6875rem] tracking-[0.22em] text-fg-subtle uppercase">
+        <p className="min-w-0 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase">
           {copy.kicker}
         </p>
         <Button

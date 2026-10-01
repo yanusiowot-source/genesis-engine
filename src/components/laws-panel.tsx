@@ -470,16 +470,19 @@ function CatalogBlock({
   return (
     <div className="mt-4 flex flex-col gap-3">
       <div className="flex items-center justify-between gap-3">
-        <p className="font-mono text-[0.6875rem] tabular-nums text-fg-subtle uppercase">
-          {copy.laws.stars} {dq.n}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.laws.dqComplete} {formatPct(dq.complete)}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.laws.dqDet} {dq.meanDet.toFixed(1)}
-          <span className="mx-2 text-fg-subtle/50">·</span>
-          {copy.laws.dqNiche[dq.niche]}
-          {cached ? ` · ${copy.laws.cached}` : ""}
-        </p>
+        <div className="flex min-w-0 flex-1 flex-wrap gap-x-3 gap-y-1 font-mono text-[0.6875rem] tabular-nums text-fg-subtle uppercase">
+          <span>
+            {copy.laws.stars} {dq.n}
+          </span>
+          <span>
+            {copy.laws.dqComplete} {formatPct(dq.complete)}
+          </span>
+          <span>
+            {copy.laws.dqDet} {dq.meanDet.toFixed(1)}
+          </span>
+          <span>{copy.laws.dqNiche[dq.niche]}</span>
+          {cached ? <span>{copy.laws.cached}</span> : null}
+        </div>
         <Button variant="outline" size="sm" onClick={onToggleOverlay}>
           {overlay ? copy.laws.hideSky : copy.laws.showSky}
         </Button>

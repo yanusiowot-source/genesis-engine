@@ -254,6 +254,31 @@ import { nowMarker, epochShown, haloDossier, acousticDossier, diskDossier, NOW_T
 
 const ONBOARD_KEY = "genesis-engine-onboarded-v5";
 
+function SkyLine({
+  lead,
+  facts = [],
+  tone = "text-fg",
+  dispatch,
+}: {
+  lead: string;
+  facts?: string[];
+  tone?: string;
+  dispatch: string;
+}) {
+  return (
+    <div className="sky-ink hud-swap mt-1.5 max-w-md" role="status" data-dispatch={dispatch}>
+      <p className={cn("line-clamp-2 text-pretty text-sm leading-relaxed", tone)}>{lead}</p>
+      {facts.length > 0 ? (
+        <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-[0.6875rem] tabular-nums text-fg-subtle">
+          {facts.map((fact) => (
+            <span key={fact}>{fact}</span>
+          ))}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function Fold({ title, children }: { title: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
@@ -2512,7 +2537,7 @@ export function UniverseApp() {
           {encounter ? (
             <p
               role="status"
-              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-accent line-clamp-2"
+              className="sky-ink hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-accent line-clamp-2"
               data-tap-sky
               data-dispatch="blink"
               key="blink"
@@ -2520,70 +2545,43 @@ export function UniverseApp() {
               {copy.plot.blink}
             </p>
           ) : mode === "lensing" ? (
-            <p
-              role="status"
-              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
-              data-dispatch="halo"
+            <SkyLine
               key="halo"
-            >
-              {copy.obs.haloNiche[halo.niche]}
-              <span className="text-fg-subtle"> · </span>
-              {Math.round(halo.outerKms)} {copy.obs.rotationV}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.haloTheta} {halo.thetaE.toFixed(2)}
-              <span className="text-fg-subtle"> · </span>
-              {formatPct(halo.share)}
-            </p>
+              dispatch="halo"
+              lead={copy.obs.haloNiche[halo.niche]}
+              facts={[
+                `${Math.round(halo.outerKms)} ${copy.obs.rotationV}`,
+                `${copy.obs.haloTheta} ${halo.thetaE.toFixed(2)}`,
+                formatPct(halo.share),
+              ]}
+            />
           ) : liveEpoch === "recombination" ? (
-            <p
-              role="status"
-              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
-              data-dispatch="acoustic"
+            <SkyLine
               key="acoustic"
-            >
-              {copy.obs.acousticNiche[acoustic.niche]}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.acousticEll} {Math.round(acoustic.ell1)}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.acousticOddEven} {acoustic.oddEven.toFixed(2)}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.acousticLoad} ×{acoustic.baryonLoad.toFixed(2)}
-            </p>
+              dispatch="acoustic"
+              lead={copy.obs.acousticNiche[acoustic.niche]}
+              facts={[
+                `${copy.obs.acousticEll} ${Math.round(acoustic.ell1)}`,
+                `${copy.obs.acousticOddEven} ${acoustic.oddEven.toFixed(2)}`,
+                `${copy.obs.acousticLoad} ×${acoustic.baryonLoad.toFixed(2)}`,
+              ]}
+            />
           ) : liveEpoch === "darkAges" ? (
-            <p
-              role="status"
-              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
-              data-dispatch="twentyone"
+            <SkyLine
               key="twentyone"
-            >
-              {copy.obs.epochs.darkAges}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.twentyOne}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.acousticEll} {Math.round(acoustic.ell1)}
-            </p>
+              dispatch="twentyone"
+              lead={copy.obs.epochs.darkAges}
+              facts={[copy.obs.twentyOne, `${copy.obs.acousticEll} ${Math.round(acoustic.ell1)}`]}
+            />
           ) : liveEpoch === "reionization" ? (
-            <p
-              role="status"
-              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
-              data-dispatch="hii"
+            <SkyLine
               key="hii"
-            >
-              {copy.obs.epochs.reionization}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.hii}
-              <span className="text-fg-subtle"> · </span>
-              {copy.obs.acousticEll} {Math.round(acoustic.ell1)}
-            </p>
+              dispatch="hii"
+              lead={copy.obs.epochs.reionization}
+              facts={[copy.obs.hii, `${copy.obs.acousticEll} ${Math.round(acoustic.ell1)}`]}
+            />
           ) : (
-            <p
-              role="status"
-              className="hud-swap mt-1.5 max-w-md text-pretty text-sm leading-relaxed text-fg line-clamp-2"
-              data-dispatch={dispatchId}
-              key={dispatchId}
-            >
-              {copy.plot[dispatchId]}
-            </p>
+            <SkyLine key={dispatchId} dispatch={dispatchId} lead={copy.plot[dispatchId]} />
           )}
           {shared ? (
             <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
