@@ -559,6 +559,7 @@ export type Copy = {
     grmhdSpinE: string;
     grmhdEta: string;
     grmhdBeta: string;
+    grmhdIsco: string;
     grmhdRam: string;
     fluxAdv: string;
     fluxNiche: Record<FluxTransport, string>;
@@ -1855,6 +1856,7 @@ const en: Copy = {
     grmhdSpinE: "E_spin",
     grmhdEta: "η_BZ",
     grmhdBeta: "β",
+    grmhdIsco: "r_ISCO",
     grmhdRam: "P_B / P_ram",
     fluxAdv: "t_diff / t_adv",
     fluxNiche: {

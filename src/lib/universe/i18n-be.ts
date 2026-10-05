@@ -1230,6 +1230,7 @@ export function makeBe(ru: Copy): Copy {
 			grmhdSpinE: "E_spin",
 			grmhdEta: "η_BZ",
 			grmhdBeta: "β",
+			grmhdIsco: "r_ISCO",
 			grmhdRam: "P_B / P_ram",
 			fluxAdv: "t_diff / t_adv",
 			fluxNiche: {
