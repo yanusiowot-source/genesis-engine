@@ -82,8 +82,8 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm
           id="skies-menu"
           role="menu"
           className={cn(
-            "menu-pop absolute right-0 bottom-full z-20 mb-2 min-w-52 overflow-y-auto",
-            "max-h-[min(22rem,calc(100dvh-9rem))]",
+            "menu-pop absolute right-0 bottom-full z-20 mb-2 w-[min(18rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] overflow-y-auto overscroll-contain",
+            "max-h-[min(28rem,calc(100dvh-7.5rem))]",
             "rounded-[var(--radius-md)] bg-bg-elevated py-1 shadow-[var(--shadow-border)]",
           )}
         >
@@ -111,7 +111,7 @@ function MenuItem({ label, onClick }: { label: string; onClick: () => void }) {
       type="button"
       role="menuitem"
       onClick={onClick}
-      className="flex min-h-11 w-full items-center px-3 text-left text-sm text-fg transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)] hover:bg-bg-subtle"
+      className="flex min-h-11 w-full items-center whitespace-normal px-3 py-2 text-left text-sm leading-snug text-pretty text-fg transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)] hover:bg-bg-subtle"
     >
       {label}
     </button>

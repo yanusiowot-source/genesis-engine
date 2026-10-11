@@ -328,14 +328,14 @@ export function DeskPanel({
         <p className="mt-2 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
           {copy.desk.classify}
         </p>
-        <div className="mt-2 grid grid-cols-2 gap-1 min-[420px]:grid-cols-3">
+        <div className="mt-2 grid grid-cols-2 gap-1">
           {SKY_CLASSES.map((id) => (
             <button
               key={id}
               type="button"
               onClick={() => setKlass(id)}
               className={cn(
-                "min-h-11 min-w-0 rounded-[var(--radius-xs)] px-1.5 text-[0.6875rem] font-medium leading-tight tracking-wide",
+                "flex min-h-11 w-full min-w-0 items-center justify-center whitespace-normal text-balance rounded-[var(--radius-xs)] px-1.5 py-1 text-center text-[0.6875rem] font-medium leading-tight",
                 klass === id ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
               )}
               aria-pressed={klass === id}

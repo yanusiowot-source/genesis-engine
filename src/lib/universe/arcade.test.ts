@@ -126,4 +126,26 @@ describe("arcade", () => {
     assert.ok(runDelay(40) < runDelay(0));
     assert.equal(runDelay(999), 80);
   });
+
+  it("scores a mote on the ground and does not score it in the air", () => {
+    let down = startRun();
+    down = stepRun(down, false, 3);
+    for (let i = 0; i < 13; i++) down = stepRun(down, false, 0);
+    assert.equal(down.ground[RUN_X], -1);
+    assert.equal(down.y, 0);
+    assert.equal(down.alive, true);
+    assert.equal(down.score, 16);
+
+    let air = startRun();
+    air = stepRun(air, false, 3);
+    for (let i = 0; i < 9; i++) air = stepRun(air, false, 0);
+    air = stepRun(air, true, 0);
+    air = stepRun(air, false, 0);
+    air = stepRun(air, false, 0);
+    air = stepRun(air, false, 0);
+    assert.equal(air.ground[RUN_X], -1);
+    assert.ok(air.y >= 1);
+    assert.equal(air.alive, true);
+    assert.equal(air.score, 14);
+  });
 });

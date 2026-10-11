@@ -2233,7 +2233,7 @@ export function UniverseApp() {
           <div className="min-w-0 flex-1 pr-2">
             <button
               type="button"
-              className="sky-ink glass-ink block w-full min-w-0 truncate bg-transparent p-0 text-left font-mono text-xs leading-snug tracking-[0.06em] text-fg uppercase"
+              className="sky-ink glass-ink block w-full min-w-0 truncate bg-transparent p-0 text-left font-mono text-[0.65rem] leading-snug tracking-[0.04em] text-fg uppercase sm:text-xs"
               onClick={() => {
                 kickerTaps.current += 1;
                 if (kickerTaps.current < 7) return;
@@ -2249,7 +2249,7 @@ export function UniverseApp() {
             <h1 className="mt-1">
               <button
                 type="button"
-                className="sky-ink glass-ink w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-xl leading-none tracking-[-0.03em] text-fg sm:text-2xl"
+                className="sky-ink glass-ink w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-lg leading-none tracking-[-0.03em] text-fg min-[380px]:text-xl sm:text-2xl"
                 onClick={() => {
                   titleTaps.current += 1;
                   if (titleTaps.current < 3) return;

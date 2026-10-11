@@ -81,8 +81,9 @@ function nextRidge(score: number, crowded: boolean): number {
   if (crowded || score < 8) return 0;
   const roll = Math.random();
   const chance = Math.min(0.34, 0.14 + score / 600);
-  if (roll >= chance) return 0;
-  return score > 36 && roll < 0.05 ? 2 : 1;
+  if (roll < chance) return score > 36 && roll < 0.05 ? 2 : 1;
+  if (score > 20 && roll > 0.9) return 3;
+  return 0;
 }
 
 const BEST_KEY = "genesis-arcade-best";
@@ -275,7 +276,7 @@ export function ArcadeSheet({ copy, onClose }: Props) {
             <X />
           </Button>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-1 sm:grid-cols-4" role="tablist">
+        <div className="mt-3 grid grid-cols-2 gap-1 rounded-[var(--radius-sm)] bg-bg p-1 sm:grid-cols-4" role="tablist">
           {(
             [
               ["tiles", copy.gamesTiles],
@@ -290,7 +291,7 @@ export function ArcadeSheet({ copy, onClose }: Props) {
               role="tab"
               aria-selected={kind === id}
               className={cn(
-                "h-11 min-w-0 rounded-[var(--radius-xs)] px-2 text-sm",
+                "flex h-auto min-h-11 w-full min-w-0 items-center justify-center rounded-[var(--radius-xs)] px-2 py-1.5 text-center text-sm leading-tight",
                 kind === id ? "bg-bg-subtle text-fg" : "text-fg-subtle",
               )}
               onClick={() => setKind(id)}
@@ -299,7 +300,7 @@ export function ArcadeSheet({ copy, onClose }: Props) {
             </button>
           ))}
         </div>
-        <p className="mt-2 line-clamp-2 text-sm text-fg-muted">
+        <p className="games-hint mt-2 text-pretty text-sm leading-relaxed text-fg-muted" title={kind === "tiles" ? copy.gamesTilesHint : kind === "snake" ? copy.gamesSnakeHint : kind === "blocks" ? copy.gamesBlocksHint : copy.gamesRunHint}>
           {kind === "tiles"
             ? copy.gamesTilesHint
             : kind === "snake"
@@ -308,8 +309,8 @@ export function ArcadeSheet({ copy, onClose }: Props) {
                 ? copy.gamesBlocksHint
                 : copy.gamesRunHint}
         </p>
-        <div className="mt-2 shrink-0">
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 font-mono text-sm tabular-nums text-fg">
+        <div className="mt-2 flex shrink-0 items-center gap-2">
+          <div className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-1 font-mono text-sm tabular-nums text-fg">
             <span>{copy.gamesScore} {score}</span>
             {best[kind] > 0 ? <span>{copy.gamesBest} {best[kind]}</span> : null}
             {kind === "blocks" ? <span>{copy.gamesLines} {blocks.lines}</span> : null}
@@ -317,32 +318,30 @@ export function ArcadeSheet({ copy, onClose }: Props) {
             {paused && !over ? <span>{copy.gamesPause}</span> : null}
             {over ? <span>{copy.gamesOver}</span> : null}
           </div>
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Button variant="outline" className="min-h-11" onClick={() => setPaused((v) => !v)} disabled={over}>
-              {paused ? copy.gamesPlay : copy.gamesPause}
-            </Button>
-            <Button
-              variant="outline"
-              className="min-h-11"
-              onClick={() => {
-                setPaused(false);
-                if (kind === "tiles") setTiles(freshTiles());
-                else if (kind === "snake") setSnake(freshSnake());
-                else if (kind === "run") setRun(startRun());
-                else setBlocks(freshBlocks());
-              }}
-            >
-              {copy.gamesAgain}
-            </Button>
-          </div>
+          <Button variant="outline" className="min-h-11 shrink-0 px-3" onClick={() => setPaused((v) => !v)} disabled={over}>
+            {paused ? copy.gamesPlay : copy.gamesPause}
+          </Button>
+          <Button
+            variant="outline"
+            className="min-h-11 shrink-0 px-3"
+            onClick={() => {
+              setPaused(false);
+              if (kind === "tiles") setTiles(freshTiles());
+              else if (kind === "snake") setSnake(freshSnake());
+              else if (kind === "run") setRun(startRun());
+              else setBlocks(freshBlocks());
+            }}
+          >
+            {copy.gamesAgain}
+          </Button>
         </div>
-        <div className="mt-2 flex min-h-0 flex-1 touch-none items-center justify-center overflow-hidden [container-type:size]" {...swipe}>
+        <div className="mt-2 flex min-h-0 flex-1 touch-none items-center justify-center overflow-hidden rounded-[var(--radius-md)] [container-type:size]" {...swipe}>
           {kind === "tiles" ? <TileBoard cells={tiles.cells} /> : null}
           {kind === "snake" ? <SnakeBoard snake={snake} /> : null}
           {kind === "blocks" ? <BlockBoard state={blocks} /> : null}
           {kind === "run" ? <RunBoard run={run} /> : null}
         </div>
-        <div className="mt-2 shrink-0">
+        <div className="mt-2 shrink-0 bg-bg-elevated pt-2">
           {kind === "blocks" ? <NextPiece id={blocks.next} label={copy.gamesNext} /> : null}
           <Pad
             kind={kind}
@@ -396,7 +395,7 @@ function Pad({
     <button
       type="button"
       className={cn(
-        "flex h-14 items-center justify-center rounded-[var(--radius-sm)] bg-bg-subtle px-1 text-center text-xs leading-tight text-balance text-fg",
+        "flex h-11 items-center justify-center rounded-[var(--radius-sm)] bg-bg-subtle px-1 text-center text-xs leading-tight text-balance text-fg",
         wide && "col-span-4",
       )}
       onClick={run}
@@ -442,28 +441,30 @@ function NextPiece({ id, label }: { id: number; label: string }) {
 function RunBoard({ run }: { run: Run }) {
   const sky = 2;
   const rows = RUN_H + sky;
-  const cells: { rock: boolean; cap: boolean; spark: boolean; trail: boolean; lane: boolean; star: boolean }[] = [];
+  const cells: { rock: boolean; cap: boolean; spark: boolean; trail: boolean; lane: boolean; star: boolean; mote: boolean }[] = [];
   for (let row = 0; row < rows; row++) {
     const above = row < sky;
     const groundY = above ? -1 : RUN_H - 1 - (row - sky);
     for (let x = 0; x < RUN_W; x++) {
       const height = above ? 0 : (run.ground[x] ?? 0);
-      const rock = !above && groundY >= 0 && groundY < height;
+      const mote = !above && height < 0 && groundY === 0;
+      const rock = !above && !mote && groundY >= 0 && groundY < height;
       const cap = rock && groundY === height - 1;
       const spark = run.alive && !above && groundY === run.y && x === RUN_X;
-      const trail = !rock && !spark && !above && groundY === run.y && x < RUN_X && x >= RUN_X - 3;
+      const trail = !rock && !spark && !mote && !above && groundY === run.y && x < RUN_X && x >= RUN_X - 3;
       const star = above && (x * 5 + row * 3) % 11 === 0;
-      cells.push({ rock, cap, spark, trail, lane: groundY === 0 && !rock && !spark, star });
+      cells.push({ rock, cap, spark, trail, lane: groundY === 0 && !rock && !spark && !mote, star, mote });
     }
   }
   return (
     <div
-      className="grid gap-px rounded-[var(--radius-sm)] bg-bg p-1"
+      className="grid gap-px overflow-hidden rounded-[var(--radius-md)] p-1"
       style={{
-        width: "min(100cqw, 26rem)",
+        width: `min(100cqw, 26rem, calc(100cqh * ${RUN_W} / ${rows}))`,
         aspectRatio: `${RUN_W} / ${rows}`,
         gridTemplateColumns: `repeat(${RUN_W}, minmax(0, 1fr))`,
         gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
+        background: "linear-gradient(180deg, #14111f 0%, #1b1730 58%, #241c18 100%)",
       }}
     >
       {cells.map((cell, i) => (
@@ -473,7 +474,9 @@ function RunBoard({ run }: { run: Run }) {
           style={{
             background: cell.spark
               ? "#f0d78a"
-              : cell.cap
+              : cell.mote
+                ? "transparent"
+                : cell.cap
                 ? "#f4efe2"
                 : cell.rock
                   ? "#8a7360"
@@ -482,9 +485,14 @@ function RunBoard({ run }: { run: Run }) {
                     : cell.lane
                       ? "color-mix(in oklab, var(--color-fg) 16%, transparent)"
                       : cell.star
-                        ? "rgba(244, 239, 232, 0.55)"
+                        ? "radial-gradient(circle, rgba(244,239,232,0.85) 28%, transparent 30%)"
                         : "transparent",
-            boxShadow: cell.spark ? "0 0 8px #f0d78a" : undefined,
+            boxShadow: cell.spark
+              ? "0 0 10px #f0d78a"
+              : cell.mote
+                ? "inset 0 0 0 2px #f0d78a, 0 0 8px rgba(240,215,138,0.65)"
+                : undefined,
+            borderRadius: cell.mote ? "999px" : undefined,
           }}
         />
       ))}
@@ -508,8 +516,11 @@ function TileBoard({ cells }: { cells: number[] }) {
           key={i}
           className="flex min-h-0 min-w-0 items-center justify-center rounded-[var(--radius-xs)] font-mono font-medium tabular-nums text-[clamp(0.8rem,18cqmin,1.35rem)]"
           style={{
-            background: n ? (TILE_INK[n] ?? "#f4efe2") : "color-mix(in oklab, var(--color-fg) 8%, transparent)",
+            background: n
+              ? `linear-gradient(160deg, color-mix(in oklab, ${TILE_INK[n] ?? "#f4efe2"} 78%, white), ${TILE_INK[n] ?? "#f4efe2"})`
+              : "color-mix(in oklab, var(--color-fg) 7%, transparent)",
             color: n >= 128 && n < 2048 ? "#1a1424" : "#f4efe8",
+            boxShadow: n ? "inset 0 1px 0 rgba(255,255,255,0.28)" : undefined,
           }}
         >
           {n || ""}
@@ -536,10 +547,22 @@ function SnakeBoard({ snake }: { snake: Snake }) {
       {Array.from({ length: SNAKE_W * SNAKE_H }, (_, i) => (
         <div
           key={i}
-          className="min-h-0 min-w-0"
+          className={i === head ? "min-h-0 min-w-0 rounded-full" : "min-h-0 min-w-0 rounded-[3px]"}
           style={{
             background:
-              i === head ? "#e8d48a" : body.has(i) ? "#8ec8a0" : i === food ? "#e07a52" : "color-mix(in oklab, var(--color-fg) 8%, transparent)",
+              i === head
+                ? "#f0d78a"
+                : body.has(i)
+                  ? "#8ec8a0"
+                  : i === food
+                    ? "transparent"
+                    : "color-mix(in oklab, var(--color-fg) 8%, transparent)",
+            boxShadow:
+              i === head
+                ? "0 0 8px #f0d78a"
+                : i === food
+                  ? "inset 0 0 0 2px #e07a52, 0 0 6px rgba(224,122,82,0.55)"
+                  : undefined,
           }}
         />
       ))}
@@ -578,10 +601,18 @@ function BlockBoard({ state }: { state: Blocks }) {
       {paint.map((n, i) => (
         <div
           key={i}
-          className="min-h-0 min-w-0"
+          className="min-h-0 min-w-0 rounded-[2px]"
           style={{
-            background: n > 0 ? (BLOCK_INK[n] ?? "#f4efe2") : "color-mix(in oklab, var(--color-fg) 7%, transparent)",
-            boxShadow: n < 0 ? "inset 0 0 0 1px rgba(244,239,232,0.45)" : undefined,
+            background:
+              n > 0
+                ? `linear-gradient(160deg, color-mix(in oklab, ${BLOCK_INK[n] ?? "#f4efe2"} 72%, white), ${BLOCK_INK[n] ?? "#f4efe2"})`
+                : "color-mix(in oklab, var(--color-fg) 7%, transparent)",
+            boxShadow:
+              n > 0
+                ? "inset 0 1px 0 rgba(255,255,255,0.35)"
+                : n < 0
+                  ? "inset 0 0 0 1px rgba(244,239,232,0.45)"
+                  : undefined,
           }}
         />
       ))}

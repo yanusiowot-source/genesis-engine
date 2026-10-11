@@ -454,10 +454,18 @@ export function stepRun(state: Run, jump: boolean, next: number): Run {
     if (hop >= ARC.length) hop = -1;
   }
   const ground = state.ground.slice(1);
-  ground.push(next >= 2 ? 2 : next === 1 ? 1 : 0);
+  const cell = next === 3 ? -1 : next >= 2 ? 2 : next === 1 ? 1 : 0;
+  ground.push(cell);
   const rock = ground[RUN_X] ?? 0;
   const alive = !(rock > 0 && y < rock);
-  return { ground, y: alive ? y : 0, hop: alive ? hop : -1, score: state.score + 1, alive };
+  const mote = alive && rock < 0 && y === 0;
+  return {
+    ground,
+    y: alive ? y : 0,
+    hop: alive ? hop : -1,
+    score: state.score + 1 + (mote ? 2 : 0),
+    alive,
+  };
 }
 
 export function runDelay(score: number): number {

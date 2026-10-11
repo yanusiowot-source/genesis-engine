@@ -5,7 +5,7 @@ export const PUBLIC_LAB_REPO_URL = "https://github.com/yanusiowot-source/genesis
 export const PUBLIC_SOURCE_REPO_URL = "https://github.com/yanusiowot-source/genesis-engine";
 export const AUTHOR_X_URL = "https://x.com/yanusio";
 export const AUTHOR_X_ID = "1652518444795928590";
-export const APP_VERSION = "1.66.0";
+export const APP_VERSION = "1.67.0";
 export const APP_VERSION_SHORT = APP_VERSION.split(".").slice(0, 2).join(".");
 /** One-time desktop copy. Settled in USDT because card rails do not pay out to the author. */
 export const COPY_PRICE = "15";

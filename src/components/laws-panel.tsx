@@ -358,7 +358,7 @@ function TargetGrid({
             disabled={locked}
             onClick={() => onTarget(id)}
             className={cn(
-              "h-11 rounded-[var(--radius-xs)] text-[0.6875rem] font-medium tracking-wide uppercase",
+              "flex h-auto min-h-11 w-full min-w-0 items-center justify-center whitespace-normal text-balance rounded-[var(--radius-xs)] px-2 py-1.5 text-center text-[0.6875rem] font-medium leading-tight uppercase",
               locked && "opacity-60",
               active ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
             )}

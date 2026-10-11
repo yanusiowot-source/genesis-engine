@@ -1009,7 +1009,7 @@ const en: Copy = {
   gamesBlocks: "Blocks",
   gamesBlocksHint: "Pieces of four squares fall. This is not a licensed falling-block product.",
   gamesRun: "Run",
-  gamesRunHint: "A spark runs the lane. Jump the ridges. This is not a licensed runner, and it does not change the sky.",
+  gamesRunHint: "This does not change the sky. Jump the ridges. A mote on the ground scores if you stay down.",
   gamesJump: "Jump",
   gamesScore: "Score",
   gamesOver: "Done",

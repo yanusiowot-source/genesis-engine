@@ -609,6 +609,18 @@ html.contrast .glass {
   }
 }
 
+@media (max-height: 500px) {
+  .games-hint {
+    display: none;
+  }
+
+  .overlay-sheet {
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+}
+
 @media (max-width: 640px) {
   .sky-glow {
     opacity: 0.35;
@@ -632,12 +644,16 @@ html.contrast .glass {
 }
 
 @media (max-height: 640px) {
-  [data-hud-catalog] {
-    display: none !important;
+  .sky-stage {
+    grid-template-rows: auto auto minmax(3.25rem, 1fr) minmax(0, 1fr);
   }
 
-  .scripture-line {
-    display: none !important;
+  [data-hud-band="fate"] {
+    display: none;
+  }
+
+  [data-hud-band="actions"] {
+    position: static;
   }
 }
 

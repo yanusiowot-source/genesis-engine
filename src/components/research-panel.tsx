@@ -49,7 +49,7 @@ export function ResearchPanel({
               onClick={() => onTarget(id)}
               disabled={hunting}
               className={cn(
-                "min-h-11 min-w-0 whitespace-normal text-balance rounded-[var(--radius-xs)] px-2 py-1.5 text-[0.6875rem] font-medium leading-tight tracking-wide uppercase",
+                "flex w-full min-h-11 min-w-0 items-center justify-center whitespace-normal text-balance rounded-[var(--radius-xs)] px-2 py-1.5 text-center text-[0.6875rem] font-medium leading-tight uppercase",
                 "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                 hunting && "opacity-60",
                 active ? "bg-bg-subtle text-accent" : "text-fg-subtle hover:text-fg",
@@ -252,7 +252,7 @@ function FindGroup({
         {rows.map((row, i) => (
           <li
             key={`${row.visualSeed}-${row.score}-${i}`}
-            className="flex flex-col gap-2 rounded-[var(--radius-sm)] bg-bg px-3 py-2 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between"
+            className="flex flex-col gap-2 rounded-[var(--radius-sm)] bg-bg px-3 py-2"
           >
             <div className="min-w-0">
               <p className="grid grid-cols-2 gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg">
@@ -275,7 +275,7 @@ function FindGroup({
             </div>
             <Button
               variant="outline"
-              className="min-h-11 w-full min-[420px]:w-auto"
+              className="min-h-11 w-full"
               onClick={() => onApply(row.params, row.visualSeed)}
             >
               {copy.research.apply}
