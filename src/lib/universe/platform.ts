@@ -55,3 +55,12 @@ export function detectPlatform(): PlatformInfo {
     native: electron || capacitor,
   };
 }
+
+/** True only inside a store wrapper. Safari on iPhone is not a store checkout. */
+export function isStoreShell(
+  cap: { isNativePlatform?: () => boolean } | null | undefined = typeof window === "undefined"
+    ? undefined
+    : window.Capacitor,
+): boolean {
+  return Boolean(cap?.isNativePlatform?.());
+}

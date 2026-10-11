@@ -6,7 +6,7 @@ Six constants. A galaxy. Four corridors where a mind might live: carbon–water,
 
 The lab stays free: sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal and music stay on this device.
 
-A paid desktop copy for Windows and Linux is packed — not a lock on the sky, a way to take the instrument with you and work offline. One-time, 15 USDT (BEP20) or the same value in Bitcoin.
+A paid desktop copy for Windows and Linux is packed — not a lock on the sky, a way to take the instrument with you and work offline. One-time, any whole dollar from $1, settled as that many USDT (BEP20) or the same value in Bitcoin. An App Store price, if the build is listed, is a dollar tier from $1 and is not the web desk.
 
 Three steps: send, paste the tx to make a plate, write on X with the plate and which window (Windows or Linux). The author writes back with the zip. Not a store. Not instant. Classrooms and planetariums write for a room license. macOS later: https://x.com/yanusio
 
@@ -21,7 +21,7 @@ Twenty authored interfaces. A catalog of about 7,000 living language names; chro
 
 Web app, installable PWA, portable Windows and Linux. Same codebase can wrap for Android and iOS.
 
-© 2026 Ян Ярошевич. All rights reserved. This is not open source. “Free” means you may run the lab, not that you may treat the source as a license to fork. The public lab is a build. The source repository is published with all rights reserved. Version 1.69.
+© 2026 Ян Ярошевич. All rights reserved. This is not open source. “Free” means you may run the lab, not that you may treat the source as a license to fork. The public lab is a build. The source repository is published with all rights reserved. Version 1.70.
 
 Notes from the author: https://x.com/yanusio
 

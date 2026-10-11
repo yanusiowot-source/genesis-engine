@@ -1,4 +1,4 @@
-import { COPY_CURRENCY, COPY_PRICE } from "./studio.ts";
+import { clampCopyDollars, COPY_PRICE_MIN } from "./studio.ts";
 
 export type PayRailId = "usdt" | "btc";
 
@@ -39,14 +39,18 @@ export function plateOf(tx: string): string {
   return `GE-${PLATE_MARK}-${hex.slice(0, 4)}`;
 }
 
-export function mintReceipt(tx: string, rail: PayRailId): LicenseReceipt | null {
+export function mintReceipt(
+  tx: string,
+  rail: PayRailId,
+  dollars: number = COPY_PRICE_MIN,
+): LicenseReceipt | null {
   if (!isPlausibleTx(tx, rail)) return null;
   const hash = normalizeTx(tx, rail);
   const receipt: LicenseReceipt = {
     sku: "desktop",
     rail,
-    amount: COPY_PRICE,
-    currency: rail === "usdt" ? COPY_CURRENCY : "BTC",
+    amount: String(clampCopyDollars(dollars)),
+    currency: "USD",
     tx: hash,
     plate: plateOf(hash),
     issuedAt: Date.now(),
@@ -63,7 +67,7 @@ export function receiptText(receipt: LicenseReceipt): string {
     "Desktop copy — personal",
     `Plate: ${receipt.plate}`,
     `Rail: ${rail}`,
-    `Amount: ${COPY_PRICE} ${COPY_CURRENCY}${receipt.rail === "btc" ? " equivalent" : ""}`,
+    `Amount: ${receipt.amount} USD, settled as ${receipt.rail === "btc" ? "Bitcoin" : "USDT"}`,
     `Tx: ${receipt.tx}`,
     `Issued: ${when}`,
     "",
@@ -75,8 +79,11 @@ export function receiptText(receipt: LicenseReceipt): string {
   ].join("\n");
 }
 
-export function fillOrder(template: string, plate: string, tx: string): string {
-  return template.replaceAll("{plate}", plate).replaceAll("{tx}", tx);
+export function fillOrder(template: string, plate: string, tx: string, amount = ""): string {
+  return template
+    .replaceAll("{plate}", plate)
+    .replaceAll("{tx}", tx)
+    .replaceAll("{amount}", amount);
 }
 
 export function loadReceipt(): LicenseReceipt | null {

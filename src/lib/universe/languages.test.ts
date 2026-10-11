@@ -7,7 +7,7 @@ import type { Fate } from "./types.ts";
 import { mergeCopy } from "./copy-merge.ts";
 import { formatHudPct } from "./format.ts";
 import { copyFor, hydrateBe, hydratePack, hydratePacks } from "./i18n.ts";
-import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, PUBLIC_LAB_REPO_URL, PUBLIC_SOURCE_REPO_URL, orderCopyUrl, COPY_PRICE, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, APP_VERSION_SHORT, productOffers } from "./studio.ts";
+import { isAboutHash, isHostedLab, isKeepHash, PUBLIC_ABOUT_URL, PUBLIC_LAB_REPO_URL, PUBLIC_SOURCE_REPO_URL, orderCopyUrl, COPY_PRICE, COPY_PRICE_MIN, COPY_PRICE_MAX, clampCopyDollars, COPY_CURRENCY, PAY_USDT_BEP20, PAY_BTC, APP_VERSION, APP_VERSION_SHORT, productOffers } from "./studio.ts";
 import {
   AUTHORED,
   CONSTRUCTED_COUNT,
@@ -112,7 +112,10 @@ describe("copyFor", () => {
     assert.doesNotMatch(c.studioKeepBody, /is next/);
     assert.doesNotMatch(c.studioKeepBody, /is ready/);
     assert.doesNotMatch(c.studioKeepBody, /below/i);
-    assert.match(c.studioKeepBody, /15 USDT/);
+    assert.match(c.studioKeepBody, /\$1/);
+    assert.match(c.studioKeepBody, /USDT/);
+    assert.match(c.studioKeepBody, /App Store/);
+    assert.doesNotMatch(c.studioKeepBody, /15 USDT/);
     assert.doesNotMatch(c.payAfter, /zip/i);
     assert.doesNotMatch(c.platforms.windowsBody, /zip/i);
     assert.doesNotMatch(c.platforms.linuxBody, /zip/i);
@@ -168,12 +171,21 @@ describe("copyFor", () => {
     assert.doesNotMatch(copyFor("ru").payAfter, /zip/i);
     assert.doesNotMatch(copyFor("be").payAfter, /zip/i);
     assert.doesNotMatch(c.chronicleHint, /Grok/);
-    assert.equal(COPY_PRICE, "15");
+    assert.equal(COPY_PRICE, "1");
+    assert.equal(COPY_PRICE_MIN, 1);
+    assert.equal(COPY_PRICE_MAX, 500);
+    assert.equal(clampCopyDollars(0), 1);
+    assert.equal(clampCopyDollars(1.6), 2);
+    assert.equal(clampCopyDollars(15), 15);
+    assert.equal(clampCopyDollars(9000), 500);
     assert.equal(COPY_CURRENCY, "USDT");
-    assert.match(c.studioSupportBody, /15 USDT/);
+    assert.match(c.studioSupportBody, /\$1/);
+    assert.match(c.studioSupportBody, /USDT/);
+    assert.doesNotMatch(c.studioSupportBody, /15 USDT/);
     assert.doesNotMatch(c.studioSupportBody, /Linux now/);
-    assert.match(c.studioReserveCta, /15 USDT/);
-    assert.match(c.studioOrderText, /15 USDT/);
+    assert.match(c.studioReserveCta, /\$1/);
+    assert.match(c.studioOrderText, /\$1/);
+    assert.match(c.studioOrderText, /USDT/);
     assert.match(orderCopyUrl(c.studioOrderText), /messages\/compose/);
     assert.match(orderCopyUrl(c.studioOrderText), /1652518444795928590/);
     assert.match(c.studioPublicCta, /public lab/);
@@ -203,26 +215,35 @@ describe("copyFor", () => {
     assert.match(copyFor("ru").studioKeepBody, /пластин/);
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /следующий шаг/);
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /ниже/);
-    assert.match(copyFor("ru").studioKeepBody, /15 USDT/);
-    assert.match(copyFor("ru").studioReserveCta, /15 USDT/);
-    assert.match(copyFor("be").studioKeepBody, /15 USDT/);
+    assert.match(copyFor("ru").studioKeepBody, /\$1/);
+    assert.match(copyFor("ru").studioKeepBody, /USDT/);
+    assert.doesNotMatch(copyFor("ru").studioKeepBody, /15 USDT/);
+    assert.match(copyFor("ru").studioReserveCta, /\$1/);
+    assert.match(copyFor("be").studioKeepBody, /\$1/);
+    assert.match(copyFor("be").studioKeepBody, /USDT/);
+    assert.doesNotMatch(copyFor("be").studioKeepBody, /15 USDT/);
     assert.doesNotMatch(copyFor("be").studioKeepBody, /ніжэй/);
     assert.match(copyFor("be").studioKeepBody, /пласцін/);
-    assert.match(copyFor("be").studioReserveCta, /15 USDT/);
+    assert.match(copyFor("be").studioReserveCta, /\$1/);
     assert.match(c.helpItems.map((item) => item.title).join(" "), /Games/);
     assert.match(c.helpItems.map((item) => item.title).join(" "), /A copy/);
     assert.match(copyFor("ru").helpItems.map((item) => item.title).join(" "), /Игры/);
     assert.match(copyFor("be").helpItems.map((item) => item.title).join(" "), /Гульні/);
     assert.match(c.helpItems.find((item) => item.title === "Games")?.body ?? "", /do not change the sky/i);
-    assert.match(c.keep.openCta, /15 USDT/);
+    assert.match(c.keep.openCta, /\$1/);
     assert.match(c.keep.orderText, /\{plate\}/);
+    assert.match(c.keep.orderText, /\{amount\}/);
+    assert.match(c.keep.storeBody, /App Store/);
+    assert.match(c.keep.storeOnly, /\$1/);
+    assert.match(copyFor("ru").keep.storeBody, /App Store/);
+    assert.match(copyFor("be").keep.storeOnly, /\$1/);
     assert.match(c.keep.orderText, /Windows \/ Linux/);
     assert.match(c.keep.step3, /not instant/i);
     assert.match(c.keep.receiptHint, /writes back/i);
     assert.match(copyFor("ru").keep.step3, /архивом/);
     assert.match(copyFor("ru").keep.orderText, /Windows \/ Linux/);
     assert.match(c.keep.roomCta, /room/i);
-    assert.match(copyFor("ru").keep.openCta, /15 USDT/);
+    assert.match(copyFor("ru").keep.openCta, /\$1/);
     assert.match(copyFor("be").keep.step2, /пласцін/);
     assert.equal(c.version, `Version ${APP_VERSION_SHORT}`);
     assert.match(copyFor("ru").platforms.intro, /свободн/);
@@ -235,14 +256,14 @@ describe("copyFor", () => {
     assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/about/"), true);
     assert.equal(isAboutHash("https://yanusiowot-source.github.io/genesis-lab/"), false);
     assert.match(PUBLIC_ABOUT_URL, /\/about\/$/);
-    assert.equal(COPY_PRICE, "15");
+    assert.equal(COPY_PRICE, "1");
     assert.equal(COPY_CURRENCY, "USDT");
     assert.match(PAY_USDT_BEP20, /^0xcfbf/);
     assert.doesNotMatch(PAY_USDT_BEP20, /55d39832/i);
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.69.0");
+    assert.equal(APP_VERSION, "1.70.0");
     const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { version: string };
     const desktop = JSON.parse(readFileSync(join(root, "desktop/package.json"), "utf8")) as {
@@ -252,10 +273,10 @@ describe("copyFor", () => {
       version: string;
       packages: { "": { version: string } };
     };
-    assert.equal(pkg.version, "1.69.0");
-    assert.equal(desktop.version, "1.69.0");
-    assert.equal(lock.version, "1.69.0");
-    assert.equal(lock.packages[""].version, "1.69.0");
+    assert.equal(pkg.version, "1.70.0");
+    assert.equal(desktop.version, "1.70.0");
+    assert.equal(lock.version, "1.70.0");
+    assert.equal(lock.packages[""].version, "1.70.0");
     assert.equal(APP_VERSION, pkg.version);
     const about = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../../public/about/index.html"),
@@ -265,8 +286,10 @@ describe("copyFor", () => {
     assert.match(about, new RegExp(`Version ${APP_VERSION_SHORT}`));
     assert.match(about, /github.com\/yanusiowot-source\/genesis-lab/);
     assert.match(about, /github.com\/yanusiowot-source\/genesis-engine/);
+    assert.match(about, /from \$1/);
+    assert.doesNotMatch(about, /15 USDT/);
     const offers = productOffers();
-    assert.equal(offers[1]?.price, "15");
+    assert.equal(offers[1]?.price, "1");
     assert.equal(offers[1]?.priceCurrency, "USD");
   });
 
@@ -394,6 +417,17 @@ describe("disk panel", () => {
     assert.doesNotMatch(journal, /min-\[420px\]:grid-cols-3/);
     assert.match(journal, /line-clamp-2 text-\[0\.6875rem\] leading-relaxed text-fg-subtle/);
     assert.match(hunt, /whitespace-normal text-pretty text-xs leading-snug/);
+    const keep = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/keep-desk.tsx"),
+      "utf8",
+    );
+    assert.match(keep, /isStoreShell/);
+    assert.match(keep, /COPY_PRICE_CHOICES/);
+    assert.match(keep, /grid grid-cols-3 gap-2/);
+    assert.match(keep, /h-auto min-h-11 w-full whitespace-normal text-balance/);
+    assert.match(keep, /min=\{COPY_PRICE_MIN\}/);
+    assert.match(keep, /store \? null :/);
+    assert.doesNotMatch(keep, /15 USDT/);
     assert.match(hunt, /fateLabel\[bin\.fate\]/);
     assert.doesNotMatch(hunt, /title=\{`\$\{copy\.fateLabel/);
     for (const rel of ["research-panel.tsx", "laws-panel.tsx", "desk-panel.tsx"]) {

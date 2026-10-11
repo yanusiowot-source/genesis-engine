@@ -116,7 +116,7 @@ export function InstallSheet({ copy, platform, canNativeInstall, onInstall, onKe
         <div className="mt-6 flex flex-col gap-2">
           {canPrompt ? <Button onClick={onInstall}>{copy.installCta}</Button> : null}
           {!platform.native ? (
-            <Button type="button" variant="outline" onClick={onKeep}>
+            <Button type="button" variant="outline" className="h-auto min-h-11 w-full whitespace-normal text-balance" onClick={onKeep}>
               {copy.keep.openCta}
             </Button>
           ) : null}

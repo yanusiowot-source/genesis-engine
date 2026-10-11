@@ -41,14 +41,22 @@ describe("license plate", () => {
     assert.match(text, /personal/i);
     assert.match(text, /not a lock/i);
     assert.match(text, /writes back/i);
-    assert.match(text, /15 USDT/);
+    assert.match(text, /1 USD/);
+    assert.match(text, /USDT/);
+    assert.match(text, /not a lock/i);
+    const named = mintReceipt(normalizeTx(BTC_TX), "btc", 15);
+    assert.equal(named?.amount, "15");
+    assert.match(receiptText(named!), /15 USD/);
+    assert.match(receiptText(named!), /Bitcoin/);
+    assert.equal(mintReceipt(normalizeTx(USDT_TX), "usdt", 0)?.amount, "1");
     assert.match(text, new RegExp(receipt.plate));
     assert.equal(mintReceipt("nope", "usdt"), null);
   });
 
   it("fills the order note with plate and tx", () => {
-    const note = fillOrder("Paid. Plate {plate}. Tx {tx}.", "GE-125-AA11", USDT_TX);
+    const note = fillOrder("Paid {amount}. Plate {plate}. Tx {tx}.", "GE-125-AA11", USDT_TX, "7");
     assert.match(note, /GE-125-AA11/);
     assert.match(note, new RegExp(USDT_TX));
+    assert.match(note, /Paid 7/);
   });
 });

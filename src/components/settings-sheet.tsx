@@ -402,7 +402,7 @@ export function SettingsSheet({
           <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">
             {copy.studioHonesty}
           </p>
-          <Button className="mt-4 w-full" onClick={onKeep}>
+          <Button className="mt-4 h-auto min-h-11 w-full whitespace-normal text-balance" onClick={onKeep}>
             {copy.keep.openCta}
           </Button>
           <ul className="mt-4 flex flex-col gap-2">

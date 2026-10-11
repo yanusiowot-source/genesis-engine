@@ -6,7 +6,7 @@ import { APP_VERSION, productOffers, PUBLIC_LAB_URL } from "@/lib/universe/studi
 
 const TITLE = "Genesis Engine — physics is not for sale";
 const DESCRIPTION =
-  "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt four thin corridors where a mind might live. The lab is free. A Windows or Linux copy is one-time, 15 USDT.";
+  "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt four thin corridors where a mind might live. The lab is free. A Windows or Linux copy is any whole dollar from $1.";
 
 export const Route = createFileRoute("/about")({
   component: AboutPage,

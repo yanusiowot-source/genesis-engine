@@ -339,6 +339,11 @@ export type Copy = {
     step2: string;
     step3: string;
     amount: string;
+    dollarsLabel: string;
+    dollarsHint: string;
+    storeTitle: string;
+    storeBody: string;
+    storeOnly: string;
     txLabel: string;
     txPlaceholder: string;
     mintCta: string;
@@ -1086,7 +1091,7 @@ const en: Copy = {
     },
     {
       title: "A copy",
-      body: "The lab stays free. A Windows or Linux window is 15 USDT. Open the desk, stamp a plate, write on X. Not a lock on the sky.",
+      body: "The lab stays free. A Windows or Linux window is any whole dollar from $1. Open the desk, stamp a plate, write on X. Not a lock on the sky.",
     },
   ],
   scripture: {
@@ -1135,33 +1140,40 @@ const en: Copy = {
   studioFreeTitle: "The lab stays free",
   studioFreeBody: "Sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal stays on this device.",
   studioKeepTitle: "Keep a copy",
-  studioKeepBody: "Install the free lab here. A Windows or Linux copy is one-time, 15 USDT on BNB Smart Chain, or Bitcoin — a window, no browser, offline, after you stamp a plate and write on X. macOS later. Not a lock on the sky. The build is unsigned; SmartScreen may warn.",
+  studioKeepBody: "Install the free lab here. A Windows or Linux copy is one-time, any whole dollar from $1, as that many USDT on BNB Smart Chain or Bitcoin — a window, no browser, offline, after you stamp a plate and write on X. An App Store price, if listed, is a dollar tier from $1 and is not this desk. macOS later. Not a lock on the sky. The build is unsigned; SmartScreen may warn.",
   studioSupportTitle: "A copy you can take",
-  studioSupportBody: "One-time, 15 USDT (BEP20) or the same in Bitcoin. Windows and Linux after the plate. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
+  studioSupportBody: "From $1, any whole dollar, as USDT (BEP20) or the same in Bitcoin. Windows and Linux after the plate. An App Store listing, if there is one, starts at $1 and pays through Apple. macOS later. Classrooms and planetariums write for a license. The lab on the web stays free. No ads. No subscription.",
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
   studioLabRepoCta: "Lab repository (build only)",
   studioSourceCta: "Source. All rights reserved.",
   studioEnterCta: "Enter the laboratory",
-  studioReserveCta: "Order a copy · 15 USDT",
-  studioOrderText: "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Sending the tx.",
+  studioReserveCta: "Order a copy · from $1",
+  studioOrderText: "Hello. Paid from $1 in USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Sending the tx.",
   payWarn: "Only BEP20 for USDT, Native Segwit for Bitcoin. Any other network burns the transfer.",
   payAfter: "After you send, stamp a plate, then write on X. That is how the copy finds you.",
   payCopy: "Copy address",
   keep: {
     title: "Keep the instrument",
     kicker: "Desktop copy",
-    lead: "The lab stays free. A window on your machine is one-time, 15 USDT.",
+    lead: "The lab stays free. A window on your machine is one-time, any whole dollar from $1.",
     includedTitle: "What you take",
     included:
       "Windows or Linux. Offline. The same laboratory. The build is unsigned; SmartScreen may warn. macOS later.",
     notTitle: "What you do not buy",
     notBody: "Not the physics. Not a census. Not a lock on the web lab. Not a subscription.",
     stepsTitle: "Three steps",
-    step1: "Send 15 USDT on BEP20, or the same value in Bitcoin on Native Segwit.",
+    step1: "Choose a whole dollar from $1. Send that many USDT on BEP20, or the same value in Bitcoin on Native Segwit.",
     step2: "Paste the transaction. This device writes a plate — your copy of the settlement, not a lock.",
     step3: "Write on X with the plate and which window you want — Windows or Linux. The author writes back with the zip. Not a store. Not instant.",
-    amount: "one-time",
+    amount: "one-time, from $1",
+    dollarsLabel: "Dollars",
+    dollarsHint: "Any whole dollar from $1. Sent as that many USDT, or the same value in Bitcoin.",
+    storeTitle: "App Store",
+    storeBody:
+      "If this copy is listed on the App Store, the price is a dollar tier from $1. Apple pays that. This desk is not that checkout.",
+    storeOnly:
+      "This build does not take crypto or a link out to pay. A store price starts at $1 and is paid there. The public lab stays free.",
     txLabel: "Transaction",
     txPlaceholder: "0x… or 64-character txid",
     mintCta: "Make the plate",
@@ -1174,9 +1186,9 @@ const en: Copy = {
     roomOrderText: "Hello. Classroom or planetarium license for Genesis Engine. Room size:",
     saveCta: "Save the plate",
     invalidTx: "That does not look like a transaction.",
-    openCta: "Keep a copy · 15 USDT",
+    openCta: "Keep a copy · from $1",
     orderText:
-      "Hello. Paid 15 USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Plate {plate}. Tx {tx}. Need Windows / Linux:",
+      "Hello. Paid {amount} USD as USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Plate {plate}. Tx {tx}. Need Windows / Linux:",
   },
   sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
   version: `Version ${APP_VERSION_SHORT}`,

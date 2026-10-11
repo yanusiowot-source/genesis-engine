@@ -5,11 +5,17 @@ export const PUBLIC_LAB_REPO_URL = "https://github.com/yanusiowot-source/genesis
 export const PUBLIC_SOURCE_REPO_URL = "https://github.com/yanusiowot-source/genesis-engine";
 export const AUTHOR_X_URL = "https://x.com/yanusio";
 export const AUTHOR_X_ID = "1652518444795928590";
-export const APP_VERSION = "1.69.0";
+export const APP_VERSION = "1.70.0";
 export const APP_VERSION_SHORT = APP_VERSION.split(".").slice(0, 2).join(".");
-/** One-time desktop copy. Settled in USDT because card rails do not pay out to the author. */
-export const COPY_PRICE = "15";
+/** Lowest whole dollar. A store listing can use this tier. The web desk accepts any whole dollar up to the cap. */
+export const COPY_PRICE_MIN = 1;
+export const COPY_PRICE_MAX = 500;
+export const COPY_PRICE_CHOICES = [1, 5, 15] as const;
+/** Floor, not the only price. Web settlement is this many USDT, or Bitcoin of the same value. */
+export const COPY_PRICE = String(COPY_PRICE_MIN);
 export const COPY_CURRENCY = "USDT";
+/** Consumable the author creates in App Store Connect. The web desk is not that checkout. */
+export const STORE_PRODUCT_ID = "app.genesisengine.lab.copy";
 /** Binance deposit — BNB Smart Chain / ETH-format. Not the USDT token contract. */
 export const PAY_USDT_BEP20 = "0xcfbf90866165174a66aa99bda14917cc67fffb50";
 /** Binance deposit — Native Segwit. Prefer this over Taproot for wallet support. */
@@ -21,6 +27,11 @@ export const PAY_RAILS = [
 ] as const;
 
 export type PayRail = (typeof PAY_RAILS)[number];
+
+export function clampCopyDollars(raw: number): number {
+  if (!Number.isFinite(raw)) return COPY_PRICE_MIN;
+  return Math.min(COPY_PRICE_MAX, Math.max(COPY_PRICE_MIN, Math.round(raw)));
+}
 
 export function orderCopyUrl(text: string) {
   const q = new URLSearchParams({
@@ -71,7 +82,7 @@ export function productOffers() {
       price: COPY_PRICE,
       priceCurrency: "USD",
       description:
-        "Windows or Linux copy. One-time. 15 USDT (BEP20) or the same value in Bitcoin, then a note on X with the plate. Not a lock on the sky.",
+        "From 1 USD, any whole dollar. On the web that many USDT (BEP20) or the same value in Bitcoin, then a note on X with the plate. An App Store price, if listed, is a dollar tier from $1 and is not this desk. Not a lock on the sky.",
     },
   ];
 }

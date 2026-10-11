@@ -10,8 +10,15 @@ import {
   type PayRailId,
   receiptText,
 } from "@/lib/universe/license";
+import { isStoreShell } from "@/lib/universe/platform";
 import { downloadText } from "@/lib/universe/report";
-import { COPY_CURRENCY, COPY_PRICE, orderCopyUrl } from "@/lib/universe/studio";
+import {
+  clampCopyDollars,
+  COPY_PRICE_CHOICES,
+  COPY_PRICE_MAX,
+  COPY_PRICE_MIN,
+  orderCopyUrl,
+} from "@/lib/universe/studio";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -20,13 +27,18 @@ type Props = {
 };
 
 export function KeepDesk({ copy, compact = false }: Props) {
+  const store = isStoreShell();
   const [rail, setRail] = useState<PayRailId>("usdt");
   const [tx, setTx] = useState("");
+  const [dollarsText, setDollarsText] = useState(String(COPY_PRICE_MIN));
   const [receipt, setReceipt] = useState(() =>
     typeof window === "undefined" ? null : loadReceipt(),
   );
   const [error, setError] = useState(false);
   const receiptBox = useRef<HTMLDivElement>(null);
+  const dollars = clampCopyDollars(
+    dollarsText.trim() === "" ? COPY_PRICE_MIN : Number(dollarsText),
+  );
 
   useEffect(() => {
     setReceipt(loadReceipt());
@@ -39,11 +51,15 @@ export function KeepDesk({ copy, compact = false }: Props) {
 
   const orderHref = useMemo(() => {
     if (!receipt) return "";
-    return orderCopyUrl(fillOrder(copy.keep.orderText, receipt.plate, receipt.tx));
+    return orderCopyUrl(
+      fillOrder(copy.keep.orderText, receipt.plate, receipt.tx, receipt.amount),
+    );
   }, [copy.keep.orderText, receipt]);
 
   const mint = () => {
-    const next = mintReceipt(tx, rail);
+    const amount = clampCopyDollars(Number(dollarsText));
+    setDollarsText(String(amount));
+    const next = mintReceipt(tx, rail, amount);
     if (!next) {
       setError(true);
       return;
@@ -68,12 +84,21 @@ export function KeepDesk({ copy, compact = false }: Props) {
           {copy.keep.title}
         </h2>
         <p className="mt-2 font-mono text-sm tabular-nums text-accent">
-          {COPY_PRICE} {COPY_CURRENCY} · {copy.keep.amount}
+          {store ? copy.keep.amount : `$${dollars}`}
         </p>
         <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.keep.lead}</p>
       </header>
 
-      {receipt ? (
+      {store ? (
+        <section className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3 shadow-[var(--shadow-border)]">
+          <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
+            {copy.keep.storeTitle}
+          </p>
+          <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">{copy.keep.storeOnly}</p>
+        </section>
+      ) : null}
+
+      {receipt && !store ? (
         <div
           ref={receiptBox}
           className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-4 shadow-[var(--shadow-border)]"
@@ -84,6 +109,7 @@ export function KeepDesk({ copy, compact = false }: Props) {
           <p className="mt-2 font-mono text-lg tabular-nums tracking-[0.12em] text-fg">
             {receipt.plate}
           </p>
+          <p className="mt-1 font-mono text-sm tabular-nums text-fg-muted">${receipt.amount}</p>
           <p className="mt-2 text-pretty text-sm leading-relaxed text-fg-muted">
             {copy.keep.receiptHint}
           </p>
@@ -93,7 +119,7 @@ export function KeepDesk({ copy, compact = false }: Props) {
           <Button
             type="button"
             variant="outline"
-            className="mt-3"
+            className="mt-3 h-auto min-h-11 w-full whitespace-normal text-balance"
             onClick={() =>
               downloadText(`genesis-plate-${receipt.plate.toLowerCase()}.txt`, receiptText(receipt))
             }
@@ -104,8 +130,8 @@ export function KeepDesk({ copy, compact = false }: Props) {
         </div>
       ) : null}
 
-      {receipt ? (
-        <Button asChild>
+      {receipt && !store ? (
+        <Button asChild className="h-auto min-h-11 w-full whitespace-normal text-balance">
           <a href={orderHref} target="_blank" rel="noopener noreferrer">
             <ExternalLink />
             {copy.keep.writeCta}
@@ -113,61 +139,116 @@ export function KeepDesk({ copy, compact = false }: Props) {
         </Button>
       ) : null}
 
-      <PayRails
-        copy={copy}
-        rail={rail}
-        compact={compact}
-        onRail={(id) => {
-          setRail(id);
-          setError(false);
-        }}
-      />
+      {store ? null : (
+        <div className="flex flex-col gap-2">
+          <label
+            htmlFor="keep-dollars"
+            className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase"
+          >
+            {copy.keep.dollarsLabel}
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {COPY_PRICE_CHOICES.map((choice) => (
+              <Button
+                key={choice}
+                type="button"
+                variant={dollarsText === String(choice) ? "default" : "outline"}
+                className="h-auto min-h-11 w-full whitespace-normal text-balance"
+                aria-pressed={dollarsText === String(choice)}
+                onClick={() => setDollarsText(String(choice))}
+              >
+                ${choice}
+              </Button>
+            ))}
+          </div>
+          <input
+            id="keep-dollars"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            min={COPY_PRICE_MIN}
+            max={COPY_PRICE_MAX}
+            value={dollarsText}
+            onChange={(event) => {
+              setDollarsText(event.target.value.replace(/[^\d]/g, "").slice(0, 3));
+            }}
+            onBlur={() => setDollarsText(String(dollars))}
+            autoComplete="off"
+            className="h-11 w-full min-w-0 rounded-[var(--radius-md)] bg-bg-subtle px-3 font-mono text-sm text-fg tabular-nums outline-none ring-1 ring-border placeholder:text-fg-subtle focus-visible:ring-accent"
+          />
+          <p className="text-pretty text-sm leading-relaxed text-fg-muted">{copy.keep.dollarsHint}</p>
+        </div>
+      )}
 
-      <form
-        className="flex flex-col gap-2"
-        onSubmit={(event) => {
-          event.preventDefault();
-          mint();
-        }}
-      >
-        <label htmlFor="keep-tx" className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
-          {copy.keep.txLabel}
-        </label>
-        <input
-          id="keep-tx"
-          value={tx}
-          onChange={(event) => {
-            setTx(event.target.value);
+      {store ? null : (
+        <section className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3">
+          <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
+            {copy.keep.storeTitle}
+          </p>
+          <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">{copy.keep.storeBody}</p>
+        </section>
+      )}
+
+      {store ? null : (
+        <PayRails
+          copy={copy}
+          rail={rail}
+          compact={compact}
+          onRail={(id) => {
+            setRail(id);
             setError(false);
           }}
-          placeholder={copy.keep.txPlaceholder}
-          autoComplete="off"
-          spellCheck={false}
-          aria-invalid={error}
-          className="h-11 w-full rounded-[var(--radius-md)] bg-bg-subtle px-3 font-mono text-sm text-fg outline-none ring-1 ring-border placeholder:text-fg-subtle focus-visible:ring-accent"
         />
-        {error ? <p className="text-sm text-sterile">{copy.keep.invalidTx}</p> : null}
-        <Button type="submit" variant={receipt ? "outline" : "default"} disabled={!tx.trim()}>
-          {copy.keep.mintCta}
-        </Button>
-      </form>
+      )}
 
-      <div className="flex flex-col gap-2">
-        <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
-          {copy.keep.stepsTitle}
-        </p>
-        <ol className="flex flex-col gap-2">
-          {[copy.keep.step1, copy.keep.step2, copy.keep.step3].map((step, i) => (
-            <li
-              key={step}
-              className="flex gap-3 rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3"
-            >
-              <span className="font-mono text-xs tabular-nums text-accent">{i + 1}</span>
-              <p className="text-pretty text-sm leading-relaxed text-fg">{step}</p>
-            </li>
-          ))}
-        </ol>
-      </div>
+      {store ? null : (
+        <form
+          className="flex flex-col gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            mint();
+          }}
+        >
+          <label htmlFor="keep-tx" className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+            {copy.keep.txLabel}
+          </label>
+          <input
+            id="keep-tx"
+            value={tx}
+            onChange={(event) => {
+              setTx(event.target.value);
+              setError(false);
+            }}
+            placeholder={copy.keep.txPlaceholder}
+            autoComplete="off"
+            spellCheck={false}
+            aria-invalid={error}
+            className="h-11 w-full min-w-0 rounded-[var(--radius-md)] bg-bg-subtle px-3 font-mono text-sm text-fg outline-none ring-1 ring-border placeholder:text-fg-subtle focus-visible:ring-accent"
+          />
+          {error ? <p className="text-sm text-sterile">{copy.keep.invalidTx}</p> : null}
+          <Button type="submit" variant={receipt ? "outline" : "default"} disabled={!tx.trim()} className="h-auto min-h-11 w-full whitespace-normal text-balance">
+            {copy.keep.mintCta}
+          </Button>
+        </form>
+      )}
+
+      {store ? null : (
+        <div className="flex flex-col gap-2">
+          <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+            {copy.keep.stepsTitle}
+          </p>
+          <ol className="flex flex-col gap-2">
+            {[copy.keep.step1, copy.keep.step2, copy.keep.step3].map((step, i) => (
+              <li
+                key={step}
+                className="flex gap-3 rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3"
+              >
+                <span className="font-mono text-xs tabular-nums text-accent">{i + 1}</span>
+                <p className="min-w-0 text-pretty text-sm leading-relaxed text-fg">{step}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
 
       <ul className="grid gap-2">
         <li className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3 shadow-[var(--shadow-border)]">
@@ -184,22 +265,24 @@ export function KeepDesk({ copy, compact = false }: Props) {
         </li>
       </ul>
 
-      <div className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3">
-        <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
-          {copy.keep.roomTitle}
-        </p>
-        <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">{copy.keep.roomBody}</p>
-        <Button asChild variant="outline" className="mt-3 w-full">
-          <a
-            href={orderCopyUrl(copy.keep.roomOrderText)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <ExternalLink />
-            {copy.keep.roomCta}
-          </a>
-        </Button>
-      </div>
+      {store ? null : (
+        <div className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3">
+          <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
+            {copy.keep.roomTitle}
+          </p>
+          <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">{copy.keep.roomBody}</p>
+          <Button asChild variant="outline" className="mt-3 h-auto min-h-11 w-full whitespace-normal text-balance">
+            <a
+              href={orderCopyUrl(copy.keep.roomOrderText)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <ExternalLink />
+              {copy.keep.roomCta}
+            </a>
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
