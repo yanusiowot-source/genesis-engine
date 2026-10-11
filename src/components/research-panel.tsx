@@ -12,6 +12,7 @@ type Props = {
   target: ResearchTarget;
   result: ExpeditionResult | null;
   hunting?: boolean;
+  huntFailed?: boolean;
   onTarget: (target: ResearchTarget) => void;
   onRun: () => void;
   onApply: (params: UniverseParams, visualSeed: number) => void;
@@ -24,6 +25,7 @@ export function ResearchPanel({
   target,
   result,
   hunting = false,
+  huntFailed = false,
   onTarget,
   onRun,
   onApply,
@@ -31,7 +33,7 @@ export function ResearchPanel({
   return (
     <section className="flex flex-col gap-4">
       <div
-        className="grid grid-cols-3 gap-1 rounded-[var(--radius-sm)] bg-bg p-1"
+        className="grid grid-cols-2 gap-1 rounded-[var(--radius-sm)] bg-bg p-1 min-[420px]:grid-cols-3"
         role="radiogroup"
         aria-label={copy.research.title}
       >
@@ -47,7 +49,7 @@ export function ResearchPanel({
               onClick={() => onTarget(id)}
               disabled={hunting}
               className={cn(
-                "h-11 rounded-[var(--radius-xs)] text-[0.6875rem] font-medium tracking-wide uppercase",
+                "min-h-11 min-w-0 rounded-[var(--radius-xs)] px-1 text-[0.6875rem] font-medium leading-tight tracking-wide uppercase",
                 "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                 hunting && "opacity-60",
                 active ? "bg-bg-subtle text-accent" : "text-fg-subtle hover:text-fg",
@@ -67,12 +69,16 @@ export function ResearchPanel({
         {hunting ? copy.research.running : copy.research.run}
       </Button>
 
+      {huntFailed && !hunting ? (
+        <p className="text-pretty text-sm leading-relaxed text-fg-muted">{copy.research.failed}</p>
+      ) : null}
+
       {hunting && !(result && result.target === target) ? (
         <p className="text-pretty text-sm leading-relaxed text-fg-subtle">{copy.research.running}</p>
       ) : !result || result.target !== target ? (
-        <p className="text-pretty text-sm leading-relaxed text-fg-subtle">
-          {copy.research.empty}
-        </p>
+        huntFailed ? null : (
+          <p className="text-pretty text-sm leading-relaxed text-fg-subtle">{copy.research.empty}</p>
+        )
       ) : (
         <ResultBlock copy={copy} result={result} onApply={onApply} />
       )}
@@ -148,17 +154,20 @@ function ResultBlock({
 
       <div>
         <h4 className="text-sm font-medium">{copy.research.fates}</h4>
-        <ul className="mt-3 flex items-end gap-1" aria-label={copy.research.fates}>
+        <ul className="mt-3 flex flex-col gap-1.5" aria-label={copy.research.fates}>
           {result.fateHist.map((bin) => (
-            <li key={bin.fate} className="flex min-w-0 flex-1 flex-col items-center gap-1">
-              <span
-                className="w-full rounded-[var(--radius-xs)] bg-fg-subtle/50"
-                style={{ height: `${Math.max(4, (bin.n / maxFate) * 48)}px` }}
-                title={`${copy.fateLabel[bin.fate]} · ${bin.n}`}
-              />
-              <span className="w-full truncate text-center font-mono text-[0.5625rem] text-fg-subtle uppercase">
-                {bin.n}
+            <li
+              key={bin.fate}
+              className="grid grid-cols-[minmax(0,8.5rem)_1fr_2.25rem] items-center gap-2"
+            >
+              <span className="truncate text-xs text-fg-muted">{copy.fateLabel[bin.fate]}</span>
+              <span className="h-1 overflow-hidden rounded-full bg-bg-subtle" aria-hidden>
+                <span
+                  className="block h-full rounded-full bg-fg-subtle/60"
+                  style={{ width: `${Math.round((bin.n / maxFate) * 100)}%` }}
+                />
               </span>
+              <span className="text-right font-mono text-xs tabular-nums text-fg">{bin.n}</span>
             </li>
           ))}
         </ul>
@@ -243,7 +252,7 @@ function FindGroup({
         {rows.map((row, i) => (
           <li
             key={`${row.visualSeed}-${row.score}-${i}`}
-            className="flex items-center justify-between gap-3 rounded-[var(--radius-sm)] bg-bg px-3 py-2"
+            className="flex flex-col gap-2 rounded-[var(--radius-sm)] bg-bg px-3 py-2 min-[420px]:flex-row min-[420px]:items-center min-[420px]:justify-between"
           >
             <div className="min-w-0">
               <p className="grid grid-cols-2 gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg">
@@ -266,7 +275,7 @@ function FindGroup({
             </div>
             <Button
               variant="outline"
-              size="sm"
+              className="min-h-11 w-full min-[420px]:w-auto"
               onClick={() => onApply(row.params, row.visualSeed)}
             >
               {copy.research.apply}

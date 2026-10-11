@@ -13,9 +13,12 @@ import {
   packStars,
   QUAD_INDEX,
   QUAD_VERTS,
+  shaderDiskPlace,
   STAR_FLOATS,
   skyGpuMark,
+  starTwinkle,
 } from "./sky-gpu.ts";
+import { epochBackdropKey, rgbInk } from "./sky-place.ts";
 import type { GalaxyModel, Star } from "./galaxy.ts";
 
 const star = (over: Partial<Star> = {}): Star => ({
@@ -32,6 +35,15 @@ const star = (over: Partial<Star> = {}): Star => ({
 });
 
 describe("sky-gpu", () => {
+  it("reuses one ink string for one star color", () => {
+    const a = rgbInk(10, 20, 30);
+    assert.equal(a, rgbInk(10, 20, 30));
+    assert.equal(a, "rgb(10,20,30)");
+    assert.equal(rgbInk(10.2, 20.6, 29.4), "rgb(10,21,29)");
+    assert.equal(rgbInk(266, -4, Number.NaN), "rgb(255,0,0)");
+    assert.notEqual(rgbInk(11, 20, 30), a);
+  });
+
   it("does not claim a GPU in node", () => {
     assert.equal(gpuOffered(), false);
     assert.equal(skyGpuMark(false, null), "0");
@@ -101,6 +113,18 @@ describe("sky-gpu", () => {
     packStars([star({ x, y })], packed);
     assert.ok(Math.abs(packed[0]! - x) < 1e-6);
     assert.ok(Math.abs(packed[1]! - y) < 1e-6);
+    const fromShader = shaderDiskPlace(x, y, view);
+    assert.ok(Math.abs(fromShader.x - gpu.x) < 1e-9);
+    assert.ok(Math.abs(fromShader.y - gpu.y) < 1e-9);
+    const css = { ox: view.ox, oy: view.oy, w: 400, h: 300, scale: view.scale, rot: view.rot, vis: 1, dpr: 2 };
+    const dev = deviceView(css);
+    const onDevice = shaderDiskPlace(x, y, dev);
+    assert.ok(Math.abs(onDevice.x - gpu.x * css.dpr) < 1e-9);
+    assert.ok(Math.abs(onDevice.y - gpu.y * css.dpr) < 1e-9);
+    const rd = Math.hypot(x, y);
+    const phi = Math.atan2(y, x);
+    assert.ok(Math.abs(Math.cos(phi) * rd * view.scale - local.x) < 1e-9);
+    assert.ok(Math.abs(Math.sin(phi) * rd * view.scale - local.y) < 1e-9);
     const here = dirname(fileURLToPath(import.meta.url));
     const canvas = readFileSync(join(here, "../../components/galaxy-canvas.tsx"), "utf8");
     const shader = readFileSync(join(here, "sky-gpu.ts"), "utf8");
@@ -109,8 +133,60 @@ describe("sky-gpu", () => {
     assert.doesNotMatch(canvas, /from "@\/lib\/universe\/sky-gpu"/);
     assert.match(canvas, /import\("@\/lib\/universe\/sky-gpu"\)/);
     assert.doesNotMatch(canvas, /px = x \* scale/);
-    assert.match(shader, /let x = pos\.x \* c - pos\.y \* s;/);
-    assert.match(shader, /let y = pos\.x \* s \+ pos\.y \* c;/);
-    assert.match(shader, /let px = u\.origin\.x \+ x \* u\.scale;/);
+    assert.match(shader, /fn placeDisk\(wx: f32, wy: f32\) -> vec2f/);
+    assert.match(shader, /let rx = wx \* c - wy \* s;/);
+    assert.match(shader, /let ry = wx \* s \+ wy \* c;/);
+    assert.match(shader, /return vec2f\(u\.origin\.x \+ rx \* u\.scale, u\.origin\.y \+ ry \* u\.scale\);/);
+    assert.equal((shader.match(/placeDisk\(/g) ?? []).length, 3);
+    assert.match(shader, /u\.time/);
+    assert.match(shader, /select\(1\.0, pulse, u\.live == 1u\)/);
+    assert.equal(starTwinkle(1.2, 0.2, -0.1, false), 1);
+    const dim = starTwinkle(0.2, 0.4, 0.1, true);
+    const lit = starTwinkle(1.6, 0.4, 0.1, true);
+    assert.ok(dim >= 0.24 && dim <= 1);
+    assert.ok(lit >= 0.24 && lit <= 1);
+    assert.notEqual(dim, lit);
+    assert.match(canvas, /function nebulaBreath/);
+    assert.match(canvas, /function paintNebula/);
+    assert.match(canvas, /function nebulaGrain/);
+    assert.doesNotMatch(canvas, /Math\.random\(\)/);
+    assert.match(canvas, /function twinkleOf/);
+    assert.match(canvas, /data-sky-gpu="0"/);
+    assert.match(canvas, /rgbInk\(/);
+    assert.match(canvas, /g\.globalAlpha = 1/);
+    assert.match(canvas, /const POINT_STAR_PX = 0\.9/);
+    assert.match(canvas, /function isPointStar/);
+    assert.match(canvas, /size <= POINT_STAR_PX && stage !== "supernova" && stage !== "blackHole"/);
+    assert.match(canvas, /wrap\.dataset\.skyGpu = skyGpuMark\(true, null\)/);
+    assert.doesNotMatch(canvas, /data-sky-gpu=\{skyGpuMark/);
+  });
+});
+
+describe("epoch backdrop", () => {
+  const base = {
+    epoch: "stellar",
+    w: 390,
+    h: 700,
+    dpr: 2,
+    seed: 1,
+    quantumNoise: 0.1,
+    complexity: 0.4,
+    structure: 0.5,
+    eternalProb: 0,
+    whale: false,
+    niche: "clear",
+    ell1: 1,
+    baryonLoad: 1,
+  };
+
+  it("keeps the same key when the plate is still and changes when the paint would", () => {
+    assert.equal(epochBackdropKey(base), epochBackdropKey({ ...base }));
+    assert.notEqual(epochBackdropKey(base), epochBackdropKey({ ...base, niche: "damped" }));
+    assert.notEqual(epochBackdropKey(base), epochBackdropKey({ ...base, whale: true }));
+    const here = dirname(fileURLToPath(import.meta.url));
+    const canvas = readFileSync(join(here, "../../components/galaxy-canvas.tsx"), "utf8");
+    assert.match(canvas, /w \* h <= 900_000/);
+    assert.match(canvas, /blend\.mix > 0\.02 && blend\.to !== blend\.from/);
+    assert.match(canvas, /paintEpoch\(ctx, blend\.to/);
   });
 });

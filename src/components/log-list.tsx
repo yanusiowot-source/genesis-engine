@@ -82,15 +82,18 @@ export function LogList({
   const [fateCut, setFateCut] = useState<FateCut>("any");
   const [morphCut, setMorphCut] = useState<MorphCut>("any");
 
-  const query = {
-    viable: filter === "viable" ? true : undefined,
-    starred: filter === "starred" ? true : undefined,
-    path: pathCut === "any" ? undefined : pathCut,
-    fate: fateCut === "any" ? undefined : fateCut,
-    morphology: morphCut === "any" ? undefined : morphCut,
-  };
+  const query = useMemo(
+    () => ({
+      viable: filter === "viable" ? true : undefined,
+      starred: filter === "starred" ? true : undefined,
+      path: pathCut === "any" ? undefined : pathCut,
+      fate: fateCut === "any" ? undefined : fateCut,
+      morphology: morphCut === "any" ? undefined : morphCut,
+    }),
+    [filter, pathCut, fateCut, morphCut],
+  );
 
-  const items = useMemo(() => filterByMeta(archive, query), [archive, filter, pathCut, fateCut, morphCut]);
+  const items = useMemo(() => filterByMeta(archive, query), [archive, query]);
   const emptyKind = journalEmptyKind(archive.length, items.length, query);
 
   const filters: { id: Filter; label: string }[] = [

@@ -1,6 +1,9 @@
 /**
  * 0-dimensional persistent homology of a Euclidean point cloud.
  * Vietoris–Rips via Kruskal: a component born at 0 dies when two trees merge.
+ * The sample is every nth point, not a farthest-point sample.
+ * The last component never dies. Drop that infinite bar or the count is the whole cloud.
+ * Bottleneck compares deaths. Births are all 0; a nonzero birth would make this match wrong.
  * Not H₁, not a Čech complex, not the topology of spacetime.
  */
 

@@ -14,12 +14,12 @@ type Props = {
 export function TabBar({ copy, tab, onChange, nudge = null }: Props) {
   return (
     <nav
-      className="relative z-50 border-t border-border bg-bg-elevated/95 pb-[env(safe-area-inset-bottom)] pointer-events-auto"
+      className="glass relative z-50 mx-3 mb-[max(0.5rem,env(safe-area-inset-bottom))] rounded-[var(--radius-xl)] pointer-events-auto"
       aria-label={copy.tabs.sky + " / " + copy.tabs.lab + " / " + copy.tabs.log}
     >
       <Segmented
         stacked
-        className="rounded-none bg-transparent p-1"
+        className="rounded-[var(--radius-xl)] bg-transparent p-1"
         ariaLabel={copy.tabs.sky + " / " + copy.tabs.lab + " / " + copy.tabs.log}
         value={tab}
         onChange={onChange}

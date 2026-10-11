@@ -87,6 +87,39 @@ export function pickDispatch(input: PlotInput): PlotId {
   return "empty";
 }
 
+/** The plot line is a next step, not what this sky did. The fate sentence belongs under it. */
+const PROCEDURE: ReadonlySet<PlotId> = new Set([
+  "arrive",
+  "empty",
+  "dice",
+  "hard",
+  "survey",
+  "home",
+  "done",
+]);
+
+export function plotNeedsFate(id: PlotId): boolean {
+  return PROCEDURE.has(id);
+}
+
+/** Life pane, corridors shut: the instruction stays, the fate sentence follows it. */
+export function closedSkyWitness(
+  corridorsClosed: boolean,
+  instruction: string,
+  fateLine: string,
+): string | null {
+  if (!corridorsClosed) return null;
+  if (instruction.includes(fateLine)) return instruction;
+  return `${instruction} ${fateLine}`;
+}
+
+/** The name of a fate is not the sentence. Show the sentence only when it says more. */
+export function fateAside(label: string, sentence: string): string | null {
+  const line = sentence.trim();
+  if (!line || line === label.trim()) return null;
+  return line;
+}
+
 export function voiceFor(
   record: UniverseRecord,
   work: MandateProgress,

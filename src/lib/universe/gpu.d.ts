@@ -61,14 +61,14 @@ declare const GPUBufferUsage: {
   INDIRECT: number;
 };
 declare const GPUShaderStage: { VERTEX: number; FRAGMENT: number; COMPUTE: number };
-interface GPUShaderModule {}
-interface GPUBindGroupLayout {}
-interface GPUPipelineLayout {}
-interface GPURenderPipeline {}
-interface GPUComputePipeline {}
-interface GPUBindGroup {}
-interface GPUCommandBuffer {}
-interface GPUTextureView {}
+type GPUShaderModule = object;
+type GPUBindGroupLayout = object;
+type GPUPipelineLayout = object;
+type GPURenderPipeline = object;
+type GPUComputePipeline = object;
+type GPUBindGroup = object;
+type GPUCommandBuffer = object;
+type GPUTextureView = object;
 interface HTMLCanvasElement {
   getContext(contextId: "webgpu"): GPUCanvasContext | null;
 }

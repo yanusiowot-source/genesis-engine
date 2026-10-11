@@ -11,7 +11,7 @@ type Props = {
   onDone: (born?: boolean) => void;
 };
 
-export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
+export function Onboarding({ copy, locale: _locale, onLocale, onDone }: Props) {
   const [step, setStep] = useState(0);
   const page = copy.onboarding[step];
 
@@ -47,7 +47,7 @@ export function Onboarding({ copy, locale, onLocale, onDone }: Props) {
       aria-modal="true"
       aria-labelledby="onboard-title"
     >
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-bg/70" />
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-bg/40" />
       <div className="relative z-10 flex items-start justify-between gap-3 pointer-events-auto">
         <p className="min-w-0 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase">
           {copy.kicker}

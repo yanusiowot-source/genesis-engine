@@ -338,10 +338,6 @@ async function idbDelKey(key: string): Promise<void> {
   }
 }
 
-async function idbPut(value: unknown): Promise<void> {
-  await idbPutKey(TRACK_KEY, value);
-}
-
 async function idbGet(): Promise<{ name: string; type: string; blob: Blob } | null> {
   const v = await idbGetKey<{ name?: string; type?: string; blob?: Blob }>(TRACK_KEY);
   if (v?.blob instanceof Blob) {

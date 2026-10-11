@@ -26,7 +26,7 @@ export function CatalogOverlay({ copy, catalog, onClose }: Props) {
     <div
       role="dialog"
       aria-label={copy.laws.plate}
-      className="absolute top-28 left-4 z-20 w-64 max-w-[calc(100vw-2rem)] rounded-[var(--radius-md)] bg-bg-elevated/90 p-3 shadow-[var(--shadow-border)] sm:left-auto sm:right-8"
+      className="absolute top-3 left-3 z-20 w-64 max-w-[calc(100%-1.5rem)] rounded-[var(--radius-md)] bg-bg-elevated/90 p-3 shadow-[var(--shadow-border)] sm:left-auto sm:right-3"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">

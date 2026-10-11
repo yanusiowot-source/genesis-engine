@@ -65,15 +65,8 @@ export function parsePanstarrsBody(
 ): CatalogResult {
   const names = (body.info ?? []).map((c) => c.name);
   const idx = (key: string) => names.indexOf(key);
-  const map: Record<(typeof COL)[number], number> = {
-    objName: idx("objName"),
-    raMean: idx("raMean"),
-    decMean: idx("decMean"),
-    gMeanPSFMag: idx("gMeanPSFMag"),
-    rMeanPSFMag: idx("rMeanPSFMag"),
-    iMeanPSFMag: idx("iMeanPSFMag"),
-    nDetections: idx("nDetections"),
-  };
+  const map = {} as Record<(typeof COL)[number], number>;
+  for (const key of COL) map[key] = idx(key);
   if (map.raMean < 0 || map.decMean < 0) {
     return { ok: false, error: "Unexpected MAST columns." };
   }

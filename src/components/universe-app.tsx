@@ -5,6 +5,7 @@ import {
   CircleHelp,
   Download,
   FileDown,
+  Gamepad2,
   ScanSearch,
   ScrollText,
   Settings,
@@ -65,11 +66,17 @@ const HaloPanel = lazy(() =>
 const HelpSheet = lazy(() =>
   import("@/components/help-sheet").then((m) => ({ default: m.HelpSheet })),
 );
+const ArcadeSheet = lazy(() =>
+  import("@/components/arcade-sheet").then((m) => ({ default: m.ArcadeSheet })),
+);
 const HrDiagram = lazy(() =>
   import("@/components/hr-diagram").then((m) => ({ default: m.HrDiagram })),
 );
 const HubblePanel = lazy(() =>
   import("@/components/hubble-panel").then((m) => ({ default: m.HubblePanel })),
+);
+const WorldsPanel = lazy(() =>
+  import("@/components/worlds-panel").then((m) => ({ default: m.WorldsPanel })),
 );
 const InstallSheet = lazy(() =>
   import("@/components/install-sheet").then((m) => ({ default: m.InstallSheet })),
@@ -243,7 +250,7 @@ import {
 } from "@/lib/universe/rng";
 import { ANSWER_SEED, isEggPrefix, noteEggKey, sliderEgg } from "@/lib/universe/eggs";
 import { pickEncounter, type EncounterKind, type SkyEncounter } from "@/lib/universe/encounters";
-import { pickDispatch, voiceFor, type PlotId } from "@/lib/universe/plot";
+import { closedSkyWitness, fateAside, pickDispatch, plotNeedsFate, voiceFor, type PlotId } from "@/lib/universe/plot";
 import { registerGenesisWorker } from "@/lib/universe/service-worker";
 import { bootNfwWasm } from "@/lib/universe/nfw-wasm";
 import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
@@ -256,11 +263,13 @@ const ONBOARD_KEY = "genesis-engine-onboarded-v5";
 
 function SkyLine({
   lead,
+  aside,
   facts = [],
   tone = "text-fg",
   dispatch,
 }: {
   lead: string;
+  aside?: string;
   facts?: string[];
   tone?: string;
   dispatch: string;
@@ -268,8 +277,11 @@ function SkyLine({
   return (
     <div className="sky-ink hud-swap mt-1.5 max-w-md" role="status" data-dispatch={dispatch}>
       <p className={cn("line-clamp-2 text-pretty text-sm leading-relaxed", tone)}>{lead}</p>
+      {aside ? (
+        <p className="mt-0.5 line-clamp-1 text-pretty text-sm leading-relaxed text-fg-muted">{aside}</p>
+      ) : null}
       {facts.length > 0 ? (
-        <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-[0.6875rem] tabular-nums text-fg-subtle">
+        <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg-muted">
           {facts.map((fact) => (
             <span key={fact}>{fact}</span>
           ))}
@@ -400,6 +412,7 @@ export function UniverseApp() {
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
   const [expedition, setExpedition] = useState<ExpeditionResult | null>(null);
   const [hunting, setHunting] = useState(false);
+  const [huntFailed, setHuntFailed] = useState(false);
   const [lawResult, setLawResult] = useState<DiscoveryResult | null>(null);
   const [bayesResult, setBayesResult] = useState<BayesResult | null>(null);
   const [mcmcResult, setMcmcResult] = useState<McmcResult | null>(null);
@@ -454,6 +467,7 @@ export function UniverseApp() {
   const [ownTracks, setOwnTracks] = useState<PlaylistEntry[]>([]);
   const [playIndex, setPlayIndex] = useState(0);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [gamesOpen, setGamesOpen] = useState(false);
   const [scriptureOpen, setScriptureOpen] = useState(false);
   const [scriptureOn, setScriptureOn] = useState(true);
   const [scriptureReady, setScriptureReady] = useState(false);
@@ -478,6 +492,8 @@ export function UniverseApp() {
   const asideRef = useRef<HTMLElement | null>(null);
   const soundOnRef = useRef(false);
   const paramsRef = useRef(current.params);
+  // packTick is the signal that a locale pack finished loading. copyFor does not read it.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const copy = useMemo(() => copyFor(locale), [locale, packTick]);
   soundOnRef.current = soundOn;
   paramsRef.current = current.params;
@@ -726,7 +742,7 @@ export function UniverseApp() {
     } else if (isAboutHash()) {
       setAboutIntent(true);
     }
-  }, []);
+  }, [setCosmicTime]);
 
   useEffect(() => {
     if (locale === "en") return;
@@ -743,6 +759,7 @@ export function UniverseApp() {
     const applyHash = () => {
       if (isKeepHash()) {
         setHelpOpen(false);
+        setGamesOpen(false);
         setInstallOpen(false);
         setSiliconOpen(false);
         setEternalOpen(false);
@@ -760,6 +777,7 @@ export function UniverseApp() {
       }
       if (!isAboutHash()) return;
       setHelpOpen(false);
+      setGamesOpen(false);
       setInstallOpen(false);
       setSiliconOpen(false);
       setEternalOpen(false);
@@ -1173,6 +1191,8 @@ export function UniverseApp() {
     setDispatchId(voiceFor(record, progress));
   }, [applyMandate, current.evaluation, current.params, hushBeats, remember, seatNow]);
 
+  // Snapshot only: params, target, attempt. Not the sky, the clock, or the canvas.
+  // Do not extract this. Another file would take the same three inputs and mean no less.
   const launchExpedition = useCallback((opts?: { silent?: boolean }) => {
     const silent = opts?.silent === true;
     if (!silent) {
@@ -1185,6 +1205,7 @@ export function UniverseApp() {
     const params = current.params;
     const gen = ++huntGen.current;
     setHunting(true);
+    setHuntFailed(false);
     window.clearTimeout(huntTimer.current);
     huntTimer.current = window.setTimeout(() => {
       void import("@/lib/universe/law-client")
@@ -1202,7 +1223,9 @@ export function UniverseApp() {
             });
           }
         })
-        .catch(() => {})
+        .catch(() => {
+          if (gen === huntGen.current) setHuntFailed(true);
+        })
         .finally(() => {
           if (gen === huntGen.current) setHunting(false);
         });
@@ -1376,7 +1399,7 @@ export function UniverseApp() {
     } finally {
       chronicleLock.current = false;
     }
-  }, [busy, copy.chronicleError, copy.chronicleTimeout, copy.chronicleUnreachable, current, locale, remember, versusLine, applyMandate]);
+  }, [applyMandate, busy, copy.chronicleError, copy.chronicleTimeout, copy.chronicleUnreachable, current, locale, remember, skyLabel, versusLine]);
 
   const copyId = useCallback(async () => {
     const text = current.catalog;
@@ -1558,7 +1581,7 @@ export function UniverseApp() {
   }, []);
 
   const overlayOpen =
-    onboard || installOpen || settingsOpen || siliconOpen || eternalOpen || swarmOpen || helpOpen || mandateOpen || scriptureOpen || keepOpen;
+    onboard || installOpen || settingsOpen || siliconOpen || eternalOpen || swarmOpen || helpOpen || gamesOpen || mandateOpen || scriptureOpen || keepOpen;
   const panelOpen = tab === "lab" || tab === "log";
 
   useEffect(() => {
@@ -1574,8 +1597,9 @@ export function UniverseApp() {
     asideRef.current?.scrollTo({ top: 0 });
   }, [tab, panelOpen]);
 
-  const showOverlay = (which: "help" | "silicon" | "eternal" | "swarm" | "settings" | "install" | "keep") => {
+  const showOverlay = (which: "help" | "games" | "silicon" | "eternal" | "swarm" | "settings" | "install" | "keep") => {
     setHelpOpen(which === "help");
+    setGamesOpen(which === "games");
     setSiliconOpen(which === "silicon");
     setEternalOpen(which === "eternal");
     setSwarmOpen(which === "swarm");
@@ -1594,6 +1618,7 @@ export function UniverseApp() {
 
   const openCanon = () => {
     setHelpOpen(false);
+    setGamesOpen(false);
     setSiliconOpen(false);
     setEternalOpen(false);
     setSwarmOpen(false);
@@ -1865,6 +1890,13 @@ export function UniverseApp() {
     [copy, ev],
   );
 
+  const lifeWitness = closedSkyWitness(
+    ev.lifeProb < 0.08 && ev.siliconProb < 0.08 && ev.eternalProb < 0.08,
+    copy.birthWitness,
+    copy.fateCopy[ev.fate],
+  );
+  const fateLine = fateAside(copy.fateLabel[ev.fate], copy.fateCopy[ev.fate]);
+
   const lab = tab !== "lab" ? null : (
     <>
       {labPane === "hunt" ? (
@@ -1873,14 +1905,15 @@ export function UniverseApp() {
           target={researchTarget}
           result={expedition}
           hunting={hunting}
+          huntFailed={huntFailed}
           onTarget={setResearchTarget}
           onRun={() => launchExpedition()}
           onApply={applyFind}
         />
       ) : labPane === "life" ? (
         <>
-          {ev.lifeProb < 0.08 && ev.siliconProb < 0.08 && ev.eternalProb < 0.08 ? (
-            <p className="text-pretty text-sm leading-relaxed text-fg-muted">{copy.birthWitness}</p>
+          {lifeWitness ? (
+            <p className="text-pretty text-sm leading-relaxed text-fg-muted">{lifeWitness}</p>
           ) : null}
           <CivPanel copy={copy} params={current.params} evaluation={ev} />
           <div className="h-px bg-border" />
@@ -1946,6 +1979,11 @@ export function UniverseApp() {
             <p className="mt-1 font-display text-2xl tracking-[-0.02em]">
               {copy.fateLabel[ev.fate]}
             </p>
+            {fateLine ? (
+              <p className="mt-1 max-w-prose text-pretty text-sm leading-relaxed text-fg-muted">
+                {fateLine}
+              </p>
+            ) : null}
           </div>
 
           <div className="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -2075,6 +2113,15 @@ export function UniverseApp() {
             <DiskPanel copy={copy} params={current.params} evaluation={ev} h0Long={skyH0} />
             <AcousticPanel copy={copy} params={current.params} evaluation={ev} />
             {hydrated ? (
+              <WorldsPanel
+                copy={copy}
+                params={current.params}
+                evaluation={ev}
+                cosmicTime={cosmicTime}
+                visualSeed={current.visualSeed}
+              />
+            ) : null}
+            {hydrated ? (
               <HrDiagram
                 copy={copy}
                 params={current.params}
@@ -2093,9 +2140,10 @@ export function UniverseApp() {
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-bg text-fg" data-hydrated={hydrated ? "1" : "0"} data-primer={onboard ? "1" : "0"} data-work-count={workCount} data-lab-nudge={labNudge ? "1" : "0"} data-hunt-nudge={huntNudge ? "1" : "0"} data-compact={compact ? "1" : "0"} data-encounter={encounter?.kind ?? ""} data-dispatch={dispatchId} data-scanning={scanning ? "1" : "0"}>
       <div
-        className="relative flex min-h-0 flex-1 flex-col"
+        className="sky-stage relative min-h-0 flex-1"
         inert={overlayOpen ? true : undefined}
       >
+        <div className="sky-field row-start-3">
         <GalaxyCanvas
           params={current.params}
           evaluation={ev}
@@ -2149,20 +2197,14 @@ export function UniverseApp() {
           aria-hidden
           className="pointer-events-none absolute inset-0 sky-glow"
         />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-32 bg-gradient-to-b from-bg via-bg/75 to-transparent"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-gradient-to-t from-bg via-bg/85 to-transparent sm:h-48 lg:h-52"
-        />
+        </div>
 
-        <header className={cn("relative z-10 flex shrink-0 items-start justify-between gap-3 px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pointer-events-auto sm:px-8", onboard && "hidden")}>
+        <header className={cn("relative z-10 row-start-1 w-full min-w-0 shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pointer-events-none sm:px-8", onboard && "hidden")}>
+          <div className="glass glass-clear pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-[var(--radius-xl)] px-3 py-1.5 sm:gap-3 sm:px-4">
           <div className="min-w-0 flex-1 pr-2">
             <button
               type="button"
-              className="sky-ink block w-full truncate bg-transparent p-0 text-left font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
+              className="sky-ink glass-ink block w-full bg-transparent p-0 text-left font-mono text-xs leading-snug tracking-[0.06em] text-fg uppercase text-balance"
               onClick={() => {
                 kickerTaps.current += 1;
                 if (kickerTaps.current < 7) return;
@@ -2178,7 +2220,7 @@ export function UniverseApp() {
             <h1 className="mt-1">
               <button
                 type="button"
-                className="sky-ink w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-xl leading-none tracking-[-0.03em] text-fg sm:text-2xl"
+                className="sky-ink glass-ink w-fit max-w-full truncate bg-transparent p-0 text-left font-display text-xl leading-none tracking-[-0.03em] text-fg sm:text-2xl"
                 onClick={() => {
                   titleTaps.current += 1;
                   if (titleTaps.current < 3) return;
@@ -2196,7 +2238,7 @@ export function UniverseApp() {
               size="icon"
               className={cn(
                 "size-11",
-                soundOn ? "text-accent" : "text-fg-muted",
+                soundOn ? "text-accent" : "text-fg",
               )}
               aria-label={
                 soundOn && !audioLive ? copy.tapToHear : soundOn ? copy.soundOn : copy.soundOff
@@ -2240,7 +2282,7 @@ export function UniverseApp() {
             <Button
               variant="ghost"
               size="icon"
-              className="size-11"
+              className="hidden size-11 text-fg sm:inline-flex"
               aria-label={copy.help}
               onClick={() => showOverlay("help")}
             >
@@ -2249,7 +2291,7 @@ export function UniverseApp() {
             <Button
               variant="ghost"
               size="icon"
-              className="hidden size-11 sm:inline-flex"
+              className="hidden size-11 text-fg sm:inline-flex"
               aria-label={copy.share}
               onClick={() => void share()}
             >
@@ -2259,7 +2301,7 @@ export function UniverseApp() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="hidden size-11 lg:inline-flex"
+                className="hidden size-11 text-fg lg:inline-flex"
                 aria-label={copy.install}
                 onClick={() => showOverlay("install")}
               >
@@ -2269,19 +2311,29 @@ export function UniverseApp() {
             <Button
               variant="ghost"
               size="icon"
-              className="size-11"
+              className="size-11 text-fg"
+              aria-label={copy.games}
+              onClick={() => showOverlay("games")}
+            >
+              <Gamepad2 />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-11 text-fg"
               aria-label={copy.settings}
               onClick={() => showOverlay("settings")}
             >
               <Settings />
             </Button>
           </div>
+          </div>
         </header>
-        <div className={cn("relative z-10 shrink-0 px-5 pt-2 pointer-events-auto sm:px-8", onboard && "hidden")}>
+        <div className={cn("relative z-10 row-start-2 shrink-0 px-4 pt-2 pointer-events-none sm:px-8", onboard && "hidden")}>
           <SkyModes
             copy={copy}
             mode={mode}
-            collapseLabel
+            collapseLabel={false}
             onChange={(next) => {
               setMode(next);
               if (next === "collision") {
@@ -2296,8 +2348,8 @@ export function UniverseApp() {
           />
         </div>
 
-        <div className={cn("relative z-10 mt-auto flex min-h-0 flex-col px-5 pb-3 pointer-events-auto sm:px-8 lg:pb-6", onboard && "hidden")}>
-          <div className="min-h-0 flex-1 overflow-hidden">
+        <div className={cn("hud-stack relative z-10 row-start-4 px-4 pt-3 pb-3 pointer-events-auto sm:px-8 lg:pb-5", onboard && "hidden")}>
+          <div className="glass shrink-0 rounded-[var(--radius-lg)] px-2 py-1.5" data-hud-band="clock">
           {hydrated ? (
             <CosmicClock
               copy={copy}
@@ -2316,6 +2368,8 @@ export function UniverseApp() {
           ) : (
             <div className="h-14" />
           )}
+          </div>
+          <div data-hud-band="read">
           <p className="sky-ink mt-1.5 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase" data-hud-catalog>
             {current.catalog}
             <span className="mx-2 text-fg-subtle/50">/</span>
@@ -2496,12 +2550,12 @@ export function UniverseApp() {
               </span>
               <span
                 key={current.id}
-                className="hud-swap min-w-0 truncate font-display text-base tracking-[-0.02em] text-fg sm:text-lg"
+                className="hud-swap min-w-0 font-display text-base leading-tight tracking-[-0.02em] text-balance text-fg sm:text-lg"
               >
                 {skyLabel}
               </span>
               {ours && compact ? (
-                <span className="shrink-0 font-mono text-[0.6875rem] tracking-[0.14em] text-fg-subtle uppercase">
+                <span className="shrink-0 font-mono text-xs tracking-[0.14em] text-fg-muted uppercase">
                   {copy.oursBadge}
                 </span>
               ) : null}
@@ -2534,6 +2588,8 @@ export function UniverseApp() {
               </Button>
             </div>
           </div>
+          </div>
+          <div className="glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
           {encounter ? (
             <p
               role="status"
@@ -2581,66 +2637,50 @@ export function UniverseApp() {
               facts={[copy.obs.hii, `${copy.obs.acousticEll} ${Math.round(acoustic.ell1)}`]}
             />
           ) : (
-            <SkyLine key={dispatchId} dispatch={dispatchId} lead={copy.plot[dispatchId]} />
+            <SkyLine
+              key={dispatchId}
+              dispatch={dispatchId}
+              lead={copy.plot[dispatchId]}
+              aside={plotNeedsFate(dispatchId) ? copy.fateCopy[ev.fate] : undefined}
+            />
           )}
           {shared ? (
             <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
           </div>
-          <div className="mt-2 flex flex-col gap-2 pt-1 sm:flex-row sm:items-center">
+          <div className="glass flex shrink-0 flex-row items-start gap-2 rounded-[var(--radius-xl)] p-1.5" data-hud-band="actions">
+            <div className="hud-actions min-w-0 flex-1">
             <Button
               onClick={birth}
-              className={cn(
-                "w-full sm:w-auto",
-                nudgeBirth && "nudge-ring",
-              )}
+              className={cn("shrink-0", nudgeBirth && "nudge-ring")}
             >
               <Aperture />
               {copy.birth}
             </Button>
-            <div className="flex min-w-0 items-center gap-2">
             {!ours ? (
               <Button
                 variant="outline"
+                className="shrink-0"
                 onClick={resetOurs}
                 data-nudge={oursNudge ? "ours" : undefined}
-                className="min-w-0 flex-1 sm:max-w-none sm:flex-none"
               >
-                <span className="truncate">{copy.ours}</span>
+                {copy.ours}
               </Button>
             ) : null}
             <Button
               variant="outline"
-              size="icon"
-              className={cn("shrink-0 sm:hidden", nudgeSurvey && "nudge-ring")}
-              data-nudge={nudgeSurvey ? "survey" : undefined}
-              aria-label={copy.survey}
-              onClick={runSurvey}
-            >
-              <ScanSearch />
-            </Button>
-            <Button
-              variant="outline"
-              className={cn("hidden sm:inline-flex", nudgeSurvey && "nudge-ring")}
+              className={cn("shrink-0", nudgeSurvey && "nudge-ring")}
               data-nudge={nudgeSurvey ? "survey" : undefined}
               onClick={runSurvey}
             >
               <ScanSearch />
-              <span className="truncate">{copy.survey}</span>
+              {copy.survey}
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="shrink-0 sm:hidden"
-              aria-label={copy.refine}
-              onClick={runRefine}
-            >
+            <Button variant="outline" className="shrink-0" onClick={runRefine}>
               <Atom />
+              {copy.refine}
             </Button>
-            <Button variant="outline" className="hidden sm:inline-flex" onClick={runRefine}>
-              <Atom />
-              <span className="truncate">{copy.refine}</span>
-            </Button>
+            </div>
             <MoreMenu
               compact
               copy={copy}
@@ -2655,7 +2695,6 @@ export function UniverseApp() {
               onDwarf={() => applyPreset(DWARF_SKY, DWARF_SEED)}
               onDesert={() => applyPreset(DESERT_EPOCH, DESERT_SEED)}
             />
-            </div>
           </div>
         </div>
       </div>
@@ -2908,6 +2947,7 @@ export function UniverseApp() {
             applyPreset(DESERT_EPOCH, DESERT_SEED);
           }}
           onHelp={() => showOverlay("help")}
+          onGames={() => showOverlay("games")}
           onCanon={openCanon}
           onKeep={() => showOverlay("keep")}
           onClose={() => {
@@ -2938,6 +2978,7 @@ export function UniverseApp() {
         />
       ) : null}
       {helpOpen ? <HelpSheet copy={copy} onKeep={() => showOverlay("keep")} onClose={() => setHelpOpen(false)} /> : null}
+      {gamesOpen ? <ArcadeSheet copy={copy} onClose={() => setGamesOpen(false)} /> : null}
       {scriptureOpen && passage ? (
         <ScriptureSheet
           copy={copy}

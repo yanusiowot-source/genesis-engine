@@ -8,6 +8,7 @@ import type { Copy } from "@/lib/universe/i18n";
 import {
   cosmicAgeGyr,
   cmbTempK,
+  EPOCH_INK,
   EPOCH_MARKS,
   epochJumpT,
   epochShown,
@@ -60,6 +61,8 @@ export function CosmicClock({
   const now = nowMarker(params, evaluation);
   const age = cosmicAgeGyr(shown, params, evaluation);
   const cmb = cmbTempK(shown, params);
+  const ink = EPOCH_INK[epoch];
+  const track = `linear-gradient(90deg, ${EPOCH_MARKS.map((m) => `${EPOCH_INK[m.id]} ${(m.t * 100).toFixed(1)}%`).join(", ")})`;
   const lastJump = useRef<CosmicEpoch | null>(null);
   const rootRef = useRef<HTMLElement>(null);
   const shownRef = useRef(shown);
@@ -119,10 +122,10 @@ export function CosmicClock({
         </Button>
         <div className="min-w-0 flex-1">
           <p
-            key={epoch}
-            className="hud-swap mb-0.5 flex items-baseline justify-between gap-3 font-mono text-[0.6875rem] tracking-wide text-fg-muted uppercase"
+            className="epoch-ink mb-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 font-mono text-xs uppercase"
+            style={{ color: ink }}
           >
-            <span className="min-w-0 truncate">{copy.obs.epochs[epoch]}</span>
+            <span className="min-w-0 text-pretty">{copy.obs.epochs[epoch]}</span>
             <span className="shrink-0 tabular-nums tracking-normal">
               {formatGyr(age)}
               <span className="text-fg-subtle"> · </span>
@@ -135,6 +138,8 @@ export function CosmicClock({
               max={1}
               step={0.002}
               value={[shown]}
+              trackStyle={{ background: track }}
+              rangeClassName="bg-white/25"
               onValueChange={([v]) => {
                 if (typeof v !== "number") return;
                 onChange(v);
@@ -167,10 +172,8 @@ export function CosmicClock({
                   >
                     <span
                       aria-hidden
-                      className={cn(
-                        "absolute top-1/2 left-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full",
-                        active ? "bg-accent" : "bg-fg-subtle/70",
-                      )}
+                      className="epoch-ink absolute top-1/2 left-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                      style={{ background: EPOCH_INK[m.id], opacity: active ? 1 : 0.55 }}
                     />
                   </button>
                 );
@@ -197,7 +200,7 @@ export function CosmicClock({
           </div>
         </div>
       </div>
-      <div className="flex gap-1" role="group" aria-label={copy.obs.epochs[epoch]} data-hud-tall>
+      <div className="hud-actions" role="group" aria-label={copy.obs.epochs[epoch]} data-hud-tall>
         {JUMPS.map((id) => {
           const active = epoch === id;
           return (
@@ -213,11 +216,11 @@ export function CosmicClock({
                 onChange(epochJumpT(id, params, evaluation));
               }}
               className={cn(
-                "h-11 min-h-11 min-w-0 flex-1 truncate rounded-[var(--radius-xs)] px-1",
-                "text-[0.6875rem] font-medium tracking-wide",
-                "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
-                active ? "bg-bg-subtle text-fg" : "text-fg-subtle hover:text-fg",
+                "epoch-ink h-11 min-h-11 rounded-[var(--radius-xs)] px-2",
+                "text-xs font-medium whitespace-nowrap",
+                active ? "text-fg" : "text-fg-muted hover:text-fg",
               )}
+              style={active ? { backgroundColor: `${ink}33`, color: ink } : undefined}
               aria-pressed={active}
             >
               {copy.obs.jumps[id]}

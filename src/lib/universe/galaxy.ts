@@ -4,6 +4,9 @@ import { isOurParams } from "./physics.ts";
 import { lerp, mulberry32 } from "./rng.ts";
 import type { Evaluation, UniverseParams } from "./types";
 
+/** Death cut in star coordinates. Fixed on purpose. Not the canvas scale and not `spread`. */
+const H0_DEATH = 0.18;
+
 export type Star = {
   x: number;
   y: number;
@@ -12,6 +15,7 @@ export type Star = {
   rgb: [number, number, number];
   a: number;
   phase: number;
+  /** Birth mass in solar units. The stage changes. This number does not. */
   mass: number;
   birthGyr: number;
 };
@@ -40,7 +44,7 @@ export type GalaxyModel = {
   haloRadius: number;
   jet: { power: number; flicker: number; fill: number; pa: number; fr: "none" | "fri" | "frii" };
   encounter: { q: number; rTide: number; kind: "minor" | "major" };
-  /** Finite H0 bars of the star cloud past 0.18. Not H₁. */
+  /** Finite H0 bars past H0_DEATH. Not H₁. */
   h0Long: number;
 };
 
@@ -164,7 +168,7 @@ export function lookCam(
   const fz = sp;
   let rx = fy;
   let ry = -fx;
-  let rz = 0;
+  const rz = 0;
   const rlen = Math.hypot(rx, ry);
   if (rlen < 1e-8) {
     rx = 1;
@@ -516,7 +520,7 @@ export function buildGalaxy(
     encounter,
     h0Long: persistLong(
       persistH0(stars.map((s) => [s.x, s.y])),
-      0.18,
+      H0_DEATH,
     ),
   };
 }

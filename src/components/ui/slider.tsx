@@ -1,12 +1,20 @@
 import * as SliderPrimitive from "@radix-ui/react-slider";
-import type { ComponentProps } from "react";
+import type { ComponentProps, CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
 function Slider({
   className,
   marker,
+  trackClassName,
+  trackStyle,
+  rangeClassName,
   ...props
-}: ComponentProps<typeof SliderPrimitive.Root> & { marker?: number }) {
+}: ComponentProps<typeof SliderPrimitive.Root> & {
+  marker?: number;
+  trackClassName?: string;
+  trackStyle?: CSSProperties;
+  rangeClassName?: string;
+}) {
   const min = props.min ?? 0;
   const max = props.max ?? 100;
   const markerPct =
@@ -20,8 +28,11 @@ function Slider({
       )}
       {...props}
     >
-      <SliderPrimitive.Track className="relative h-1 w-full grow overflow-visible rounded-full bg-bg-subtle">
-        <SliderPrimitive.Range className="absolute h-full rounded-full bg-accent/70" />
+      <SliderPrimitive.Track
+        className={cn("relative h-1 w-full grow overflow-visible rounded-full bg-bg-subtle", trackClassName)}
+        style={trackStyle}
+      >
+        <SliderPrimitive.Range className={cn("absolute h-full rounded-full bg-accent/70", rangeClassName)} />
         {markerPct !== null ? (
           <span
             aria-hidden

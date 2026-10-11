@@ -49,6 +49,19 @@ export function diskPlace(
   };
 }
 
+/** Shader order: rotate the world point, then scale. Uniform scale commutes with diskPlace. */
+export function shaderDiskPlace(
+  x: number,
+  y: number,
+  view: { ox: number; oy: number; scale: number; rot: number },
+): { x: number; y: number } {
+  const c = Math.cos(view.rot);
+  const s = Math.sin(view.rot);
+  const rx = x * c - y * s;
+  const ry = x * s + y * c;
+  return { x: view.ox + rx * view.scale, y: view.oy + ry * view.scale };
+}
+
 /** Homology of the compute cull: after 2D rotation, is the sprite on the canvas? */
 export function instanceOnScreen(
   x: number,
@@ -61,6 +74,14 @@ export function instanceOnScreen(
   return p.x + size >= 0 && p.x - size <= view.w && p.y + size >= 0 && p.y - size <= view.h;
 }
 
+const DISK_PLACE_FN = `fn placeDisk(wx: f32, wy: f32) -> vec2f {
+  let c = cos(u.rot);
+  let s = sin(u.rot);
+  let rx = wx * c - wy * s;
+  let ry = wx * s + wy * c;
+  return vec2f(u.origin.x + rx * u.scale, u.origin.y + ry * u.scale);
+}`;
+
 const WGSL = /* wgsl */ `
 struct Uniforms {
   origin: vec2f,
@@ -70,12 +91,14 @@ struct Uniforms {
   point: f32,
   vis: f32,
   count: u32,
-  pad0: u32,
-  pad1: u32,
+  time: f32,
+  live: u32,
   pad2: u32,
 };
 
 @group(0) @binding(0) var<uniform> u: Uniforms;
+
+${DISK_PLACE_FN}
 
 struct VertOut {
   @builtin(position) clip: vec4f,
@@ -89,17 +112,15 @@ fn vs(
   @location(1) pos: vec4f,
   @location(2) col: vec4f,
 ) -> VertOut {
-  let c = cos(u.rot);
-  let s = sin(u.rot);
-  let x = pos.x * c - pos.y * s;
-  let y = pos.x * s + pos.y * c;
-  let px = u.origin.x + x * u.scale;
-  let py = u.origin.y + y * u.scale;
+  let p = placeDisk(pos.x, pos.y);
   let size = max(pos.w, 0.45) * u.point;
   let q = corner * size;
+  let phase = pos.x * 17.0 + pos.y * 13.0;
+  let pulse = 0.62 + 0.24 * sin(u.time * 2.4 + phase) + 0.14 * sin(u.time * 0.7 + phase * 1.7);
+  let tw = select(1.0, pulse, u.live == 1u);
   var out: VertOut;
-  out.clip = vec4f(((px + q.x) / u.res.x) * 2.0 - 1.0, 1.0 - ((py + q.y) / u.res.y) * 2.0, 0.0, 1.0);
-  out.col = vec4f(col.rgb, col.a * u.vis);
+  out.clip = vec4f(((p.x + q.x) / u.res.x) * 2.0 - 1.0, 1.0 - ((p.y + q.y) / u.res.y) * 2.0, 0.0, 1.0);
+  out.col = vec4f(col.rgb, col.a * u.vis * tw);
   out.local = corner;
   return out;
 }
@@ -123,8 +144,8 @@ struct Uniforms {
   point: f32,
   vis: f32,
   count: u32,
-  pad0: u32,
-  pad1: u32,
+  time: f32,
+  live: u32,
   pad2: u32,
 };
 struct Star { pos: vec4f, col: vec4f }
@@ -136,20 +157,17 @@ struct Counter { n: atomic<u32> }
 @group(0) @binding(3) var<storage, read_write> counter: Counter;
 @group(0) @binding(4) var<storage, read_write> indirect: array<u32>;
 
+${DISK_PLACE_FN}
+
 @compute @workgroup_size(64)
 fn cull(@builtin(global_invocation_id) id: vec3u) {
   let i = id.x;
   if (i >= u.count) { return; }
   let star = src[i];
   if (star.col.a * u.vis < 0.012) { return; }
-  let c = cos(u.rot);
-  let s = sin(u.rot);
-  let x = star.pos.x * c - star.pos.y * s;
-  let y = star.pos.x * s + star.pos.y * c;
-  let px = u.origin.x + x * u.scale;
-  let py = u.origin.y + y * u.scale;
+  let p = placeDisk(star.pos.x, star.pos.y);
   let size = max(star.pos.w, 0.45) * u.point;
-  if (px + size < 0.0 || px - size > u.res.x || py + size < 0.0 || py - size > u.res.y) {
+  if (p.x + size < 0.0 || p.x - size > u.res.x || p.y + size < 0.0 || p.y - size > u.res.y) {
     return;
   }
   let slot = atomicAdd(&counter.n, 1u);
@@ -187,7 +205,17 @@ export type SkyView = {
   rot: number;
   vis: number;
   dpr: number;
+  /** Seconds. Zero freezes the scintillation. */
+  time?: number;
+  still?: boolean;
 };
+
+/** Same pulse as the canvas twinkle. Still skies stay at 1. Does not move the star. */
+export function starTwinkle(time: number, x: number, y: number, live: boolean): number {
+  if (!live) return 1;
+  const phase = x * 17 + y * 13;
+  return 0.62 + 0.24 * Math.sin(time * 2.4 + phase) + 0.14 * Math.sin(time * 0.7 + phase * 1.7);
+}
 
 /** WebGPU framebuffer is device pixels. 2D canvas setTransform(dpr) hid this. */
 export function deviceView(view: SkyView): {
@@ -274,7 +302,7 @@ export async function createSkyGpu(canvas: HTMLCanvasElement): Promise<SkyGpu | 
     const starUsage = GPUBufferUsage.VERTEX | GPUBufferUsage.COPY_DST | GPUBufferUsage.STORAGE;
     let stars = grow(device, 4096 * STAR_FLOATS * 4, starUsage);
     let compact = grow(device, 4096 * STAR_FLOATS * 4, starUsage);
-    let cap = 4096;
+    const cap = 4096;
     const counter = grow(device, 256, GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST);
     const indirect = grow(device, 256, GPUBufferUsage.INDIRECT | GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST);
     const bind = device.createBindGroup({
@@ -355,6 +383,8 @@ export async function createSkyGpu(canvas: HTMLCanvasElement): Promise<SkyGpu | 
         uboF[6] = gpu.point;
         uboF[7] = gpu.vis;
         uboU[8] = packed;
+        uboF[9] = view.still ? 0 : (view.time ?? 0);
+        uboU[10] = view.still ? 0 : 1;
         device.queue.writeBuffer(uniform, 0, uboBytes);
         const encoder = device.createCommandEncoder();
         const useCull = !!(cullPipe && finPipe && cullBind && packed > 0);

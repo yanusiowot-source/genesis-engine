@@ -36,6 +36,18 @@ export const EPOCH_MARKS: { id: CosmicEpoch; t: number }[] = [
   { id: "heatDeath", t: 0.96 },
 ];
 
+/** Clock and sky-track inks. Same order as the painted epochs, light enough to read. */
+export const EPOCH_INK: Record<CosmicEpoch, string> = {
+  inflation: "#ffb15a",
+  recombination: "#e07a52",
+  darkAges: "#8d86a8",
+  reionization: "#7eb6ff",
+  stellar: "#c9a6ff",
+  degeneracy: "#e0946a",
+  blackHoles: "#e07a8c",
+  heatDeath: "#9fd0ea",
+};
+
 export function epochAt(t: number): CosmicEpoch {
   const x = clamp(t, 0, 1);
   let current: CosmicEpoch = "inflation";
@@ -53,7 +65,7 @@ export function epochShown(t: number): CosmicEpoch {
 
 export type EpochBlend = { from: CosmicEpoch; to: CosmicEpoch; mix: number };
 
-/** Smoothstep mix into the next epoch over the last ~28% of each segment. */
+/** Smoothstep across the whole segment, so the sky does not sit still and then jump. */
 export function epochBlend(t: number): EpochBlend {
   const x = clamp(t, 0, 1);
   const marks = EPOCH_MARKS;
@@ -74,9 +86,7 @@ export function epochBlend(t: number): EpochBlend {
   }
   const span = Math.max(1e-6, to.t - from.t);
   const u = (x - from.t) / span;
-  const window = 0.28;
-  const raw = (u - (1 - window)) / window;
-  const mix = raw <= 0 ? 0 : raw >= 1 ? 1 : raw * raw * (3 - 2 * raw);
+  const mix = u <= 0 ? 0 : u >= 1 ? 1 : u * u * (3 - 2 * u);
   return { from: from.id, to: to.id, mix };
 }
 
@@ -290,6 +300,7 @@ export type StarState = {
   teff: number;
   logL: number;
   rgb: [number, number, number];
+  /** Drawing scale. Not a radius in solar units: a real white dwarf would be invisible. */
   radiusScale: number;
   flash: number;
 };
@@ -481,6 +492,7 @@ export function teffToRgb(teff: number): [number, number, number] {
   ];
 }
 
+/** Stage from birth mass and age. Winds do not reduce the mass, and the remnant keeps it. */
 export function evolveStar(
   mass: number,
   ageGyr: number,
@@ -1192,8 +1204,13 @@ export function circularSpeed(
   return Math.sqrt(Math.max(0, vDisk2 + vBulge * vBulge + vHalo * vHalo + hole / x));
 }
 
+let skyId: { params: UniverseParams; ev: Evaluation; key: string } | null = null;
+
 function skyKey(params: UniverseParams, ev: Evaluation): string {
-  return `${params.gravity.toFixed(4)}|${params.matter.toFixed(4)}|${params.expansion.toFixed(4)}|${params.darkEnergy.toFixed(4)}|${params.quantumNoise.toFixed(4)}|${params.complexity.toFixed(4)}|${ev.morphology}|${ev.darkMatterFraction.toFixed(4)}|${ev.structure.toFixed(3)}|${ev.lifeWindowGyr.toFixed(2)}`;
+  if (skyId && skyId.params === params && skyId.ev === ev) return skyId.key;
+  const key = `${params.gravity.toFixed(4)}|${params.matter.toFixed(4)}|${params.expansion.toFixed(4)}|${params.darkEnergy.toFixed(4)}|${params.quantumNoise.toFixed(4)}|${params.complexity.toFixed(4)}|${ev.morphology}|${ev.darkMatterFraction.toFixed(4)}|${ev.structure.toFixed(3)}|${ev.lifeWindowGyr.toFixed(2)}`;
+  skyId = { params, ev, key };
+  return key;
 }
 
 const OMEGA_BINS = 32;

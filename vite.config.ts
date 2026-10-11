@@ -182,6 +182,9 @@ export default defineConfig(({ command, isPreview }) => ({
   },
   build: {
     sourcemap: true,
+    // The shared client chunk is named i18n-*.js after i18n.ts, its facade.
+    // That file also ships physics and observatory. The name is not the contents.
+    // Do not read its size as the English copy, and do not hardcode i18n-*.js.
   },
   optimizeDeps: {
     include: [

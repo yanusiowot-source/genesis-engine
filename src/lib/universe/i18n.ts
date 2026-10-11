@@ -250,6 +250,29 @@ export type Copy = {
   tapToHear: string;
   help: string;
   helpTitle: string;
+  games: string;
+  gamesTitle: string;
+  gamesNote: string;
+  gamesTiles: string;
+  gamesTilesHint: string;
+  gamesSnake: string;
+  gamesSnakeHint: string;
+  gamesBlocks: string;
+  gamesBlocksHint: string;
+  gamesRun: string;
+  gamesRunHint: string;
+  gamesJump: string;
+  gamesScore: string;
+  gamesOver: string;
+  gamesAgain: string;
+  gamesWon: string;
+  gamesTurn: string;
+  gamesDrop: string;
+  gamesNext: string;
+  gamesBest: string;
+  gamesLines: string;
+  gamesPause: string;
+  gamesPlay: string;
   helpIntro: string;
   helpItems: { title: string; body: string }[];
   scripture: {
@@ -507,6 +530,26 @@ export type Copy = {
     censusMs: string;
     censusGiant: string;
     censusRemnant: string;
+    worldsTitle: string;
+    worldsHint: string;
+    worldsEmpty: string;
+    worldsHost: string;
+    worldsAu: string;
+    worldsYr: string;
+    worldsDay: string;
+    worldsBound: string;
+    worldsSwallowed: string;
+    worldsPhase: string;
+    worldsRing: string;
+    worldsMoon: string;
+    worldsPull: string;
+    worldsHour: string;
+    worldsImpacts: string;
+    worldsEncounter: Record<"clear" | "crossing" | "impact", string>;
+    worldsStage: Record<
+      "unborn" | "mainSequence" | "giant" | "supernova" | "whiteDwarf" | "neutronStar" | "blackHole",
+      string
+    >;
   };
   labPanes: { constants: string; hunt: string; life: string; laws: string; desk: string };
   research: {
@@ -531,6 +574,7 @@ export type Copy = {
     theorist: string;
     apply: string;
     empty: string;
+    failed: string;
     insightsTitle: string;
     insights: Record<InsightId, string>;
   };
@@ -737,23 +781,23 @@ const en: Copy = {
   kicker: "Cosmological laboratory",
   appName: "Genesis Engine",
   birth: "Birth a universe",
-  birthWitness: "A new plate. Most corridors stay closed. Survey 64 is the next measurement.",
+  birthWitness: "A new sky. Most corridors stay closed. Survey 64 is the next measurement if this one is empty.",
   birthGood: "And I saw that it was good.",
-  tapSky: "A transient. Look. Landing is not modeled.",
-  scanning: "Survey of 64 envelopes. Most stay quiet.",
+  tapSky: "The disk flashed. Look. There is nowhere to land.",
+  scanning: "Survey of 64 skies. Most stay empty.",
   plot: {
-    arrive: "First plate. Nothing is saved until this sky is kept.",
-    empty: "No corridor is open on this plate. The journal is still waiting for a saved sky.",
-    dice: "Several plates are on file. The open item of work is unchanged.",
+    arrive: "First plate. This sky is not saved until you keep it in the log.",
+    empty: "No corridor is open on this sky. The log is waiting until you save it.",
+    dice: "Several plates are already in the log. What to do next has not changed.",
     foothold: "Liquid water is allowed. That is not a detection.",
     teeming: "The living fraction is high. This is not a census.",
     silicon: "A hot solvent is allowed. Water is not the only solvent in the model.",
     tide: "A swarm corridor is open. The figure is a period, not a fleet.",
     enduring: "Bound structures can persist. The model does not name them.",
-    hard: "This sky ends early. Save the plate, then draw another.",
-    blink: "A transient in the disk. Landing is not modeled.",
-    survey: "Survey of 64 envelopes. Most stay quiet.",
-    home: "This plate matches our parameters. A new birth leaves this sky.",
+    hard: "This sky ends early. Save it, then draw another.",
+    blink: "The disk flashed. There is nowhere to land.",
+    survey: "Survey of 64 skies. Most stay empty.",
+    home: "This sky matches our parameters. A new birth leaves it.",
     cluster: "Cluster elliptical. Magorrian relation on, radio lobe. Not Virgo.",
     dwarf: "Dwarf irregular. Quiet hole, minor merger. Not a census.",
     highway: "One road, two lanes. No settlement within a Hubble time.",
@@ -844,15 +888,15 @@ const en: Copy = {
   onboarding: [
     {
       title: "Most skies stay empty",
-      body: "Random constants almost never make stars. Birth anyway. If the disk blinks, look. Do not land. Survey 64 if the sky is empty.",
+      body: "A random set of constants almost never makes stars. Birth one anyway. If the disk flashes, look. There is nowhere to land. If the sky stays empty, run Survey 64.",
     },
     {
       title: "Six constants",
-      body: "Lab reads this sky first. Levers wait under Sculpt. Grey ticks are home.",
+      body: "Open Lab to read what this sky did. The six sliders sit under Sculpt. Grey marks are our universe, not a goal.",
     },
     {
       title: "Four corridors",
-      body: "Carbon wants quiet water. Silicon, heat. Eternal thought, almost no dark energy. A self-replicating tide wants time and metals. The work is a thesis, not a score.",
+      body: "Carbon needs quiet water. Silicon needs heat. A mind that lasts needs almost no dark energy. A probe that copies itself needs time and metals. An open corridor means it is allowed, not that worlds were counted, and not a score.",
     },
   ],
   fateLabel: {
@@ -955,35 +999,62 @@ const en: Copy = {
   tapToHear: "Tap to hear the sky",
   help: "How this works",
   helpTitle: "How to use the laboratory",
-  helpIntro: "Three rooms: Sky, Lab, Log. Six constants. Four corridors. Known skies include home, a cluster elliptical, a dwarf.",
+  games: "Games",
+  gamesTitle: "Games",
+  gamesNote: "These are games. They do not change the sky.",
+  gamesTiles: "Tiles",
+  gamesTilesHint: "Slide. Equals join. 2048 is the mark, not a score of the sky.",
+  gamesSnake: "Snake",
+  gamesSnakeHint: "Eat, and do not run into yourself.",
+  gamesBlocks: "Blocks",
+  gamesBlocksHint: "Pieces of four squares fall. This is not a licensed falling-block product.",
+  gamesRun: "Run",
+  gamesRunHint: "A spark runs the lane. Jump the ridges. This is not a licensed runner, and it does not change the sky.",
+  gamesJump: "Jump",
+  gamesScore: "Score",
+  gamesOver: "Done",
+  gamesAgain: "Again",
+  gamesWon: "The mark is there. Keep playing.",
+  gamesTurn: "Turn",
+  gamesDrop: "Drop",
+  gamesNext: "Next",
+  gamesBest: "Best",
+  gamesLines: "Rows",
+  gamesPause: "Pause",
+  gamesPlay: "Play",
+  helpIntro: "Six sliders set a sky. It either forms stars or it does not. Four corridors say whether that kind of life is allowed. This is not a score, and not a count of worlds.",
   helpItems: [
     {
       title: "Sky",
-      body: "The field is the work. You are posted to watch. Birth is a dispatch. Most skies stay empty. If the disk blinks, look. Do not land. Survey 64 hunts a foothold.",
+      body: "Birth builds a sky from the six constants. Most skies stay empty. If the disk flashes, look. There is nowhere to land. Survey 64 searches for a foothold when the sky is empty.",
     },
     {
       title: "Lab · Const",
-      body: "Opens on fate, corridors and a field note. Six levers live under Sculpt. Grey ticks are ΛCDM.",
+      body: "Shows the fate of this sky, which corridors are open, and a short note. The six sliders are under Sculpt. Grey marks are our universe.",
+    },
+    {
+      title: "Controls",
+      body: "Along the bottom: Sky, Lab, Log. Birth makes a new sky. Survey 64 tries 64 skies when this one is empty. In Lab, Sculpt moves the six sliders. Keys: B birth, S survey, Space look, [ ] time, 1 2 3 switch rooms, Esc closes.",
     },
     {
       title: "Lab · Hunt",
-      body: "Opening Hunt maps the prior. Most draws are dead. Load a find onto the sky.",
+      body: "Hunt throws many random skies. Almost all are empty. You can put one you keep onto the screen.",
     },
     {
       title: "Lab · Life",
-      body: "A civilization path for this sky, then a short quiz on spectra and transits.",
+      body: "A possible path for a civilization on this sky, then a few questions on spectra and transits. The questions check attention, not the sky.",
     },
     {
       title: "Lab · Laws",
-      body: "Fit a formula, test a cut, pull a real star plate onto the sky.",
+      body: "Fits a formula to this sky, lets you test a guess, and can lay a real star field on the screen.",
     },
     {
       title: "Lab · Desk",
-      body: "Walk the posterior cloud. Export FITS, VOTable or slides. Classify the disk.",
+      body: "Runs a chain of nearby skies and exports a file. The disk class is written here too.",
     },
     {
       title: "Log",
-      body: "Every born sky lives here. Star the keepers. Clear only from Settings.",
+      body: "Skies you birth are kept here. A star marks one you want to hold. The log is cleared only from Settings.",
     },
     {
       title: "Nearby",
@@ -995,7 +1066,7 @@ const en: Copy = {
     },
     {
       title: "The work",
-      body: "Skies to witness. Dots under the chips. Tap them. Physics is not a score.",
+      body: "Dots under the chips are skies worth opening. Tapping one does not award points.",
     },
     {
       title: "Canon",
@@ -1003,11 +1074,15 @@ const en: Copy = {
     },
     {
       title: "Tide",
-      body: "A fourth envelope: self-replicating probes as a clock, not a series. Known skies → Tide. Type vnm.",
+      body: "The fourth corridor: probes that copy themselves. The number is a time span, not a fleet. Known skies → Tide, or type vnm.",
     },
     {
       title: "Side roads",
-      body: "Codes, not a franchise. a51 classifies a plate. r60 is a Hubble-long road. ice is a thin cold economy. wow is a 72-second spike. wit: look, don’t land. gt is a throat, not a door. zon rewrites the law for a few seconds.",
+      body: "Short keyboard codes, not levels. a51 withholds a sky. r60 is a long road. ice is a cold economy. wow is a 72-second spike. wit means look, don’t land. gt is a throat, not a door. zon changes the law for a few seconds.",
+    },
+    {
+      title: "Games",
+      body: "The gamepad beside settings opens tiles, a snake, and falling blocks. They do not change the sky. Pause holds the board. The best mark stays on this device.",
     },
     {
       title: "A copy",
@@ -1025,11 +1100,11 @@ const en: Copy = {
     hint: "The line follows cosmic time and fate. English is KJV; Russian and Belarusian follow the Synodal sense. Links open Bible Gateway.",
   },
   labPaneHint: {
-    constants: "A reading of this sky. Levers under Sculpt. Grey ticks are home.",
-    hunt: "The prior, mapped. Load a find onto the sky.",
-    life: "A mind's path on this sky. Spectra if you want to look.",
-    laws: "A formula is fitted as you enter. Then a test, a real plate.",
-    desk: "The posterior starts walking. Then export, classify.",
+    constants: "What this sky did. The sliders are under Sculpt. Grey marks are our universe.",
+    hunt: "Hunt throws random skies. Almost all are empty. Put a find on the screen.",
+    life: "A possible path for a mind on this sky. Spectra if you want to look.",
+    laws: "A formula is fitted when you open this. Then a guess, then a real star field.",
+    desk: "A chain of nearby skies starts here. Then export and the disk class.",
   },
   shortcutsTitle: "Keys",
   shortcutsBody: "B birth · S survey · R refine · E evolve · [ ] time · Space look · tau · 1 sky · 2 lab · 3 log · Esc close",
@@ -1371,16 +1446,16 @@ const en: Copy = {
     dm: "Dark matter share",
     baryons: "Baryons",
     dmHint:
-      "Ωc / Ωm analog. Baryons are a thin loading from initial order; the rest of the matter is the halo. Not a particle. Halo mode is the detection — arcs sit on the Einstein radius.",
+      "Share of the unseen mass. Ordinary matter is a thin coat laid down early. The rest is the halo. Not a particle you can name. In halo mode the arcs sit on the Einstein radius. That is the detection.",
     rotationCurve: "Rotation curve",
     rotationHint:
-      "Visible mass falls as 1/√r. A halo holds the outer disk. Homology of Rubin's curves, not a SPARC fit.",
+      "The stars you can see would slow down farther out. A halo keeps the outer disk spinning. Same shape as Rubin's curves, not a fit to the SPARC catalog.",
     rotationBaryon: "Baryons only",
     rotationHalo: "This sky",
     rotationR: "radius →",
     rotationV: "km/s",
     tfTitle: "Tully–Fisher",
-    tfHint: "Baryonic mass vs v⁴. Our sky pins the ridge. Not SPARC, not MOND.",
+    tfHint: "Heavier galaxies spin faster. This sky sits on that ridge. Not the SPARC catalog, and not a MOND fit.",
     tfNiche: {
       below: "Halo-heavy",
       ridge: "Ridge",
@@ -1389,11 +1464,11 @@ const en: Copy = {
     tfRatio: "M_b / v⁴",
     rarTitle: "g_obs vs g_bar",
     fjTitle: "Faber–Jackson",
-    fjHint: "L ∝ σ⁴ if size scales as √M. A projection of the plane. Noise puffs Re. Not SPARC.",
+    fjHint: "In an elliptical, brighter galaxies have faster-moving stars, if size grows with the square root of mass. Size noise puffs the points. Not SPARC.",
     fjSigma: "σ",
     fjRatio: "L / σ⁴",
     fpTitle: "Fundamental plane",
-    fpHint: "Dynamical Υ(M) is a U: dwarfs and giants high, L* the valley. Not stellar Υ*, not SPS.",
+    fpHint: "Mass per light is high in dwarfs and giants, and low in galaxies like ours. That bend is the whole galaxy, not the stars alone.",
     fpNiche: {
       tight: "On plane",
       tilted: "Tilted",
@@ -1411,7 +1486,7 @@ const en: Copy = {
     fpSersic: "n",
     fpMass: "mass →",
     imfTitle: "IMF",
-    imfHint: "IMF sets recycling, yield and SN heating. Top-heavy returns gas and cores the halo. Bottom-heavy locks mass. Not a chemical model.",
+    imfHint: "The mix of star masses sets how much gas comes back, how many metals, and how hard the explosions stir the halo. More heavy stars return gas and stir the dark mass. More light stars lock the mass in. This is not a model of chemistry.",
     imfNiche: {
       top: "Top-heavy",
       chabrier: "Chabrier",
@@ -1425,7 +1500,7 @@ const en: Copy = {
     imfR: "R",
     imfY: "y",
     massTitle: "Stellar mass",
-    massHint: "Photometry assumes Chabrier. Virial is mass inside Re. Lens is mass inside θE. They are not the same number.",
+    massHint: "Light gives a mass only if you assume a usual mix of stars, Chabrier. Motions give the mass inside the radius that holds half the light. The lens gives the mass inside the Einstein radius. Those are three different numbers.",
     massNiche: {
       agree: "Agree",
       imf: "IMF bias",
@@ -1436,7 +1511,7 @@ const en: Copy = {
     massVirial: "M_vir",
     massLens: "M_lens",
     bhTitle: "SMBH",
-    bhHint: "The jet is a kpc funnel. Streams, β and Φ live at the horizon. Not HARM, not EHT.",
+    bhHint: "The jet is a funnel thousands of light-years long. The streams and the spin live at the edge of the hole. This is not a HARM run and not an EHT image.",
     bhNiche: {
       quiet: "Quiet",
       maintain: "Radio mode",
@@ -1497,7 +1572,7 @@ const en: Copy = {
     },
     haloTitle: "Halo analysis",
     haloHint:
-      "Einasto in 3D, NFW for the lens, Burkert an empirical core, coreNFW a heated dwarf. Not a live N-body.",
+      "Four shapes for the unseen mass. Einasto is the smooth pile. NFW is the one the lens uses. Burkert is a core drawn from galaxies, not from a simulation. coreNFW is a dwarf whose center was heated. This is not a live swarm of particles.",
     haloNiche: {
       keplerian: "Keplerian",
       partial: "Partial",
@@ -1538,7 +1613,7 @@ const en: Copy = {
     cmb: "CMB",
     acousticTitle: "Acoustic peaks",
     acousticHint:
-      "Photon-baryon fluid at last scattering. Odd peaks load with baryons; the third feels the halo. Cells on the wall are enlarged; ℓ₁ is the number.",
+      "Sound in the early fog, frozen when the fog cleared. Odd peaks grow when there is more ordinary matter. The third peak feels the unseen mass. The cells on the wall are drawn larger than the sky. The number under the first peak says which wave it is.",
     acousticEll: "ℓ₁",
     acousticEll3: "ℓ₃",
     acousticOddEven: "Odd / even",
@@ -1546,7 +1621,7 @@ const en: Copy = {
     twentyOne: "21 cm",
     hii: "H II",
     diskTitle: "Disk hydrodynamics",
-    diskHint: "Toomre Q on a radial mesh. Plummer floor at the core. Not SPH, not a live hydro. H0 persistence of the star cloud counts clumps that live past a scale — not H₁, not spacetime.",
+    diskHint: "How easily the disk breaks into clumps, from the center out. The core is softened so the middle does not spike. This is not a flowing-gas simulation. The long bars count clumps that stay together past one size. They are not holes in spacetime.",
     diskQ: "Q",
     diskPitch: "Pitch",
     diskShear: "Shear",
@@ -1588,13 +1663,39 @@ const en: Copy = {
     censusMs: "Main sequence",
     censusGiant: "Giants",
     censusRemnant: "Remnants",
+    worldsTitle: "One planetary system",
+    worldsHint:
+      "Kepler ellipses about one star drawn from this sky's mass function, not a star painted on the disk. A planet's period is √(a³/M★); its mass does not enter. Gravity is Newton's pull at this epoch, G = 4π². An overlap merges the bodies and recircularizes them at the center of mass; crossing ellipses are not a merger until the bodies meet. A moon's period uses the planet's mass, stays inside 0.4 of the Hill sphere at pericenter, and stays outside the star. A ring, only on a bound world of at least 20 Earth masses, sits between 1.4 and 2.4 sketch radii — not a Cassini map. A world whose pericenter lies on or inside the photosphere is swallowed and loses both. The watch is velocity Verlet with a one-hour step, a few days at most, planets only. Moons are not stepped. It does not run to the age of the star. The life corridor does not change.",
+    worldsEmpty: "No star in this draw has ignited yet.",
+    worldsHost: "Host",
+    worldsAu: "AU",
+    worldsYr: "yr",
+    worldsDay: "d",
+    worldsBound: "Bound",
+    worldsSwallowed: "Swallowed",
+    worldsPhase: "true anomaly",
+    worldsRing: "Ring",
+    worldsMoon: "Moon",
+    worldsPull: "pull",
+    worldsHour: "h",
+    worldsImpacts: "impacts",
+    worldsEncounter: { clear: "Clear", crossing: "Crossing", impact: "Merged" },
+    worldsStage: {
+      unborn: "Unborn",
+      mainSequence: "Main sequence",
+      giant: "Giant",
+      supernova: "Supernova",
+      whiteDwarf: "White dwarf",
+      neutronStar: "Neutron star",
+      blackHole: "Black hole",
+    },
   },
   labPanes: { constants: "Const", hunt: "Hunt", life: "Life", laws: "Laws", desk: "Desk" },
   research: {
     title: "Expedition",
-    hint: "Three agents on the closed-form physics — not a trained net. Observer draws a mixed prior (wild draws plus all four corridors). Theorist hill-climbs. Analyst permutes each constant and measures how hard the score moves.",
+    hint: "The expedition compares this sky with a pile of random ones. That pile is the prior: wild draws plus all four corridors. The theorist looks for a tighter fit. The analyst changes one constant at a time and watches how far the score moves. Not a trained net.",
     run: "Run expedition",
-    running: "Mapping the prior…",
+    running: "Counting the prior…",
     target: {
       carbon: "Carbon",
       silicon: "Silicon",
@@ -1611,22 +1712,23 @@ const en: Copy = {
       overall: "Take the better of carbon, silicon, eternity, or the tide.",
       diversity: "Rare skies where both chemistries are open.",
     },
-    sample: "Prior",
+    sample: "Random skies",
     viableC: "Carbon-viable",
     viableSi: "Silicon-viable",
     viableEt: "Dyson-open",
     viableSw: "Tide-open",
     corr: "C–Si correlation",
-    percentile: "This sky in the prior",
-    importance: "What the prior cares about",
+    percentile: "Where this sky sits among them",
+    importance: "Which constant moves the pile",
     importanceHint:
-      "Permutation importance of the scoring model itself. Shuffle one constant across the sample; the score that jumps is the one that mattered.",
-    local: "What this sky cares about",
-    fates: "Fate mix in the prior",
+      "Shuffle one constant through the random skies. The score that jumps is the lever.",
+    local: "Which constant moves this sky",
+    fates: "Which fates came up",
     observer: "Observer",
     theorist: "Theorist",
     apply: "Load this sky",
-    empty: "Run an expedition to map the prior. Most draws will be dead. That is the measurement.",
+    empty: "Run the expedition. It throws many random skies, the prior. Most are dead. That is the measurement.",
+    failed: "The expedition did not finish. Run it again.",
     insightsTitle: "Analyst",
     insights: {
       rareViable:
@@ -1644,9 +1746,9 @@ const en: Copy = {
       matterCrunch:
         "Matter density is a hinge: too thin and nothing collapses; too thick and the cosmos recollapses.",
       thisSkyHigh:
-        "This sky sits in the high tail of the prior for the chosen target. Worth starring.",
+        "This sky sits in the high tail of the random pile for the chosen target. Worth starring.",
       thisSkyLow:
-        "This sky is ordinary or worse than the prior. Refine, or hunt.",
+        "This sky is ordinary or worse than most of the random pile. Refine, or hunt.",
       theoristImproved:
         "Theorist climbed past the Observer’s best draw. Hill-climbing found a tighter corridor.",
       darkEnergyDominatesEternal:
@@ -1659,7 +1761,7 @@ const en: Copy = {
   },
   civ: {
     title: "Intelligence window",
-    hint: "A Drake-style bottleneck on this sky — not a census of minds.",
+    hint: "Where a path from chemistry to a mind can close on this sky. Not a count of minds.",
     path: "Chemistry path",
     pathLabel: {
       carbon: "Carbon–water",
@@ -1667,10 +1769,10 @@ const en: Copy = {
       eternal: "Dyson remnant",
       none: "No foothold",
     },
-    intelligence: "P(intelligence)",
-    carrying: "Carrying analog",
-    ships: "Diaspora analog",
-    routes: "Thin diaspora analog",
+    intelligence: "Chance of a mind",
+    carrying: "How much it could feed",
+    ships: "Energy left for a road, not a fleet",
+    routes: "Thin diaspora analog: a road, not a fleet",
     spend: "Carrying × stellar generations — energy a mind could spend, not a treasury and not a fleet.",
     quiet: "Nobody is shouting. Fermi’s silence is the datum — not a series.",
     collapsed: "The ecology analog collapses — recollapse, runaway, or extraction outruns growth.",
@@ -1778,8 +1880,8 @@ const en: Copy = {
         hint: "An elliptical, or a feeding AGN.",
       },
       ring: {
-        title: "SIS ring",
-        body: "Isothermal halo. The Einstein ring of a lens, not a texture.",
+        title: "Lens ring",
+        body: "An isothermal halo (SIS) draws an Einstein ring. That is a lens, not a pattern on the disk.",
         hint: "Elliptical sky. Lensing mode is the eyepiece.",
       },
     },
@@ -1798,7 +1900,7 @@ const en: Copy = {
       toomre: "Toomre break. The disk tears.",
       peak: "Loaded peaks. Not our ℓ 220.",
       engine: "Central engine. Quasar or quench.",
-      ring: "SIS ring. A lens, not a texture.",
+      ring: "Lens ring. An isothermal halo, not a pattern on the disk.",
     },
     cue: {
       witness: "Birth a universe.",
@@ -1885,11 +1987,11 @@ const en: Copy = {
   },
   laws: {
     title: "Laws",
-    hint: "Fit a formula, test a cut, load a real Pan-STARRS plate. Interpretable math on the scoring model — not a neural net.",
+    hint: "Three jobs. Fit a formula to this sky. Test whether a threshold matters. Lay a real Pan-STARRS star field on the screen. The formula fits the scoring model. It is not new physics and not a neural net.",
     symbolic: "Recover a formula",
     symbolicHint:
-      "Fit a sparse sum of Gaussians N(x; μ, σ), sigmoids, and a few products that match the clustering term in the scoring model. Genetic programming may compress it. Held-out R² is the score; AIC penalizes clutter.",
-    discover: "Discover law",
+      "A short formula that copies the scoring model: a few bumps, bends, and products. Not new physics. Held-out R² is the score. AIC charges for extra pieces.",
+    discover: "Fit a formula",
     discovering: "Fitting the model…",
     empty: "Discover a law to see an expression for this target. The formula is a fit to the scoring model, not new physics.",
     r2Train: "R² train",
@@ -1906,7 +2008,7 @@ const en: Copy = {
       "Residual is mostly the lifetime and recollapse sigmoids, which are not linear in the six raw knobs. The formula is a recovery of the scoring model, not a claim about nature.",
     bayes: "Test a hypothesis",
     bayesHint:
-      "Draw a mixed prior. Split on your threshold. M0: one viable-rate. M1: two rates. The Bayes factor is the evidence that the split matters. 95% intervals are Beta quantiles.",
+      "Throw many random skies and split them at the threshold you set. One rate if the cut does nothing, two if it does. The Bayes factor says whether the cut earned its keep. The bands hold 95% of the draws.",
     test: "Run test",
     testing: "Drawing the prior…",
     param: "Constant",
@@ -1928,7 +2030,7 @@ const en: Copy = {
       weak: "Weak evidence",
       none: "No support for a split",
     },
-    catalog: "Pan-STARRS plate",
+    catalog: "Pan-STARRS field",
     catalogHint:
       "A real MAST cone from Pan-STARRS DR2. Quality is gri completeness and nDet, not a flag bit. Default is the M31 nucleus.",
     ra: "RA °",
@@ -1958,11 +2060,11 @@ const en: Copy = {
   },
   desk: {
     title: "Observatory desk",
-    hint: "Walk the posterior, export FITS or slides, classify the disk.",
-    mcmc: "Posterior walk",
+    hint: "The desk runs a chain of skies near this one and draws the cloud. From here you also export a file (FITS, VOTable or slides) and read the disk class. The posterior is that cloud of accepted variants, not a new sky.",
+    mcmc: "The cloud",
     mcmcHint:
-      "Start at this sky. Propose a reflecting Gaussian step. Accept with min(1, L′/L). Uniform prior, so the prior ratio is 1. Colour is log-likelihood; height is the same. Z is matter density.",
-    run: "Walk the posterior",
+      "The walk starts at this sky. A better step is kept. A worse step is sometimes kept, so the cloud is not one point. Colour and height are that score. The up axis is matter density.",
+    run: "Run the chain",
     running: "Sampling the model…",
     empty: "Run a walk to see the chain in 3D. Most random constants are dead — the cloud should hug a thin corridor if this sky is informative.",
     accept: "Accept",
@@ -2004,7 +2106,7 @@ const en: Copy = {
     pptx: "Slides",
     saved: "Saved",
     needCatalog: "Load a Pan-STARRS cone in Laws first.",
-    needChain: "Walk the posterior first.",
+    needChain: "Run the chain first.",
     citizen: "Classify this sky",
     citizenHint:
       "A mini Zooniverse on this device. Look at the disk, pick a class, rate how interesting it is. Gold is the model’s own label — shown after you commit. Export matches the Zooniverse classification CSV.",

@@ -4,7 +4,7 @@ import type { CivModel } from "./civilization.ts";
 import { formatGyr, formatPct, formatSci } from "./format.ts";
 import type { Copy, Locale } from "./i18n.ts";
 import type { SiliconDossier } from "./physics.ts";
-import { FATE_LABEL, PARAM_META, derivedAstro } from "./physics.ts";
+import { PARAM_META, derivedAstro } from "./physics.ts";
 import { buildFieldReport } from "./report.ts";
 import type { ExpeditionResult } from "./research.ts";
 import type { DiscoveryResult } from "./symbolic.ts";

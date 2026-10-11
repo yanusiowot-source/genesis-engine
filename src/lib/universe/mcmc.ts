@@ -480,8 +480,8 @@ export function runHmc(
   for (let i = 0; i < nSteps; i++) {
     const q0 = toUnit(current);
     const p0 = KEYS.map(() => randn(rng));
-    let x = q0.slice();
-    let p = p0.slice();
+    const x = q0.slice();
+    const p = p0.slice();
     let g = gradU(current, target, cur.U);
     for (let d = 0; d < p.length; d++) p[d] = (p[d] ?? 0) - 0.5 * epsilon * (g[d] ?? 0);
     for (let step = 0; step < leapfrog; step++) {

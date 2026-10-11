@@ -61,4 +61,6 @@ function Button({
   );
 }
 
+// buttonVariants is the style map for this same button, not a second component.
+// eslint-disable-next-line react-refresh/only-export-components
 export { Button, buttonVariants };

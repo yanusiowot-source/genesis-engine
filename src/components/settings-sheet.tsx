@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Check, CircleHelp, Download, ExternalLink, Info, Music, RotateCcw, ScrollText, Trash2, X } from "lucide-react";
+import { Check, CircleHelp, Download, ExternalLink, Gamepad2, Info, Music, RotateCcw, ScrollText, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { LanguagePicker } from "@/components/language-picker";
@@ -48,6 +48,7 @@ type Props = {
   onCluster: () => void;
   onDwarf: () => void;
   onHelp: () => void;
+  onGames: () => void;
   onCanon: () => void;
   onKeep: () => void;
   onClose: () => void;
@@ -93,6 +94,7 @@ export function SettingsSheet({
   onCluster,
   onDwarf,
   onHelp,
+  onGames,
   onCanon,
   onKeep,
   onClose,
@@ -366,6 +368,7 @@ export function SettingsSheet({
         </Group>
 
         <Group>
+          <ActionRow icon={Gamepad2} label={copy.games} onClick={onGames} />
           <ActionRow icon={CircleHelp} label={copy.help} onClick={onHelp} />
           <ActionRow icon={ScrollText} label={copy.scripture.title} onClick={onCanon} />
           <ActionRow icon={Info} label={copy.aboutTitle} onClick={scrollToAbout} />

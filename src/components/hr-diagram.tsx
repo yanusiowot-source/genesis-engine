@@ -98,19 +98,19 @@ export function HrDiagram({ copy, params, evaluation, cosmicTime, visualSeed }: 
         </div>
       )}
       <dl className="grid grid-cols-3 gap-3 font-mono text-xs tabular-nums">
-        <div>
-          <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+        <div className="min-w-0">
+          <dt className="text-[0.6875rem] leading-tight tracking-wide text-fg-subtle uppercase">
             {copy.obs.censusMs}
           </dt>
           <dd className="mt-0.5 text-fg">{census.ms}</dd>
         </div>
-        <div>
+        <div className="min-w-0">
           <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
             {copy.obs.censusGiant}
           </dt>
           <dd className="mt-0.5 text-fg">{census.giant}</dd>
         </div>
-        <div>
+        <div className="min-w-0">
           <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
             {copy.obs.censusRemnant}
           </dt>

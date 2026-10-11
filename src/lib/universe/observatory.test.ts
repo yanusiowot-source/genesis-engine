@@ -9,6 +9,7 @@ import {
   cosmicAgeGyr,
   epochAt,
   epochBlend,
+  EPOCH_INK,
   epochJumpT,
   epochShown,
   epochTickT,
@@ -190,16 +191,16 @@ describe("cosmic clock", () => {
     assert.equal(epochAt(1), "heatDeath");
   });
 
-  it("crossfades the last stretch of each epoch", () => {
+  it("crossfades across each epoch, not only the last stretch", () => {
     const mid = epochBlend(0.57);
     assert.equal(mid.from, "stellar");
     assert.equal(mid.to, "degeneracy");
-    assert.equal(mid.mix, 0);
+    assert.ok(mid.mix > 0.4 && mid.mix < 0.6);
 
     const late = epochBlend(0.42 + (0.72 - 0.42) * 0.9);
     assert.equal(late.from, "stellar");
     assert.equal(late.to, "degeneracy");
-    assert.ok(late.mix > 0.4 && late.mix < 1);
+    assert.ok(late.mix > 0.9 && late.mix < 1);
 
     const edge = epochBlend(0.72);
     assert.equal(edge.from, "degeneracy");
@@ -209,6 +210,10 @@ describe("cosmic clock", () => {
     assert.equal(end.from, "heatDeath");
     assert.equal(end.to, "heatDeath");
     assert.equal(end.mix, 0);
+    const inks = Object.values(EPOCH_INK);
+    assert.equal(new Set(inks).size, inks.length);
+    assert.notEqual(EPOCH_INK.inflation, EPOCH_INK.heatDeath);
+    assert.equal(inks.length, 8);
   });
 
   it("names the sky from the blend, not the hard fence", () => {
@@ -442,6 +447,18 @@ describe("cosmic clock", () => {
     assert.equal(dead.niche, "rigid");
   });
 
+  it("keeps one dossier for one snapshot across frames", () => {
+    const cold = { ...OUR_UNIVERSE, gravity: 1.1, matter: 0.5, quantumNoise: 0.01, complexity: 0.8 };
+    const ev = evaluate(cold);
+    const first = diskDossier(cold, ev);
+    assert.equal(diskDossier(cold, ev), first);
+    assert.equal(acousticDossier(cold, ev), acousticDossier(cold, ev));
+    const w = circularOmega(0.4, cold, ev);
+    assert.equal(circularOmega(0.4, cold, ev), w);
+    const moved = evaluate({ ...cold, gravity: cold.gravity + 0.05 });
+    assert.notEqual(diskDossier({ ...cold, gravity: cold.gravity + 0.05 }, moved), first);
+  });
+
   it("reads our halo as held, not a particle", () => {
     const d = haloDossier(OUR_UNIVERSE, evaluate(OUR_UNIVERSE));
     assert.equal(d.niche, "held");
@@ -467,6 +484,7 @@ describe("cosmic clock", () => {
     const mid = nfwCircular(rs, 1, rs, cEff);
     const outer = nfwCircular(NFW_RVIR, 1, rs, cEff);
     assert.ok(inner < mid);
+    assert.ok(outer > 0);
     assert.ok(mid > 0);
     const mVir = nfwMassFraction(NFW_RVIR, rs, cEff);
     assert.ok(Math.abs(mVir - 1) < 1e-6);

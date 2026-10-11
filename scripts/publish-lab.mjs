@@ -5,6 +5,7 @@
  */
 import { execFileSync } from "node:child_process";
 import {
+  chmodSync,
   cpSync,
   existsSync,
   mkdtempSync,
@@ -51,15 +52,30 @@ try {
     process.exit(0);
   }
   const head = git(ROOT, ["rev-parse", "--short", "HEAD"]);
+  const sourceDirty = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }).trim();
+  const version = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
   const name = git(ROOT, ["config", "user.name"]) || "Genesis Engine";
   const email = git(ROOT, ["config", "user.email"]) || "genesis@local";
   git(dir, ["config", "user.name", name]);
   git(dir, ["config", "user.email", email]);
-  execFileSync("git", ["commit", "-m", `Public lab from ${head} (build only, no source)`], {
+  const note = sourceDirty
+    ? `Public lab ${version}, working tree ahead of ${head} (build only, no source)`
+    : `Public lab ${version} from ${head} (build only, no source)`;
+  execFileSync("git", ["commit", "-m", note], {
     cwd: dir,
     stdio: "inherit",
   });
-  execFileSync("git", ["push", "origin", "HEAD"], { cwd: dir, stdio: "inherit" });
+  const ask = join(dir, ".git-ask.sh");
+  writeFileSync(
+    ask,
+    "#!/bin/sh\ncase \"$1\" in\n*Username*) printf '%s\\n' x-access-token ;;\n*) gh auth token ;;\nesac\n",
+  );
+  chmodSync(ask, 0o700);
+  execFileSync("git", ["push", "origin", "HEAD"], {
+    cwd: dir,
+    stdio: "inherit",
+    env: { ...process.env, GIT_ASKPASS: ask, GIT_TERMINAL_PROMPT: "0" },
+  });
   console.log(`published ${head} → genesis-lab`);
 } finally {
   rmSync(dir, { recursive: true, force: true });

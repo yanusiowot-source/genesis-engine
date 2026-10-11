@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
+import type { Fate } from "./types.ts";
 import { mergeCopy } from "./copy-merge.ts";
 import { formatHudPct } from "./format.ts";
 import { copyFor, hydrateBe, hydratePack, hydratePacks } from "./i18n.ts";
@@ -56,6 +57,17 @@ describe("copyFor", () => {
     assert.equal(c.birth, "Birth a universe");
     assert.equal(c.onboarding.length, 3);
     assert.match(c.onboarding[0].body, /Survey 64/);
+    assert.match(c.gamesNote, /do not change the sky/i);
+    assert.match(copyFor("ru").gamesNote, /не меняют небо/);
+    assert.match(copyFor("be").gamesNote, /не мяняюць неба/);
+    assert.doesNotMatch(c.gamesBlocks, /tetris/i);
+    assert.doesNotMatch(copyFor("ru").gamesBlocks, /тетрис/i);
+    assert.doesNotMatch(c.gamesRun, /mario|dino|chrome/i);
+    assert.doesNotMatch(copyFor("ru").gamesRun, /марио|динозавр/i);
+    assert.match(c.gamesRunHint, /does not change the sky/i);
+    assert.match(c.gamesTilesHint, /2048/);
+    assert.equal(copyFor("ru").gamesDrop, "Бросить");
+    assert.equal(copyFor("be").gamesTurn, "Паварот");
     assert.match(c.onboarding[0].body, /look/i);
     assert.match(copyFor("ru").onboarding[0].body, /смотр/i);
     assert.match(c.shortcutsBody, /Space look/);
@@ -76,6 +88,14 @@ describe("copyFor", () => {
     assert.equal(copyFor("be").onboarding.length, 3);
     assert.match(c.birthWitness, /Most corridors stay closed/);
     assert.match(c.birthWitness, /Survey 64/);
+    const fates: Fate[] = ["void", "crunch", "rip", "flash", "fog", "sterile", "enduring", "habitable", "teeming"];
+    for (const locale of ["en", "ru", "be"] as const) {
+      const copy = copyFor(locale);
+      for (const fate of fates) {
+        assert.notEqual(copy.fateCopy[fate].trim(), "", `${locale} ${fate}`);
+        assert.notEqual(copy.fateCopy[fate].trim(), copy.fateLabel[fate].trim(), `${locale} ${fate}`);
+      }
+    }
     assert.match(c.birthGood, /it was good/);
     assert.match(copyFor("ru").birthGood, /хорошо/);
     assert.match(copyFor("be").birthGood, /добра/);
@@ -127,6 +147,8 @@ describe("copyFor", () => {
     assert.match(copyFor("ru").obs.modeHint.lensing, /NFW/);
     assert.doesNotMatch(copyFor("ru").obs.modeHint.lensing, /\bSIS\b/);
     assert.match(copyFor("be").obs.modeHint.lensing, /NFW/);
+    assert.equal(copyFor("ru").obs.modes.planetarium, "Внутреннее строение");
+    assert.doesNotMatch(copyFor("ru").obs.modes.planetarium, /Изнутри/);
     assert.match(c.tapSky, /look/i);
     assert.match(copyFor("ru").tapSky, /Смотр/i);
     assert.match(c.plot.arrive, /First plate/);
@@ -187,7 +209,11 @@ describe("copyFor", () => {
     assert.doesNotMatch(copyFor("be").studioKeepBody, /ніжэй/);
     assert.match(copyFor("be").studioKeepBody, /пласцін/);
     assert.match(copyFor("be").studioReserveCta, /15 USDT/);
+    assert.match(c.helpItems.map((item) => item.title).join(" "), /Games/);
     assert.match(c.helpItems.map((item) => item.title).join(" "), /A copy/);
+    assert.match(copyFor("ru").helpItems.map((item) => item.title).join(" "), /Игры/);
+    assert.match(copyFor("be").helpItems.map((item) => item.title).join(" "), /Гульні/);
+    assert.match(c.helpItems.find((item) => item.title === "Games")?.body ?? "", /do not change the sky/i);
     assert.match(c.keep.openCta, /15 USDT/);
     assert.match(c.keep.orderText, /\{plate\}/);
     assert.match(c.keep.orderText, /Windows \/ Linux/);
@@ -216,10 +242,20 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.29.0");
-    const pkg = JSON.parse(
-      readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../../../package.json"), "utf8"),
-    ) as { version: string };
+    assert.equal(APP_VERSION, "1.65.0");
+    const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
+    const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { version: string };
+    const desktop = JSON.parse(readFileSync(join(root, "desktop/package.json"), "utf8")) as {
+      version: string;
+    };
+    const lock = JSON.parse(readFileSync(join(root, "package-lock.json"), "utf8")) as {
+      version: string;
+      packages: { "": { version: string } };
+    };
+    assert.equal(pkg.version, "1.65.0");
+    assert.equal(desktop.version, "1.65.0");
+    assert.equal(lock.version, "1.65.0");
+    assert.equal(lock.packages[""].version, "1.65.0");
     assert.equal(APP_VERSION, pkg.version);
     const about = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../../public/about/index.html"),
@@ -318,6 +354,80 @@ describe("disk panel", () => {
     assert.match(panel, /marginal:\s*"text-fg"/);
     assert.match(panel, /d\.unstable > 0 \? 0\.7 : 0\.22/);
     assert.doesNotMatch(panel, /barcode|toomreAt|toomreProfile/);
+    assert.match(panel, /<\/dl>[\s\S]*diskH0/);
+    assert.doesNotMatch(panel, /diskH0[\s\S]*<\/dl>/);
+    const app = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/universe-app.tsx"),
+      "utf8",
+    );
+    const hunt = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/research-panel.tsx"),
+      "utf8",
+    );
+    assert.match(app, /setHuntFailed\(true\)/);
+    assert.doesNotMatch(app, /\.catch\(\(\) => \{\}\)/);
+    assert.match(hunt, /grid-cols-2 gap-1[\s\S]*min-\[420px\]:grid-cols-3/);
+    assert.match(hunt, /min-h-11 w-full min-\[420px\]:w-auto/);
+    assert.doesNotMatch(hunt, /size="sm"/);
+    const desk = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/desk-panel.tsx"),
+      "utf8",
+    );
+    assert.match(desk, /grid-cols-2 gap-1 min-\[420px\]:grid-cols-3/);
+    assert.match(hunt, /fateLabel\[bin\.fate\]/);
+    assert.doesNotMatch(hunt, /title=\{`\$\{copy\.fateLabel/);
+    for (const rel of ["research-panel.tsx", "laws-panel.tsx", "desk-panel.tsx"]) {
+      const src = readFileSync(
+        join(dirname(fileURLToPath(import.meta.url)), "../../components", rel),
+        "utf8",
+      );
+      assert.doesNotMatch(src, /closedSkyWitness|skyFate/, rel);
+    }
+    for (const locale of ["en", "ru", "be"] as const) {
+      const copy = copyFor(locale);
+      assert.match(copy.laws.symbolicHint, /not new physics|не новая физика|не новая фізіка/i);
+      assert.match(copy.laws.bayesHint, /threshold|порог|парог/i);
+      assert.match(copy.laws.bayesHint, /Bayes|Байес|Байес/i);
+      assert.match(copy.desk.mcmcHint, /this sky|этого неба|гэтага неба/i);
+      assert.doesNotMatch(copy.desk.mcmcHint, /L′\/L|L'\/L/);
+      assert.match(copy.obs.diskHint, /clump|комк|камяк/i);
+      assert.match(copy.obs.diskHint, /flowing-gas|текучего газа|цякучага газу/i);
+      assert.doesNotMatch(copy.obs.diskHint, /^Toomre/);
+      assert.match(copy.obs.rotationHint, /Rubin|Рубин|Рубін/);
+      assert.match(copy.obs.rotationHint, /SPARC/);
+      assert.doesNotMatch(copy.obs.rotationHint, /1\/√r/);
+      assert.match(copy.obs.tfHint, /ridge|гребне|грэбені/i);
+      assert.match(copy.obs.tfHint, /SPARC/);
+      assert.match(copy.obs.tfHint, /MOND/);
+      assert.match(copy.obs.fjHint, /SPARC/);
+      assert.match(copy.obs.fpHint, /dwarf|карлик|карлік/i);
+      assert.match(copy.obs.dmHint, /halo|гало/i);
+      assert.doesNotMatch(copy.obs.dmHint, /Ωc/);
+      assert.match(copy.obs.haloHint, /Einasto/);
+      assert.match(copy.obs.haloHint, /Burkert/);
+      assert.doesNotMatch(copy.obs.haloHint, /N-body/);
+      assert.match(copy.obs.acousticHint, /peak|пик|пік/i);
+      assert.doesNotMatch(copy.obs.acousticHint, /photon-baryon|Фотон-барион|Фатон-барыён/i);
+      assert.match(copy.obs.imfHint, /chemistry|химии|хіміі/i);
+      assert.match(copy.obs.imfHint, /heavy|тяжёл|цяжк/i);
+      assert.doesNotMatch(copy.obs.imfHint, /^IMF/);
+      assert.match(copy.obs.massHint, /Chabrier/);
+      assert.match(copy.obs.massHint, /Einstein|Эйнштейн|Эйнштэйн/i);
+      assert.doesNotMatch(copy.obs.massHint, /θE/);
+      assert.match(copy.obs.bhHint, /jet|Струя|Бруя/i);
+      assert.match(copy.obs.bhHint, /HARM/);
+      assert.match(copy.obs.bhHint, /EHT/);
+      assert.doesNotMatch(copy.obs.bhHint, /β/);
+    }
+    const entrance = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/onboarding.tsx"),
+      "utf8",
+    );
+    assert.doesNotMatch(entrance, /onboard-sight/);
+    for (const c of [copyFor("en"), copyFor("ru"), copyFor("be")]) {
+      assert.match(c.research.failed, /\S/);
+      assert.doesNotMatch(c.obs.worldsPhase, /^phase$|^фаза$/);
+    }
     const hud = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../components/universe-app.tsx"),
       "utf8",

@@ -67,13 +67,11 @@ export function DiskPanel({ copy, params, evaluation, h0Long }: Props) {
           <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.diskPlummer}</dt>
           <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{d.plummerA.toFixed(3)}</dd>
         </div>
-        <div>
-          <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.diskH0}</dt>
-          <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
-            {h0Long == null ? "—" : h0Long}
-          </dd>
-        </div>
       </dl>
+      <p className="font-mono text-sm tabular-nums text-fg">
+        <span className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.diskH0}</span>{" "}
+        {h0Long == null ? "—" : h0Long}
+      </p>
       <svg
         viewBox="0 0 320 96"
         className="h-auto w-full text-fg"
@@ -92,9 +90,9 @@ export function DiskPanel({ copy, params, evaluation, h0Long }: Props) {
         />
         <path d={path} fill="none" stroke="currentColor" strokeWidth="1.6" />
       </svg>
-      <p className="font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-        {copy.obs.diskQ1}
-        {d.unstable > 0 ? ` · ${d.unstable}` : ""}
+      <p className="flex flex-wrap gap-x-3 font-mono text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+        <span>{copy.obs.diskQ1}</span>
+        {d.unstable > 0 ? <span className="tabular-nums">{d.unstable}</span> : null}
       </p>
     </section>
   );

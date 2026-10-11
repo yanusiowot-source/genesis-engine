@@ -119,5 +119,9 @@ describe("buildGalaxy", () => {
     assert.doesNotMatch(panel, /buildGalaxy/);
     const canvas = readFileSync(new URL("../../components/galaxy-canvas.tsx", import.meta.url), "utf8");
     assert.match(canvas, /onSkyH0Ref\.current\?\.\(built\.model\.h0Long\)/);
+    assert.match(canvas, /const waitLeft = lastPaint \? minGap - \(t - lastPaint\) : 0/);
+    assert.match(canvas, /schedule\(waitLeft\)/);
+    assert.match(canvas, /else if \(canvas\.dataset\.encX \|\| canvas\.dataset\.encY\)/);
+    assert.match(canvas, /if \(canvas\.style\.cursor !== cursor\) canvas\.style\.cursor = cursor/);
   });
 });

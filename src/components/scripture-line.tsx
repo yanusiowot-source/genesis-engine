@@ -19,9 +19,11 @@ export function ScriptureLine({ copy, locale, passage, onOpen }: Props) {
       className="scripture-line mt-1 flex min-h-11 w-full max-w-md items-center gap-2 rounded-[var(--radius-sm)] bg-transparent p-0 text-left"
     >
       <BookOpen className="size-3.5 shrink-0 text-fg-subtle" aria-hidden />
-      <span className="scripture-quote min-w-0 font-display text-sm leading-snug text-pretty text-fg italic line-clamp-1">
-        {passageLine(passage, locale)}
-        <span className="ml-2 not-italic font-mono text-[0.6875rem] tracking-[0.12em] text-fg-subtle uppercase">
+      <span className="min-w-0">
+        <span className="block font-display text-sm leading-snug text-pretty text-fg italic line-clamp-2">
+          {passageLine(passage, locale)}
+        </span>
+        <span className="mt-0.5 block font-mono text-xs tracking-[0.12em] text-fg-muted uppercase">
           {passageRef(passage, locale)}
         </span>
       </span>

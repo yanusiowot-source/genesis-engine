@@ -20,6 +20,7 @@ type Props<T extends string> = {
   stacked?: boolean;
   collapseLabel?: boolean;
   nudge?: T | null;
+  scroll?: boolean;
   className?: string;
 };
 
@@ -31,6 +32,7 @@ export function Segmented<T extends string>({
   stacked = false,
   collapseLabel = false,
   nudge = null,
+  scroll = false,
   className,
 }: Props<T>) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -73,13 +75,14 @@ export function Segmented<T extends string>({
       className={cn(
         "relative flex",
         stacked ? "gap-0 p-1" : "h-11 gap-0.5 p-0.5",
+        scroll && "overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         "rounded-[var(--radius-sm)] bg-bg-elevated/70",
         className,
       )}
     >
       <span
         aria-hidden
-        className="seg-pill pointer-events-none absolute rounded-[var(--radius-xs)] bg-bg-subtle"
+        className="seg-pill pointer-events-none absolute rounded-[var(--radius-lg)] bg-white/12 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]"
         data-ready={ready ? "1" : "0"}
         style={{
           width: pill.w,
@@ -104,12 +107,12 @@ export function Segmented<T extends string>({
             }}
             className={cn(
               "relative z-[1] inline-flex min-w-11 items-center justify-center",
-              "rounded-[var(--radius-xs)] text-[0.625rem] font-medium tracking-wide",
+              "rounded-[var(--radius-xs)] text-sm font-medium",
               "transition-[color] duration-[var(--motion-quick)] ease-[var(--ease-out)]",
               stacked
                 ? cn("min-w-0 flex-1 flex-col gap-0.5 px-0.5", collapseLabel ? "h-11 sm:h-12" : "h-12")
-                : "h-full min-h-0 flex-1 gap-1 px-2",
-              active ? "text-accent" : "text-fg-subtle hover:text-fg",
+                : cn("h-full min-h-0 gap-1 px-2", scroll ? "shrink-0" : "flex-1"),
+              active ? "text-accent" : "text-fg-muted hover:text-fg",
               nudge === id && "nudge-ring",
             )}
             data-nudge={nudge === id ? id : undefined}
@@ -117,7 +120,8 @@ export function Segmented<T extends string>({
             <Icon className={stacked ? "size-5" : "size-4"} strokeWidth={active ? 2.2 : 1.8} />
             <span
               className={cn(
-                "max-w-full truncate",
+                "max-w-full",
+                !scroll && "truncate",
                 collapseLabel && "hidden sm:inline",
               )}
             >

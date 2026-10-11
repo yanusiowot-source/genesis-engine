@@ -47,7 +47,7 @@ describe("encodeFitsTable", () => {
     assert.equal(buf.length % 2880, 0);
     const text = new TextDecoder("ascii").decode(buf);
     assert.match(text, /XTENSION= 'BINTABLE'/);
-    assert.match(text, /NAXIS2  =                    3/);
+    assert.match(text, /NAXIS2 {2}= {20}3/);
   });
 });
 
@@ -63,8 +63,8 @@ describe("universeTableFits", () => {
   it("stores six constants", () => {
     const buf = universeTableFits(OUR_UNIVERSE, evaluate(OUR_UNIVERSE));
     const text = new TextDecoder("ascii").decode(buf);
-    assert.match(text, /TTYPE1  = 'NAME'/);
-    assert.match(text, /NAXIS2  =                    6/);
+    assert.match(text, /TTYPE1 {2}= 'NAME'/);
+    assert.match(text, /NAXIS2 {2}= {20}6/);
   });
 });
 

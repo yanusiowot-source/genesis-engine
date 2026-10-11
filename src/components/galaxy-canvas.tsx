@@ -10,7 +10,7 @@ import {
   type Star,
 } from "@/lib/universe/galaxy";
 import { buildGalaxyAsync, buildGalaxyNow } from "@/lib/universe/sky-client";
-import { faceOnLocal, gpuOffered, skyGpuMark } from "@/lib/universe/sky-place";
+import { epochBackdropKey, faceOnLocal, gpuOffered, rgbInk, skyGpuMark } from "@/lib/universe/sky-place";
 import {
   ACOUSTIC_VISUAL,
   acousticDossier,
@@ -37,6 +37,181 @@ import { isBeltParams, isHighwayParams, isOurParams } from "@/lib/universe/physi
 import { mulberry32 } from "@/lib/universe/rng";
 import { QUIET_EGGS, type EggFlags } from "@/lib/universe/eggs";
 import type { EncounterKind, SkyEncounter } from "@/lib/universe/encounters";
+
+/**
+ * Pixels and alphas for the star mark on screen.
+ * Stellar mass, age, and temperature live in evolveStar.
+ */
+const POINT_STAR_PX = 0.9;
+const HALO_MIN_ALPHA = 0.28;
+const HALO_SPAN = 4.4;
+const CORE_MIN_PX = 1.35;
+const CORE_MIN_ALPHA = 0.42;
+const CORE_SPAN = 0.32;
+const LITE_MIN_PX = 1.35;
+const LITE_GLOW_PX = 1.6;
+const STAR_CORE: [number, number, number] = [255, 250, 240];
+
+type StarStage = StarState["stage"];
+
+function evolutionKey(ageGyr: number, gravity: number): number {
+  return (Math.round(ageGyr * 48) << 8) ^ Math.round(gravity * 50);
+}
+
+function stageAlpha(stage: StarStage, base: number, flash: number): number {
+  if (stage === "blackHole") return base * 0.4;
+  if (stage === "whiteDwarf" || stage === "neutronStar") return base * 0.85;
+  if (stage === "supernova") return Math.min(1, 0.55 + flash);
+  return base;
+}
+
+function apparentRadius(radius: number, stage: StarStage, radiusScale: number, flash: number): number {
+  if (stage === "supernova") return radius * (1.2 + flash * 7);
+  return Math.max(0.35, radius * Math.pow(Math.max(radiusScale, 0.05), 0.22));
+}
+
+function isPointStar(size: number, stage: StarStage): boolean {
+  return size <= POINT_STAR_PX && stage !== "supernova" && stage !== "blackHole";
+}
+
+function showsHalo(size: number, alpha: number, relaxed: boolean): boolean {
+  return size > POINT_STAR_PX && alpha > HALO_MIN_ALPHA && !relaxed;
+}
+
+function showsCore(size: number, alpha: number): boolean {
+  return size > CORE_MIN_PX && alpha > CORE_MIN_ALPHA;
+}
+
+function twinkleOf(phase: number, time: number, still: boolean): number {
+  if (still) return 1;
+  const fast = Math.sin(time * 2.4 + phase);
+  const slow = Math.sin(time * 0.7 + phase * 1.7);
+  return 0.62 + 0.24 * fast + 0.14 * slow;
+}
+
+/** Bright knot wanders inside the cloud. The cloud's place on the disk does not move. */
+function nebulaBreath(phase: number, time: number, still: boolean): {
+  a: number;
+  r: number;
+  dx: number;
+  dy: number;
+} {
+  if (still) return { a: 1, r: 1, dx: 0, dy: 0 };
+  return {
+    a: 0.68 + 0.32 * Math.sin(time * 0.55 + phase),
+    r: 0.9 + 0.12 * Math.sin(time * 0.37 + phase * 1.3),
+    dx: Math.sin(time * 0.22 + phase) * 0.1,
+    dy: Math.cos(time * 0.19 + phase * 0.8) * 0.07,
+  };
+}
+
+/** Grain stays on the cloud. A new frame does not throw the dice again. */
+function nebulaGrain(seed: number, i: number): { x: number; y: number; s: number } {
+  const fract = (n: number) => n - Math.floor(n);
+  const u = fract(Math.sin(seed * 12.9898 + i * 78.233) * 43758.5453);
+  const v = fract(Math.sin(seed * 4.123 + i * 19.19) * 24634.6345);
+  const ang = u * Math.PI * 2;
+  const rad = 0.12 + v * 0.55;
+  return { x: Math.cos(ang) * rad, y: Math.sin(ang) * rad * 0.82, s: 0.16 + u * 0.2 };
+}
+
+/** One painter for the disk and the planetarium. Layers, not a second orbit. */
+function paintNebula(
+  g: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  rx: number,
+  ry: number,
+  rot: number,
+  rgb: readonly [number, number, number],
+  alpha: number,
+  breath: { a: number; r: number; dx: number; dy: number },
+  seed: number,
+  lite: boolean,
+): void {
+  const radX = rx * breath.r;
+  const radY = ry * breath.r;
+  if (radX < 0.6 || radY < 0.6 || alpha <= 0) return;
+  const a = Math.min(0.62, alpha * breath.a);
+  const [cr, cg, cb] = rgb;
+  const hot = (c: number) => Math.min(255, Math.round(c + (255 - c) * 0.55));
+  const cool = (c: number) => Math.round(c * 0.62);
+  const litX = breath.dx || 0.16;
+  const litY = breath.dy || -0.08;
+  g.save();
+  g.translate(x, y);
+  g.rotate(rot);
+  g.scale(radX, radY);
+  const shell = g.createRadialGradient(-litX * 0.8, -litY * 0.8, 0.05, 0, 0, 1.35);
+  shell.addColorStop(0, `rgba(${cool(cr)},${cool(cg)},${cool(cb)},${a * 0.22})`);
+  shell.addColorStop(1, "rgba(9,6,26,0)");
+  g.fillStyle = shell;
+  g.beginPath();
+  g.arc(-litX * 0.35, -litY * 0.35, 1.2, 0, Math.PI * 2);
+  g.fill();
+  const veil = g.createRadialGradient(litX * 0.35, litY * 0.35, 0, 0, 0, 1.45);
+  veil.addColorStop(0, `rgba(${cr},${cg},${cb},${a * 0.28})`);
+  veil.addColorStop(0.5, `rgba(${cool(cr)},${cool(cg)},${cool(cb)},${a * 0.1})`);
+  veil.addColorStop(1, "rgba(9,6,26,0)");
+  g.fillStyle = veil;
+  g.beginPath();
+  g.arc(0, 0, 1.45, 0, Math.PI * 2);
+  g.fill();
+  const body = g.createRadialGradient(litX, litY, 0, 0, 0, 1);
+  body.addColorStop(0, `rgba(${hot(cr)},${hot(cg)},${hot(cb)},${a})`);
+  body.addColorStop(0.22, `rgba(${cr},${cg},${cb},${a * 0.55})`);
+  body.addColorStop(0.62, `rgba(${cr},${cg},${cb},${a * 0.16})`);
+  body.addColorStop(1, "rgba(9,6,26,0)");
+  g.fillStyle = body;
+  g.beginPath();
+  g.arc(0, 0, 1, 0, Math.PI * 2);
+  g.fill();
+  if (!lite) {
+    if (radX >= 36) {
+      for (let i = 0; i < 5; i++) {
+        const grain = nebulaGrain(seed, i);
+        const puff = g.createRadialGradient(grain.x, grain.y, 0, grain.x, grain.y, grain.s);
+        const bright = i % 2 === 0;
+        puff.addColorStop(
+          0,
+          bright
+            ? `rgba(${hot(cr)},${hot(cg)},${hot(cb)},${a * 0.42})`
+            : `rgba(${cool(cr)},${cool(cg)},${cool(cb)},${a * 0.28})`,
+        );
+        puff.addColorStop(1, "rgba(9,6,26,0)");
+        g.fillStyle = puff;
+        g.beginPath();
+        g.arc(grain.x, grain.y, grain.s, 0, Math.PI * 2);
+        g.fill();
+      }
+    }
+    g.lineWidth = 0.045;
+    g.lineCap = "round";
+    g.strokeStyle = `rgba(${hot(cr)},${hot(cg)},${hot(cb)},${a * 0.55})`;
+    for (let i = 0; i < 3; i++) {
+      const ang = seed + i * 2.094;
+      g.beginPath();
+      g.arc(litX * 0.4, litY * 0.4, 0.28 + i * 0.18, ang, ang + 1.15);
+      g.stroke();
+    }
+    g.globalCompositeOperation = "source-over";
+    const shade = g.createRadialGradient(-litX * 1.4, -litY * 1.4, 0.05, 0, 0, 1.15);
+    shade.addColorStop(0, `rgba(6,4,14,${Math.min(0.42, a * 0.9)})`);
+    shade.addColorStop(0.55, `rgba(6,4,14,${a * 0.16})`);
+    shade.addColorStop(1, "rgba(9,6,26,0)");
+    g.fillStyle = shade;
+    g.beginPath();
+    g.arc(-litX * 0.45, -litY * 0.45, 0.95, 0, Math.PI * 2);
+    g.fill();
+    if (radY / radX < 0.62) {
+      g.fillStyle = `rgba(8,6,16,${Math.min(0.34, a * 0.7)})`;
+      g.beginPath();
+      g.ellipse(0, 0, 0.86, 0.2, 0, 0, Math.PI * 2);
+      g.fill();
+    }
+  }
+  g.restore();
+}
 
 type Props = {
   params: UniverseParams;
@@ -217,7 +392,7 @@ export function GalaxyCanvas({
     let idlePaint = false;
     let painted = false;
     let frameLite = false;
-    let starTarget: CanvasRenderingContext2D = ctx;
+    const starTarget: CanvasRenderingContext2D = ctx;
     const gpuEl = gpuCanvasRef.current;
     const wrap = wrapRef.current;
     let gpu: {
@@ -241,7 +416,8 @@ export function GalaxyCanvas({
         }),
       );
     }
-    let stress = 0;
+    let stress = 3;
+    const backdrop: { key: string; canvas: HTMLCanvasElement }[] = [];
     const evoCache = new WeakMap<Star, { k: number; st: StarState }>();
     const qualityRef = { current: adaptiveQuality() };
     const reducedMq =
@@ -356,70 +532,87 @@ export function GalaxyCanvas({
     };
     document.addEventListener("visibilitychange", onVis);
 
+    const cachedStar = (s: Star, ageGyr: number): StarState => {
+      const gravity = paramsRef.current.gravity;
+      const key = evolutionKey(ageGyr, gravity);
+      const hit = evoCache.get(s);
+      if (hit?.k === key) return hit.st;
+      const st = evolveStar(s.mass, ageGyr - s.birthGyr, gravity);
+      evoCache.set(s, { k: key, st });
+      return st;
+    };
+
     const drawStar = (s: Star, x: number, y: number, ageGyr: number, vis: number, time: number) => {
       const g = starTarget;
-      if (frameLite) {
-        const size = Math.max(1.35, s.r * 0.95);
-        const a = Math.min(1, s.a * vis * 1.45);
-        if (size > 1.6) {
-          g.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${a * 0.32})`;
-          g.fillRect(x - size * 1.4, y - size * 1.4, size * 2.8, size * 2.8);
+      const paint = (rgb: readonly [number, number, number], alpha: number) => {
+        g.globalAlpha = alpha;
+        g.fillStyle = rgbInk(rgb[0], rgb[1], rgb[2]);
+      };
+      const fillPoint = (size: number) => {
+        g.fillRect(x - size * 0.5, y - size * 0.5, size, size);
+      };
+      const fillDisc = (radius: number) => {
+        g.beginPath();
+        g.arc(x, y, rr(radius), 0, Math.PI * 2);
+        g.fill();
+      };
+      try {
+        if (frameLite) {
+          const size = Math.max(LITE_MIN_PX, s.r * 0.95);
+          const alpha = Math.min(1, s.a * vis * 1.45);
+          if (size > LITE_GLOW_PX) {
+            paint(s.rgb, alpha * 0.32);
+            g.fillRect(x - size * 1.4, y - size * 1.4, size * 2.8, size * 2.8);
+          }
+          paint(s.rgb, alpha);
+          fillPoint(size);
+          return;
         }
-        g.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${a})`;
-        g.fillRect(x - size * 0.5, y - size * 0.5, size, size);
-        return;
-      }
-      const key = (Math.round(ageGyr * 48) << 8) ^ Math.round(paramsRef.current.gravity * 50);
-      let hit = evoCache.get(s);
-      if (!hit || hit.k !== key) {
-        hit = { k: key, st: evolveStar(s.mass, ageGyr - s.birthGyr, paramsRef.current.gravity) };
-        evoCache.set(s, hit);
-      }
-      const st = hit.st;
-      if (st.stage === "unborn") return;
-      const tw = reducedRef.current || idlePaint ? 1 : 0.75 + 0.25 * Math.sin(time * 2.2 + s.phase);
-      let a = Math.min(1, s.a * vis * tw * 1.25);
-      if (st.stage === "blackHole") a *= 0.4;
-      if (st.stage === "whiteDwarf" || st.stage === "neutronStar") a *= 0.85;
-      if (st.stage === "supernova") a = Math.min(1, 0.55 + st.flash);
-      const size =
-        st.stage === "supernova"
-          ? s.r * (1.2 + st.flash * 7)
-          : Math.max(0.35, s.r * Math.pow(Math.max(st.radiusScale, 0.05), 0.22));
-      if (size < 0.75 && st.stage !== "supernova" && st.stage !== "blackHole") {
-        g.fillStyle = `rgba(${st.rgb[0]},${st.rgb[1]},${st.rgb[2]},${Math.min(1, a)})`;
-        g.fillRect(x - size * 0.5, y - size * 0.5, size, size);
-        return;
-      }
-      if (size > 0.9 && a > 0.28 && !relaxedRef.current) {
-        g.fillStyle = `rgba(${st.rgb[0]},${st.rgb[1]},${st.rgb[2]},${Math.min(0.5, a * 0.42)})`;
-        g.beginPath();
-        g.arc(x, y, rr(size * 4.4), 0, Math.PI * 2);
-        g.fill();
-      }
-      g.fillStyle = `rgba(${st.rgb[0]},${st.rgb[1]},${st.rgb[2]},${Math.min(1, a)})`;
-      g.beginPath();
-      g.arc(x, y, rr(size), 0, Math.PI * 2);
-      g.fill();
-      if (size > 1.35 && a > 0.42) {
-        g.fillStyle = `rgba(255,250,240,${Math.min(0.7, a * 0.48)})`;
-        g.beginPath();
-        g.arc(x, y, rr(size * 0.32), 0, Math.PI * 2);
-        g.fill();
-      }
-      if (st.stage === "supernova" && st.flash > 0.15) {
-        g.strokeStyle = `rgba(255,244,220,${st.flash * 0.45})`;
-        g.lineWidth = 1.2;
-        g.beginPath();
-        g.arc(x, y, rr(size * 2.4), 0, Math.PI * 2);
-        g.stroke();
-      }
-      if (st.stage === "blackHole") {
-        g.strokeStyle = `rgba(180,160,120,${0.35 * vis})`;
-        g.lineWidth = 0.8;
-        g.beginPath();
-        g.ellipse(x, y, size * 2.8, size * 0.7, 0.4, 0, Math.PI * 2);
-        g.stroke();
+
+        const evolved = cachedStar(s, ageGyr);
+        if (evolved.stage === "unborn") return;
+
+        const still = reducedRef.current || idlePaint;
+        const alpha = stageAlpha(
+          evolved.stage,
+          Math.min(1, s.a * vis * twinkleOf(s.phase, time, still) * 1.25),
+          evolved.flash,
+        );
+        const size = apparentRadius(s.r, evolved.stage, evolved.radiusScale, evolved.flash);
+
+        if (isPointStar(size, evolved.stage)) {
+          paint(evolved.rgb, Math.min(1, alpha));
+          fillPoint(size);
+          return;
+        }
+        if (showsHalo(size, alpha, relaxedRef.current)) {
+          paint(evolved.rgb, Math.min(0.5, alpha * 0.42));
+          fillDisc(size * HALO_SPAN);
+        }
+        paint(evolved.rgb, Math.min(1, alpha));
+        fillDisc(size);
+        if (showsCore(size, alpha)) {
+          paint(STAR_CORE, Math.min(0.7, alpha * 0.48));
+          fillDisc(size * CORE_SPAN);
+        }
+        if (evolved.stage === "supernova" && evolved.flash > 0.15) {
+          g.globalAlpha = 1;
+          g.strokeStyle = `rgba(255,244,220,${evolved.flash * 0.45})`;
+          g.lineWidth = 1.2;
+          g.beginPath();
+          g.arc(x, y, rr(size * 2.4), 0, Math.PI * 2);
+          g.stroke();
+        }
+        if (evolved.stage === "blackHole") {
+          g.globalAlpha = 1;
+          g.strokeStyle = `rgba(180,160,120,${0.35 * vis})`;
+          g.lineWidth = 0.8;
+          g.beginPath();
+          g.ellipse(x, y, size * 2.8, size * 0.7, 0.4, 0, Math.PI * 2);
+          g.stroke();
+        }
+      } finally {
+        g.globalAlpha = 1;
       }
     };
 
@@ -534,31 +727,43 @@ export function GalaxyCanvas({
       }
       if (!late) {
         const clumps = frameLite ? model.clumps.slice(0, 3) : model.clumps;
+        const stillCloud = reducedRef.current;
         for (const cl of clumps) {
           const p = orbit(cl.x, cl.y, 0.12);
-          const grad = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, rr(cl.r * scale));
-          const [r, gch, b] = cl.rgb;
-          grad.addColorStop(0, `rgba(${r},${gch},${b},${Math.min(0.38, cl.a * vis * 1.25)})`);
-          grad.addColorStop(0.45, `rgba(${r},${gch},${b},${cl.a * vis * 0.22})`);
-          grad.addColorStop(1, "rgba(9,6,26,0)");
-          g.fillStyle = grad;
-          g.beginPath();
-          g.arc(p.x, p.y, rr(cl.r * scale), 0, Math.PI * 2);
-          g.fill();
+          const breath = nebulaBreath(cl.x * 12 + cl.y * 7, time, stillCloud);
+          const rad = cl.r * scale;
+          paintNebula(
+            g,
+            p.x,
+            p.y,
+            rad,
+            rad * 0.82,
+            stillCloud ? 0.4 : time * 0.05 + cl.x,
+            cl.rgb,
+            Math.min(0.5, cl.a * vis * 1.45),
+            breath,
+            cl.x * 12 + cl.y * 7,
+            frameLite,
+          );
         }
 
         if (!frameLite) {
           for (const d of model.dust) {
             const p = orbit(d.x, d.y, 0.08);
-            g.save();
-            g.translate(p.x, p.y);
-            g.rotate(d.rot);
-            const [dr, dg, db] = d.rgb;
-            g.fillStyle = `rgba(${dr}, ${dg}, ${db}, ${Math.min(0.28, d.a * dustMul * 1.8)})`;
-            g.beginPath();
-            g.ellipse(0, 0, rr(d.rx * scale), rr(d.ry * scale), 0, 0, Math.PI * 2);
-            g.fill();
-            g.restore();
+            const breath = nebulaBreath(d.x * 9 + d.y * 5, time, stillCloud);
+            paintNebula(
+              g,
+              p.x,
+              p.y,
+              d.rx * scale,
+              d.ry * scale,
+              d.rot + (stillCloud ? 0 : time * 0.04),
+              d.rgb,
+              Math.min(0.36, d.a * dustMul * 2.1),
+              breath,
+              d.x * 9 + d.y * 5,
+              false,
+            );
           }
         }
       }
@@ -684,39 +889,53 @@ export function GalaxyCanvas({
         if (frameLite && (cl.a < 0.18)) continue;
         const p = projectLook(cl.x, cl.y, 0, cam, fov);
         if (!p || Math.abs(p.x) > limX * 1.4 || Math.abs(p.y) > limY * 1.4) continue;
-        const rad = rr((cl.r * scale) / p.depth);
-        const g = ctx.createRadialGradient(p.x * scale, p.y * scale, 0, p.x * scale, p.y * scale, rad);
-        const [r, gch, b] = cl.rgb;
-        g.addColorStop(0, `rgba(${r},${gch},${b},${Math.min(0.42, cl.a * vis * 1.4)})`);
-        g.addColorStop(1, "rgba(9,6,26,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(p.x * scale, p.y * scale, rad, 0, Math.PI * 2);
-        ctx.fill();
+        const breath = nebulaBreath(cl.x * 12 + cl.y * 7, time, reducedRef.current);
+        const rad = (cl.r * scale) / p.depth;
+        paintNebula(
+          ctx,
+          p.x * scale,
+          p.y * scale,
+          rad,
+          rad * 0.82,
+          reducedRef.current ? 0.4 : time * 0.05 + cl.x,
+          cl.rgb,
+          Math.min(0.55, cl.a * vis * 1.6),
+          breath,
+          cl.x * 12 + cl.y * 7,
+          frameLite,
+        );
       }
 
       for (const d of model.dust) {
         if (frameLite) continue;
         const p = projectLook(d.x, d.y, 0, cam, fov);
         if (!p || Math.abs(p.x) > limX * 1.5 || Math.abs(p.y) > limY * 1.5) continue;
-        const [dr, dg, db] = d.rgb;
-        ctx.save();
-        ctx.translate(p.x * scale, p.y * scale);
-        ctx.fillStyle = `rgba(${dr},${dg},${db},${Math.min(0.3, d.a * vis * 2.1)})`;
-        ctx.beginPath();
-        ctx.ellipse(0, 0, rr((d.rx * scale) / p.depth), rr((d.ry * scale) / p.depth), d.rot, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
+        const breath = nebulaBreath(d.x * 9 + d.y * 5, time, reducedRef.current);
+        paintNebula(
+          ctx,
+          p.x * scale,
+          p.y * scale,
+          (d.rx * scale) / p.depth,
+          (d.ry * scale) / p.depth,
+          d.rot + (reducedRef.current ? 0 : time * 0.04),
+          d.rgb,
+          Math.min(0.4, d.a * vis * 2.4),
+          breath,
+          d.x * 9 + d.y * 5,
+          false,
+        );
       }
 
       for (const s of model.field) {
         const p = projectLook(s.x, s.y, s.z, cam, fov);
         if (!p || Math.abs(p.x) > limX || Math.abs(p.y) > limY) continue;
-        const tw = reducedRef.current ? 1 : 0.7 + 0.3 * Math.sin(time * 1.8 + s.phase);
+        const tw = twinkleOf(s.phase, time, reducedRef.current);
         const size = Math.max(0.35, s.r * 0.26);
-        ctx.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${s.a * tw * 0.92})`;
+        ctx.globalAlpha = s.a * tw * 0.92;
+        ctx.fillStyle = rgbInk(s.rgb[0], s.rgb[1], s.rgb[2]);
         ctx.fillRect(p.x * scale - size, p.y * scale - size, size * 2, size * 2);
       }
+      ctx.globalAlpha = 1;
 
       diskBuf.length = 0;
       brightBuf.length = 0;
@@ -807,6 +1026,7 @@ export function GalaxyCanvas({
     };
 
     const paintEpoch = (
+      g: CanvasRenderingContext2D,
       epoch: CosmicEpoch,
       cx: number,
       cy: number,
@@ -814,21 +1034,21 @@ export function GalaxyCanvas({
       eternalProb: number,
       alpha = 1,
     ) => {
-      ctx.save();
-      ctx.globalAlpha = alpha;
+      g.save();
+      g.globalAlpha = alpha;
       try {
         if (alpha >= 0.995) {
-          ctx.fillStyle = "#09061a";
-          ctx.fillRect(0, 0, w, h);
+          g.fillStyle = "#09061a";
+          g.fillRect(0, 0, w, h);
         }
         if (epoch === "inflation") {
-          const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale * 1.6);
-          g.addColorStop(0, "rgb(255, 244, 214)");
-          g.addColorStop(0.28, "rgb(255, 150, 72)");
-          g.addColorStop(0.62, "rgb(140, 40, 90)");
-          g.addColorStop(1, "rgb(18, 8, 28)");
-          ctx.fillStyle = g;
-          ctx.fillRect(0, 0, w, h);
+          const glow = g.createRadialGradient(cx, cy, 0, cx, cy, scale * 1.6);
+          glow.addColorStop(0, "rgb(255, 244, 214)");
+          glow.addColorStop(0.28, "rgb(255, 150, 72)");
+          glow.addColorStop(0.62, "rgb(140, 40, 90)");
+          glow.addColorStop(1, "rgb(18, 8, 28)");
+          g.fillStyle = glow;
+          g.fillRect(0, 0, w, h);
           return;
         }
         if (epoch === "recombination" || epoch === "darkAges") {
@@ -839,7 +1059,7 @@ export function GalaxyCanvas({
           const qn = paramsRef.current.quantumNoise;
           const dipX = (qn - 0.1) * skyR * 0.4;
           const dipY = (qn - 0.1) * skyR * -0.14;
-          const wall = ctx.createRadialGradient(
+          const wall = g.createRadialGradient(
             cx + dipX,
             cy + dipY,
             0,
@@ -856,99 +1076,99 @@ export function GalaxyCanvas({
             wall.addColorStop(0.42, "rgb(98, 42, 48)");
             wall.addColorStop(1, "rgb(16, 8, 22)");
           }
-          ctx.fillStyle = wall;
-          ctx.fillRect(0, 0, w, h);
+          g.fillStyle = wall;
+          g.fillRect(0, 0, w, h);
           if (d.niche !== "silent") {
             const ellVis = Math.max(8, Math.min(32, Math.round(d.ell1 / ACOUSTIC_VISUAL)));
             const spot = skyR / ellVis;
             const n = Math.round(ellVis * ellVis * (d.niche === "damped" ? 0.22 : 0.5));
-            ctx.save();
+            g.save();
             if (ages) {
               for (let i = 0; i < n; i++) {
                 const ang = rng() * Math.PI * 2;
                 const rad = Math.sqrt(rng()) * skyR;
                 const rr = spot * (0.42 + rng() * 0.75) * (d.niche === "damped" ? 1.55 : 1);
-                ctx.fillStyle = `rgba(4, 6, 14, ${0.28 + rng() * 0.4})`;
-                ctx.beginPath();
-                ctx.arc(cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, rr, 0, Math.PI * 2);
-                ctx.fill();
+                g.fillStyle = `rgba(4, 6, 14, ${0.28 + rng() * 0.4})`;
+                g.beginPath();
+                g.arc(cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, rr, 0, Math.PI * 2);
+                g.fill();
               }
             } else {
-              ctx.globalCompositeOperation = "lighter";
+              g.globalCompositeOperation = "lighter";
               const amp = 0.08 + d.baryonLoad * 0.07;
               for (let i = 0; i < n; i++) {
                 const ang = rng() * Math.PI * 2;
                 const rad = Math.sqrt(rng()) * skyR;
                 const a = amp * (0.18 + rng() * 0.5);
                 const rr = spot * (0.42 + rng() * 0.75) * (d.niche === "damped" ? 1.55 : 1);
-                ctx.fillStyle = `rgba(255, 198, 148, ${a})`;
-                ctx.beginPath();
-                ctx.arc(cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, rr, 0, Math.PI * 2);
-                ctx.fill();
+                g.fillStyle = `rgba(255, 198, 148, ${a})`;
+                g.beginPath();
+                g.arc(cx + Math.cos(ang) * rad, cy + Math.sin(ang) * rad, rr, 0, Math.PI * 2);
+                g.fill();
               }
             }
-            ctx.restore();
+            g.restore();
           }
           return;
         }
         if (epoch === "heatDeath") {
-          ctx.fillStyle = "rgb(6, 5, 12)";
-          ctx.fillRect(0, 0, w, h);
+          g.fillStyle = "rgb(6, 5, 12)";
+          g.fillRect(0, 0, w, h);
           if (eternalProb > 0.12) {
-            const ice = ctx.createRadialGradient(cx, cy, 0, cx, cy, scale * 1.9);
+            const ice = g.createRadialGradient(cx, cy, 0, cx, cy, scale * 1.9);
             ice.addColorStop(0, `rgba(170, 214, 255, ${0.08 + eternalProb * 0.2})`);
             ice.addColorStop(0.42, `rgba(90, 140, 210, ${0.05 + eternalProb * 0.1})`);
             ice.addColorStop(1, "rgba(6,5,12,0)");
-            ctx.fillStyle = ice;
-            ctx.fillRect(0, 0, w, h);
+            g.fillStyle = ice;
+            g.fillRect(0, 0, w, h);
           }
           if (eggsRef.current.whale) {
-            ctx.save();
-            ctx.globalAlpha *= 0.18 + eternalProb * 0.22;
-            ctx.translate(cx + scale * 0.18, cy + scale * 0.22);
-            ctx.rotate(-0.35);
-            ctx.fillStyle = "rgb(160, 200, 230)";
-            ctx.beginPath();
-            ctx.ellipse(0, 0, scale * 0.28, scale * 0.07, 0, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.beginPath();
-            ctx.ellipse(scale * 0.22, -scale * 0.02, scale * 0.08, scale * 0.04, 0.4, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = "rgb(12, 16, 28)";
-            ctx.beginPath();
-            ctx.arc(-scale * 0.12, -scale * 0.01, scale * 0.012, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+            g.save();
+            g.globalAlpha *= 0.18 + eternalProb * 0.22;
+            g.translate(cx + scale * 0.18, cy + scale * 0.22);
+            g.rotate(-0.35);
+            g.fillStyle = "rgb(160, 200, 230)";
+            g.beginPath();
+            g.ellipse(0, 0, scale * 0.28, scale * 0.07, 0, 0, Math.PI * 2);
+            g.fill();
+            g.beginPath();
+            g.ellipse(scale * 0.22, -scale * 0.02, scale * 0.08, scale * 0.04, 0.4, 0, Math.PI * 2);
+            g.fill();
+            g.fillStyle = "rgb(12, 16, 28)";
+            g.beginPath();
+            g.arc(-scale * 0.12, -scale * 0.01, scale * 0.012, 0, Math.PI * 2);
+            g.fill();
+            g.restore();
           }
           return;
         }
-        const g = ctx.createRadialGradient(cx, cy, scale * 0.05, cx, cy, scale * 2.2);
+        const sky = g.createRadialGradient(cx, cy, scale * 0.05, cx, cy, scale * 2.2);
         if (epoch === "blackHoles") {
-          g.addColorStop(0, "rgb(28, 14, 22)");
-          g.addColorStop(1, "rgb(8, 5, 12)");
+          sky.addColorStop(0, "rgb(28, 14, 22)");
+          sky.addColorStop(1, "rgb(8, 5, 12)");
         } else if (epoch === "degeneracy") {
-          g.addColorStop(0, "rgb(40, 24, 28)");
-          g.addColorStop(1, "rgb(10, 6, 20)");
+          sky.addColorStop(0, "rgb(40, 24, 28)");
+          sky.addColorStop(1, "rgb(10, 6, 20)");
         } else {
-          g.addColorStop(0, "rgb(36, 24, 64)");
-          g.addColorStop(0.45, "rgb(18, 12, 40)");
-          g.addColorStop(1, "rgb(9, 6, 26)");
+          sky.addColorStop(0, "rgb(36, 24, 64)");
+          sky.addColorStop(0.45, "rgb(18, 12, 40)");
+          sky.addColorStop(1, "rgb(9, 6, 26)");
         }
-        ctx.fillStyle = g;
-        ctx.fillRect(0, 0, w, h);
+        g.fillStyle = sky;
+        g.fillRect(0, 0, w, h);
         if (epoch === "stellar" || epoch === "reionization") {
-          ctx.globalCompositeOperation = "lighter";
-          const wash = ctx.createRadialGradient(cx - scale * 0.4, cy - scale * 0.2, 0, cx, cy, scale * 1.8);
+          g.globalCompositeOperation = "lighter";
+          const wash = g.createRadialGradient(cx - scale * 0.4, cy - scale * 0.2, 0, cx, cy, scale * 1.8);
           wash.addColorStop(0, "rgba(120, 90, 255, 0.18)");
           wash.addColorStop(0.4, "rgba(70, 180, 255, 0.1)");
           wash.addColorStop(1, "rgba(9,6,26,0)");
-          ctx.fillStyle = wash;
-          ctx.fillRect(0, 0, w, h);
-          const wash2 = ctx.createRadialGradient(cx + scale * 0.5, cy + scale * 0.35, 0, cx, cy, scale * 1.6);
+          g.fillStyle = wash;
+          g.fillRect(0, 0, w, h);
+          const wash2 = g.createRadialGradient(cx + scale * 0.5, cy + scale * 0.35, 0, cx, cy, scale * 1.6);
           wash2.addColorStop(0, "rgba(255, 140, 90, 0.12)");
           wash2.addColorStop(1, "rgba(9,6,26,0)");
-          ctx.fillStyle = wash2;
-          ctx.fillRect(0, 0, w, h);
+          g.fillStyle = wash2;
+          g.fillRect(0, 0, w, h);
           if (epoch === "reionization") {
             const rng = mulberry32((seedRef.current ^ 0xda40) >>> 0);
             const n = Math.round(5 + evRef.current.structure * 16);
@@ -959,24 +1179,24 @@ export function GalaxyCanvas({
               const bx = cx + Math.cos(ang) * rad;
               const by = cy + Math.sin(ang) * rad;
               const br = scale * (0.07 + rng() * 0.14) * (0.55 + c);
-              const hole = ctx.createRadialGradient(bx, by, 0, bx, by, br);
+              const hole = g.createRadialGradient(bx, by, 0, bx, by, br);
               hole.addColorStop(0, "rgba(255, 226, 186, 0.32)");
               hole.addColorStop(0.4, "rgba(130, 180, 255, 0.14)");
               hole.addColorStop(1, "rgba(9,6,26,0)");
-              ctx.fillStyle = hole;
-              ctx.beginPath();
-              ctx.arc(bx, by, br, 0, Math.PI * 2);
-              ctx.fill();
-              ctx.fillStyle = "rgba(255, 244, 220, 0.85)";
-              ctx.beginPath();
-              ctx.arc(bx, by, 1.15, 0, Math.PI * 2);
-              ctx.fill();
+              g.fillStyle = hole;
+              g.beginPath();
+              g.arc(bx, by, br, 0, Math.PI * 2);
+              g.fill();
+              g.fillStyle = "rgba(255, 244, 220, 0.85)";
+              g.beginPath();
+              g.arc(bx, by, 1.15, 0, Math.PI * 2);
+              g.fill();
             }
           }
-          ctx.globalCompositeOperation = "source-over";
+          g.globalCompositeOperation = "source-over";
         }
       } finally {
-        ctx.restore();
+        g.restore();
       }
     };
 
@@ -1483,8 +1703,9 @@ export function GalaxyCanvas({
                 : w * h > 2_000_000
                   ? 16
                   : 0;
-      if (minGap && lastPaint && t - lastPaint < minGap) {
-        schedule(0);
+      const waitLeft = lastPaint ? minGap - (t - lastPaint) : 0;
+      if (minGap && waitLeft > 0) {
+        schedule(waitLeft);
         return;
       }
       lastPaint = t;
@@ -1493,7 +1714,7 @@ export function GalaxyCanvas({
         relaxedRef.current ||
         reducedRef.current ||
         qualityRef.current.scale < 0.4 ||
-        stress >= 5;
+        stress >= 2;
       try {
       if (!modelRef.current) {
         try {
@@ -1580,7 +1801,7 @@ export function GalaxyCanvas({
 
       const cx = w / 2;
       const cy = h / 2;
-      const scale = Math.min(w, h) * 0.46;
+      const scale = Math.min(w, h) * 0.4;
       if (!Number.isFinite(scale) || scale <= 0) return;
       let shook = false;
       if (trauma > 0.01 && !reducedRef.current) {
@@ -1593,7 +1814,7 @@ export function GalaxyCanvas({
       const time = reducedRef.current ? 0 : t / 1000;
       const targetT = (timeLiveRef.current ?? cosmicRef).current;
       if (reducedRef.current) visualT = targetT;
-      else visualT += (targetT - visualT) * (1 - Math.exp(-5.5 * dt));
+      else visualT += (targetT - visualT) * (1 - Math.exp(-2.4 * dt));
       const ev = evRef.current;
       const pms = paramsRef.current;
       const hydro = diskDossier(pms, ev);
@@ -1606,9 +1827,53 @@ export function GalaxyCanvas({
       const late = epoch === "heatDeath" || epoch === "blackHoles";
       const eternalProb = ev.eternalProb ?? 0;
 
-      paintEpoch(blend.from, cx, cy, scale, eternalProb, 1);
+      const paintSkyEpoch = (
+        epoch: CosmicEpoch,
+        alpha: number,
+      ) => {
+        const still = alpha >= 0.995 && w * h <= 900_000;
+        if (!still) {
+          paintEpoch(ctx, epoch, cx, cy, scale, eternalProb, alpha);
+          return;
+        }
+        const acoust = acousticDossier(pms, ev);
+        const key = epochBackdropKey({
+          epoch,
+          w,
+          h,
+          dpr,
+          seed: seedRef.current,
+          quantumNoise: pms.quantumNoise,
+          complexity: pms.complexity,
+          structure: ev.structure,
+          eternalProb,
+          whale: eggsRef.current.whale,
+          niche: acoust.niche,
+          ell1: acoust.ell1,
+          baryonLoad: acoust.baryonLoad,
+        });
+        let slot = backdrop.find((row) => row.key === key);
+        if (!slot) {
+          const layer = document.createElement("canvas");
+          layer.width = Math.max(1, Math.floor(w * dpr));
+          layer.height = Math.max(1, Math.floor(h * dpr));
+          const layerCtx = layer.getContext("2d");
+          if (!layerCtx) {
+            paintEpoch(ctx, epoch, cx, cy, scale, eternalProb, alpha);
+            return;
+          }
+          layerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          layerCtx.imageSmoothingEnabled = false;
+          paintEpoch(layerCtx, epoch, cx, cy, scale, eternalProb, 1);
+          slot = { key, canvas: layer };
+          backdrop.push(slot);
+          if (backdrop.length > 2) backdrop.shift();
+        }
+        ctx.drawImage(slot.canvas, 0, 0, w, h);
+      };
+      paintSkyEpoch(blend.from, 1);
       if (blend.mix > 0.02 && blend.to !== blend.from) {
-        paintEpoch(blend.to, cx, cy, scale, eternalProb, blend.mix);
+        paintEpoch(ctx, blend.to, cx, cy, scale, eternalProb, blend.mix);
       }
 
       if (skyMode === "planetarium") {
@@ -1642,16 +1907,19 @@ export function GalaxyCanvas({
         ctx.globalCompositeOperation = "lighter";
         if (!(gpu && skyMode === "galaxy")) {
         for (const s of model.field) {
-          ctx.fillStyle = `rgba(${s.rgb[0]},${s.rgb[1]},${s.rgb[2]},${s.a * (late ? 0.08 + vis * 0.35 + eternalProb * 0.18 : 0.7 + vis * 0.5)})`;
+          const tw = twinkleOf(s.phase, time, reducedRef.current);
+          const a = s.a * tw * (late ? 0.08 + vis * 0.35 + eternalProb * 0.18 : 0.7 + vis * 0.5);
+          ctx.globalAlpha = a;
+          ctx.fillStyle = rgbInk(s.rgb[0], s.rgb[1], s.rgb[2]);
           const fr = Math.max(0.35, s.r);
           ctx.fillRect(s.x * scale - fr * 0.5, s.y * scale - fr * 0.5, fr, fr);
         }
+        ctx.globalAlpha = 1;
         }
         ctx.globalCompositeOperation = "source-over";
 
         const showSources = vis > 0.12;
         if ((skyMode === "lensing" || vis > 0.2) && (skyMode !== "lensing" || showSources)) {
-          const thetaE = einsteinRadius(ev, pms);
           const rs = nfwScale(pms, ev);
           const ks = nfwKappaS(pms, ev);
           for (const bg of model.background) {
@@ -1938,24 +2206,38 @@ export function GalaxyCanvas({
         encHit.live = true;
       }
       if (encHit.live) {
-        canvas.dataset.encX = String(Math.round(encHit.x));
-        canvas.dataset.encY = String(Math.round(encHit.y));
-      } else {
+        const ex = String(Math.round(encHit.x));
+        const ey = String(Math.round(encHit.y));
+        if (canvas.dataset.encX !== ex) canvas.dataset.encX = ex;
+        if (canvas.dataset.encY !== ey) canvas.dataset.encY = ey;
+      } else if (canvas.dataset.encX || canvas.dataset.encY) {
         delete canvas.dataset.encX;
         delete canvas.dataset.encY;
       }
-      canvas.style.cursor = dragging
+      const cursor = dragging
         ? "grabbing"
         : encHit.live
           ? "crosshair"
           : skyMode === "planetarium"
             ? "grab"
             : "default";
+      if (canvas.style.cursor !== cursor) canvas.style.cursor = cursor;
 
       if (shook) ctx.restore();
 
       if (gpu && skyMode === "galaxy" && vis > 0.08 && !late) {
-        gpu.draw(model, { ox: cx, oy: cy, scale, rot, vis, w, h, dpr });
+        gpu.draw(model, {
+          ox: cx,
+          oy: cy,
+          scale,
+          rot,
+          vis,
+          w,
+          h,
+          dpr,
+          time,
+          still: reducedRef.current,
+        });
       } else {
         gpu?.clear();
       }
@@ -1976,7 +2258,7 @@ export function GalaxyCanvas({
         swarmProb < 0.18 &&
         (reducedRef.current || relaxedRef.current);
       painted = true;
-      canvas.dataset.skyPainted = "1";
+      if (canvas.dataset.skyPainted !== "1") canvas.dataset.skyPainted = "1";
       } catch {
         /* one bad frame must not kill the sky */
       } finally {
@@ -2008,7 +2290,7 @@ export function GalaxyCanvas({
     <div
       ref={wrapRef}
       className={["sky-canvas", className].filter(Boolean).join(" ")}
-      data-sky-gpu={skyGpuMark(gpuOffered(), null)}
+      data-sky-gpu="0"
       style={{
         position: "absolute",
         inset: 0,

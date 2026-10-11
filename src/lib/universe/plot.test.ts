@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { pickDispatch, voiceFor } from "./plot.ts";
+import { closedSkyWitness, fateAside, pickDispatch, plotNeedsFate, voiceFor } from "./plot.ts";
 import { emptyMandate } from "./mandate.ts";
 import { makeRecord } from "./archive.ts";
 import { OUR_SEED, OUR_UNIVERSE } from "./physics.ts";
@@ -33,6 +33,44 @@ describe("pickDispatch", () => {
     assert.equal(
       pickDispatch({ births: 2, fate: "sterile", next: "corridor", swarm: 0.4 }),
       "tide",
+    );
+  });
+
+  it("asks for the fate sentence only when the line is a next step", () => {
+    for (const id of ["arrive", "empty", "dice", "hard", "survey", "home", "done"] as const) {
+      assert.equal(plotNeedsFate(id), true, id);
+    }
+    for (const id of [
+      "foothold",
+      "teeming",
+      "silicon",
+      "tide",
+      "enduring",
+      "blink",
+      "cluster",
+      "dwarf",
+      "highway",
+      "belt",
+      "desert",
+      "caughtWow",
+    ] as const) {
+      assert.equal(plotNeedsFate(id), false, id);
+    }
+  });
+
+  it("appends the fate when the life pane only says to survey", () => {
+    assert.equal(closedSkyWitness(false, "Survey 64 is next.", "Nothing catches fire."), null);
+    const line = closedSkyWitness(true, "Survey 64 is next.", "Nothing catches fire.");
+    assert.equal(line, "Survey 64 is next. Nothing catches fire.");
+    assert.equal(closedSkyWitness(true, "Already. Nothing catches fire.", "Nothing catches fire."), "Already. Nothing catches fire.");
+  });
+
+  it("does not repeat the fate name as the sentence", () => {
+    assert.equal(fateAside("The void", "The void"), null);
+    assert.equal(fateAside("The void", "  "), null);
+    assert.equal(
+      fateAside("The void", "Nothing ever catches fire."),
+      "Nothing ever catches fire.",
     );
   });
 

@@ -12,12 +12,14 @@ type Props = {
 
 export function SkyModes({ copy, mode, onChange, collapseLabel = false }: Props) {
   return (
+    <div className="sky-modes glass glass-clear pointer-events-auto w-fit max-w-full overflow-hidden rounded-[var(--radius-xl)]">
     <Segmented
-      className="w-full max-w-md bg-bg-elevated/80"
+      className="w-full bg-transparent"
       ariaLabel={copy.obs.modesLabel}
       value={mode}
       onChange={onChange}
       collapseLabel={collapseLabel}
+      scroll
       items={[
         { id: "galaxy", label: copy.obs.modes.galaxy, title: copy.obs.modeHint.galaxy, icon: Orbit },
         {
@@ -35,5 +37,6 @@ export function SkyModes({ copy, mode, onChange, collapseLabel = false }: Props)
         },
       ]}
     />
+    </div>
   );
 }
