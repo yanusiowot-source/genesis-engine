@@ -242,7 +242,7 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.65.0");
+    assert.equal(APP_VERSION, "1.66.0");
     const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { version: string };
     const desktop = JSON.parse(readFileSync(join(root, "desktop/package.json"), "utf8")) as {
@@ -252,10 +252,10 @@ describe("copyFor", () => {
       version: string;
       packages: { "": { version: string } };
     };
-    assert.equal(pkg.version, "1.65.0");
-    assert.equal(desktop.version, "1.65.0");
-    assert.equal(lock.version, "1.65.0");
-    assert.equal(lock.packages[""].version, "1.65.0");
+    assert.equal(pkg.version, "1.66.0");
+    assert.equal(desktop.version, "1.66.0");
+    assert.equal(lock.version, "1.66.0");
+    assert.equal(lock.packages[""].version, "1.66.0");
     assert.equal(APP_VERSION, pkg.version);
     const about = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../../public/about/index.html"),
@@ -366,7 +366,8 @@ describe("disk panel", () => {
     );
     assert.match(app, /setHuntFailed\(true\)/);
     assert.doesNotMatch(app, /\.catch\(\(\) => \{\}\)/);
-    assert.match(hunt, /grid-cols-2 gap-1[\s\S]*min-\[420px\]:grid-cols-3/);
+    assert.match(hunt, /grid-cols-2 gap-1[\s\S]*sm:grid-cols-3/);
+    assert.match(hunt, /whitespace-normal/);
     assert.match(hunt, /min-h-11 w-full min-\[420px\]:w-auto/);
     assert.doesNotMatch(hunt, /size="sm"/);
     const desk = readFileSync(

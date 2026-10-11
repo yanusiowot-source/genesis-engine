@@ -33,7 +33,7 @@ export function ResearchPanel({
   return (
     <section className="flex flex-col gap-4">
       <div
-        className="grid grid-cols-2 gap-1 rounded-[var(--radius-sm)] bg-bg p-1 min-[420px]:grid-cols-3"
+        className="grid grid-cols-2 gap-1 rounded-[var(--radius-sm)] bg-bg p-1 sm:grid-cols-3"
         role="radiogroup"
         aria-label={copy.research.title}
       >
@@ -49,7 +49,7 @@ export function ResearchPanel({
               onClick={() => onTarget(id)}
               disabled={hunting}
               className={cn(
-                "min-h-11 min-w-0 rounded-[var(--radius-xs)] px-1 text-[0.6875rem] font-medium leading-tight tracking-wide uppercase",
+                "min-h-11 min-w-0 whitespace-normal text-balance rounded-[var(--radius-xs)] px-2 py-1.5 text-[0.6875rem] font-medium leading-tight tracking-wide uppercase",
                 "transition-colors duration-[var(--motion-quick)] ease-[var(--ease-out)]",
                 hunting && "opacity-60",
                 active ? "bg-bg-subtle text-accent" : "text-fg-subtle hover:text-fg",
@@ -64,7 +64,7 @@ export function ResearchPanel({
         {copy.research.targetHint[target]}
       </p>
 
-      <Button onClick={onRun} disabled={hunting} data-hunting={hunting ? "1" : undefined}>
+      <Button className="w-full whitespace-normal text-balance" onClick={onRun} disabled={hunting} data-hunting={hunting ? "1" : undefined}>
         <ScanSearch />
         {hunting ? copy.research.running : copy.research.run}
       </Button>

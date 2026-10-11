@@ -275,7 +275,7 @@ export function ArcadeSheet({ copy, onClose }: Props) {
             <X />
           </Button>
         </div>
-        <div className="mt-3 flex gap-1" role="tablist">
+        <div className="mt-3 grid grid-cols-2 gap-1 sm:grid-cols-4" role="tablist">
           {(
             [
               ["tiles", copy.gamesTiles],
@@ -290,7 +290,7 @@ export function ArcadeSheet({ copy, onClose }: Props) {
               role="tab"
               aria-selected={kind === id}
               className={cn(
-                "h-11 min-w-0 flex-1 truncate rounded-[var(--radius-xs)] px-1 text-xs sm:text-sm",
+                "h-11 min-w-0 rounded-[var(--radius-xs)] px-2 text-sm",
                 kind === id ? "bg-bg-subtle text-fg" : "text-fg-subtle",
               )}
               onClick={() => setKind(id)}
@@ -440,14 +440,20 @@ function NextPiece({ id, label }: { id: number; label: string }) {
 }
 
 function RunBoard({ run }: { run: Run }) {
-  const cells: { rock: boolean; spark: boolean; trail: boolean; lane: boolean }[] = [];
-  for (let y = RUN_H - 1; y >= 0; y--) {
+  const sky = 2;
+  const rows = RUN_H + sky;
+  const cells: { rock: boolean; cap: boolean; spark: boolean; trail: boolean; lane: boolean; star: boolean }[] = [];
+  for (let row = 0; row < rows; row++) {
+    const above = row < sky;
+    const groundY = above ? -1 : RUN_H - 1 - (row - sky);
     for (let x = 0; x < RUN_W; x++) {
-      const height = run.ground[x] ?? 0;
-      const rock = y < height;
-      const spark = run.alive && x === RUN_X && y === run.y;
-      const trail = !rock && !spark && y === run.y && x < RUN_X && x >= RUN_X - 2;
-      cells.push({ rock, spark, trail, lane: y === 0 && !rock && !spark });
+      const height = above ? 0 : (run.ground[x] ?? 0);
+      const rock = !above && groundY >= 0 && groundY < height;
+      const cap = rock && groundY === height - 1;
+      const spark = run.alive && !above && groundY === run.y && x === RUN_X;
+      const trail = !rock && !spark && !above && groundY === run.y && x < RUN_X && x >= RUN_X - 3;
+      const star = above && (x * 5 + row * 3) % 11 === 0;
+      cells.push({ rock, cap, spark, trail, lane: groundY === 0 && !rock && !spark, star });
     }
   }
   return (
@@ -455,9 +461,9 @@ function RunBoard({ run }: { run: Run }) {
       className="grid gap-px rounded-[var(--radius-sm)] bg-bg p-1"
       style={{
         width: "min(100cqw, 26rem)",
-        aspectRatio: `${RUN_W} / ${RUN_H}`,
+        aspectRatio: `${RUN_W} / ${rows}`,
         gridTemplateColumns: `repeat(${RUN_W}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${RUN_H}, minmax(0, 1fr))`,
+        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
       }}
     >
       {cells.map((cell, i) => (
@@ -467,13 +473,18 @@ function RunBoard({ run }: { run: Run }) {
           style={{
             background: cell.spark
               ? "#f0d78a"
-              : cell.rock
-                ? "#d7c4a3"
-                : cell.trail
-                  ? "rgba(240, 215, 138, 0.35)"
-                  : cell.lane
-                    ? "color-mix(in oklab, var(--color-fg) 14%, transparent)"
-                    : "color-mix(in oklab, var(--color-fg) 5%, transparent)",
+              : cell.cap
+                ? "#f4efe2"
+                : cell.rock
+                  ? "#8a7360"
+                  : cell.trail
+                    ? "rgba(240, 215, 138, 0.28)"
+                    : cell.lane
+                      ? "color-mix(in oklab, var(--color-fg) 16%, transparent)"
+                      : cell.star
+                        ? "rgba(244, 239, 232, 0.55)"
+                        : "transparent",
+            boxShadow: cell.spark ? "0 0 8px #f0d78a" : undefined,
           }}
         />
       ))}

@@ -591,13 +591,6 @@ html.contrast .glass {
     row-gap: 0.25rem;
   }
 
-  .hud-chips {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
-  }
-
   [data-hud-band="actions"] {
     position: sticky;
     bottom: 0;
@@ -607,16 +600,6 @@ html.contrast .glass {
   [data-hud-band="fate"] p {
     -webkit-line-clamp: 1;
     line-clamp: 1;
-  }
-}
-
-@media (max-width: 380px) {
-  .sky-modes [role="tab"] > span {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
   }
 }
 

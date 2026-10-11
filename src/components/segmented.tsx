@@ -21,6 +21,7 @@ type Props<T extends string> = {
   collapseLabel?: boolean;
   nudge?: T | null;
   scroll?: boolean;
+  wrap?: boolean;
   className?: string;
 };
 
@@ -33,6 +34,7 @@ export function Segmented<T extends string>({
   collapseLabel = false,
   nudge = null,
   scroll = false,
+  wrap = false,
   className,
 }: Props<T>) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -76,6 +78,7 @@ export function Segmented<T extends string>({
         "relative flex",
         stacked ? "gap-0 p-1" : "h-11 gap-0.5 p-0.5",
         scroll && "overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        wrap && "flex-wrap",
         "rounded-[var(--radius-sm)] bg-bg-elevated/70",
         className,
       )}
@@ -111,7 +114,14 @@ export function Segmented<T extends string>({
               "transition-[color] duration-[var(--motion-quick)] ease-[var(--ease-out)]",
               stacked
                 ? cn("min-w-0 flex-1 flex-col gap-0.5 px-0.5", collapseLabel ? "h-11 sm:h-12" : "h-12")
-                : cn("h-full min-h-0 gap-1 px-2", scroll ? "shrink-0" : "flex-1"),
+                : cn(
+                  "min-h-0 min-w-0 gap-1 px-1.5",
+                  wrap
+                    ? "h-auto min-h-11 w-[calc(50%-0.125rem)] flex-none py-1.5 text-xs sm:h-11 sm:w-auto sm:flex-1 sm:py-0 sm:text-sm"
+                    : scroll
+                      ? "h-11 shrink-0"
+                      : "h-11 flex-1",
+                ),
               active ? "text-accent" : "text-fg-muted hover:text-fg",
               nudge === id && "nudge-ring",
             )}
@@ -120,8 +130,7 @@ export function Segmented<T extends string>({
             <Icon className={stacked ? "size-5" : "size-4"} strokeWidth={active ? 2.2 : 1.8} />
             <span
               className={cn(
-                "max-w-full",
-                !scroll && "truncate",
+                wrap ? "whitespace-normal text-center leading-tight" : "min-w-0 max-w-full truncate",
                 collapseLabel && "hidden sm:inline",
               )}
             >
