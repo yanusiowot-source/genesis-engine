@@ -42,7 +42,7 @@ function CutSelect<T extends string>({
       aria-label={named?.label ?? ""}
       value={value}
       onChange={(event) => onChange(event.target.value as T)}
-      className="h-11 min-w-0 truncate rounded-[var(--radius-sm)] bg-bg-subtle px-2 text-xs text-fg"
+      className="h-11 w-full min-w-0 rounded-[var(--radius-sm)] bg-bg-subtle px-2 text-xs text-fg"
       style={{ colorScheme: "dark" }}
     >
       {options.map((o) => (
@@ -152,7 +152,7 @@ export function LogList({
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-2 min-[420px]:grid-cols-3">
+          <div className="grid grid-cols-1 gap-2">
             <CutSelect
               value={pathCut}
               onChange={setPathCut}
@@ -239,7 +239,7 @@ export function LogList({
                     <span className="mx-1.5 text-fg-subtle/50">·</span>
                     {formatRelative(r.createdAt, locale)}
                   </span>
-                  <span className="mt-1 block truncate text-[0.6875rem] leading-relaxed text-fg-subtle">
+                  <span className="mt-1 line-clamp-2 text-[0.6875rem] leading-relaxed text-fg-subtle">
                     {versus ?? copy.fateCopy[r.evaluation.fate]}
                   </span>
                 </span>

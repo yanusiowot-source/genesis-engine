@@ -158,9 +158,9 @@ function ResultBlock({
           {result.fateHist.map((bin) => (
             <li
               key={bin.fate}
-              className="grid grid-cols-[minmax(0,8.5rem)_1fr_2.25rem] items-center gap-2"
+              className="grid grid-cols-[minmax(0,1fr)_minmax(2.5rem,1fr)_2.25rem] items-center gap-2"
             >
-              <span className="truncate text-xs text-fg-muted">{copy.fateLabel[bin.fate]}</span>
+              <span className="min-w-0 whitespace-normal text-pretty text-xs leading-snug text-fg-muted">{copy.fateLabel[bin.fate]}</span>
               <span className="h-1 overflow-hidden rounded-full bg-bg-subtle" aria-hidden>
                 <span
                   className="block h-full rounded-full bg-fg-subtle/60"
@@ -269,7 +269,7 @@ function FindGroup({
                   {copy.swarm} {formatPct(row.evaluation.swarmProb ?? 0)}
                 </span>
               </p>
-              <p className="mt-0.5 truncate text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
+              <p className="mt-0.5 whitespace-normal text-pretty text-[0.6875rem] leading-snug tracking-wide text-fg-subtle uppercase">
                 {copy.fateLabel[row.evaluation.fate]}
               </p>
             </div>

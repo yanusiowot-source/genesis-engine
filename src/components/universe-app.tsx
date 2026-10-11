@@ -298,7 +298,7 @@ function SkyLine({
     <div className="sky-ink hud-swap mt-1.5 max-w-md" role="status" data-dispatch={dispatch}>
       <p className={cn("line-clamp-2 text-pretty text-sm leading-relaxed", tone)}>{lead}</p>
       {aside ? (
-        <p className="mt-0.5 line-clamp-1 text-pretty text-sm leading-relaxed text-fg-muted">{aside}</p>
+        <p className="mt-0.5 line-clamp-2 text-pretty text-sm leading-relaxed text-fg-muted">{aside}</p>
       ) : null}
       {facts.length > 0 ? (
         <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg-muted">

@@ -242,7 +242,7 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.68.0");
+    assert.equal(APP_VERSION, "1.69.0");
     const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { version: string };
     const desktop = JSON.parse(readFileSync(join(root, "desktop/package.json"), "utf8")) as {
@@ -252,10 +252,10 @@ describe("copyFor", () => {
       version: string;
       packages: { "": { version: string } };
     };
-    assert.equal(pkg.version, "1.68.0");
-    assert.equal(desktop.version, "1.68.0");
-    assert.equal(lock.version, "1.68.0");
-    assert.equal(lock.packages[""].version, "1.68.0");
+    assert.equal(pkg.version, "1.69.0");
+    assert.equal(desktop.version, "1.69.0");
+    assert.equal(lock.version, "1.69.0");
+    assert.equal(lock.packages[""].version, "1.69.0");
     assert.equal(APP_VERSION, pkg.version);
     const about = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../../public/about/index.html"),
@@ -384,6 +384,16 @@ describe("disk panel", () => {
     assert.match(desk, /grid grid-cols-2 gap-1/);
     assert.doesNotMatch(desk, /min-\[420px\]:grid-cols-3/);
     assert.match(desk, /whitespace-normal text-balance/);
+    assert.match(app, /line-clamp-2 text-pretty text-sm leading-relaxed text-fg-muted/);
+    assert.doesNotMatch(app, /line-clamp-1 text-pretty text-sm leading-relaxed text-fg-muted/);
+    const journal = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/log-list.tsx"),
+      "utf8",
+    );
+    assert.match(journal, /grid grid-cols-1 gap-2/);
+    assert.doesNotMatch(journal, /min-\[420px\]:grid-cols-3/);
+    assert.match(journal, /line-clamp-2 text-\[0\.6875rem\] leading-relaxed text-fg-subtle/);
+    assert.match(hunt, /whitespace-normal text-pretty text-xs leading-snug/);
     assert.match(hunt, /fateLabel\[bin\.fate\]/);
     assert.doesNotMatch(hunt, /title=\{`\$\{copy\.fateLabel/);
     for (const rel of ["research-panel.tsx", "laws-panel.tsx", "desk-panel.tsx"]) {
