@@ -14,6 +14,12 @@ describe("fieldNote", () => {
     );
     assert.doesNotMatch(app, /import \{ fieldNote \}/);
     assert.match(app, /import\("@\/lib\/universe\/field-note"\)/);
+    assert.doesNotMatch(app, /import \{ HolePanel \}/);
+    assert.match(app, /import\("@\/components\/hole-panel"\)/);
+    assert.match(app, /holeEpoch\(liveEpoch\)/);
+    assert.doesNotMatch(app, /import \{ ImfPanel \}/);
+    assert.match(app, /import\("@\/components\/imf-panel"\)/);
+    assert.match(app, /liveEpoch === "stellar"/);
     assert.doesNotMatch(app, /import \{ loadVotes/);
     assert.match(app, /import\("@\/components\/lab-panes"\)/);
   });

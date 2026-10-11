@@ -63,6 +63,11 @@ export function epochShown(t: number): CosmicEpoch {
   return blend.mix >= 0.5 ? blend.to : blend.from;
 }
 
+/** Remnant clock. The sky names the hole; the carbon plot stays on the stellar era. */
+export function holeEpoch(id: CosmicEpoch): boolean {
+  return id === "degeneracy" || id === "blackHoles" || id === "heatDeath";
+}
+
 export type EpochBlend = { from: CosmicEpoch; to: CosmicEpoch; mix: number };
 
 /** Smoothstep across the whole segment, so the sky does not sit still and then jump. */

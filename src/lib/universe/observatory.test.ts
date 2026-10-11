@@ -12,6 +12,7 @@ import {
   EPOCH_INK,
   epochJumpT,
   epochShown,
+  holeEpoch,
   epochTickT,
   DISK_MESH,
   diskDossier,
@@ -218,6 +219,11 @@ describe("cosmic clock", () => {
 
   it("names the sky from the blend, not the hard fence", () => {
     assert.equal(epochShown(0.55), "stellar");
+    assert.equal(holeEpoch("stellar"), false);
+    assert.equal(holeEpoch("recombination"), false);
+    assert.equal(holeEpoch("degeneracy"), true);
+    assert.equal(holeEpoch("blackHoles"), true);
+    assert.equal(holeEpoch("heatDeath"), true);
     assert.equal(epochShown(0), "inflation");
     assert.equal(epochShown(1), "heatDeath");
     const late = 0.42 + (0.72 - 0.42) * 0.9;

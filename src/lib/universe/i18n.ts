@@ -1486,7 +1486,7 @@ const en: Copy = {
     fpSersic: "n",
     fpMass: "mass →",
     imfTitle: "IMF",
-    imfHint: "The mix of star masses sets how much gas comes back, how many metals, and how hard the explosions stir the halo. More heavy stars return gas and stir the dark mass. More light stars lock the mass in. This is not a model of chemistry.",
+    imfHint: "The mix of star masses (IMF) sets how much gas comes back, how many metals, and how hard the explosions stir the halo. More heavy stars return gas and stir the dark mass. More light stars lock the mass in. This is not a model of chemistry.",
     imfNiche: {
       top: "Top-heavy",
       chabrier: "Chabrier",

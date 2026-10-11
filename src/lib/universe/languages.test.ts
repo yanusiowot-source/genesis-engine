@@ -442,6 +442,37 @@ describe("disk panel", () => {
   });
 });
 
+describe("imf panel", () => {
+  it("draws the mass function on every morphology", () => {
+    const panel = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/imf-panel.tsx"),
+      "utf8",
+    );
+    assert.match(panel, /top:\s*"text-life"/);
+    assert.match(panel, /chabrier:\s*"text-fg"/);
+    assert.match(panel, /salpeter:\s*"text-fg-muted"/);
+    assert.match(panel, /bottom:\s*"text-fg-subtle"/);
+    assert.match(panel, /scale\.imfCurve/);
+    assert.doesNotMatch(panel, /kind === "fj"/);
+    const hubble = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/hubble-panel.tsx"),
+      "utf8",
+    );
+    assert.doesNotMatch(hubble, /imfTitle|imfCurve|imfNiche/);
+    const hud = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), "../../components/universe-app.tsx"),
+      "utf8",
+    );
+    assert.match(hud, /liveEpoch === "stellar"/);
+    assert.match(hud, /copy\.obs\.imfNiche\[imf\.niche\]/);
+    for (const c of [copyFor("en"), copyFor("ru"), copyFor("be")]) {
+      assert.notEqual(c.obs.imfNiche.top, c.obs.imfNiche.bottom);
+      assert.notEqual(c.obs.imfNiche.chabrier, c.obs.imfNiche.salpeter);
+      assert.match(c.obs.imfHint, /IMF/);
+    }
+  });
+});
+
 describe("acoustic panel", () => {
   it("paints the wall niche and fattens odd peaks only when baryons load", () => {
     const panel = readFileSync(

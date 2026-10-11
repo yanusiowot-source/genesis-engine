@@ -1,16 +1,26 @@
-import type { Copy, Locale } from "./i18n";
-import { formatCount, formatGtC, formatGyr, formatPct, formatSci } from "./format";
-import type { SiliconDossier } from "./physics";
-import { PARAM_META, derivedAstro, FATE_LABEL } from "./physics";
-import { haloDossier, acousticDossier } from "./observatory";
-import type { CivModel } from "./civilization";
-import { biosphereOf } from "./biosphere";
-import type { ExpeditionResult } from "./research";
-import type { UniverseRecord } from "./types";
-import type { DiscoveryResult } from "./symbolic";
-import type { BayesResult } from "./bayes";
-import { formatBf } from "./bayes";
-import type { McmcResult } from "./mcmc";
+import type { Copy, Locale } from "./i18n.ts";
+import { formatCount, formatGtC, formatGyr, formatPct, formatSci } from "./format.ts";
+import type { SiliconDossier } from "./physics.ts";
+import { PARAM_META, derivedAstro, FATE_LABEL } from "./physics.ts";
+import {
+  acousticDossier,
+  agnDossier,
+  diskDossier,
+  grmhdDossier,
+  haloDossier,
+  imfHighMass,
+  imfMeanMass,
+  imfNicheOf,
+  imfReturn,
+} from "./observatory.ts";
+import type { CivModel } from "./civilization.ts";
+import { biosphereOf } from "./biosphere.ts";
+import type { ExpeditionResult } from "./research.ts";
+import type { UniverseRecord } from "./types.ts";
+import type { DiscoveryResult } from "./symbolic.ts";
+import type { BayesResult } from "./bayes.ts";
+import { formatBf } from "./bayes.ts";
+import type { McmcResult } from "./mcmc.ts";
 import { PUBLIC_LAB_URL } from "./studio.ts";
 
 export function buildFieldReport(args: {
@@ -89,6 +99,20 @@ export function buildFieldReport(args: {
   const ac = acousticDossier(p, ev);
   lines.push(
     `- ${copy.obs.acousticTitle}: ${copy.obs.acousticNiche[ac.niche]}, ${copy.obs.acousticEll} ${Math.round(ac.ell1)}`,
+  );
+  const disk = diskDossier(p, ev);
+  lines.push(
+    `- ${copy.obs.diskTitle}: ${copy.obs.diskNiche[disk.niche]}, ${copy.obs.diskQ} ${disk.Q.toFixed(2)}`,
+  );
+  const xImf = imfHighMass(p, ev);
+  const nImf = imfNicheOf(xImf);
+  lines.push(
+    `- ${copy.obs.imfTitle}: ${copy.obs.imfNiche[nImf]}, ${copy.obs.imfSlope} ${xImf.toFixed(2)}, ${copy.obs.imfMean} ${imfMeanMass(xImf, nImf).toFixed(2)}, ${copy.obs.imfR} ${imfReturn(xImf, nImf).toFixed(2)}`,
+  );
+  const agn = agnDossier(p, ev);
+  const hole = grmhdDossier(p, ev);
+  lines.push(
+    `- ${copy.obs.bhTitle}: ${copy.obs.bhNiche[agn.niche]}, ${copy.obs.agnMode[agn.mode]}, ${copy.obs.grmhdSpin} ${hole.aStar.toFixed(2)}, ${copy.obs.grmhdState[hole.state]}`,
   );
   lines.push("");
   lines.push(`## ${ru ? "Кремниевое досье" : "Silicon dossier"}`);

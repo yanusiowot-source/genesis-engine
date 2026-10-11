@@ -27,6 +27,9 @@ import { Button } from "@/components/ui/button";
 const AcousticPanel = lazy(() =>
   import("@/components/acoustic-panel").then((m) => ({ default: m.AcousticPanel })),
 );
+const HolePanel = lazy(() =>
+  import("@/components/hole-panel").then((m) => ({ default: m.HolePanel })),
+);
 const AstroPanel = lazy(() =>
   import("@/components/astro-panel").then((m) => ({ default: m.AstroPanel })),
 );
@@ -50,6 +53,9 @@ const DeskPanel = lazy(() =>
 );
 const DiskPanel = lazy(() =>
   import("@/components/disk-panel").then((m) => ({ default: m.DiskPanel })),
+);
+const ImfPanel = lazy(() =>
+  import("@/components/imf-panel").then((m) => ({ default: m.ImfPanel })),
 );
 const EpochTimeline = lazy(() =>
   import("@/components/epoch-timeline").then((m) => ({ default: m.EpochTimeline })),
@@ -257,7 +263,21 @@ import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
 import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
 import type { Fate, LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
-import { nowMarker, epochShown, haloDossier, acousticDossier, diskDossier, NOW_T } from "@/lib/universe/observatory";
+import {
+  NOW_T,
+  acousticDossier,
+  agnDossier,
+  diskDossier,
+  epochShown,
+  grmhdDossier,
+  haloDossier,
+  holeEpoch,
+  imfHighMass,
+  imfMeanMass,
+  imfNicheOf,
+  imfReturn,
+  nowMarker,
+} from "@/lib/universe/observatory";
 
 const ONBOARD_KEY = "genesis-engine-onboarded-v5";
 
@@ -1878,6 +1898,13 @@ export function UniverseApp() {
   const halo = useMemo(() => haloDossier(current.params, ev), [current.params, ev]);
   const acoustic = useMemo(() => acousticDossier(current.params, ev), [current.params, ev]);
   const disk = useMemo(() => diskDossier(current.params, ev), [current.params, ev]);
+  const hole = useMemo(() => agnDossier(current.params, ev), [current.params, ev]);
+  const engine = useMemo(() => grmhdDossier(current.params, ev), [current.params, ev]);
+  const imf = useMemo(() => {
+    const x = imfHighMass(current.params, ev);
+    const niche = imfNicheOf(x);
+    return { niche, mean: imfMeanMass(x, niche), ret: imfReturn(x, niche) };
+  }, [current.params, ev]);
   const liveEpoch = epochShown(liveTime);
 
   const stats = useMemo(
@@ -2111,6 +2138,8 @@ export function UniverseApp() {
             <HubblePanel copy={copy} params={current.params} evaluation={ev} />
             <HaloPanel copy={copy} params={current.params} evaluation={ev} />
             <DiskPanel copy={copy} params={current.params} evaluation={ev} h0Long={skyH0} />
+            <ImfPanel copy={copy} params={current.params} evaluation={ev} />
+            <HolePanel copy={copy} params={current.params} evaluation={ev} />
             <AcousticPanel copy={copy} params={current.params} evaluation={ev} />
             {hydrated ? (
               <WorldsPanel
@@ -2636,12 +2665,36 @@ export function UniverseApp() {
               lead={copy.obs.epochs.reionization}
               facts={[copy.obs.hii, `${copy.obs.acousticEll} ${Math.round(acoustic.ell1)}`]}
             />
+          ) : holeEpoch(liveEpoch) ? (
+            <SkyLine
+              key="hole"
+              dispatch="hole"
+              lead={copy.obs.bhNiche[hole.niche]}
+              facts={[
+                `${copy.obs.grmhdSpin} ${engine.aStar.toFixed(2)}`,
+                hole.mode === "off" ? copy.obs.agnMode.off : copy.obs.grmhdState[engine.state],
+                hole.mode === "off"
+                  ? `${copy.obs.grmhdEff} ${(engine.ntEff * 100).toFixed(1)}%`
+                  : engine.fr === "none"
+                    ? copy.obs.grmhdWin[engine.winner]
+                    : copy.obs.madFr[engine.fr],
+              ]}
+            />
           ) : (
             <SkyLine
               key={dispatchId}
               dispatch={dispatchId}
               lead={copy.plot[dispatchId]}
               aside={plotNeedsFate(dispatchId) ? copy.fateCopy[ev.fate] : undefined}
+              facts={
+                liveEpoch === "stellar"
+                  ? [
+                      copy.obs.imfNiche[imf.niche],
+                      `${copy.obs.imfMean} ${imf.mean.toFixed(2)}`,
+                      `${copy.obs.imfR} ${imf.ret.toFixed(2)}`,
+                    ]
+                  : []
+              }
             />
           )}
           {shared ? (

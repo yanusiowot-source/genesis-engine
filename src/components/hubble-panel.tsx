@@ -159,60 +159,7 @@ export const HubblePanel = memo(function HubblePanel({ copy, params, evaluation 
               <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.fpSersic}</dt>
               <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.sersicN.toFixed(1)}</dd>
             </div>
-            <div>
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.imfTitle}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg uppercase">
-                {copy.obs.imfNiche[scale.imfNiche]}
-              </dd>
-            </div>
-            <div className="text-right">
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.imfStar}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
-                {scale.upsilonStar.toFixed(2)}
-                <span className="ml-2 text-[0.6875rem] text-fg-subtle">
-                  {copy.obs.imfSlope} {scale.imfX.toFixed(2)}
-                </span>
-              </dd>
-            </div>
           </dl>
-          <svg
-            viewBox="0 0 320 56"
-            className="mt-2 h-auto w-full text-fg"
-            role="img"
-            aria-label={copy.obs.imfTitle}
-          >
-            {(() => {
-              const pts = scale.imfCurve;
-              const logs = pts.map((p) => ({
-                x: Math.log10(Math.max(p.m, 0.05)),
-                y: Math.log10(Math.max(p.xi, 1e-6)),
-              }));
-              const loX = Math.min(...logs.map((p) => p.x));
-              const hiX = Math.max(...logs.map((p) => p.x));
-              const loY = Math.min(...logs.map((p) => p.y));
-              const hiY = Math.max(...logs.map((p) => p.y));
-              const xAt = (v: number) => 16 + ((v - loX) / Math.max(hiX - loX, 0.2)) * 284;
-              const yAt = (v: number) => 48 - ((v - loY) / Math.max(hiY - loY, 0.2)) * 40;
-              const d = logs
-                .map((p, i) => `${i === 0 ? "M" : "L"}${xAt(p.x).toFixed(1)} ${yAt(p.y).toFixed(1)}`)
-                .join(" ");
-              return <path d={d} fill="none" stroke="currentColor" strokeWidth="1.6" />;
-            })()}
-          </svg>
-          <div className="flex justify-between gap-3 font-mono text-[0.6875rem] text-fg-subtle uppercase">
-            <span>
-              {copy.obs.imfMean} {scale.imfMean.toFixed(2)} M☉
-            </span>
-            <span>
-              {copy.obs.imfSn} {(scale.imfSn * 100).toFixed(1)}%
-            </span>
-            <span>
-              {copy.obs.imfR} {scale.imfR.toFixed(2)}
-            </span>
-            <span>
-              {copy.obs.imfY} {scale.imfY.toFixed(3)}
-            </span>
-          </div>
           <svg
             viewBox="0 0 320 72"
             className="mt-2 h-auto w-full text-fg"
@@ -282,91 +229,7 @@ export const HubblePanel = memo(function HubblePanel({ copy, params, evaluation 
               <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.massNiche[scale.massEst.niche]}</dd>
             </div>
           </dl>
-          <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-muted">{copy.obs.bhHint}</p>
-          <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
-            <div>
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.bhMagorrian}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
-                {(scale.magorrian * 1000).toFixed(2)}
-                <span className="ml-1 text-[0.6875rem] text-fg-subtle">×10⁻³</span>
-              </dd>
-            </div>
-            <div className="text-right">
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.bhSoi}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
-                {(scale.rSoi / Math.max(scale.re, 1e-4)).toFixed(3)}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.agnLambda}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.agn.lambda.toFixed(3)}</dd>
-            </div>
-            <div className="text-right">
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.agnHeat}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.agn.heat.toFixed(2)}</dd>
-            </div>
-            <div>
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.bhTitle}</dt>
-              <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.bhNiche[scale.agnNiche]}</dd>
-            </div>
-            {scale.agn.mode !== "off" ? (
-              <div className="text-right">
-                <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-                  {copy.obs.agnMode[scale.agn.mode]}
-                </dt>
-                <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.agnDrive[scale.agn.drive]}</dd>
-              </div>
-            ) : null}
-          </dl>
-          {scale.agn.mode !== "off" ? (
-            <>
-          <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
-            <div>
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdSpin}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.grmhd.aStar.toFixed(2)}</dd>
-            </div>
-            <div className="text-right">
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdState[scale.grmhd.state]}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
-                {copy.obs.madFr[scale.grmhd.fr]}
-                {scale.grmhd.adaf ? (
-                  <span className="ml-2 text-[0.6875rem] text-fg-subtle">{copy.obs.madAdaf}</span>
-                ) : null}
-              </dd>
-            </div>
-          </dl>
-          <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
-            <div>
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdEta}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.grmhd.etaBz.toFixed(2)}</dd>
-            </div>
-            <div className="text-right">
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdBeta}</dt>
-              <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.grmhd.beta.toFixed(1)}</dd>
-            </div>
-            <div>
-              <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
-                {copy.obs.grmhdWin[scale.grmhd.winner]}
-              </dt>
-              <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.fluxNiche[scale.grmhd.fluxNiche]}</dd>
-            </div>
-          </dl>
-          {scale.grmhd.state === "mad" ? (
-            <dl className="mt-2 grid grid-cols-2 gap-x-4">
-              <div>
-                <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.madSigma}</dt>
-                <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.grmhd.sigma.toFixed(1)}</dd>
-              </div>
-              <div className="text-right">
-                <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.madFill}</dt>
-                <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
-                  {(scale.grmhd.fill * 100).toFixed(0)}%
-                </dd>
-              </div>
-            </dl>
-          ) : null}
-            </>
-          ) : null}
+
           </>
         ) : (
           <>
@@ -423,20 +286,12 @@ export const HubblePanel = memo(function HubblePanel({ copy, params, evaluation 
         </svg>
         <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
           <div>
-            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.imfTitle}</dt>
-            <dd className="mt-0.5 font-mono text-sm text-fg uppercase">{copy.obs.imfNiche[scale.imfNiche]}</dd>
-          </div>
-          <div className="text-right">
-            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.imfSlope}</dt>
-            <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.imfX.toFixed(2)}</dd>
-          </div>
-          <div>
             <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.massPhot}</dt>
             <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{scale.massEst.mPhot.toFixed(3)}</dd>
           </div>
           <div className="text-right">
-            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.bhTitle}</dt>
-            <dd className="mt-0.5 font-mono text-sm text-fg uppercase">{copy.obs.bhNiche[scale.agnNiche]}</dd>
+            <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.massTitle}</dt>
+            <dd className="mt-0.5 font-mono text-sm text-fg">{copy.obs.massNiche[scale.massEst.niche]}</dd>
           </div>
         </dl>
           </>
