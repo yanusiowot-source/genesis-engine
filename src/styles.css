@@ -645,7 +645,31 @@ html.contrast .glass {
 
 @media (max-height: 640px) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(3.25rem, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(2.75rem, 1fr) auto;
+    overflow: hidden;
+  }
+
+  .hud-stack {
+    height: auto;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    overflow: visible;
+    grid-template-rows: min-content min-content min-content min-content;
+  }
+
+  .hud-stack > [data-hud-band="read"] {
+    min-height: min-content;
+    max-height: none;
+    overflow: visible;
+  }
+
+  [data-hud-band="clock"] {
+    padding-top: 0.125rem;
+    padding-bottom: 0.125rem;
+  }
+
+  [data-hud-name] {
+    display: none;
   }
 
   [data-hud-band="fate"] {

@@ -2544,7 +2544,7 @@ export function UniverseApp() {
               </button>
             ) : null}
           </div>
-          <div className="mt-1 flex max-w-md items-center gap-2">
+          <div className="mt-1 flex max-w-md items-center gap-2" data-hud-name>
             <button
               type="button"
               onClick={() => {
@@ -2757,7 +2757,7 @@ export function UniverseApp() {
           type="button"
           aria-label={copy.closePanel}
           data-open="true"
-          className="scrim-fade fixed inset-x-0 top-0 z-30 bg-bg/70 lg:bg-bg/50 bottom-[calc(3.5rem+env(safe-area-inset-bottom))]"
+          className="scrim-fade fixed inset-x-0 top-0 z-30 bg-bg/70 lg:bg-bg/50 bottom-[calc(4.5rem+env(safe-area-inset-bottom))]"
           onClick={() => setTab("sky")}
           inert={overlayOpen ? true : undefined}
         />
@@ -2770,7 +2770,7 @@ export function UniverseApp() {
           "panel-slide fixed top-0 right-0 z-40 flex min-h-0 flex-col overflow-y-auto overscroll-contain",
           "border-l border-border bg-bg-elevated px-5",
           "w-full sm:w-[min(28rem,90vw)]",
-          "bottom-[calc(3.5rem+env(safe-area-inset-bottom))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
+          "bottom-[calc(4.5rem+env(safe-area-inset-bottom))] pb-[max(1.5rem,env(safe-area-inset-bottom))]",
           !panelOpen && "pointer-events-none",
         )}
         aria-hidden={!panelOpen}

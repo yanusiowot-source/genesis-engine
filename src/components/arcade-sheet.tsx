@@ -19,7 +19,6 @@ import {
   stepRun,
   stepSnake,
   runDelay,
-  RUN_H,
   RUN_W,
   RUN_X,
   WELL_H,
@@ -335,7 +334,13 @@ export function ArcadeSheet({ copy, onClose }: Props) {
             {copy.gamesAgain}
           </Button>
         </div>
-        <div className="mt-2 flex min-h-0 flex-1 touch-none items-center justify-center overflow-hidden rounded-[var(--radius-md)] [container-type:size]" {...swipe}>
+        <div
+          className={cn(
+            "relative mt-2 flex min-h-0 flex-1 touch-none overflow-hidden rounded-[var(--radius-md)] [container-type:size]",
+            kind === "run" ? "items-stretch" : "items-center justify-center",
+          )}
+          {...swipe}
+        >
           {kind === "tiles" ? <TileBoard cells={tiles.cells} /> : null}
           {kind === "snake" ? <SnakeBoard snake={snake} /> : null}
           {kind === "blocks" ? <BlockBoard state={blocks} /> : null}
@@ -439,63 +444,98 @@ function NextPiece({ id, label }: { id: number; label: string }) {
 }
 
 function RunBoard({ run }: { run: Run }) {
-  const sky = 2;
-  const rows = RUN_H + sky;
-  const cells: { rock: boolean; cap: boolean; spark: boolean; trail: boolean; lane: boolean; star: boolean; mote: boolean }[] = [];
-  for (let row = 0; row < rows; row++) {
-    const above = row < sky;
-    const groundY = above ? -1 : RUN_H - 1 - (row - sky);
-    for (let x = 0; x < RUN_W; x++) {
-      const height = above ? 0 : (run.ground[x] ?? 0);
-      const mote = !above && height < 0 && groundY === 0;
-      const rock = !above && !mote && groundY >= 0 && groundY < height;
-      const cap = rock && groundY === height - 1;
-      const spark = run.alive && !above && groundY === run.y && x === RUN_X;
-      const trail = !rock && !spark && !mote && !above && groundY === run.y && x < RUN_X && x >= RUN_X - 3;
-      const star = above && (x * 5 + row * 3) % 11 === 0;
-      cells.push({ rock, cap, spark, trail, lane: groundY === 0 && !rock && !spark && !mote, star, mote });
-    }
-  }
+  const unit = 100 / RUN_W;
+  const ground = 11;
+  const step = 9;
+  const stars = [8, 22, 37, 51, 68, 84];
   return (
     <div
-      className="grid gap-px overflow-hidden rounded-[var(--radius-md)] p-1"
-      style={{
-        width: `min(100cqw, 26rem, calc(100cqh * ${RUN_W} / ${rows}))`,
-        aspectRatio: `${RUN_W} / ${rows}`,
-        gridTemplateColumns: `repeat(${RUN_W}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))`,
-        background: "linear-gradient(180deg, #14111f 0%, #1b1730 58%, #241c18 100%)",
-      }}
+      className="relative h-full w-full overflow-hidden rounded-[var(--radius-md)]"
+      style={{ background: "linear-gradient(180deg, #120e1c 0%, #1b1730 52%, #2a221c 100%)" }}
     >
-      {cells.map((cell, i) => (
-        <div
-          key={i}
-          className={cell.spark ? "min-h-0 min-w-0 rounded-full" : "min-h-0 min-w-0"}
-          style={{
-            background: cell.spark
-              ? "#f0d78a"
-              : cell.mote
-                ? "transparent"
-                : cell.cap
-                ? "#f4efe2"
-                : cell.rock
-                  ? "#8a7360"
-                  : cell.trail
-                    ? "rgba(240, 215, 138, 0.28)"
-                    : cell.lane
-                      ? "color-mix(in oklab, var(--color-fg) 16%, transparent)"
-                      : cell.star
-                        ? "radial-gradient(circle, rgba(244,239,232,0.85) 28%, transparent 30%)"
-                        : "transparent",
-            boxShadow: cell.spark
-              ? "0 0 10px #f0d78a"
-              : cell.mote
-                ? "inset 0 0 0 2px #f0d78a, 0 0 8px rgba(240,215,138,0.65)"
-                : undefined,
-            borderRadius: cell.mote ? "999px" : undefined,
-          }}
+      {stars.map((left, i) => (
+        <span
+          key={left}
+          aria-hidden
+          className="absolute size-1 rounded-full bg-[#f4efe2]"
+          style={{ left: `${left}%`, top: `${10 + ((i * 17) % 42)}%`, opacity: 0.35 + (i % 3) * 0.2 }}
         />
       ))}
+      <div
+        aria-hidden
+        className="absolute inset-x-0 bottom-0"
+        style={{
+          height: `${ground}%`,
+          background: "linear-gradient(180deg, color-mix(in oklab, var(--color-fg) 22%, transparent), color-mix(in oklab, var(--color-fg) 8%, transparent))",
+        }}
+      />
+      {run.ground.map((height, x) => {
+        if (height > 0) {
+          return (
+            <span
+              key={x}
+              aria-hidden
+              className="absolute"
+              style={{
+                left: `${x * unit + unit * 0.12}%`,
+                width: `${unit * 0.76}%`,
+                bottom: `${ground - 0.4}%`,
+                height: `${height * step}%`,
+                borderRadius: "4px 4px 1px 1px",
+                background: "linear-gradient(180deg, #f4efe2 0 28%, #8a7360 28% 100%)",
+              }}
+            />
+          );
+        }
+        if (height < 0) {
+          return (
+            <span
+              key={x}
+              aria-hidden
+              className="absolute rounded-full"
+              style={{
+                left: `${x * unit + unit * 0.22}%`,
+                width: `${unit * 0.5}%`,
+                aspectRatio: "1",
+                bottom: `${ground + 1.5}%`,
+                background: "#f4efe2",
+                boxShadow: "0 0 10px #f0d78a",
+              }}
+            />
+          );
+        }
+        return null;
+      })}
+      {run.alive
+        ? [3, 2, 1].map((back) => (
+            <span
+              key={back}
+              aria-hidden
+              className="absolute rounded-full"
+              style={{
+                left: `${(RUN_X - back + 0.28) * unit}%`,
+                width: `${unit * (0.42 - back * 0.06)}%`,
+                aspectRatio: "1",
+                bottom: `${ground + run.y * step + 1}%`,
+                background: "#f0d78a",
+                opacity: 0.18,
+              }}
+            />
+          ))
+        : null}
+      <span
+        aria-hidden
+        className="absolute rounded-full"
+        style={{
+          left: `${(RUN_X + 0.12) * unit}%`,
+          width: `${unit * 0.76}%`,
+          aspectRatio: "1",
+          bottom: `${ground + (run.alive ? run.y : 0) * step}%`,
+          background: run.alive ? "#f0d78a" : "#8a7360",
+          boxShadow: run.alive ? "0 0 14px #f0d78a" : undefined,
+          opacity: run.alive ? 1 : 0.45,
+        }}
+      />
     </div>
   );
 }
