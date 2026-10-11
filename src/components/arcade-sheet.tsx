@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Copy } from "@/lib/universe/i18n";
@@ -18,6 +18,7 @@ import {
   startTiles,
   stepRun,
   stepSnake,
+  tileMoves,
   runDelay,
   RUN_W,
   RUN_X,
@@ -34,6 +35,8 @@ import {
 import { cn } from "@/lib/utils";
 
 type Kind = "tiles" | "snake" | "blocks" | "run";
+
+type TileMotion = { id: number; before: number[]; after: number[]; dir: Dir };
 
 type Props = {
   copy: Copy;
@@ -127,12 +130,26 @@ export function ArcadeSheet({ copy, onClose }: Props) {
   const [run, setRun] = useState(startRun);
   const [paused, setPaused] = useState(false);
   const [best, setBest] = useState(loadBest);
+  const [round, setRound] = useState(0);
+  const [motion, setMotion] = useState<TileMotion | null>(null);
   const turn = useRef<Dir | null>(null);
   const jump = useRef(false);
+  const tilesRef = useRef(tiles);
+  tilesRef.current = tiles;
 
   const slide = useCallback((dir: Dir) => {
     if (paused) return;
-    setTiles((state) => (state.over ? state : moveTiles(state, dir, spawnTile(state.cells))));
+    const state = tilesRef.current;
+    if (state.over) return;
+    const next = moveTiles(state, dir, spawnTile(state.cells));
+    if (next === state) return;
+    setMotion((prev) => ({
+      id: (prev?.id ?? 0) + 1,
+      before: state.cells,
+      after: next.cells,
+      dir,
+    }));
+    setTiles(next);
   }, [paused]);
   const nudge = useCallback((act: BlockAct) => {
     if (paused) return;
@@ -325,6 +342,8 @@ export function ArcadeSheet({ copy, onClose }: Props) {
             className="min-h-11 shrink-0 px-3"
             onClick={() => {
               setPaused(false);
+              setMotion(null);
+              setRound((n) => n + 1);
               if (kind === "tiles") setTiles(freshTiles());
               else if (kind === "snake") setSnake(freshSnake());
               else if (kind === "run") setRun(startRun());
@@ -336,15 +355,15 @@ export function ArcadeSheet({ copy, onClose }: Props) {
         </div>
         <div
           className={cn(
-            "relative mt-2 flex min-h-0 flex-1 touch-none overflow-hidden rounded-[var(--radius-md)] [container-type:size]",
+            "relative mt-2 flex min-h-0 flex-1 touch-none overflow-hidden rounded-[var(--radius-md)] bg-bg [container-type:size]",
             kind === "run" ? "items-stretch" : "items-center justify-center",
           )}
           {...swipe}
         >
-          {kind === "tiles" ? <TileBoard cells={tiles.cells} /> : null}
-          {kind === "snake" ? <SnakeBoard snake={snake} /> : null}
-          {kind === "blocks" ? <BlockBoard state={blocks} /> : null}
-          {kind === "run" ? <RunBoard run={run} /> : null}
+          {kind === "tiles" ? <TileBoard key={round} cells={tiles.cells} motion={motion} /> : null}
+          {kind === "snake" ? <SnakeBoard key={round} snake={snake} /> : null}
+          {kind === "blocks" ? <BlockBoard key={round} state={blocks} /> : null}
+          {kind === "run" ? <RunBoard key={round} run={run} /> : null}
         </div>
         <div className="mt-2 shrink-0 bg-bg-elevated pt-2">
           {kind === "blocks" ? <NextPiece id={blocks.next} label={copy.gamesNext} /> : null}
@@ -400,7 +419,7 @@ function Pad({
     <button
       type="button"
       className={cn(
-        "flex h-11 items-center justify-center rounded-[var(--radius-sm)] bg-bg-subtle px-1 text-center text-xs leading-tight text-balance text-fg",
+        "flex h-11 items-center justify-center rounded-[var(--radius-sm)] bg-bg-subtle px-1 text-center text-xs leading-tight text-balance text-fg shadow-[var(--shadow-border)] active:scale-[0.97]",
         wide && "col-span-4",
       )}
       onClick={run}
@@ -443,7 +462,22 @@ function NextPiece({ id, label }: { id: number; label: string }) {
   );
 }
 
+function laneIds(ground: number[], bag: { ids: number[]; seq: number; prev: number[] | null }) {
+  if (bag.prev !== ground) {
+    if (bag.ids.length !== ground.length) {
+      bag.seq = ground.length;
+      bag.ids = ground.map((_, index) => index);
+    } else {
+      bag.ids = [...bag.ids.slice(1), bag.seq++];
+    }
+    bag.prev = ground;
+  }
+  return bag.ids;
+}
+
 function RunBoard({ run }: { run: Run }) {
+  const bag = useRef({ ids: [] as number[], seq: 0, prev: null as number[] | null });
+  const ids = laneIds(run.ground, bag.current);
   const unit = 100 / RUN_W;
   const ground = 11;
   const step = 9;
@@ -451,7 +485,11 @@ function RunBoard({ run }: { run: Run }) {
   return (
     <div
       className="relative h-full w-full overflow-hidden rounded-[var(--radius-md)]"
-      style={{ background: "linear-gradient(180deg, #120e1c 0%, #1b1730 52%, #2a221c 100%)" }}
+      style={{
+        background: "linear-gradient(180deg, #100d18 0%, #1c1730 48%, #2a221c 100%)",
+        boxShadow: "inset 0 0 36px rgba(0,0,0,0.35)",
+        ["--glide" as string]: `${Math.max(56, runDelay(run.score) - 16)}ms`,
+      }}
     >
       {stars.map((left, i) => (
         <span
@@ -466,23 +504,25 @@ function RunBoard({ run }: { run: Run }) {
         className="absolute inset-x-0 bottom-0"
         style={{
           height: `${ground}%`,
-          background: "linear-gradient(180deg, color-mix(in oklab, var(--color-fg) 22%, transparent), color-mix(in oklab, var(--color-fg) 8%, transparent))",
+          background:
+            "linear-gradient(180deg, color-mix(in oklab, var(--color-fg) 28%, transparent), color-mix(in oklab, var(--color-fg) 8%, transparent))",
         }}
       />
       {run.ground.map((height, x) => {
         if (height > 0) {
           return (
             <span
-              key={x}
+              key={ids[x]}
               aria-hidden
-              className="absolute"
+              className="game-lane absolute"
               style={{
                 left: `${x * unit + unit * 0.12}%`,
                 width: `${unit * 0.76}%`,
                 bottom: `${ground - 0.4}%`,
                 height: `${height * step}%`,
-                borderRadius: "4px 4px 1px 1px",
-                background: "linear-gradient(180deg, #f4efe2 0 28%, #8a7360 28% 100%)",
+                borderRadius: "5px 5px 2px 2px",
+                background: "linear-gradient(180deg, #f7f1e4 0 22%, #c4a98a 22% 38%, #6d5848 100%)",
+                boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45)",
               }}
             />
           );
@@ -490,16 +530,16 @@ function RunBoard({ run }: { run: Run }) {
         if (height < 0) {
           return (
             <span
-              key={x}
+              key={ids[x]}
               aria-hidden
-              className="absolute rounded-full"
+              className="game-lane absolute rounded-full"
               style={{
                 left: `${x * unit + unit * 0.22}%`,
                 width: `${unit * 0.5}%`,
                 aspectRatio: "1",
                 bottom: `${ground + 1.5}%`,
-                background: "#f4efe2",
-                boxShadow: "0 0 10px #f0d78a",
+                background: "radial-gradient(circle at 35% 35%, #fffaf0, #f0d78a 55%, #c4a15a)",
+                boxShadow: "0 0 12px #f0d78a",
               }}
             />
           );
@@ -511,28 +551,30 @@ function RunBoard({ run }: { run: Run }) {
             <span
               key={back}
               aria-hidden
-              className="absolute rounded-full"
+              className="game-spark absolute rounded-full"
               style={{
                 left: `${(RUN_X - back + 0.28) * unit}%`,
                 width: `${unit * (0.42 - back * 0.06)}%`,
                 aspectRatio: "1",
                 bottom: `${ground + run.y * step + 1}%`,
                 background: "#f0d78a",
-                opacity: 0.18,
+                opacity: 0.16,
               }}
             />
           ))
         : null}
       <span
         aria-hidden
-        className="absolute rounded-full"
+        className="game-spark absolute rounded-full"
         style={{
           left: `${(RUN_X + 0.12) * unit}%`,
           width: `${unit * 0.76}%`,
           aspectRatio: "1",
           bottom: `${ground + (run.alive ? run.y : 0) * step}%`,
-          background: run.alive ? "#f0d78a" : "#8a7360",
-          boxShadow: run.alive ? "0 0 14px #f0d78a" : undefined,
+          background: run.alive
+            ? "radial-gradient(circle at 35% 35%, #fffaf0, #f0d78a 60%, #c9a24a)"
+            : "#8a7360",
+          boxShadow: run.alive ? "0 0 16px #f0d78a" : undefined,
           opacity: run.alive ? 1 : 0.45,
         }}
       />
@@ -540,122 +582,443 @@ function RunBoard({ run }: { run: Run }) {
   );
 }
 
-function TileBoard({ cells }: { cells: number[] }) {
+type TilePiece = {
+  id: number;
+  value: number;
+  x: number;
+  y: number;
+  ox: number;
+  oy: number;
+  fresh: boolean;
+  pop: boolean;
+  ghost: boolean;
+  mergeTo: number;
+};
+
+let tileSerial = 1;
+
+function cellXY(index: number) {
+  return { x: index % 4, y: Math.floor(index / 4) };
+}
+
+function easeMotion() {
+  return typeof window === "undefined" || !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function seedPieces(cells: number[]): TilePiece[] {
+  const pieces: TilePiece[] = [];
+  cells.forEach((value, index) => {
+    if (!value) return;
+    const pos = cellXY(index);
+    pieces.push({
+      id: tileSerial++,
+      value,
+      x: pos.x,
+      y: pos.y,
+      ox: 0,
+      oy: 0,
+      fresh: true,
+      pop: false,
+      ghost: false,
+      mergeTo: 0,
+    });
+  });
+  return pieces;
+}
+
+function commitPieces(pieces: TilePiece[]): TilePiece[] {
+  return pieces
+    .filter((piece) => !piece.ghost)
+    .map((piece) => ({
+      ...piece,
+      value: piece.mergeTo || piece.value,
+      mergeTo: 0,
+      ox: 0,
+      oy: 0,
+      fresh: false,
+      pop: false,
+    }));
+}
+
+function slidePieces(pieces: TilePiece[], before: number[], dir: Dir, after: number[]): TilePiece[] {
+  const smooth = easeMotion();
+  const byCell = new Map(commitPieces(pieces).map((piece) => [piece.y * 4 + piece.x, piece]));
+  const next: TilePiece[] = [];
+  const groups = new Map<number, TilePiece[]>();
+  for (const move of tileMoves(before, dir)) {
+    const piece = byCell.get(move.from);
+    if (!piece) continue;
+    const from = cellXY(move.from);
+    const to = cellXY(move.to);
+    const moved: TilePiece = {
+      ...piece,
+      x: to.x,
+      y: to.y,
+      ox: smooth ? from.x - to.x : 0,
+      oy: smooth ? from.y - to.y : 0,
+      fresh: false,
+      pop: false,
+      ghost: false,
+      mergeTo: 0,
+      value: before[move.from] ?? piece.value,
+    };
+    next.push(moved);
+    const group = groups.get(move.to) ?? [];
+    group.push(moved);
+    groups.set(move.to, group);
+  }
+  for (const group of groups.values()) {
+    if (group.length < 2) continue;
+    const stay = group[0];
+    const gone = group[1];
+    if (!stay || !gone) continue;
+    if (smooth) {
+      stay.mergeTo = stay.value * 2;
+      gone.ghost = true;
+    } else {
+      stay.value = stay.value * 2;
+      gone.ghost = true;
+    }
+  }
+  const landed = new Set(groups.keys());
+  after.forEach((value, index) => {
+    if (!value || landed.has(index)) return;
+    const pos = cellXY(index);
+    next.push({
+      id: tileSerial++,
+      value,
+      x: pos.x,
+      y: pos.y,
+      ox: 0,
+      oy: 0,
+      fresh: true,
+      pop: false,
+      ghost: false,
+      mergeTo: 0,
+    });
+  });
+  return smooth ? next : next.filter((piece) => !piece.ghost);
+}
+
+function tileInk(n: number): CSSProperties {
+  const ink = TILE_INK[n] ?? "#f4efe2";
+  const dark = n >= 128;
+  return {
+    background: `linear-gradient(165deg, color-mix(in oklab, ${ink} 40%, white) 0%, ${ink} 46%, color-mix(in oklab, ${ink} 62%, black) 100%)`,
+    color: dark ? "#1a1424" : "#f4efe8",
+    boxShadow:
+      n >= 2048
+        ? "0 0 18px rgba(240,215,138,0.55), inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 10px rgba(0,0,0,0.28)"
+        : "inset 0 1px 0 rgba(255,255,255,0.38), 0 4px 8px rgba(0,0,0,0.22)",
+    textShadow: dark ? "0 1px 0 rgba(255,255,255,0.28)" : "0 1px 1px rgba(0,0,0,0.38)",
+    fontSize: n >= 1024 ? "0.78em" : "1em",
+  };
+}
+
+function TileBoard({ cells, motion }: { cells: number[]; motion: TileMotion | null }) {
+  const [pieces, setPieces] = useState(() => seedPieces(cells));
+  const [seen, setSeen] = useState(0);
+  if (motion && motion.id !== seen) {
+    setSeen(motion.id);
+    setPieces(slidePieces(pieces, motion.before, motion.dir, motion.after));
+  }
+
+  const finish = () => {
+    setPieces((current) => {
+      if (!current.some((piece) => piece.ox || piece.oy || piece.ghost || piece.mergeTo)) return current;
+      return current
+        .filter((piece) => !piece.ghost)
+        .map((piece) => ({
+          ...piece,
+          value: piece.mergeTo || piece.value,
+          mergeTo: 0,
+          pop: Boolean(piece.mergeTo),
+          fresh: false,
+          ox: 0,
+          oy: 0,
+        }));
+    });
+  };
+
   return (
     <div
-      className="grid gap-1.5 rounded-[var(--radius-md)] bg-bg p-1.5"
+      className="relative"
       style={{
         width: "min(100cqw, 100cqh, 22rem)",
         aspectRatio: "1 / 1",
-        gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-        gridTemplateRows: "repeat(4, minmax(0, 1fr))",
+        borderRadius: "var(--radius-md)",
+        background: "radial-gradient(120% 90% at 50% 0%, #342b46 0%, #14111c 72%)",
+        boxShadow: "inset 0 0 0 1px rgba(244,239,232,0.08), inset 0 16px 32px rgba(0,0,0,0.35)",
+        overflow: "hidden",
       }}
     >
-      {cells.map((n, i) => (
-        <div
-          key={i}
-          className="flex min-h-0 min-w-0 items-center justify-center rounded-[var(--radius-xs)] font-mono font-medium tabular-nums text-[clamp(0.8rem,18cqmin,1.35rem)]"
-          style={{
-            background: n
-              ? `linear-gradient(160deg, color-mix(in oklab, ${TILE_INK[n] ?? "#f4efe2"} 78%, white), ${TILE_INK[n] ?? "#f4efe2"})`
-              : "color-mix(in oklab, var(--color-fg) 7%, transparent)",
-            color: n >= 128 && n < 2048 ? "#1a1424" : "#f4efe8",
-            boxShadow: n ? "inset 0 1px 0 rgba(255,255,255,0.28)" : undefined,
-          }}
-        >
-          {n || ""}
-        </div>
-      ))}
+      <div
+        aria-hidden
+        className="absolute inset-0 grid gap-1.5 p-1.5"
+        style={{
+          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          gridTemplateRows: "repeat(4, minmax(0, 1fr))",
+        }}
+      >
+        {Array.from({ length: 16 }, (_, i) => (
+          <div
+            key={i}
+            className="rounded-[var(--radius-xs)]"
+            style={{
+              background: "rgba(244,239,232,0.045)",
+              boxShadow: "inset 0 2px 5px rgba(0,0,0,0.35)",
+            }}
+          />
+        ))}
+      </div>
+      <div
+        className="absolute inset-0 grid gap-1.5 p-1.5"
+        style={{
+          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+          gridTemplateRows: "repeat(4, minmax(0, 1fr))",
+        }}
+      >
+        {pieces.map((piece) => (
+          <div
+            key={`${piece.id}-${piece.x}-${piece.y}`}
+            className={cn("game-tile relative min-h-0 min-w-0", (piece.ox || piece.oy) && "is-slide")}
+            style={{
+              gridColumn: piece.x + 1,
+              gridRow: piece.y + 1,
+              zIndex: piece.ghost ? 1 : 2,
+              ["--from-x" as string]: `calc(${piece.ox} * (100% + 0.375rem))`,
+              ["--from-y" as string]: `calc(${piece.oy} * (100% + 0.375rem))`,
+            }}
+            onAnimationEnd={(event) => {
+              if (event.animationName !== "game-slide") return;
+              finish();
+            }}
+          >
+            <div
+              className={cn(
+                "game-face absolute inset-0 flex items-center justify-center rounded-[var(--radius-xs)] font-mono font-semibold tabular-nums text-[clamp(0.8rem,18cqmin,1.4rem)]",
+                piece.fresh && "is-born",
+                piece.pop && "is-pop",
+              )}
+              style={tileInk(piece.value)}
+            >
+              {piece.value}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
+function snakeTags(
+  body: { x: number; y: number }[],
+  bag: { ids: number[]; seq: number; head: string; len: number },
+) {
+  const head = body[0] ? `${body[0].x},${body[0].y}` : "";
+  if (bag.ids.length === 0) {
+    bag.seq = 1;
+    bag.ids = body.map(() => bag.seq++);
+  } else if (head !== bag.head) {
+    if (body.length > bag.len) bag.ids = [...bag.ids, bag.seq++];
+    else if (body.length < bag.len) bag.ids = bag.ids.slice(0, body.length);
+  }
+  bag.head = head;
+  bag.len = body.length;
+  return bag.ids;
+}
+
+function cellBox(x: number, y: number, cols: number, rows: number): CSSProperties {
+  return {
+    position: "absolute",
+    width: `calc((100% - ${cols - 1} * 1px) / ${cols})`,
+    height: `calc((100% - ${rows - 1} * 1px) / ${rows})`,
+    left: `calc(${x} * ((100% - ${cols - 1} * 1px) / ${cols} + 1px))`,
+    top: `calc(${y} * ((100% - ${rows - 1} * 1px) / ${rows} + 1px))`,
+  };
+}
+
+function eyesFor(dir: Dir): CSSProperties[] {
+  const dot: CSSProperties = {
+    position: "absolute",
+    width: "22%",
+    height: "22%",
+    borderRadius: "999px",
+    background: "#1a1424",
+  };
+  if (dir === "left" || dir === "right") {
+    const left = dir === "right" ? "62%" : "16%";
+    return [
+      { ...dot, left, top: "18%" },
+      { ...dot, left, top: "58%" },
+    ];
+  }
+  const top = dir === "down" ? "62%" : "16%";
+  return [
+    { ...dot, top, left: "18%" },
+    { ...dot, top, left: "58%" },
+  ];
+}
+
 function SnakeBoard({ snake }: { snake: Snake }) {
-  const food = snake.food.y * SNAKE_W + snake.food.x;
-  const body = new Set(snake.body.map((p) => p.y * SNAKE_W + p.x));
-  const head = snake.body[0] ? snake.body[0].y * SNAKE_W + snake.body[0].x : -1;
+  const bag = useRef({ ids: [] as number[], seq: 1, head: "", len: 0 });
+  const tags = snakeTags(snake.body, bag.current);
+  const eyes = eyesFor(snake.dir);
   return (
     <div
-      className="grid gap-px rounded-[var(--radius-sm)] bg-bg p-1"
+      className="relative"
       style={{
         width: `min(100cqw, calc(100cqh * ${SNAKE_W} / ${SNAKE_H}))`,
         aspectRatio: `${SNAKE_W} / ${SNAKE_H}`,
-        gridTemplateColumns: `repeat(${SNAKE_W}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${SNAKE_H}, minmax(0, 1fr))`,
+        borderRadius: "var(--radius-sm)",
+        background: "radial-gradient(120% 80% at 50% 0%, #221c30 0%, #100e16 70%)",
+        boxShadow: "inset 0 0 0 1px rgba(244,239,232,0.08), inset 0 12px 28px rgba(0,0,0,0.28)",
+        ["--glide" as string]: `${Math.max(48, snakeDelay(snake.score) - 18)}ms`,
       }}
     >
-      {Array.from({ length: SNAKE_W * SNAKE_H }, (_, i) => (
-        <div
-          key={i}
-          className={i === head ? "min-h-0 min-w-0 rounded-full" : "min-h-0 min-w-0 rounded-[3px]"}
+      <div
+        aria-hidden
+        className="absolute inset-0 grid gap-px p-1"
+        style={{
+          gridTemplateColumns: `repeat(${SNAKE_W}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${SNAKE_H}, minmax(0, 1fr))`,
+        }}
+      >
+        {Array.from({ length: SNAKE_W * SNAKE_H }, (_, i) => (
+          <div key={i} className="rounded-[2px]" style={{ background: "rgba(244,239,232,0.04)" }} />
+        ))}
+      </div>
+      <div className="absolute inset-1">
+        <span
+          aria-hidden
+          className="game-food absolute rounded-full"
           style={{
-            background:
-              i === head
-                ? "#f0d78a"
-                : body.has(i)
-                  ? "#8ec8a0"
-                  : i === food
-                    ? "transparent"
-                    : "color-mix(in oklab, var(--color-fg) 8%, transparent)",
-            boxShadow:
-              i === head
-                ? "0 0 8px #f0d78a"
-                : i === food
-                  ? "inset 0 0 0 2px #e07a52, 0 0 6px rgba(224,122,82,0.55)"
-                  : undefined,
+            ...cellBox(snake.food.x, snake.food.y, SNAKE_W, SNAKE_H),
+            background: "radial-gradient(circle at 35% 35%, #ffd2c2, #e07a52 70%)",
+            boxShadow: "0 0 8px rgba(224,122,82,0.65)",
           }}
         />
-      ))}
+        {snake.body.map((part, index) => {
+          const head = index === 0;
+          return (
+            <span
+              key={tags[index]}
+              aria-hidden
+              className="game-move absolute rounded-[4px]"
+              style={{
+                ...cellBox(part.x, part.y, SNAKE_W, SNAKE_H),
+                zIndex: head ? 2 : 1,
+                borderRadius: head ? "999px" : "4px",
+                background: !snake.alive
+                  ? "#6d6458"
+                  : head
+                    ? "radial-gradient(circle at 35% 30%, #fff6d8, #f0d78a 62%, #b8893e)"
+                    : "linear-gradient(160deg, #e7f6ec, #7dba92 55%, #4e8a68)",
+                boxShadow: head && snake.alive ? "0 0 10px rgba(240,215,138,0.75)" : "inset 0 1px 0 rgba(255,255,255,0.35)",
+                opacity: snake.alive ? 1 : 0.45,
+                overflow: "hidden",
+              }}
+            >
+              {head && snake.alive
+                ? eyes.map((style, eye) => <span key={eye} style={style} />)
+                : null}
+            </span>
+          );
+        })}
+      </div>
     </div>
   );
 }
 
 const BLOCK_INK = ["#7eb6ff", "#e8d48a", "#c9a6ff", "#8ec8a0", "#e07a52", "#7eb6ff", "#e0946a", "#e07a8c"];
 
+function brickFace(ink: string): CSSProperties {
+  return {
+    background: `linear-gradient(160deg, color-mix(in oklab, ${ink} 35%, white), ${ink} 58%, color-mix(in oklab, ${ink} 55%, black))`,
+    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.45), 0 1px 0 rgba(0,0,0,0.25)",
+  };
+}
+
 function BlockBoard({ state }: { state: Blocks }) {
-  const paint = state.well.slice();
-  const live = new Set<number>();
-  if (!state.over) {
-    for (const [x, y] of blockCells(state)) {
-      if (y >= 0 && y < WELL_H && x >= 0 && x < WELL_W) {
-        paint[y * WELL_W + x] = state.id + 1;
-        live.add(y * WELL_W + x);
-      }
-    }
-    for (const [x, y] of ghostCells(state)) {
-      if (y < 0 || y >= WELL_H || x < 0 || x >= WELL_W) continue;
-      const i = y * WELL_W + x;
-      if (!live.has(i) && paint[i] === 0) paint[i] = -1;
-    }
+  const bag = useRef({ epoch: 1, y: state.y, filled: -1 });
+  const filled = state.well.reduce((n, cell) => n + (cell > 0 ? 1 : 0), 0);
+  if (bag.current.filled < 0) bag.current.filled = filled;
+  else if (state.y < bag.current.y - 1 || filled !== bag.current.filled) {
+    bag.current.epoch += 1;
+    bag.current.y = state.y;
+    bag.current.filled = filled;
+  } else bag.current.y = state.y;
+  const epoch = bag.current.epoch;
+  const [wipe, setWipe] = useState(0);
+  const linesSeen = useRef(state.lines);
+  if (state.lines !== linesSeen.current) {
+    linesSeen.current = state.lines;
+    setWipe((n) => n + 1);
   }
+  const live = state.over
+    ? []
+    : blockCells(state).filter(([x, y]) => y >= 0 && y < WELL_H && x >= 0 && x < WELL_W);
+  const covered = new Set(live.map(([x, y]) => y * WELL_W + x));
+  const ghost = state.over
+    ? []
+    : ghostCells(state).filter(([x, y]) => {
+        if (y < 0 || y >= WELL_H || x < 0 || x >= WELL_W) return false;
+        const index = y * WELL_W + x;
+        return !covered.has(index) && state.well[index] === 0;
+      });
+  const ink = BLOCK_INK[state.id + 1] ?? "#f4efe2";
   return (
     <div
-      className="grid gap-px rounded-[var(--radius-sm)] bg-bg p-1"
+      className="relative"
       style={{
         width: `min(100cqw, calc(100cqh * ${WELL_W} / ${WELL_H}))`,
         aspectRatio: `${WELL_W} / ${WELL_H}`,
-        gridTemplateColumns: `repeat(${WELL_W}, minmax(0, 1fr))`,
-        gridTemplateRows: `repeat(${WELL_H}, minmax(0, 1fr))`,
+        borderRadius: "var(--radius-sm)",
+        background: "radial-gradient(120% 70% at 50% 0%, #241e33 0%, #100e16 75%)",
+        boxShadow: "inset 0 0 0 1px rgba(244,239,232,0.08), inset 0 14px 28px rgba(0,0,0,0.28)",
       }}
     >
-      {paint.map((n, i) => (
-        <div
-          key={i}
-          className="min-h-0 min-w-0 rounded-[2px]"
-          style={{
-            background:
+      <div
+        className="absolute inset-0 grid gap-px p-1"
+        style={{
+          gridTemplateColumns: `repeat(${WELL_W}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${WELL_H}, minmax(0, 1fr))`,
+        }}
+      >
+        {state.well.map((n, i) => (
+          <div
+            key={i}
+            className="min-h-0 min-w-0 rounded-[2px]"
+            style={
               n > 0
-                ? `linear-gradient(160deg, color-mix(in oklab, ${BLOCK_INK[n] ?? "#f4efe2"} 72%, white), ${BLOCK_INK[n] ?? "#f4efe2"})`
-                : "color-mix(in oklab, var(--color-fg) 7%, transparent)",
-            boxShadow:
-              n > 0
-                ? "inset 0 1px 0 rgba(255,255,255,0.35)"
-                : n < 0
-                  ? "inset 0 0 0 1px rgba(244,239,232,0.45)"
-                  : undefined,
-          }}
-        />
-      ))}
+                ? brickFace(BLOCK_INK[n] ?? "#f4efe2")
+                : { background: "rgba(244,239,232,0.04)", boxShadow: "inset 0 1px 2px rgba(0,0,0,0.28)" }
+            }
+          />
+        ))}
+      </div>
+      <div className="pointer-events-none absolute inset-1">
+        {wipe > 0 ? <span key={wipe} aria-hidden className="game-wipe absolute inset-0 rounded-[2px]" /> : null}
+        {ghost.map(([x, y]) => (
+          <span
+            key={`g${x}-${y}`}
+            aria-hidden
+            className="absolute rounded-[2px]"
+            style={{
+              ...cellBox(x, y, WELL_W, WELL_H),
+              boxShadow: "inset 0 0 0 1px rgba(244,239,232,0.45)",
+            }}
+          />
+        ))}
+        {live.map(([x, y], index) => (
+          <span
+            key={`${epoch}-${index}`}
+            aria-hidden
+            className="game-brick absolute rounded-[2px]"
+            style={{ ...cellBox(x, y, WELL_W, WELL_H), ...brickFace(ink) }}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -689,6 +689,96 @@ html.contrast .glass {
   display: none;
 }
 
+@keyframes game-slide {
+  from {
+    transform: translate(var(--from-x), var(--from-y));
+  }
+  to {
+    transform: none;
+  }
+}
+
+.game-tile.is-slide {
+  animation: game-slide 160ms cubic-bezier(0.16, 0.8, 0.24, 1) both;
+}
+
+@keyframes game-born {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes game-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes game-pulse {
+  0%,
+  100% {
+    transform: scale(0.78);
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.game-face.is-born {
+  animation: game-born 150ms cubic-bezier(0.18, 0.9, 0.32, 1) 140ms both;
+}
+
+.game-face.is-pop {
+  animation: game-pop 180ms cubic-bezier(0.2, 0.85, 0.2, 1);
+}
+
+.game-food {
+  animation: game-pulse 900ms ease-in-out infinite;
+}
+
+.game-move {
+  transition: left var(--glide, 90ms) linear, top var(--glide, 90ms) linear;
+}
+
+.game-brick {
+  transition: left 90ms cubic-bezier(0.2, 0.7, 0.2, 1), top 90ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.game-lane {
+  transition: left var(--glide, 90ms) linear;
+}
+
+.game-spark {
+  transition: bottom var(--glide, 100ms) linear, opacity 120ms linear;
+}
+
+@keyframes game-wipe {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.game-wipe {
+  background: rgba(244, 239, 232, 0.38);
+  animation: game-wipe 280ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hear-pulse,
   .overlay-scrim,
@@ -702,7 +792,15 @@ html.contrast .glass {
 
   .seg-pill,
   .panel-slide,
-  .scrim-fade {
+  .scrim-fade,
+  .game-tile,
+  .game-move,
+  .game-brick,
+  .game-lane,
+  .game-spark,
+  .game-face,
+  .game-wipe {
     transition: none;
+    animation: none;
   }
 }

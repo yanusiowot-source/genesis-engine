@@ -103,6 +103,53 @@ export function moveTiles(state: Tiles, dir: Dir, spawn: Spawn): Tiles {
   return { cells, score, won, over: !tilesCanMove(cells) };
 }
 
+export type TileMove = { from: number; to: number; merge: boolean };
+
+function lineSlots(dir: Dir, line: number): number[] {
+  return [0, 1, 2, 3].map((slot) => {
+    if (dir === "left") return line * 4 + slot;
+    if (dir === "right") return line * 4 + (3 - slot);
+    if (dir === "up") return slot * 4 + line;
+    return (3 - slot) * 4 + line;
+  });
+}
+
+/** Where each tile travels. Same packing as moveTiles, without the new spawn. */
+export function tileMoves(cells: number[], dir: Dir): TileMove[] {
+  const moves: TileMove[] = [];
+  for (let line = 0; line < 4; line++) {
+    const slots = lineSlots(dir, line);
+    const filled = slots.filter((index) => (cells[index] ?? 0) > 0);
+    let write = 0;
+    for (let i = 0; i < filled.length; i++) {
+      const from = filled[i] ?? 0;
+      const nextFrom = filled[i + 1];
+      const here = cells[from] ?? 0;
+      const next = nextFrom === undefined ? 0 : (cells[nextFrom] ?? 0);
+      const to = slots[write] ?? from;
+      if (here && here === next && nextFrom !== undefined) {
+        moves.push({ from, to, merge: true });
+        moves.push({ from: nextFrom, to, merge: true });
+        write += 1;
+        i += 1;
+      } else {
+        moves.push({ from, to, merge: false });
+        write += 1;
+      }
+    }
+  }
+  return moves;
+}
+
+export function cellsFromMoves(cells: number[], dir: Dir): number[] {
+  const out = Array(TILES).fill(0);
+  for (const move of tileMoves(cells, dir)) {
+    const value = cells[move.from] ?? 0;
+    out[move.to] = move.merge ? value * 2 : value;
+  }
+  return out;
+}
+
 export const SNAKE_W = 14;
 export const SNAKE_H = 18;
 

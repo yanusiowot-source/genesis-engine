@@ -5,6 +5,7 @@ import {
   blockDelay,
   ghostY,
   moveTiles,
+  cellsFromMoves,
   snakeDelay,
   SNAKE_W,
   startBlocks,
@@ -47,6 +48,32 @@ describe("arcade", () => {
     assert.equal(moved.cells[0], 2048);
     assert.equal(moved.won, true);
     assert.equal(moved.over, false);
+  });
+
+  it("traces a slide onto the same cells the pack writes", () => {
+    const cells = Array(16).fill(0);
+    cells[0] = 2;
+    cells[1] = 2;
+    cells[2] = 2;
+    const packed = cellsFromMoves(cells, "left");
+    assert.deepEqual(packed.slice(0, 4), [4, 2, 0, 0]);
+    const right = Array(16).fill(0);
+    right[2] = 2;
+    right[3] = 2;
+    assert.equal(cellsFromMoves(right, "right")[3], 4);
+    assert.equal(cellsFromMoves(right, "right")[2], 0);
+    const col = Array(16).fill(0);
+    col[0] = 2;
+    col[4] = 2;
+    assert.equal(cellsFromMoves(col, "up")[0], 4);
+    assert.equal(cellsFromMoves(col, "down")[12], 4);
+    const pair = Array(16).fill(0);
+    pair[0] = 2;
+    pair[1] = 2;
+    pair[2] = 2;
+    pair[3] = 2;
+    const doubled = cellsFromMoves(pair, "left");
+    assert.deepEqual(doubled.slice(0, 4), [4, 4, 0, 0]);
   });
 
   it("grows the snake and dies on the wall", () => {
