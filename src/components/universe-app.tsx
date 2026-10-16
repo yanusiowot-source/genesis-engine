@@ -461,6 +461,7 @@ export function UniverseApp() {
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
   const [stake, setStake] = useState<"carbon" | "silicon" | "eternal" | "swarm" | null>(null);
+  const [peek, setPeek] = useState<"carbon" | "silicon" | "eternal" | "swarm" | null>(null);
   const [expedition, setExpedition] = useState<ExpeditionResult | null>(null);
   const [hunting, setHunting] = useState(false);
   const [huntFailed, setHuntFailed] = useState(false);
@@ -2222,7 +2223,7 @@ export function UniverseApp() {
         className="sky-stage relative min-h-0 flex-1"
         inert={overlayOpen ? true : undefined}
       >
-        <div className="sky-field row-start-3" data-stake={stake ?? ""}>
+        <div className="sky-field row-start-3" data-stake={peek ?? stake ?? ""}>
         <GalaxyCanvas
           params={current.params}
           evaluation={ev}
@@ -2513,6 +2514,10 @@ export function UniverseApp() {
             </button>
             <button
               type="button"
+              onPointerDown={() => setPeek("carbon")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
               onClick={() => {
                 haptic(8);
                 setTab("lab");
@@ -2529,6 +2534,10 @@ export function UniverseApp() {
             </button>
             <button
               type="button"
+              onPointerDown={() => setPeek("silicon")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
               onClick={() => {
                 haptic(8);
                 siliconTaps.current += 1;
@@ -2549,6 +2558,10 @@ export function UniverseApp() {
             </button>
             <button
               type="button"
+              onPointerDown={() => setPeek("eternal")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
               onClick={() => {
                 haptic(8);
                 eternalTaps.current += 1;
@@ -2569,6 +2582,10 @@ export function UniverseApp() {
             </button>
             <button
               type="button"
+              onPointerDown={() => setPeek("swarm")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
               onClick={() => {
                 haptic(8);
                 swarmTaps.current += 1;
@@ -2777,6 +2794,10 @@ export function UniverseApp() {
                         "min-h-11 rounded-[var(--radius-xs)] px-1 text-center text-xs leading-tight",
                         stake === id ? "bg-bg-subtle text-fg" : "bg-bg/50 text-fg-subtle",
                       )}
+                      onPointerDown={() => setPeek(id)}
+                      onPointerUp={() => setPeek(null)}
+                      onPointerCancel={() => setPeek(null)}
+                      onPointerLeave={() => setPeek(null)}
                       onClick={() => {
                         haptic(8);
                         setStake(id);

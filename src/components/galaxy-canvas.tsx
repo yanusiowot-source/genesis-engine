@@ -364,6 +364,8 @@ export function GalaxyCanvas({
     let h = 0;
     let lastT = 0;
     let spin = 0;
+    let turn = 0;
+    let dragKind: "look" | "turn" | "" = "";
     let armedKey = collisionKeyRef.current;
     let collisionT = modeRef.current === "collision" ? 1 : 0;
     let yaw = 0.12;
@@ -494,6 +496,11 @@ export function GalaxyCanvas({
       dragTravel = 0;
       if (modeRef.current === "planetarium") {
         dragging = true;
+        dragKind = "look";
+        canvas.setPointerCapture(event.pointerId);
+      } else if (modeRef.current === "galaxy") {
+        dragging = true;
+        dragKind = "turn";
         canvas.setPointerCapture(event.pointerId);
       }
     };
@@ -502,10 +509,14 @@ export function GalaxyCanvas({
       const dx = event.clientX - lastX;
       const dy = event.clientY - lastY;
       dragTravel += Math.hypot(dx, dy);
-      vYaw = -dx * 0.0045;
-      vPitch = dy * 0.0032;
-      yaw += vYaw;
-      pitch = Math.max(-1.15, Math.min(1.15, pitch + vPitch));
+      if (dragKind === "turn") {
+        turn -= dx * 0.006;
+      } else {
+        vYaw = -dx * 0.0045;
+        vPitch = dy * 0.0032;
+        yaw += vYaw;
+        pitch = Math.max(-1.15, Math.min(1.15, pitch + vPitch));
+      }
       lastX = event.clientX;
       lastY = event.clientY;
     };
@@ -514,6 +525,7 @@ export function GalaxyCanvas({
         dragTravel < 12 &&
         Math.hypot((event.clientX ?? downX) - downX, (event.clientY ?? downY) - downY) < 16;
       dragging = false;
+      dragKind = "";
       try {
         if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
       } catch {
@@ -1840,7 +1852,7 @@ export function GalaxyCanvas({
       const vis = galaxyVisibility(visualT, ev);
       const ageGyr = cosmicAgeGyr(visualT, pms, ev);
       const skyMode = modeRef.current;
-      const rot = time * model.rotation * (reducedRef.current ? 0 : 0.52);
+      const rot = (reducedRef.current ? 0 : time * model.rotation * 0.52) + turn;
       const late = epoch === "heatDeath" || epoch === "blackHoles";
       const eternalProb = ev.eternalProb ?? 0;
 
@@ -2235,7 +2247,7 @@ export function GalaxyCanvas({
         ? "grabbing"
         : encHit.live
           ? "crosshair"
-          : skyMode === "planetarium"
+          : skyMode === "planetarium" || skyMode === "galaxy"
             ? "grab"
             : "default";
       if (canvas.style.cursor !== cursor) canvas.style.cursor = cursor;
@@ -2339,7 +2351,7 @@ export function GalaxyCanvas({
         width: "100%",
         height: "100%",
         touchAction: "none",
-        cursor: mode === "planetarium" ? "grab" : encounter ? "crosshair" : "default",
+        cursor: mode === "planetarium" || mode === "galaxy" ? "grab" : encounter ? "crosshair" : "default",
         pointerEvents: "auto",
         zIndex: 0,
       }}
