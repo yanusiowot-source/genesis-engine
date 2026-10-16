@@ -819,9 +819,9 @@ html.contrast .glass {
   inset: 0;
   z-index: 200;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  padding: 22vh 1.5rem max(2.75rem, env(safe-area-inset-bottom));
+  padding: 1.5rem;
   background: #09061a;
   color: #f6f0e4;
 }
