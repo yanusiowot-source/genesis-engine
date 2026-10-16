@@ -11,7 +11,6 @@ import {
 } from "@/lib/universe/galaxy";
 import { buildGalaxyAsync, buildGalaxyNow } from "@/lib/universe/sky-client";
 import { epochBackdropKey, faceOnLocal, gpuOffered, rgbInk, skyGpuMark } from "@/lib/universe/sky-place";
-import type { SkyView } from "@/lib/universe/sky-gpu";
 import {
   ACOUSTIC_VISUAL,
   acousticDossier,
@@ -403,7 +402,18 @@ export function GalaxyCanvas({
     let gpu: {
       draw: (
         model: GalaxyModel,
-        view: SkyView,
+        view: {
+          ox: number;
+          oy: number;
+          scale: number;
+          rot: number;
+          vis: number;
+          w: number;
+          h: number;
+          dpr: number;
+          time?: number;
+          still?: boolean;
+        },
       ) => void;
       clear: () => void;
       destroy: () => void;
