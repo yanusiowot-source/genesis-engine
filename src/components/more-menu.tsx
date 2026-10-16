@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { haptic } from "@/lib/universe/haptic";
@@ -22,12 +23,35 @@ type Props = {
 
 export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm, onHighway, onBelt, onCluster, onDwarf, compact, nudge }: Props) {
   const [open, setOpen] = useState(false);
+  const [box, setBox] = useState<{ left: number; width: number; bottom: number; maxH: number } | null>(null);
   const root = useRef<HTMLDivElement>(null);
+  const menu = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+    const place = () => {
+      const r = root.current?.getBoundingClientRect();
+      if (!r) return;
+      const width = Math.min(288, window.innerWidth - 24);
+      const left = Math.min(Math.max(12, r.right - width), window.innerWidth - width - 12);
+      const maxH = Math.max(176, r.top - 16);
+      setBox({ left, width, bottom: window.innerHeight - r.top + 8, maxH });
+    };
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const onDoc = (event: MouseEvent) => {
-      if (!root.current?.contains(event.target as Node)) setOpen(false);
+      const target = event.target as Node;
+      if (root.current?.contains(target) || menu.current?.contains(target)) return;
+      setOpen(false);
     };
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") setOpen(false);
@@ -36,7 +60,9 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm
     window.addEventListener("keydown", onKey);
     const el = root.current;
     const onFocusOut = (event: FocusEvent) => {
-      if (!el?.contains(event.relatedTarget as Node)) setOpen(false);
+      const next = event.relatedTarget as Node | null;
+      if (el?.contains(next) || menu.current?.contains(next)) return;
+      setOpen(false);
     };
     el?.addEventListener("focusout", onFocusOut);
     return () => {
@@ -77,30 +103,41 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm
           )}
         />
       </Button>
-      {open ? (
-        <div
-          id="skies-menu"
-          role="menu"
-          className={cn(
-            "menu-pop absolute right-0 bottom-full z-20 mb-2 w-[min(18rem,calc(100vw-1.5rem))] max-w-[calc(100vw-1.5rem)] overflow-y-auto overscroll-contain",
-            "max-h-[min(28rem,calc(100dvh-7.5rem))]",
-            "rounded-[var(--radius-md)] bg-bg-elevated py-1 shadow-[var(--shadow-border)]",
-          )}
-        >
-          <p className="px-3 pt-2 pb-1 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
-            {copy.skies}
-          </p>
-          <MenuItem label={copy.ours} onClick={() => pick(onOurs)} />
-          <MenuItem label={copy.presetCluster} onClick={() => pick(onCluster)} />
-          <MenuItem label={copy.presetDwarf} onClick={() => pick(onDwarf)} />
-          <MenuItem label={copy.presetSilicon} onClick={() => pick(onSilicon)} />
-          <MenuItem label={copy.presetEternal} onClick={() => pick(onEternal)} />
-          <MenuItem label={copy.presetSwarm} onClick={() => pick(onSwarm)} />
-          <MenuItem label={copy.presetHighway} onClick={() => pick(onHighway)} />
-          <MenuItem label={copy.presetBelt} onClick={() => pick(onBelt)} />
-          <MenuItem label={copy.presetDesert} onClick={() => pick(onDesert)} />
-        </div>
-      ) : null}
+      {open && box
+        ? createPortal(
+            <div
+              ref={menu}
+              id="skies-menu"
+              role="menu"
+              className={cn(
+                "menu-pop overflow-y-auto overscroll-contain",
+                "rounded-[var(--radius-md)] bg-bg-elevated py-1 shadow-[var(--shadow-border)]",
+              )}
+              style={{
+                position: "fixed",
+                left: box.left,
+                width: box.width,
+                bottom: box.bottom,
+                maxHeight: box.maxH,
+                zIndex: 60,
+              }}
+            >
+              <p className="px-3 pt-2 pb-1 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+                {copy.skies}
+              </p>
+              <MenuItem label={copy.ours} onClick={() => pick(onOurs)} />
+              <MenuItem label={copy.presetCluster} onClick={() => pick(onCluster)} />
+              <MenuItem label={copy.presetDwarf} onClick={() => pick(onDwarf)} />
+              <MenuItem label={copy.presetSilicon} onClick={() => pick(onSilicon)} />
+              <MenuItem label={copy.presetEternal} onClick={() => pick(onEternal)} />
+              <MenuItem label={copy.presetSwarm} onClick={() => pick(onSwarm)} />
+              <MenuItem label={copy.presetHighway} onClick={() => pick(onHighway)} />
+              <MenuItem label={copy.presetBelt} onClick={() => pick(onBelt)} />
+              <MenuItem label={copy.presetDesert} onClick={() => pick(onDesert)} />
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
