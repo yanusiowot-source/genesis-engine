@@ -2250,6 +2250,19 @@ export function UniverseApp() {
           onSkyH0={setSkyH0}
           ariaLabel={`${copy.appName} · ${copy.tabs.sky}. ${copy.skyKeys}`}
           nudgeRef={skyNudge}
+          gate={{
+            arm: copy.gateArm,
+            closer: copy.gateCloser,
+            farther: copy.gateFarther,
+            shut: copy.gateShut,
+            earlier: copy.gateEarlier,
+            later: copy.gateLater,
+            wait: copy.gateWait,
+            empty: copy.gateEmpty,
+            note: copy.gateNote,
+            stages: copy.obs.worldsStage,
+          }}
+          onStepTime={(dir) => setCosmicTime((t) => Math.min(1, Math.max(0, t + dir * 0.06)))}
         />
         {birthFlash ? (
           <div

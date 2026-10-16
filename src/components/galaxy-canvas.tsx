@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   adaptiveQuality,
   canvasDpr,
@@ -239,6 +239,19 @@ type Props = {
   ariaLabel?: string;
   nudgeRef?: { current: (dx: number, dy: number) => void };
   onSkyH0?: (h0Long: number) => void;
+  gate?: {
+    arm: string;
+    closer: string;
+    farther: string;
+    shut: string;
+    earlier: string;
+    later: string;
+    wait: string;
+    empty: string;
+    note: string;
+    stages: Record<string, string>;
+  };
+  onStepTime?: (dir: -1 | 1) => void;
 };
 
 /** Frame clock. A hot preview drops the previous loop when this changes. */
@@ -270,8 +283,23 @@ export function GalaxyCanvas({
   ariaLabel,
   nudgeRef: skyNudge,
   onSkyH0,
+  gate,
+  onStepTime,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [gateOn, setGateOn] = useState(false);
+  const [gatePlaced, setGatePlaced] = useState(false);
+  const [gateZoom, setGateZoom] = useState(1);
+  const [gatePick, setGatePick] = useState<{ mass: number; stage: string; age: number } | null>(null);
+  const gateRef = useRef<{ x: number; y: number; zoom: number } | null>(null);
+  const gateOnRef = useRef(false);
+  const gateDirty = useRef(false);
+  const gatePickKey = useRef("");
+  const onStepTimeRef = useRef(onStepTime);
+  gateOnRef.current = gateOn;
+  onStepTimeRef.current = onStepTime;
+  if (gateRef.current) gateRef.current.zoom = gateZoom;
+  if (!gateOn && gateRef.current) gateRef.current = null;
   const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const modelRef = useRef<GalaxyModel | null>(null);
@@ -357,6 +385,7 @@ export function GalaxyCanvas({
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
+    const loupe = document.createElement("canvas");
 
     let frame = 0;
     let wait = 0;
@@ -544,6 +573,12 @@ export function GalaxyCanvas({
         onEncounterRef.current?.(encHit.kind);
         return;
       }
+      if (gateOnRef.current && (modeRef.current === "galaxy" || modeRef.current === "planetarium")) {
+        gateRef.current = { x: px, y: py, zoom: gateRef.current?.zoom ?? 1 };
+        gateDirty.current = true;
+        setGatePlaced(true);
+        return;
+      }
       if (tauHit.live && Math.hypot(px - tauHit.x, py - tauHit.y) <= tauHit.r) {
         tauRef.current?.();
       }
@@ -552,6 +587,16 @@ export function GalaxyCanvas({
     canvas.addEventListener("pointermove", onMove);
     canvas.addEventListener("pointerup", onUp);
     canvas.addEventListener("pointercancel", onUp);
+    const onWheel = (event: WheelEvent) => {
+      const gateNow = gateRef.current;
+      if (!gateOnRef.current || !gateNow) return;
+      event.preventDefault();
+      const next = Math.min(8, Math.max(1, gateNow.zoom * (event.deltaY > 0 ? 0.86 : 1.16)));
+      gateNow.zoom = next;
+      gateDirty.current = true;
+      setGateZoom(next);
+    };
+    canvas.addEventListener("wheel", onWheel, { passive: false });
     const onKey = (event: KeyboardEvent) => {
       const mode = modeRef.current;
       if (mode !== "galaxy" && mode !== "planetarium") return;
@@ -1750,7 +1795,7 @@ export function GalaxyCanvas({
         (skyNow === "galaxy" && (evRef.current.swarmProb ?? 0) >= 0.18) ||
         skyPulse ||
         keys > 0;
-      if (idlePaint && painted && !live && !rest) {
+      if (idlePaint && painted && !live && !rest && !gateDirty.current) {
         schedule(140);
         return;
       }
@@ -1777,6 +1822,7 @@ export function GalaxyCanvas({
         return;
       }
       lastPaint = t;
+      gateDirty.current = false;
       if (keys > 0) keys -= 1;
       const t0 = typeof performance !== "undefined" ? performance.now() : t;
       frameLite =
@@ -2088,7 +2134,7 @@ export function GalaxyCanvas({
             late,
             eternalProb,
             undefined,
-            !!(gpu && skyMode === "galaxy"),
+            !!(gpu && skyMode === "galaxy" && !gateRef.current),
           );
           const mesh = hydro.mesh;
           const bad = mesh.filter((s) => s.Q < 1.05);
@@ -2284,6 +2330,87 @@ export function GalaxyCanvas({
         delete canvas.dataset.encX;
         delete canvas.dataset.encY;
       }
+
+      const gateNow = gateRef.current;
+      if (gateNow && (skyMode === "galaxy" || skyMode === "planetarium")) {
+        const R = Math.max(64, Math.min(w, h) * 0.26);
+        const zoom = Math.min(8, Math.max(1, gateNow.zoom));
+        if (zoom > 1.05) {
+          if (loupe.width !== canvas.width || loupe.height !== canvas.height) {
+            loupe.width = canvas.width;
+            loupe.height = canvas.height;
+          }
+          const lg = loupe.getContext("2d");
+          if (lg) {
+            lg.setTransform(1, 0, 0, 1, 0, 0);
+            lg.drawImage(canvas, 0, 0);
+            const src = (R / zoom) * dpr;
+            const sx = gateNow.x * dpr - src;
+            const sy = gateNow.y * dpr - src;
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(gateNow.x, gateNow.y, R, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(loupe, sx, sy, src * 2, src * 2, gateNow.x - R, gateNow.y - R, R * 2, R * 2);
+            ctx.restore();
+          }
+        }
+        ctx.save();
+        ctx.strokeStyle = "rgba(240, 195, 107, 0.92)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(gateNow.x, gateNow.y, R, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 3;
+        for (let i = 0; i < 8; i++) {
+          const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
+          ctx.beginPath();
+          ctx.moveTo(gateNow.x + Math.cos(a) * (R - 9), gateNow.y + Math.sin(a) * (R - 9));
+          ctx.lineTo(gateNow.x + Math.cos(a) * (R + 1), gateNow.y + Math.sin(a) * (R + 1));
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        const reach = R / zoom;
+        let best: Star | null = null;
+        let bestD = reach;
+        if (skyMode === "planetarium") {
+          const cam = lookCam(yaw, pitch);
+          for (const s of model.stars) {
+            const p = projectLook(s.x, s.y, s.z, cam, PLANETARIUM_FOV);
+            if (!p) continue;
+            const d = Math.hypot(cx + p.x * scale - gateNow.x, cy + p.y * scale - gateNow.y);
+            if (d < bestD) {
+              best = s;
+              bestD = d;
+            }
+          }
+        } else {
+          const c = Math.cos(rot);
+          const sn = Math.sin(rot);
+          for (const s of model.stars) {
+            const lx = s.x * scale;
+            const ly = s.y * scale;
+            const d = Math.hypot(cx + lx * c - ly * sn - gateNow.x, cy + lx * sn + ly * c - gateNow.y);
+            if (d < bestD) {
+              best = s;
+              bestD = d;
+            }
+          }
+        }
+        if (best) {
+          const st = evolveStar(best.mass, ageGyr - best.birthGyr, pms.gravity);
+          const key = `${best.mass.toFixed(2)}|${st.stage}|${ageGyr.toFixed(1)}`;
+          if (key !== gatePickKey.current) {
+            gatePickKey.current = key;
+            setGatePick({ mass: best.mass, stage: st.stage, age: Math.max(0, ageGyr - best.birthGyr) });
+          }
+        } else if (gatePickKey.current !== "") {
+          gatePickKey.current = "";
+          setGatePick(null);
+        }
+      }
+
       const cursor = dragging
         ? "grabbing"
         : encHit.live
@@ -2295,7 +2422,7 @@ export function GalaxyCanvas({
 
       if (shook) ctx.restore();
 
-      if (gpu && skyMode === "galaxy" && vis > 0.08 && !late) {
+      if (gpu && skyMode === "galaxy" && vis > 0.08 && !late && !gateRef.current) {
         gpu.draw(model, {
           ox: cx,
           oy: cy,
@@ -2353,6 +2480,7 @@ export function GalaxyCanvas({
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("pointercancel", onUp);
+      canvas.removeEventListener("wheel", onWheel);
       canvas.removeEventListener("keydown", onKey);
     };
   }, [SKY_CLOCK]);
@@ -2400,6 +2528,86 @@ export function GalaxyCanvas({
         zIndex: 0,
       }}
     />
+      <div className="pointer-events-none absolute top-2 left-2 z-[4] flex max-w-[calc(100%-1rem)] flex-col items-start gap-1.5">
+        <div className="pointer-events-auto flex flex-wrap gap-1">
+          <button
+            type="button"
+            className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+            aria-pressed={gateOn}
+            onClick={() => {
+              setGateOn((on) => {
+                const next = !on;
+                if (!next) {
+                  gateRef.current = null;
+                  gatePickKey.current = "";
+                  setGatePlaced(false);
+                  setGateZoom(1);
+                  setGatePick(null);
+                }
+                gateDirty.current = true;
+                return next;
+              });
+            }}
+          >
+            {gateOn ? (gate?.shut ?? "Leave") : (gate?.arm ?? "Gate")}
+          </button>
+          {gateOn ? (
+            <>
+              <button
+                type="button"
+                className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                onClick={() => {
+                  setGateZoom((z) => {
+                    const next = Math.max(1, z / 1.35);
+                    if (gateRef.current) gateRef.current.zoom = next;
+                    gateDirty.current = true;
+                    return next;
+                  });
+                }}
+              >
+                {gate?.farther ?? "Farther"}
+              </button>
+              <button
+                type="button"
+                className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                onClick={() => {
+                  setGateZoom((z) => {
+                    const next = Math.min(8, z * 1.35);
+                    if (gateRef.current) gateRef.current.zoom = next;
+                    gateDirty.current = true;
+                    return next;
+                  });
+                }}
+              >
+                {gate?.closer ?? "Closer"}
+              </button>
+              <button
+                type="button"
+                className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                onClick={() => onStepTimeRef.current?.(-1)}
+              >
+                {gate?.earlier ?? "Earlier"}
+              </button>
+              <button
+                type="button"
+                className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                onClick={() => onStepTimeRef.current?.(1)}
+              >
+                {gate?.later ?? "Later"}
+              </button>
+            </>
+          ) : null}
+        </div>
+        {gateOn ? (
+          <p className="pointer-events-none max-w-xs rounded-[var(--radius-sm)] bg-bg/80 px-3 py-2 text-sm text-pretty text-fg shadow-[var(--shadow-border)]">
+            {!gatePlaced
+              ? (gate?.wait ?? "Tap a place on the sky.")
+              : gatePick
+                ? `${gate?.stages[gatePick.stage] ?? gatePick.stage}. ${gatePick.mass.toFixed(2)} M☉. ${gatePick.age.toFixed(1)} Gyr. ${gate?.note ?? ""}`
+                : (gate?.empty ?? "Nothing bright in this circle.")}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

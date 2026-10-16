@@ -61,6 +61,15 @@ export type Copy = {
   skyRight: string;
   skyUp: string;
   skyDown: string;
+  gateArm: string;
+  gateCloser: string;
+  gateFarther: string;
+  gateShut: string;
+  gateEarlier: string;
+  gateLater: string;
+  gateWait: string;
+  gateEmpty: string;
+  gateNote: string;
   scanning: string;
   plot: {
     arrive: string;
@@ -803,6 +812,15 @@ const en: Copy = {
   skyRight: "Turn right",
   skyUp: "Look up",
   skyDown: "Look down",
+  gateArm: "Gate",
+  gateCloser: "Closer",
+  gateFarther: "Farther",
+  gateShut: "Leave",
+  gateEarlier: "Earlier",
+  gateLater: "Later",
+  gateWait: "Tap a place on the sky.",
+  gateEmpty: "Nothing bright in this circle.",
+  gateNote: "This sky's model, not a catalog.",
   scanning: "Survey of 64 skies. Most stay empty.",
   plot: {
     arrive: "This is your first sky. It is not saved until you keep it.",
