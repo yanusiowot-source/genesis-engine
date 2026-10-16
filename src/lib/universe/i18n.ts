@@ -242,6 +242,7 @@ export type Copy = {
   haptics: string;
   soundscape: string;
   soundOn: string;
+  soundLesson: string;
   soundOff: string;
   musicTitle: string;
   musicHint: string;
@@ -815,7 +816,7 @@ const en: Copy = {
     hard: "This sky ends too soon. Save it, then make another.",
     blink: "The disk flashed. There is nowhere to land.",
     survey: "Looking through 64 skies. Most stay empty.",
-    home: "These are our universe's numbers. A new birth leaves them.",
+    home: "These numbers belong to our universe, the one that gathered a sky like this. A new birth leaves them.",
     cluster: "A crowded ball of old stars. Not the real Virgo cluster.",
     dwarf: "A small messy galaxy and a quiet black hole. Not a head count.",
     highway: "Stars in a line, far apart. No time to build a town.",
@@ -1009,6 +1010,7 @@ const en: Copy = {
   haptics: "Haptics",
   soundscape: "Sky music",
   soundOn: "Sky music on",
+  soundLesson: "This tone is made here from this sky. No file and no network. Heavier gravity sits lower.",
   soundOff: "Sky music off",
   musicTitle: "Music",
   musicHint: "Quiet chords follow the sliders. Or add as many files as this device will hold.",

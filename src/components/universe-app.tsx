@@ -87,9 +87,6 @@ const WorldsPanel = lazy(() =>
 const InstallSheet = lazy(() =>
   import("@/components/install-sheet").then((m) => ({ default: m.InstallSheet })),
 );
-const KeepSheet = lazy(() =>
-  import("@/components/keep-sheet").then((m) => ({ default: m.KeepSheet })),
-);
 const LawsPanel = lazy(() =>
   import("@/components/laws-panel").then((m) => ({ default: m.LawsPanel })),
 );
@@ -514,7 +511,6 @@ export function UniverseApp() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [aboutIntent, setAboutIntent] = useState(false);
   const [keepOpen, setKeepOpen] = useState(false);
-  const [keepIntent, setKeepIntent] = useState(false);
   const [siliconOpen, setSiliconOpen] = useState(false);
   const [eternalOpen, setEternalOpen] = useState(false);
   const [swarmOpen, setSwarmOpen] = useState(false);
@@ -799,7 +795,7 @@ export function UniverseApp() {
     mandateRef.current = loadedWork;
     setMandate(loadedWork);
     if (isKeepHash()) {
-      setKeepIntent(true);
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
     } else if (isAboutHash()) {
       setAboutIntent(true);
     }
@@ -819,21 +815,7 @@ export function UniverseApp() {
   useEffect(() => {
     const applyHash = () => {
       if (isKeepHash()) {
-        setHelpOpen(false);
-        setGamesOpen(false);
-        setInstallOpen(false);
-        setSiliconOpen(false);
-        setEternalOpen(false);
-        setSwarmOpen(false);
-        setMandateOpen(false);
-        setSettingsOpen(false);
-        setAboutIntent(false);
-        setKeepIntent(true);
-        try {
-          if (localStorage.getItem(ONBOARD_KEY) === "1") setKeepOpen(true);
-        } catch {
-          /* primer first */
-        }
+        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
         return;
       }
       if (!isAboutHash()) return;
@@ -1610,19 +1592,18 @@ export function UniverseApp() {
     soundOnRef.current = true;
     unlockAndStart(current.params);
     void setSoundscape(true, current.params);
-    if (keepIntent) {
-      setKeepOpen(true);
-    } else if (aboutIntent) {
+    flashEgg(copy.soundLesson);
+    if (aboutIntent) {
       setSettingsOpen(true);
     }
     if (born && !fromLinkRef.current) {
       window.clearTimeout(onboardBirthTimer.current);
       onboardBirthTimer.current = window.setTimeout(() => birth(), 220);
-    } else if (!born && !aboutIntent && !keepIntent) {
+    } else if (!born && !aboutIntent) {
       window.clearTimeout(labNudgeTimer.current);
       labNudgeTimer.current = window.setTimeout(() => armLabNudge(), 4200);
     }
-  }, [aboutIntent, keepIntent, birth, current.params, armLabNudge]);
+  }, [aboutIntent, birth, current.params, armLabNudge, copy.soundLesson]);
 
   const toggleLocale = useCallback(() => {
     setLocale((prev) => {
@@ -2349,12 +2330,16 @@ export function UniverseApp() {
                 if (soundOn && !audioLive) {
                   unlockAndStart(current.params);
                   void setSoundscape(true, current.params);
+                  flashEgg(copy.soundLesson);
                   return;
                 }
                 const next = !soundOn;
                 setSoundOn(next);
                 soundOnRef.current = next;
-                if (next) unlockAndStart(current.params);
+                if (next) {
+                  unlockAndStart(current.params);
+                  flashEgg(copy.soundLesson);
+                }
                 void setSoundscape(next, current.params);
               }}
             >
@@ -3002,7 +2987,6 @@ export function UniverseApp() {
           platform={platform}
           canNativeInstall={installReady}
           onInstall={() => void runInstall()}
-          onKeep={() => showOverlay("keep")}
           onClose={() => setInstallOpen(false)}
         />
       ) : null}
@@ -3146,7 +3130,6 @@ export function UniverseApp() {
           onHelp={() => showOverlay("help")}
           onGames={() => showOverlay("games")}
           onCanon={openCanon}
-          onKeep={() => showOverlay("keep")}
           onClose={() => {
             setSettingsOpen(false);
             setAboutIntent(false);
@@ -3158,23 +3141,7 @@ export function UniverseApp() {
           openAbout={aboutIntent}
         />
       ) : null}
-      {keepOpen ? (
-        <KeepSheet
-          copy={copy}
-          onClose={() => {
-            setKeepOpen(false);
-            setKeepIntent(false);
-            if (isKeepHash()) {
-              window.history.replaceState(
-                null,
-                "",
-                `${window.location.pathname}${window.location.search}`,
-              );
-            }
-          }}
-        />
-      ) : null}
-      {helpOpen ? <HelpSheet copy={copy} onKeep={() => showOverlay("keep")} onClose={() => setHelpOpen(false)} /> : null}
+      {helpOpen ? <HelpSheet copy={copy} onClose={() => setHelpOpen(false)} /> : null}
       {gamesOpen ? <ArcadeSheet copy={copy} onClose={() => setGamesOpen(false)} /> : null}
       {scriptureOpen && passage ? (
         <ScriptureSheet

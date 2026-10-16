@@ -5,9 +5,6 @@ import appCss from "../styles.css?url";
 
 const APP_NAME = "Genesis Engine";
 
-const FONT_HREF =
-  "https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=optional";
-
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -58,11 +55,6 @@ function RootDocument() {
         <script
           dangerouslySetInnerHTML={{
             __html: `(()=>{var l="";try{l=localStorage.getItem("genesis-engine-locale")||""}catch(e){}var t=l==="ru"?"Небо ещё собирается":l==="be"?"Неба яшчэ збіраецца":"The sky is still gathering";var n=document.getElementById("boot-line");if(n)n.textContent=t;window.__bootAt=performance.now();})();`,
-          }}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(()=>{var h=${JSON.stringify(FONT_HREF)};var l=document.createElement("link");l.rel="stylesheet";l.href=h;l.media="print";l.onload=function(){this.media="all"};document.head.appendChild(l);})();`,
           }}
         />
         <PreviewHostBridge />

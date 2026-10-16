@@ -50,7 +50,6 @@ type Props = {
   onHelp: () => void;
   onGames: () => void;
   onCanon: () => void;
-  onKeep: () => void;
   onClose: () => void;
   openAbout?: boolean;
 };
@@ -96,7 +95,6 @@ export function SettingsSheet({
   onHelp,
   onGames,
   onCanon,
-  onKeep,
   onClose,
   openAbout = false,
 }: Props) {
@@ -402,30 +400,9 @@ export function SettingsSheet({
           <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">
             {copy.studioHonesty}
           </p>
-          <Button className="mt-4 h-auto min-h-11 w-full whitespace-normal text-balance" onClick={onKeep}>
-            {copy.keep.openCta}
-          </Button>
-          <ul className="mt-4 flex flex-col gap-2">
-            {(
-              [
-                [copy.studioFreeTitle, copy.studioFreeBody],
-                [copy.studioKeepTitle, copy.studioKeepBody],
-                [copy.studioSupportTitle, copy.studioSupportBody],
-              ] as const
-            ).map(([title, body]) => (
-              <li
-                key={title}
-                className="rounded-[var(--radius-md)] bg-bg-subtle px-3 py-3 shadow-[var(--shadow-border)]"
-              >
-                <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
-                  {title}
-                </p>
-                <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">
-                  {body}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">
+            {copy.soundLesson}
+          </p>
           {!hosted ? (
             <Button asChild variant="outline" className="mt-2 w-full">
               <a href={PUBLIC_LAB_URL} target="_blank" rel="noopener noreferrer">

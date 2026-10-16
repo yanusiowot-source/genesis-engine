@@ -2,10 +2,17 @@
  * Hashed /assets → cache-first. Documents → network-first, cache fallback.
  * Third-party (fonts, MAST) left on the wire.
  */
-const CACHE = "genesis-sw-1.88";
+const CACHE = "genesis-sw-1.89";
+
+const SHELL = ["/", "/index.html", "/favicon.svg", "/icon-180.png"];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(self.skipWaiting());
+  event.waitUntil(
+    caches
+      .open(CACHE)
+      .then((cache) => Promise.all(SHELL.map((path) => cache.add(path).catch(() => undefined))))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener("activate", (event) => {
@@ -71,11 +78,10 @@ self.addEventListener("fetch", (event) => {
   }
   if (!sameOrigin(url)) return;
   if (url.pathname.endsWith("/sw.js")) return;
-  if (isHashedAsset(url) && request.mode !== "navigate") {
-    event.respondWith(cacheFirst(request));
-    return;
-  }
+  if (url.pathname.startsWith("/api/")) return;
   if (isDocument(request)) {
     event.respondWith(networkFirst(request));
+    return;
   }
+  event.respondWith(cacheFirst(request));
 });
