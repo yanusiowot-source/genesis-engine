@@ -37,7 +37,7 @@ export function makeBe(ru: Copy): Copy {
 			caughtWhale: "Буйное цела ў апошнім лёдзе. Яно не апазнана.",
 			done: "Атлас зачынены. Журнал застаецца адкрытым.",
 		},
-		survey: "Агляд 64",
+		survey: "Шукаць 64",
 		stakeAsk: "Куды ставіце наступны замер?",
 		stakeOn: {
 			carbon: "Стаўка на вуглярод. Агляд 64 шукае ваду і не абяцае яе.",
@@ -282,7 +282,7 @@ export function makeBe(ru: Copy): Copy {
 		},
 		shortcutsTitle: "Клавішы",
 		shortcutsBody: "B нарадзіць · S агляд · R удакладніць · E эвалюцыя · [ ] час · Прабел глядзець · тау · 1 неба · 2 лаб · 3 журнал · Esc закрыць",
-		refine: "Удакладніць",
+		refine: "Пасунуць лікі",
 		more: "Яшчэ",
 		closePanel: "Закрыць",
 		foldCorridors: "Калідоры жыцця",
@@ -896,6 +896,7 @@ export function makeBe(ru: Copy): Copy {
 		obs: {
 			...ru.obs,
 			modesLabel: "Рэжым неба",
+			time: "Час",
 			modes: {
 				galaxy: "Галактыка",
 				planetarium: "Знутры",

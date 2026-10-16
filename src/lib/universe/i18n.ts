@@ -408,6 +408,7 @@ export type Copy = {
     now: string;
     collide: string;
     clock: string;
+    time: string;
     epochs: Record<CosmicEpoch, string>;
     jumps: Record<"inflation" | "reionization" | "stellar" | "heatDeath", string>;
     epochHint: Record<CosmicEpoch, string>;
@@ -818,7 +819,7 @@ const en: Copy = {
     caughtWhale: "A large body in the last ice. It is not identified.",
     done: "The atlas is sealed. The log remains open.",
   },
-  survey: "Survey 64",
+  survey: "Search 64",
   stakeAsk: "Where do you stake the next measurement?",
   stakeOn: {
     carbon: "Staked on carbon. Survey 64 looks for water and does not promise it.",
@@ -1390,7 +1391,7 @@ const en: Copy = {
   swarmNoVeto: "No cosmological veto. What remains is engineering we have not seen — and Fermi’s empty sky.",
   swarmCaveat:
     "A tide is a loophole of clocks and metals. It is not a census of machines, and it is not a show.",
-  refine: "Refine sky",
+  refine: "Nudge numbers",
   more: "More skies",
   closePanel: "Close",
   foldCorridors: "Life corridors",
@@ -1423,6 +1424,7 @@ const en: Copy = {
     now: "now",
     collide: "Collide galaxies",
     clock: "Cosmic time",
+    time: "Time",
     epochs: {
       inflation: "Spark",
       recombination: "First glow",

@@ -2483,7 +2483,10 @@ export function UniverseApp() {
               {egg}
             </p>
           ) : null}
-          <div className="mt-1.5 hud-chips" aria-live="polite">
+          <div className="mt-1.5 hud-chips" aria-live="polite" aria-label={copy.foldCorridors}>
+            <span className="basis-full font-mono text-[0.6875rem] tracking-[0.12em] text-fg-subtle">
+              {copy.foldCorridors}
+            </span>
             <button
               type="button"
               onClick={() => {

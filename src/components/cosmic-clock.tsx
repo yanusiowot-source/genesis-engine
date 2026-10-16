@@ -125,7 +125,11 @@ export function CosmicClock({
             className="epoch-ink mb-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 font-mono text-xs uppercase"
             style={{ color: ink }}
           >
-            <span className="min-w-0 text-pretty">{copy.obs.epochs[epoch]}</span>
+            <span className="min-w-0 text-pretty">
+              <span className="normal-case tracking-normal text-fg-subtle">{copy.obs.time}</span>
+              <span className="normal-case text-fg-subtle/50"> · </span>
+              {copy.obs.epochs[epoch]}
+            </span>
             <span className="shrink-0 tabular-nums tracking-normal">
               {formatGyr(age)}
               <span className="text-fg-subtle"> · </span>
