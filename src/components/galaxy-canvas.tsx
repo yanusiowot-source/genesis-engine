@@ -2416,18 +2416,6 @@ export function GalaxyCanvas({
         hits.sort((a, b) => a.d - b.d);
         const shown = hits.slice(0, 12);
         const at = shown.length ? gateAtRef.current % shown.length : 0;
-        const chosen = shown[at];
-        if (chosen) {
-          const mx = gateNow.x + (chosen.x - gateNow.x) * zoom;
-          const my = gateNow.y + (chosen.y - gateNow.y) * zoom;
-          ctx.save();
-          ctx.strokeStyle = "rgba(255, 246, 224, 0.95)";
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.arc(mx, my, 11, 0, Math.PI * 2);
-          ctx.stroke();
-          ctx.restore();
-        }
         const ringKey = `${Math.round(gateNow.x)}|${Math.round(gateNow.y)}|${Math.round(R)}`;
         if (ringKey !== gateRingKey.current) {
           gateRingKey.current = ringKey;
@@ -2674,7 +2662,10 @@ export function GalaxyCanvas({
           ) : null}
         </div>
         {gateOn ? (
-          <p className="pointer-events-none max-w-xs rounded-[var(--radius-sm)] bg-bg/80 px-3 py-2 text-sm text-pretty text-fg shadow-[var(--shadow-border)]">
+          <p
+            key={gatePlaced ? gateAt : "wait"}
+            className="view-swap pointer-events-none max-w-xs rounded-[var(--radius-sm)] bg-bg/80 px-3 py-2 text-sm text-pretty text-fg shadow-[var(--shadow-border)]"
+          >
             {!gatePlaced
               ? (gate?.wait ?? "Tap a place on the sky.")
               : gateBodies.length
@@ -2685,7 +2676,7 @@ export function GalaxyCanvas({
       </div>
       {gateOn && gateRing ? (
         <div
-          className="pointer-events-none absolute z-[5] rounded-full"
+          className="gate-ring pointer-events-none absolute z-[5] rounded-full"
           style={{
             left: gateRing.x - gateRing.r,
             top: gateRing.y - gateRing.r,
@@ -2698,7 +2689,7 @@ export function GalaxyCanvas({
       ) : null}
       {gateOn && gateBodies.length ? (
         <div
-          className="pointer-events-none absolute z-[5] rounded-full"
+          className="gate-mark pointer-events-none absolute z-[5] rounded-full"
           style={{
             left: gateBodies[gateAt % gateBodies.length].x - 9,
             top: gateBodies[gateAt % gateBodies.length].y - 9,
