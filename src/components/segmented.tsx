@@ -81,6 +81,21 @@ export function Segmented<T extends string>({
       ref={rootRef}
       role="tablist"
       aria-label={ariaLabel}
+      onKeyDown={(event) => {
+        const forward = event.key === "ArrowRight" || event.key === "ArrowDown";
+        const back = event.key === "ArrowLeft" || event.key === "ArrowUp";
+        if (!forward && !back) return;
+        event.preventDefault();
+        const index = items.findIndex((item) => item.id === value);
+        const next = items[(index + (forward ? 1 : -1) + items.length) % items.length];
+        if (!next) return;
+        onChange(next.id);
+        const root = rootRef.current;
+        if (!root) return;
+        window.requestAnimationFrame(() => {
+          root.querySelector<HTMLElement>(`[data-seg="${CSS.escape(next.id)}"]`)?.focus();
+        });
+      }}
       className={cn(
         "relative flex",
         stacked ? "gap-0 p-1" : "h-11 gap-0.5 p-0.5",
@@ -110,6 +125,7 @@ export function Segmented<T extends string>({
             data-seg={id}
             aria-selected={active}
             aria-label={label}
+            tabIndex={active ? 0 : -1}
             title={title}
             onClick={() => {
               haptic(8);

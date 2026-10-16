@@ -56,6 +56,7 @@ export type Copy = {
   birthWitness: string;
   birthGood: string;
   tapSky: string;
+  skyKeys: string;
   scanning: string;
   plot: {
     arrive: string;
@@ -792,6 +793,7 @@ const en: Copy = {
   birthWitness: "A new sky. Most corridors stay closed. Survey 64 is the next measurement if this one is empty.",
   birthGood: "And I saw that it was good.",
   tapSky: "The disk flashed. Look. There is nowhere to land.",
+  skyKeys: "Arrow keys turn this sky.",
   scanning: "Survey of 64 skies. Most stay empty.",
   plot: {
     arrive: "First plate. This sky is not saved until you keep it in the log.",

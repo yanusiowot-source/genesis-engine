@@ -366,6 +366,7 @@ export function GalaxyCanvas({
     let spin = 0;
     let turn = 0;
     let dragKind: "look" | "turn" | "" = "";
+    let keys = 0;
     let armedKey = collisionKeyRef.current;
     let collisionT = modeRef.current === "collision" ? 1 : 0;
     let yaw = 0.12;
@@ -549,6 +550,27 @@ export function GalaxyCanvas({
     canvas.addEventListener("pointermove", onMove);
     canvas.addEventListener("pointerup", onUp);
     canvas.addEventListener("pointercancel", onUp);
+    const onKey = (event: KeyboardEvent) => {
+      const mode = modeRef.current;
+      if (mode !== "galaxy" && mode !== "planetarium") return;
+      if (event.key !== "ArrowLeft" && event.key !== "ArrowRight" && event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+      event.preventDefault();
+      const step = event.shiftKey ? 0.18 : 0.09;
+      if (mode === "galaxy") {
+        if (event.key === "ArrowLeft") turn -= step;
+        else if (event.key === "ArrowRight") turn += step;
+        else return;
+      } else if (event.key === "ArrowLeft") yaw -= step;
+      else if (event.key === "ArrowRight") yaw += step;
+      else if (event.key === "ArrowUp") pitch = Math.max(-1.15, pitch - step);
+      else pitch = Math.min(1.15, pitch + step);
+      keys = 4;
+      window.clearTimeout(wait);
+      wait = 0;
+      cancelAnimationFrame(frame);
+      if (running) frame = requestAnimationFrame(draw);
+    };
+    canvas.addEventListener("keydown", onKey);
 
     const onVis = () => {
       hidden = document.hidden;
@@ -1709,7 +1731,8 @@ export function GalaxyCanvas({
         wakeRef.current !== lastWake ||
         seedRef.current !== lastSeed ||
         (skyNow === "galaxy" && (evRef.current.swarmProb ?? 0) >= 0.18) ||
-        skyPulse;
+        skyPulse ||
+        keys > 0;
       if (idlePaint && painted && !live && !rest) {
         schedule(140);
         return;
@@ -1737,6 +1760,7 @@ export function GalaxyCanvas({
         return;
       }
       lastPaint = t;
+      if (keys > 0) keys -= 1;
       const t0 = typeof performance !== "undefined" ? performance.now() : t;
       frameLite =
         relaxedRef.current ||
@@ -2312,6 +2336,7 @@ export function GalaxyCanvas({
       canvas.removeEventListener("pointermove", onMove);
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("pointercancel", onUp);
+      canvas.removeEventListener("keydown", onKey);
     };
   }, [SKY_CLOCK]);
 
@@ -2341,7 +2366,9 @@ export function GalaxyCanvas({
       />
       <canvas
       ref={canvasRef}
-      role="img"
+      role="application"
+      tabIndex={0}
+      aria-keyshortcuts="ArrowLeft ArrowRight ArrowUp ArrowDown"
       data-sky-mode={mode}
       data-paused={paused ? "1" : "0"}
       aria-label={ariaLabel ?? "Galaxy"}
