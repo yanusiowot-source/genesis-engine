@@ -154,12 +154,12 @@ describe("copyFor", () => {
     assert.doesNotMatch(copyFor("ru").obs.modes.planetarium, /Изнутри/);
     assert.match(c.tapSky, /look/i);
     assert.match(copyFor("ru").tapSky, /Смотр/i);
-    assert.match(c.plot.arrive, /First plate/);
-    assert.match(copyFor("ru").plot.dice, /пластин/);
+    assert.match(c.plot.arrive, /first sky/i);
+    assert.match(copyFor("ru").plot.dice, /журнале/);
     assert.doesNotMatch(copyFor("ru").plot.dice, /шутк/);
     assert.match(copyFor("be").plot.done, /Атлас/);
-    assert.match(c.plot.caughtWow, /No source is identified/);
-    assert.match(copyFor("ru").plot.caughtWow, /Источник не установлен/);
+    assert.match(c.plot.caughtWow, /Nobody knows who sent it/);
+    assert.match(copyFor("ru").plot.caughtWow, /неизвестно/);
     assert.match(c.presetHighway, /long road/i);
     assert.match(copyFor("be").presetBelt, /Ледзяны/);
     assert.match(c.scripture.intro, /not a measurement/i);
@@ -201,9 +201,8 @@ describe("copyFor", () => {
     assert.match(c.platforms.windowsBody, /paid portable copy/);
     assert.match(c.platforms.windowsBody, /SmartScreen/);
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
-    assert.match(copyFor("ru").plot.home, /параметрами/);
-    assert.match(copyFor("en").plot.home, /our parameters/);
-    assert.doesNotMatch(copyFor("en").plot.home, /numbers/);
+    assert.match(copyFor("ru").plot.home, /нашей вселенной/);
+    assert.match(copyFor("en").plot.home, /our universe/);
     assert.doesNotMatch(copyFor("en").plot.home, /standing in this sky/);
     assert.match(copyFor("ru").studioHonesty, /не прода/);
     assert.match(copyFor("ru").birthWitness, /Обзор 64/);
@@ -263,7 +262,7 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.87.0");
+    assert.equal(APP_VERSION, "1.88.0");
     const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { version: string };
     const desktop = JSON.parse(readFileSync(join(root, "desktop/package.json"), "utf8")) as {
@@ -273,10 +272,10 @@ describe("copyFor", () => {
       version: string;
       packages: { "": { version: string } };
     };
-    assert.equal(pkg.version, "1.87.0");
-    assert.equal(desktop.version, "1.87.0");
-    assert.equal(lock.version, "1.87.0");
-    assert.equal(lock.packages[""].version, "1.87.0");
+    assert.equal(pkg.version, "1.88.0");
+    assert.equal(desktop.version, "1.88.0");
+    assert.equal(lock.version, "1.88.0");
+    assert.equal(lock.packages[""].version, "1.88.0");
     assert.equal(APP_VERSION, pkg.version);
     const about = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../../public/about/index.html"),
