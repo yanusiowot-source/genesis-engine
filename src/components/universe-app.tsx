@@ -365,10 +365,8 @@ function Fold({ title, loading, children }: { title: string; loading: string; ch
   );
 }
 
-const HUD_MARK = { carbon: "C", silicon: "Si", eternal: "∞", swarm: "T" } as const;
-
-function corridorReadout(compact: boolean, mark: string, name: string, p: number) {
-  return compact ? `${mark} ${formatHudPct(p)}` : `${name} ${formatPct(p)}`;
+function corridorReadout(compact: boolean, name: string, p: number) {
+  return compact ? `${name} ${formatHudPct(p)}` : `${name} ${formatPct(p)}`;
 }
 
 interface InstallPromptEvent extends Event {
@@ -2530,7 +2528,7 @@ export function UniverseApp() {
                 lifeTone,
               )}
             >
-              {corridorReadout(compact, HUD_MARK.carbon, copy.carbon, ev.lifeProb)}
+              {corridorReadout(compact, copy.carbon, ev.lifeProb)}
             </button>
             <button
               type="button"
@@ -2554,7 +2552,7 @@ export function UniverseApp() {
                 siliconTone,
               )}
             >
-              {corridorReadout(compact, HUD_MARK.silicon, copy.silicon, ev.siliconProb)}
+              {corridorReadout(compact, copy.silicon, ev.siliconProb)}
             </button>
             <button
               type="button"
@@ -2578,7 +2576,7 @@ export function UniverseApp() {
                 eternalTone,
               )}
             >
-              {corridorReadout(compact, HUD_MARK.eternal, copy.eternal, ev.eternalProb)}
+              {corridorReadout(compact, copy.eternal, ev.eternalProb)}
             </button>
             <button
               type="button"
@@ -2602,7 +2600,7 @@ export function UniverseApp() {
                 swarmTone,
               )}
             >
-              {corridorReadout(compact, HUD_MARK.swarm, copy.swarm, ev.swarmProb)}
+              {corridorReadout(compact, copy.swarm, ev.swarmProb)}
             </button>
             {ours && !compact ? (
               <button
@@ -2791,8 +2789,16 @@ export function UniverseApp() {
                       type="button"
                       aria-pressed={stake === id}
                       className={cn(
-                        "min-h-11 rounded-[var(--radius-xs)] px-1 text-center text-xs leading-tight",
-                        stake === id ? "bg-bg-subtle text-fg" : "bg-bg/50 text-fg-subtle",
+                        "min-h-11 rounded-[var(--radius-sm)] px-1 text-center text-xs leading-tight shadow-[var(--shadow-border)]",
+                        stake === id
+                          ? id === "carbon"
+                            ? "bg-life/20 text-life"
+                            : id === "silicon"
+                              ? "bg-silicon/20 text-silicon"
+                              : id === "eternal"
+                                ? "bg-eternal/20 text-eternal"
+                                : "bg-accent/20 text-accent"
+                          : "bg-transparent text-fg-muted",
                       )}
                       onPointerDown={() => setPeek(id)}
                       onPointerUp={() => setPeek(null)}
