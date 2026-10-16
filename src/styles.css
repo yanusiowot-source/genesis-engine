@@ -389,12 +389,18 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  scroll-padding-bottom: 5rem;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--color-fg) 28%, transparent) transparent;
 }
 
 .hud-stack.hidden {
   display: none;
+}
+
+.hud-stack :focus-visible {
+  scroll-margin-top: 0.5rem;
+  scroll-margin-bottom: 5rem;
 }
 
 .hud-stack > [data-hud-band="read"] {

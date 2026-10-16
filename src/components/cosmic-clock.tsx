@@ -171,7 +171,7 @@ export function CosmicClock({
                       lastJump.current = m.id;
                       onChange(epochTickT(m.id));
                     }}
-                    className="pointer-events-auto absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                    className="pointer-events-auto absolute top-1/2 size-6 min-h-[24px] min-w-[24px] -translate-x-1/2 -translate-y-1/2 rounded-full"
                     style={{ left }}
                   >
                     <span
@@ -192,7 +192,7 @@ export function CosmicClock({
                   haptic(8);
                   onChange(now);
                 }}
-                className="pointer-events-auto absolute top-1/2 z-[1] size-5 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                className="pointer-events-auto absolute top-1/2 z-[1] size-6 min-h-[24px] min-w-[24px] -translate-x-1/2 -translate-y-1/2 rounded-full"
                 style={{ left: `${now * 100}%` }}
               >
                 <span

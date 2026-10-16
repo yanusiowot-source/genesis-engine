@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from "lucide-react";
 import {
   adaptiveQuality,
   canvasDpr,
@@ -237,6 +238,7 @@ type Props = {
   scanning?: boolean;
   wakeKey?: number;
   ariaLabel?: string;
+  turnLabel?: { left: string; right: string; up: string; down: string };
   onSkyH0?: (h0Long: number) => void;
 };
 
@@ -267,11 +269,13 @@ export function GalaxyCanvas({
   scanning,
   wakeKey,
   ariaLabel,
+  turnLabel,
   onSkyH0,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gpuCanvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const nudgeRef = useRef<(dx: number, dy: number) => void>(() => {});
   const modelRef = useRef<GalaxyModel | null>(null);
   const cosmicRef = useRef(cosmicTime);
   const timeLiveRef = useRef(timeRef);
@@ -571,6 +575,19 @@ export function GalaxyCanvas({
       if (running) frame = requestAnimationFrame(draw);
     };
     canvas.addEventListener("keydown", onKey);
+    nudgeRef.current = (dx, dy) => {
+      const modeNow = modeRef.current;
+      if (modeNow === "galaxy") turn += dx;
+      else if (modeNow === "planetarium") {
+        yaw += dx;
+        pitch = Math.max(-1.15, Math.min(1.15, pitch + dy));
+      } else return;
+      keys = 4;
+      window.clearTimeout(wait);
+      wait = 0;
+      cancelAnimationFrame(frame);
+      if (running) frame = requestAnimationFrame(draw);
+    };
 
     const onVis = () => {
       hidden = document.hidden;
@@ -2383,6 +2400,50 @@ export function GalaxyCanvas({
         zIndex: 0,
       }}
     />
+      {turnLabel && (mode === "galaxy" || mode === "planetarium") ? (
+        <div
+          className="absolute bottom-3 left-3 z-[3] flex gap-1"
+          role="group"
+          aria-label={ariaLabel}
+        >
+          <button
+            type="button"
+            className="inline-flex size-11 min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-bg/75 text-fg shadow-[var(--shadow-border)]"
+            aria-label={turnLabel.left}
+            onClick={() => nudgeRef.current(mode === "galaxy" ? -0.35 : -0.2, 0)}
+          >
+            <ChevronLeft className="size-4" aria-hidden />
+          </button>
+          <button
+            type="button"
+            className="inline-flex size-11 min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-bg/75 text-fg shadow-[var(--shadow-border)]"
+            aria-label={turnLabel.right}
+            onClick={() => nudgeRef.current(mode === "galaxy" ? 0.35 : 0.2, 0)}
+          >
+            <ChevronRight className="size-4" aria-hidden />
+          </button>
+          {mode === "planetarium" ? (
+            <>
+              <button
+                type="button"
+                className="inline-flex size-11 min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-bg/75 text-fg shadow-[var(--shadow-border)]"
+                aria-label={turnLabel.up}
+                onClick={() => nudgeRef.current(0, -0.16)}
+              >
+                <ChevronUp className="size-4" aria-hidden />
+              </button>
+              <button
+                type="button"
+                className="inline-flex size-11 min-h-[24px] min-w-[24px] items-center justify-center rounded-full bg-bg/75 text-fg shadow-[var(--shadow-border)]"
+                aria-label={turnLabel.down}
+                onClick={() => nudgeRef.current(0, 0.16)}
+              >
+                <ChevronDown className="size-4" aria-hidden />
+              </button>
+            </>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }

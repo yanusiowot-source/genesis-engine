@@ -57,6 +57,10 @@ export type Copy = {
   birthGood: string;
   tapSky: string;
   skyKeys: string;
+  skyLeft: string;
+  skyRight: string;
+  skyUp: string;
+  skyDown: string;
   scanning: string;
   plot: {
     arrive: string;
@@ -794,6 +798,10 @@ const en: Copy = {
   birthGood: "And I saw that it was good.",
   tapSky: "The disk flashed. Look. There is nowhere to land.",
   skyKeys: "Arrow keys turn this sky.",
+  skyLeft: "Turn left",
+  skyRight: "Turn right",
+  skyUp: "Look up",
+  skyDown: "Look down",
   scanning: "Survey of 64 skies. Most stay empty.",
   plot: {
     arrive: "First plate. This sky is not saved until you keep it in the log.",

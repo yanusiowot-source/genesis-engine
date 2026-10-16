@@ -2258,6 +2258,7 @@ export function UniverseApp() {
           wakeKey={wakeKey}
           onSkyH0={setSkyH0}
           ariaLabel={`${copy.appName} · ${copy.tabs.sky}. ${copy.skyKeys}`}
+          turnLabel={{ left: copy.skyLeft, right: copy.skyRight, up: copy.skyUp, down: copy.skyDown }}
         />
         {birthFlash ? (
           <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" data-fate={impactFate} />
