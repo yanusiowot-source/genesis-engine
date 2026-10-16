@@ -2284,8 +2284,8 @@ export function UniverseApp() {
         </div>
 
         <header className={cn("arrive relative z-10 row-start-1 w-full min-w-0 shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pointer-events-none sm:px-8", onboard && "hidden")}>
-          <div className="glass glass-clear pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-[var(--radius-xl)] px-3 py-1.5 sm:gap-3 sm:px-4">
-          <div className="min-w-0 flex-1 pr-2">
+          <div className="glass glass-clear pointer-events-auto flex w-full min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 rounded-[var(--radius-xl)] px-3 py-1.5 sm:gap-x-3 sm:px-4">
+          <div className="min-w-[min(100%,12rem)] flex-1 basis-[12rem] pr-2">
             <button
               type="button"
               className="sky-ink glass-ink block w-full min-w-0 truncate bg-transparent p-0 text-left font-mono text-[0.65rem] leading-snug tracking-[0.04em] text-fg uppercase sm:text-xs"
@@ -2316,7 +2316,7 @@ export function UniverseApp() {
               </button>
             </h1>
           </div>
-          <div className="flex shrink-0 items-center justify-end gap-0.5">
+          <div className="flex max-w-full flex-wrap items-center justify-end gap-0.5">
             <Button
               variant="ghost"
               size="icon"
@@ -2797,7 +2797,7 @@ export function UniverseApp() {
                 <p className="px-1.5 pt-1 text-pretty text-xs leading-relaxed text-fg-muted">
                   {stake ? copy.stakeOn[stake] : copy.stakeAsk}
                 </p>
-                <div className="mt-1.5 grid grid-cols-4 gap-1">
+                <div className="mt-1.5 flex flex-wrap gap-1">
                   {(
                     [
                       ["carbon", copy.carbon],
@@ -2811,7 +2811,7 @@ export function UniverseApp() {
                       type="button"
                       aria-pressed={stake === id}
                       className={cn(
-                        "min-h-11 rounded-[var(--radius-sm)] px-1 text-center text-xs leading-tight shadow-[var(--shadow-border)]",
+                        "min-h-11 min-w-[min(100%,7.5rem)] flex-1 basis-[7.5rem] rounded-[var(--radius-sm)] px-1 text-center text-xs leading-tight shadow-[var(--shadow-border)]",
                         stake === id
                           ? id === "carbon"
                             ? "bg-life/20 text-life"
@@ -2838,8 +2838,8 @@ export function UniverseApp() {
                 </div>
               </div>
             ) : null}
-            <div className="sky-actions flex flex-row items-start gap-2">
-            <div className="hud-actions min-w-0 flex-1">
+            <div className="sky-actions flex min-w-0 flex-wrap items-start gap-2">
+            <div className="hud-actions min-w-[min(100%,16rem)] flex-1 basis-[16rem]">
             <Button
               onClick={birth}
               className={cn("shrink-0", nudgeBirth && "nudge-ring")}
