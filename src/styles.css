@@ -80,6 +80,7 @@
   --motion-scale-modal: 0.96;
   --motion-scale-menu: 0.97;
   --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-glide: cubic-bezier(0.45, 0, 0.15, 1);
   --ease-in-out: ease-in-out;
 }
 
@@ -370,7 +371,7 @@
   z-index: 0;
   min-height: 0;
   overflow: hidden;
-  transition: box-shadow var(--motion-medium) var(--ease-out);
+  transition: box-shadow 520ms var(--ease-glide);
 }
 
 .sky-field[data-stake="carbon"] {
@@ -582,7 +583,7 @@ html.contrast .glass {
 }
 
 .overlay-sheet {
-  animation: sheet-up var(--motion-slow) var(--ease-smooth-out) both;
+  animation: sheet-up 520ms var(--ease-glide) both;
   overscroll-behavior: contain;
 }
 
@@ -612,11 +613,22 @@ html.contrast .glass {
 }
 
 .hud-swap {
-  animation: rise-in var(--motion-fast) var(--ease-smooth-out) both;
+  animation: view-in 480ms var(--ease-glide) both;
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0.72;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .view-swap {
-  animation: rise-in var(--motion-medium) var(--ease-smooth-out) both;
+  animation: view-in 560ms var(--ease-glide) both;
 }
 
 .epoch-ink {
@@ -632,13 +644,13 @@ html.contrast .glass {
 
 .seg-pill[data-ready="1"] {
   transition-property: transform, width, height;
-  transition-duration: var(--motion-fast);
-  transition-timing-function: var(--ease-smooth-out);
+  transition-duration: 420ms;
+  transition-timing-function: var(--ease-glide);
 }
 
 .panel-slide {
   transform: translateX(100%);
-  transition: transform var(--motion-slow) var(--ease-smooth-out);
+  transition: transform 560ms var(--ease-glide);
 }
 
 .panel-slide[data-open="true"] {
@@ -648,7 +660,7 @@ html.contrast .glass {
 .scrim-fade {
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--motion-fast) var(--ease-out);
+  transition: opacity 480ms var(--ease-glide);
 }
 
 .scrim-fade[data-open="true"] {
