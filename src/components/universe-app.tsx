@@ -2940,13 +2940,13 @@ export function UniverseApp() {
                   onChange={setLabPane}
                 />
               </Suspense>
-              <p className="mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
+              <p key={labPane} className="view-swap mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
                 {copy.labPaneHint[labPane]}
               </p>
             </div>
           ) : null}
         </div>
-        <div className="flex min-h-0 flex-col gap-6">
+        <div key={tab === "lab" ? labPane : tab} className="view-swap flex min-h-0 flex-col gap-6">
           {tab === "log" ? (
             <Suspense fallback={<FoldLoad line={loadLine(locale)} />}>
             <LogList
