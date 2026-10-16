@@ -1085,7 +1085,7 @@ export function UniverseApp() {
       window.clearTimeout(scanTimer.current);
       setScanning(false);
       setEncounter(null);
-      birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 520);
+      birthFlashTimer.current = window.setTimeout(() => setBirthFlash(false), 640);
       if (sealed[0]) flashEgg(copy.mandate.flash[sealed[0]], 4000);
       else if (atlasLine) flashEgg(atlasLine, 4000);
       const found =
@@ -2271,7 +2271,12 @@ export function UniverseApp() {
           nudgeRef={skyNudge}
         />
         {birthFlash ? (
-          <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" data-fate={impactFate} />
+          <div
+            key={impactKey}
+            aria-hidden
+            className="birth-flash pointer-events-none absolute inset-0 z-[3]"
+            data-fate={impactFate}
+          />
         ) : null}
         {hydrated && catalogOverlay && catalog && catalog.ok ? (
           <Suspense fallback={<SlowLoad locale={locale} />}>
