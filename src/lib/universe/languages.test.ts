@@ -262,7 +262,7 @@ describe("copyFor", () => {
     assert.match(PAY_BTC, /^bc1q/);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#keep"), true);
     assert.equal(isKeepHash("https://yanusiowot-source.github.io/genesis-lab/#about"), false);
-    assert.equal(APP_VERSION, "1.93.0");
+    assert.equal(APP_VERSION, "1.94.0");
     const root = join(dirname(fileURLToPath(import.meta.url)), "../../..");
     const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8")) as { version: string };
     const desktop = JSON.parse(readFileSync(join(root, "desktop/package.json"), "utf8")) as {
@@ -272,10 +272,10 @@ describe("copyFor", () => {
       version: string;
       packages: { "": { version: string } };
     };
-    assert.equal(pkg.version, "1.93.0");
-    assert.equal(desktop.version, "1.93.0");
-    assert.equal(lock.version, "1.93.0");
-    assert.equal(lock.packages[""].version, "1.93.0");
+    assert.equal(pkg.version, "1.94.0");
+    assert.equal(desktop.version, "1.94.0");
+    assert.equal(lock.version, "1.94.0");
+    assert.equal(lock.packages[""].version, "1.94.0");
     assert.equal(APP_VERSION, pkg.version);
     const about = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../../public/about/index.html"),

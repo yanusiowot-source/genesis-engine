@@ -14,7 +14,7 @@ export function SkyModes({ copy, mode, onChange, collapseLabel = false }: Props)
   return (
     <div className="sky-modes glass glass-clear pointer-events-auto w-full min-w-0 max-w-full overflow-hidden rounded-[var(--radius-xl)]">
     <Segmented
-      className="h-auto w-full min-w-0 flex-wrap bg-transparent text-xs sm:h-11 sm:flex-nowrap sm:text-sm"
+      className="h-auto w-full min-w-0 max-w-full flex-wrap bg-transparent text-xs sm:text-sm"
       ariaLabel={copy.obs.modesLabel}
       value={mode}
       onChange={onChange}

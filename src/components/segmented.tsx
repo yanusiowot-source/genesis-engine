@@ -143,7 +143,7 @@ export function Segmented<T extends string>({
                 : cn(
                   "min-h-0 min-w-0 gap-1 px-1.5",
                   wrap
-                    ? "h-auto min-h-11 w-[calc(50%-0.125rem)] flex-none py-1.5 text-xs sm:h-11 sm:w-auto sm:flex-1 sm:py-0 sm:text-sm"
+                    ? "h-auto min-h-11 w-[calc(50%-0.125rem)] max-w-full flex-none py-1.5 text-xs sm:w-auto sm:min-w-[9rem] sm:max-w-full sm:flex-1 sm:basis-[9rem] sm:py-1.5 sm:text-sm"
                     : scroll
                       ? "h-11 shrink-0"
                       : "h-11 flex-1",

@@ -2563,8 +2563,8 @@ export function GalaxyCanvas({
         zIndex: 0,
       }}
     />
-      <div className="pointer-events-none absolute top-2 left-2 z-[4] flex max-w-[calc(100%-1rem)] flex-col items-start gap-1.5">
-        <div className="pointer-events-auto flex flex-wrap gap-1">
+      <div className="pointer-events-none absolute top-2 left-2 z-[4] flex w-[calc(100%-1rem)] max-w-full flex-col items-start gap-1.5 overflow-x-clip">
+        <div className="pointer-events-auto flex max-w-full flex-wrap gap-1">
           <button
             type="button"
             className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
