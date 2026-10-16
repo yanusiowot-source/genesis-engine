@@ -44,6 +44,22 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body>
+        <div id="boot" role="status" aria-live="polite">
+          <div className="boot-card">
+            <p className="boot-name">Genesis</p>
+            <p className="boot-line" id="boot-line" suppressHydrationWarning>
+              Loading
+            </p>
+            <div className="boot-track" aria-hidden="true">
+              <span className="boot-bar" />
+            </div>
+          </div>
+        </div>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(()=>{var l="";try{l=localStorage.getItem("genesis-engine-locale")||""}catch(e){}var t=l==="ru"?"Небо ещё собирается":l==="be"?"Неба яшчэ збіраецца":"The sky is still gathering";var n=document.getElementById("boot-line");if(n)n.textContent=t;window.__bootAt=performance.now();})();`,
+          }}
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(()=>{var h=${JSON.stringify(FONT_HREF)};var l=document.createElement("link");l.rel="stylesheet";l.href=h;l.media="print";l.onload=function(){this.media="all"};document.head.appendChild(l);})();`,

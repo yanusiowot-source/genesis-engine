@@ -21,11 +21,11 @@ export function LabPanes({ copy, pane, onChange, nudge = null }: Props) {
       onChange={onChange}
       nudge={nudge}
       items={[
-        { id: "constants", label: copy.labPanes.constants, title: copy.labPaneHint.constants, icon: FlaskConical },
-        { id: "hunt", label: copy.labPanes.hunt, title: copy.labPaneHint.hunt, icon: ScanSearch },
-        { id: "life", label: copy.labPanes.life, title: copy.labPaneHint.life, icon: Orbit },
-        { id: "laws", label: copy.labPanes.laws, title: copy.labPaneHint.laws, icon: Sigma },
-        { id: "desk", label: copy.labPanes.desk, title: copy.labPaneHint.desk, icon: FileOutput },
+        { id: "constants", label: copy.labPanes.constants, icon: FlaskConical },
+        { id: "hunt", label: copy.labPanes.hunt, icon: ScanSearch },
+        { id: "life", label: copy.labPanes.life, icon: Orbit },
+        { id: "laws", label: copy.labPanes.laws, icon: Sigma },
+        { id: "desk", label: copy.labPanes.desk, icon: FileOutput },
       ]}
     />
   );

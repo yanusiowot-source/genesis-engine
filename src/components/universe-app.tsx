@@ -311,7 +311,37 @@ function SkyLine({
   );
 }
 
-function Fold({ title, children }: { title: string; children: ReactNode }) {
+function loadLine(locale: string) {
+  if (locale === "ru") return "Небо ещё собирается";
+  if (locale === "be") return "Неба яшчэ збіраецца";
+  return "The sky is still gathering";
+}
+
+function FoldLoad({ line }: { line: string }) {
+  return (
+    <div className="boot-fold" role="status">
+      <p className="boot-line">{line}</p>
+      <div className="boot-track" aria-hidden="true">
+        <span className="boot-bar boot-bar-sheet" />
+      </div>
+    </div>
+  );
+}
+
+function SlowLoad({ locale }: { locale: string }) {
+  return (
+    <div className="boot-sheet" role="status">
+      <div className="boot-card">
+        <p className="boot-line">{loadLine(locale)}</p>
+        <div className="boot-track" aria-hidden="true">
+          <span className="boot-bar boot-bar-sheet" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Fold({ title, loading, children }: { title: string; loading: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
     <details
@@ -327,7 +357,7 @@ function Fold({ title, children }: { title: string; children: ReactNode }) {
         <ChevronDown className="size-4 shrink-0 text-fg-subtle transition-transform duration-[var(--motion-quick)] ease-[var(--ease-out)] group-open:rotate-180" />
       </summary>
       {open ? (
-        <Suspense fallback={<div className="min-h-11 border-t border-border" />}>
+        <Suspense fallback={<FoldLoad line={loading} />}>
           <div className="flex flex-col gap-6 border-t border-border px-3 py-4">{children}</div>
         </Suspense>
       ) : null}
@@ -874,6 +904,19 @@ export function UniverseApp() {
       releaseAudio();
     };
   }, []);
+
+  useEffect(() => {
+    if (!hydrated) return;
+    const started = (window as Window & { __bootAt?: number }).__bootAt ?? performance.now();
+    const elapsed = performance.now() - started;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const wait = reduce ? 0 : Math.max(280, 1700 - elapsed);
+    const id = window.setTimeout(() => {
+      document.documentElement.dataset.boot = "done";
+      document.getElementById("boot")?.setAttribute("aria-hidden", "true");
+    }, wait);
+    return () => window.clearTimeout(id);
+  }, [hydrated]);
 
   useEffect(() => {
     if (hydrated) void saveArchive(archive);
@@ -1947,7 +1990,7 @@ export function UniverseApp() {
           <BiospherePanel copy={copy} params={current.params} evaluation={ev} />
           <div className="h-px bg-border" />
           {hydrated ? (
-            <Fold title={copy.citizen.title}>
+            <Fold title={copy.citizen.title} loading={loadLine(locale)}>
               <CitizenPanel
                 copy={copy}
                 params={current.params}
@@ -2096,13 +2139,13 @@ export function UniverseApp() {
             </div>
           </div>
 
-          <Fold title={copy.foldSculpt}>
+          <Fold title={copy.foldSculpt} loading={loadLine(locale)}>
             {hydrated ? (
               <ParamSliders copy={copy} params={current.params} onChange={setParams} />
             ) : null}
           </Fold>
 
-          <Fold title={copy.foldCorridors}>
+          <Fold title={copy.foldCorridors} loading={loadLine(locale)}>
             <LifeFactors copy={copy} evaluation={ev} />
             <SiliconPanel
               copy={copy}
@@ -2133,7 +2176,7 @@ export function UniverseApp() {
             />
           </Fold>
 
-          <Fold title={copy.foldObs}>
+          <Fold title={copy.foldObs} loading={loadLine(locale)}>
             <AstroPanel copy={copy} params={current.params} evaluation={ev} cosmicTime={liveTime} />
             <HubblePanel copy={copy} params={current.params} evaluation={ev} />
             <HaloPanel copy={copy} params={current.params} evaluation={ev} />
@@ -2203,8 +2246,8 @@ export function UniverseApp() {
           onVoyager={() => flashEgg(copy.eggs.voyager)}
           onTau={armTau}
           className="absolute inset-0 z-0 h-full w-full"
-          relaxed={tab !== "sky" || (overlayOpen && !onboard)}
-          paused={(overlayOpen && !onboard) || (panelOpen && compact)}
+          relaxed={tab !== "sky" || overlayOpen}
+          paused={overlayOpen || (panelOpen && compact)}
           scanning={scanning}
           wakeKey={wakeKey}
           onSkyH0={setSkyH0}
@@ -2214,7 +2257,7 @@ export function UniverseApp() {
           <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" data-fate={impactFate} />
         ) : null}
         {hydrated && catalogOverlay && catalog && catalog.ok ? (
-          <Suspense fallback={null}>
+          <Suspense fallback={<SlowLoad locale={locale} />}>
             <CatalogOverlay
               copy={copy}
               catalog={catalog}
@@ -2793,7 +2836,7 @@ export function UniverseApp() {
           </div>
           {tab === "lab" ? (
             <div className="mt-3">
-              <Suspense fallback={null}>
+              <Suspense fallback={<FoldLoad line={loadLine(locale)} />}>
                 <LabPanes
                   copy={copy}
                   pane={labPane}
@@ -2809,7 +2852,7 @@ export function UniverseApp() {
         </div>
         <div className="flex min-h-0 flex-col gap-6">
           {tab === "log" ? (
-            <Suspense fallback={<p className="text-sm text-fg-muted">{copy.writing}</p>}>
+            <Suspense fallback={<FoldLoad line={loadLine(locale)} />}>
             <LogList
               copy={copy}
               locale={locale}
@@ -2826,7 +2869,7 @@ export function UniverseApp() {
             />
             </Suspense>
           ) : tab === "lab" ? (
-            <Suspense fallback={<p className="text-sm text-fg-muted">{copy.writing}</p>}>
+            <Suspense fallback={<FoldLoad line={loadLine(locale)} />}>
               {lab}
             </Suspense>
           ) : null}
@@ -2851,7 +2894,7 @@ export function UniverseApp() {
       {onboard && !settingsOpen && !helpOpen && !installOpen && !keepOpen && !siliconOpen && !eternalOpen && !swarmOpen && !scriptureOpen ? (
         <Onboarding copy={copy} locale={locale} onLocale={toggleLocale} onDone={finishOnboard} />
       ) : null}
-      <Suspense fallback={null}>
+      <Suspense fallback={<SlowLoad locale={locale} />}>
       {installOpen ? (
         <InstallSheet
           copy={copy}

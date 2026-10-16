@@ -46,7 +46,14 @@ export function Segmented<T extends string>({
     if (!root) return;
     const el = root.querySelector<HTMLElement>(`[data-seg="${CSS.escape(value)}"]`);
     if (!el) return;
-    const next = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight };
+    const rootBox = root.getBoundingClientRect();
+    const box = el.getBoundingClientRect();
+    const next = {
+      x: box.left - rootBox.left,
+      y: box.top - rootBox.top,
+      w: box.width,
+      h: box.height,
+    };
     setPill(next);
     setReady(true);
   }, [value]);
@@ -85,7 +92,7 @@ export function Segmented<T extends string>({
     >
       <span
         aria-hidden
-        className="seg-pill pointer-events-none absolute rounded-[var(--radius-lg)] bg-white/12 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]"
+        className="seg-pill pointer-events-none absolute left-0 top-0 rounded-[var(--radius-lg)] bg-white/12 shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]"
         data-ready={ready ? "1" : "0"}
         style={{
           width: pill.w,
@@ -103,7 +110,7 @@ export function Segmented<T extends string>({
             data-seg={id}
             aria-selected={active}
             aria-label={label}
-            title={title ?? label}
+            title={title}
             onClick={() => {
               haptic(8);
               onChange(id);
@@ -113,7 +120,10 @@ export function Segmented<T extends string>({
               "rounded-[var(--radius-xs)] text-sm font-medium",
               "transition-[color] duration-[var(--motion-quick)] ease-[var(--ease-out)]",
               stacked
-                ? cn("min-w-0 flex-1 flex-col gap-0.5 px-0.5", collapseLabel ? "h-11 sm:h-12" : "h-12")
+                ? cn(
+                    "h-auto min-h-12 min-w-0 flex-1 flex-col gap-0.5 px-1 py-1.5",
+                    collapseLabel && "h-11 py-0 sm:h-auto sm:min-h-12 sm:py-1.5",
+                  )
                 : cn(
                   "min-h-0 min-w-0 gap-1 px-1.5",
                   wrap
@@ -130,8 +140,8 @@ export function Segmented<T extends string>({
             <Icon className={stacked ? "size-5" : "size-4"} strokeWidth={active ? 2.2 : 1.8} />
             <span
               className={cn(
-                wrap ? "whitespace-normal text-center leading-tight" : "min-w-0 max-w-full truncate",
-                collapseLabel && "hidden sm:inline",
+                wrap ? "whitespace-normal text-center leading-tight" : "min-w-0 max-w-full truncate text-center leading-tight",
+                collapseLabel && "hidden sm:block",
               )}
             >
               {label}

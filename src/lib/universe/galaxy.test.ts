@@ -121,6 +121,8 @@ describe("buildGalaxy", () => {
     assert.match(canvas, /onSkyH0Ref\.current\?\.\(built\.model\.h0Long\)/);
     assert.match(canvas, /const waitLeft = lastPaint \? minGap - \(t - lastPaint\) : 0/);
     assert.match(canvas, /schedule\(waitLeft\)/);
+    assert.match(canvas, /if \(ms >= 80\)/);
+    assert.match(canvas, /spin \+= Math\.min\(dt, 1 \/ 30\)/);
     assert.match(canvas, /else if \(canvas\.dataset\.encX \|\| canvas\.dataset\.encY\)/);
     assert.match(canvas, /if \(canvas\.style\.cursor !== cursor\) canvas\.style\.cursor = cursor/);
   });

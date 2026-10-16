@@ -240,6 +240,9 @@ type Props = {
   onSkyH0?: (h0Long: number) => void;
 };
 
+/** Frame clock. A hot preview drops the previous loop when this changes. */
+const SKY_CLOCK = 2;
+
 export function GalaxyCanvas({
   params,
   evaluation,
@@ -360,6 +363,7 @@ export function GalaxyCanvas({
     let w = 0;
     let h = 0;
     let lastT = 0;
+    let spin = 0;
     let armedKey = collisionKeyRef.current;
     let collisionT = modeRef.current === "collision" ? 1 : 0;
     let yaw = 0.12;
@@ -1644,7 +1648,8 @@ export function GalaxyCanvas({
       window.clearTimeout(wait);
       wait = 0;
       cancelAnimationFrame(frame);
-      if (ms > 0) {
+      // A short timer fires late: the disk sits, then the next paint skips the stall.
+      if (ms >= 80) {
         wait = window.setTimeout(() => {
           wait = 0;
           if (running) frame = requestAnimationFrame(draw);
@@ -1657,7 +1662,7 @@ export function GalaxyCanvas({
     const draw = (t: number) => {
       if (!running) return;
       const rest = hidden || pausedRef.current;
-      if (rest && painted) {
+      if (rest) {
         schedule(hidden ? 400 : 280);
         return;
       }
@@ -1704,7 +1709,7 @@ export function GalaxyCanvas({
                   ? 16
                   : 0;
       const waitLeft = lastPaint ? minGap - (t - lastPaint) : 0;
-      if (minGap && waitLeft > 0) {
+      if (minGap && waitLeft > 8) {
         schedule(waitLeft);
         return;
       }
@@ -1734,6 +1739,7 @@ export function GalaxyCanvas({
       const model = modelRef.current;
       const dt = lastT ? Math.min(0.05, (t - lastT) / 1000) : 0.016;
       lastT = t;
+      if (!reducedRef.current) spin += Math.min(dt, 1 / 30);
       if (!model) {
         ctx.fillStyle = "#09061a";
         ctx.fillRect(0, 0, Math.max(w, 1), Math.max(h, 1));
@@ -1811,7 +1817,7 @@ export function GalaxyCanvas({
         shook = true;
       }
       trauma = Math.max(0, trauma - dt * 1.85);
-      const time = reducedRef.current ? 0 : t / 1000;
+      const time = reducedRef.current ? 0 : spin;
       const targetT = (timeLiveRef.current ?? cosmicRef).current;
       if (reducedRef.current) visualT = targetT;
       else visualT += (targetT - visualT) * (1 - Math.exp(-2.4 * dt));
@@ -2284,7 +2290,7 @@ export function GalaxyCanvas({
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("pointercancel", onUp);
     };
-  }, []);
+  }, [SKY_CLOCK]);
 
   return (
     <div

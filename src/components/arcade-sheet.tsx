@@ -708,8 +708,8 @@ function tileInk(n: number): CSSProperties {
     color: dark ? "#1a1424" : "#f4efe8",
     boxShadow:
       n >= 2048
-        ? "0 0 18px rgba(240,215,138,0.55), inset 0 1px 0 rgba(255,255,255,0.7), 0 6px 10px rgba(0,0,0,0.28)"
-        : "inset 0 1px 0 rgba(255,255,255,0.38), 0 4px 8px rgba(0,0,0,0.22)",
+        ? "inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(0,0,0,0.45), 0 0 0 1px rgba(240,215,138,0.45)"
+        : "inset 0 1px 0 rgba(255,255,255,0.38), 0 1px 2px rgba(0,0,0,0.4)",
     textShadow: dark ? "0 1px 0 rgba(255,255,255,0.28)" : "0 1px 1px rgba(0,0,0,0.38)",
     fontSize: n >= 1024 ? "0.78em" : "1em",
   };
@@ -740,6 +740,12 @@ function TileBoard({ cells, motion }: { cells: number[]; motion: TileMotion | nu
     });
   };
 
+  useEffect(() => {
+    if (!pieces.some((piece) => piece.ox || piece.oy || piece.ghost || piece.mergeTo)) return;
+    const id = window.setTimeout(finish, 140);
+    return () => window.clearTimeout(id);
+  }, [pieces]);
+
   return (
     <div
       className="relative"
@@ -752,63 +758,61 @@ function TileBoard({ cells, motion }: { cells: number[]; motion: TileMotion | nu
         overflow: "hidden",
       }}
     >
-      <div
-        aria-hidden
-        className="absolute inset-0 grid gap-1.5 p-1.5"
-        style={{
-          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-          gridTemplateRows: "repeat(4, minmax(0, 1fr))",
-        }}
-      >
-        {Array.from({ length: 16 }, (_, i) => (
+      {Array.from({ length: 16 }, (_, i) => (
+        <div
+          key={i}
+          aria-hidden
+          className="rounded-[var(--radius-xs)]"
+          style={{
+            ...tilePlace(i % 4, Math.floor(i / 4)),
+            background: "rgba(244,239,232,0.045)",
+            boxShadow: "inset 0 2px 5px rgba(0,0,0,0.35)",
+          }}
+        />
+      ))}
+      {pieces.map((piece) => (
+        <div
+          key={`${piece.id}-${piece.x}-${piece.y}-${piece.ox}-${piece.oy}`}
+          className={cn("game-tile", (piece.ox || piece.oy) && "is-slide")}
+          style={{
+            ...tilePlace(piece.x, piece.y),
+            zIndex: piece.ghost ? 1 : 2,
+            ["--from-x" as string]: `calc(${piece.ox} * (100% + ${TILE_GAP}))`,
+            ["--from-y" as string]: `calc(${piece.oy} * (100% + ${TILE_GAP}))`,
+          }}
+          onAnimationEnd={(event) => {
+            if (event.animationName !== "game-slide") return;
+            finish();
+          }}
+        >
           <div
-            key={i}
-            className="rounded-[var(--radius-xs)]"
-            style={{
-              background: "rgba(244,239,232,0.045)",
-              boxShadow: "inset 0 2px 5px rgba(0,0,0,0.35)",
-            }}
-          />
-        ))}
-      </div>
-      <div
-        className="absolute inset-0 grid gap-1.5 p-1.5"
-        style={{
-          gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
-          gridTemplateRows: "repeat(4, minmax(0, 1fr))",
-        }}
-      >
-        {pieces.map((piece) => (
-          <div
-            key={`${piece.id}-${piece.x}-${piece.y}`}
-            className={cn("game-tile relative min-h-0 min-w-0", (piece.ox || piece.oy) && "is-slide")}
-            style={{
-              gridColumn: piece.x + 1,
-              gridRow: piece.y + 1,
-              zIndex: piece.ghost ? 1 : 2,
-              ["--from-x" as string]: `calc(${piece.ox} * (100% + 0.375rem))`,
-              ["--from-y" as string]: `calc(${piece.oy} * (100% + 0.375rem))`,
-            }}
-            onAnimationEnd={(event) => {
-              if (event.animationName !== "game-slide") return;
-              finish();
-            }}
+            className={cn(
+              "game-face absolute inset-[2px] flex items-center justify-center rounded-[var(--radius-xs)] font-mono font-semibold tabular-nums text-[clamp(0.8rem,5.2cqmin,1.35rem)]",
+              piece.fresh && "is-born",
+              piece.pop && "is-pop",
+            )}
+            style={tileInk(piece.value)}
           >
-            <div
-              className={cn(
-                "game-face absolute inset-0 flex items-center justify-center rounded-[var(--radius-xs)] font-mono font-semibold tabular-nums text-[clamp(0.8rem,18cqmin,1.4rem)]",
-                piece.fresh && "is-born",
-                piece.pop && "is-pop",
-              )}
-              style={tileInk(piece.value)}
-            >
-              {piece.value}
-            </div>
+            {piece.value}
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
     </div>
   );
+}
+
+const TILE_PAD = "0.375rem";
+const TILE_GAP = "0.375rem";
+const TILE_CELL = `calc((100% - ${TILE_PAD} * 2 - ${TILE_GAP} * 3) / 4)`;
+
+function tilePlace(x: number, y: number): CSSProperties {
+  return {
+    position: "absolute",
+    width: TILE_CELL,
+    height: TILE_CELL,
+    left: `calc(${TILE_PAD} + ${x} * (${TILE_CELL} + ${TILE_GAP}))`,
+    top: `calc(${TILE_PAD} + ${y} * (${TILE_CELL} + ${TILE_GAP}))`,
+  };
 }
 
 function snakeTags(
