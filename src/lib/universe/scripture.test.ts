@@ -14,7 +14,7 @@ import {
 } from "./scripture.ts";
 
 describe("scripture canon", () => {
-  it("stays off the first frame until a wide sky asks for the line", () => {
+  it("stays off the first frame, then sits in its own band", () => {
     const app = readFileSync(
       join(dirname(fileURLToPath(import.meta.url)), "../../components/universe-app.tsx"),
       "utf8",
@@ -23,7 +23,8 @@ describe("scripture canon", () => {
     assert.doesNotMatch(app, /import \{ ScriptureLine \}/);
     assert.match(app, /import\("@\/lib\/universe\/scripture"\)/);
     assert.match(app, /import\("@\/components\/scripture-line"\)/);
-    assert.match(app, /min-width: 640px/);
+    assert.match(app, /data-hud-band="scripture"/);
+    assert.doesNotMatch(app, /min-width: 640px/);
   });
 
   it("has unique ids and gateway queries", () => {

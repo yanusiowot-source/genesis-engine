@@ -16,14 +16,14 @@ export function ScriptureLine({ copy, locale, passage, onOpen }: Props) {
       data-scripture={passage.id}
       onClick={onOpen}
       aria-label={`${copy.scripture.open}. ${passageRef(passage, locale)}`}
-      className="scripture-line mt-1 flex min-h-11 w-full max-w-md items-center gap-2 rounded-[var(--radius-sm)] bg-transparent p-0 text-left"
+      className="scripture-line flex min-h-11 w-full items-start gap-2.5 rounded-[var(--radius-lg)] bg-bg-elevated/80 px-3 py-2 text-left shadow-[var(--shadow-border)]"
     >
-      <BookOpen className="size-3.5 shrink-0 text-fg-subtle" aria-hidden />
-      <span className="min-w-0">
-        <span className="block font-display text-sm leading-snug text-pretty text-fg italic line-clamp-2">
+      <BookOpen className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
+      <span className="min-w-0 flex-1">
+        <span className="scripture-quote block font-display text-sm leading-snug text-pretty text-fg italic line-clamp-2">
           {passageLine(passage, locale)}
         </span>
-        <span className="mt-0.5 block font-mono text-xs tracking-[0.12em] text-fg-muted uppercase">
+        <span className="scripture-ref mt-0.5 block font-mono text-xs tracking-[0.12em] text-fg-muted uppercase">
           {passageRef(passage, locale)}
         </span>
       </span>

@@ -427,9 +427,14 @@
 .hud-stack > [data-hud-band="read"] {
   min-height: 0;
   min-width: 0;
-  max-height: 5.25rem;
+  max-height: 7.5rem;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.hud-stack > [data-hud-band="scripture"] {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .hud-stack > [data-hud-band="clock"],
@@ -773,8 +778,9 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 }
 
 @media (max-height: 700px) {
-  .scripture-line {
-    display: none !important;
+  .scripture-quote {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
   }
 
   [data-hud-mandate] {

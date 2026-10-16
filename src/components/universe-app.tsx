@@ -1911,25 +1911,18 @@ export function UniverseApp() {
   }, [evolving, cosmicTime]);
   useEffect(() => {
     if (!scriptureOn) return;
-    const wide = window.matchMedia("(min-width: 640px)");
     let dead = false;
-    const load = () => {
-      if (!wide.matches) return;
-      if (pickPassageRef.current) {
-        setScriptureReady(true);
-        return;
-      }
-      void import("@/lib/universe/scripture").then(({ pickPassage }) => {
-        if (dead) return;
-        pickPassageRef.current = pickPassage;
-        setScriptureReady(true);
-      });
-    };
-    load();
-    wide.addEventListener("change", load);
+    if (pickPassageRef.current) {
+      setScriptureReady(true);
+      return;
+    }
+    void import("@/lib/universe/scripture").then(({ pickPassage }) => {
+      if (dead) return;
+      pickPassageRef.current = pickPassage;
+      setScriptureReady(true);
+    });
     return () => {
       dead = true;
-      wide.removeEventListener("change", load);
     };
   }, [scriptureOn]);
   const passage = useMemo(() => {
@@ -2476,6 +2469,18 @@ export function UniverseApp() {
             <div className="h-14" />
           )}
           </div>
+          {hydrated && scriptureOn && tab === "sky" && passage ? (
+            <div className="arrive arrive-5" data-hud-band="scripture">
+              <Suspense fallback={null}>
+                <ScriptureLine
+                  copy={copy}
+                  locale={locale}
+                  passage={passage}
+                  onOpen={openCanon}
+                />
+              </Suspense>
+            </div>
+          ) : null}
           <div className="arrive arrive-5" data-hud-band="read">
           <p className="sky-ink mt-1.5 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase" data-hud-catalog>
             {current.catalog}
@@ -2488,18 +2493,6 @@ export function UniverseApp() {
               </>
             ) : null}
           </p>
-          {hydrated && scriptureOn && tab === "sky" && passage ? (
-            <div className="hidden sm:block">
-              <Suspense fallback={null}>
-                <ScriptureLine
-                  copy={copy}
-                  locale={locale}
-                  passage={passage}
-                  onOpen={openCanon}
-                />
-              </Suspense>
-            </div>
-          ) : null}
           {isAnswerCatalog(current.catalog) ? (
             <p className="mt-1 max-w-md text-pretty text-xs leading-relaxed text-accent line-clamp-1">{copy.eggs.answer}</p>
           ) : null}
