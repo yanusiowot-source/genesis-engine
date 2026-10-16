@@ -329,6 +329,25 @@
   display: none;
 }
 
+@media (max-width: 639px) {
+  [data-hud-band="actions"] .sky-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  [data-hud-band="actions"] .sky-actions > .hud-actions {
+    display: contents;
+  }
+
+  [data-hud-band="actions"] .sky-actions button {
+    height: auto;
+    min-height: 2.75rem;
+    white-space: normal;
+    text-align: left;
+  }
+}
+
 /* Header, the mode shelf, the sky, then the clock.
    The sky row is the only one that draws the galaxy. The clock is the next row,
    so it cannot sit on the disk. */

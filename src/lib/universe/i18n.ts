@@ -917,7 +917,7 @@ const en: Copy = {
     },
     {
       title: "Six constants",
-      body: "Open Lab to read what this sky did. The six sliders sit under Sculpt. Grey marks are our universe, not a goal.",
+      body: "Open Lab to move the six sliders. Sculpt is already open. The reading sits below. Grey marks are our universe, not a goal.",
     },
     {
       title: "Four corridors",
@@ -1055,7 +1055,7 @@ const en: Copy = {
     },
     {
       title: "Lab · Const",
-      body: "Shows the fate of this sky, which corridors are open, and a short note. The six sliders are under Sculpt. Grey marks are our universe.",
+      body: "Sculpt is open: six sliders first. Below that, the fate, the open corridors, and a short note. Grey marks are our universe.",
     },
     {
       title: "Controls",
@@ -1125,7 +1125,7 @@ const en: Copy = {
     hint: "The line follows cosmic time and fate. English is KJV; Russian and Belarusian follow the Synodal sense. Links open Bible Gateway.",
   },
   labPaneHint: {
-    constants: "What this sky did. The sliders are under Sculpt. Grey marks are our universe.",
+    constants: "Sculpt is open. Six sliders first, the reading below. Grey marks are our universe.",
     hunt: "Hunt throws random skies. Almost all are empty. Put a find on the screen.",
     life: "A possible path for a mind on this sky. Spectra if you want to look.",
     laws: "A formula is fitted when you open this. Then a guess, then a real star field.",

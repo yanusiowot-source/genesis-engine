@@ -341,8 +341,18 @@ function SlowLoad({ locale }: { locale: string }) {
   );
 }
 
-function Fold({ title, loading, children }: { title: string; loading: string; children: ReactNode }) {
-  const [open, setOpen] = useState(false);
+function Fold({
+  title,
+  loading,
+  children,
+  startOpen = false,
+}: {
+  title: string;
+  loading: string;
+  children: ReactNode;
+  startOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(startOpen);
   return (
     <details
       className="lab-fold group rounded-[var(--radius-md)] bg-bg/50"
@@ -2048,6 +2058,11 @@ export function UniverseApp() {
         />
       ) : (
         <>
+          <Fold title={copy.foldSculpt} loading={loadLine(locale)} startOpen>
+            {hydrated ? (
+              <ParamSliders copy={copy} params={current.params} onChange={setParams} />
+            ) : null}
+          </Fold>
           <div>
             <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
               {copy.fate}
@@ -2144,12 +2159,6 @@ export function UniverseApp() {
               </Button>
             </div>
           </div>
-
-          <Fold title={copy.foldSculpt} loading={loadLine(locale)}>
-            {hydrated ? (
-              <ParamSliders copy={copy} params={current.params} onChange={setParams} />
-            ) : null}
-          </Fold>
 
           <Fold title={copy.foldCorridors} loading={loadLine(locale)}>
             <LifeFactors copy={copy} evaluation={ev} />
@@ -2817,7 +2826,7 @@ export function UniverseApp() {
                 </div>
               </div>
             ) : null}
-            <div className="flex flex-row items-start gap-2">
+            <div className="sky-actions flex flex-row items-start gap-2">
             <div className="hud-actions min-w-0 flex-1">
             <Button
               onClick={birth}
