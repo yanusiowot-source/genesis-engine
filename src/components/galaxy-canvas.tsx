@@ -249,6 +249,9 @@ type Props = {
     wait: string;
     empty: string;
     note: string;
+    prev: string;
+    next: string;
+    year: string;
     stages: Record<string, string>;
   };
   onStepTime?: (dir: -1 | 1) => void;
@@ -290,13 +293,18 @@ export function GalaxyCanvas({
   const [gateOn, setGateOn] = useState(false);
   const [gatePlaced, setGatePlaced] = useState(false);
   const [gateZoom, setGateZoom] = useState(1);
-  const [gatePick, setGatePick] = useState<{ mass: number; stage: string; age: number } | null>(null);
+  const [gateBodies, setGateBodies] = useState<{ mass: number; stage: string; age: number; x: number; y: number }[]>([]);
+  const [gateAt, setGateAt] = useState(0);
+  const [gateRing, setGateRing] = useState<{ x: number; y: number; r: number } | null>(null);
   const gateRef = useRef<{ x: number; y: number; zoom: number } | null>(null);
   const gateOnRef = useRef(false);
   const gateDirty = useRef(false);
-  const gatePickKey = useRef("");
+  const gateAtRef = useRef(0);
+  const gateListKey = useRef("");
+  const gateRingKey = useRef("");
   const onStepTimeRef = useRef(onStepTime);
   gateOnRef.current = gateOn;
+  gateAtRef.current = gateAt;
   onStepTimeRef.current = onStepTime;
   if (gateRef.current) gateRef.current.zoom = gateZoom;
   if (!gateOn && gateRef.current) gateRef.current = null;
@@ -576,6 +584,8 @@ export function GalaxyCanvas({
       if (gateOnRef.current && (modeRef.current === "galaxy" || modeRef.current === "planetarium")) {
         gateRef.current = { x: px, y: py, zoom: gateRef.current?.zoom ?? 1 };
         gateDirty.current = true;
+        gateAtRef.current = 0;
+        setGateAt(0);
         setGatePlaced(true);
         return;
       }
@@ -2356,34 +2366,40 @@ export function GalaxyCanvas({
           }
         }
         ctx.save();
-        ctx.strokeStyle = "rgba(240, 195, 107, 0.92)";
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = "rgba(9, 6, 26, 0.9)";
+        ctx.lineWidth = 7;
         ctx.beginPath();
         ctx.arc(gateNow.x, gateNow.y, R, 0, Math.PI * 2);
         ctx.stroke();
+        ctx.strokeStyle = "rgba(240, 195, 107, 1)";
         ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(gateNow.x, gateNow.y, R, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(gateNow.x, gateNow.y, Math.max(8, R - 8), 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.lineWidth = 4;
         for (let i = 0; i < 8; i++) {
           const a = (i / 8) * Math.PI * 2 - Math.PI / 2;
           ctx.beginPath();
-          ctx.moveTo(gateNow.x + Math.cos(a) * (R - 9), gateNow.y + Math.sin(a) * (R - 9));
-          ctx.lineTo(gateNow.x + Math.cos(a) * (R + 1), gateNow.y + Math.sin(a) * (R + 1));
+          ctx.moveTo(gateNow.x + Math.cos(a) * (R - 14), gateNow.y + Math.sin(a) * (R - 14));
+          ctx.lineTo(gateNow.x + Math.cos(a) * (R + 4), gateNow.y + Math.sin(a) * (R + 4));
           ctx.stroke();
         }
         ctx.restore();
 
         const reach = R / zoom;
-        let best: Star | null = null;
-        let bestD = reach;
+        const hits: { s: Star; x: number; y: number; d: number }[] = [];
         if (skyMode === "planetarium") {
           const cam = lookCam(yaw, pitch);
           for (const s of model.stars) {
             const p = projectLook(s.x, s.y, s.z, cam, PLANETARIUM_FOV);
             if (!p) continue;
-            const d = Math.hypot(cx + p.x * scale - gateNow.x, cy + p.y * scale - gateNow.y);
-            if (d < bestD) {
-              best = s;
-              bestD = d;
-            }
+            const sx = cx + p.x * scale;
+            const sy = cy + p.y * scale;
+            const d = Math.hypot(sx - gateNow.x, sy - gateNow.y);
+            if (d < reach) hits.push({ s, x: sx, y: sy, d });
           }
         } else {
           const c = Math.cos(rot);
@@ -2391,24 +2407,55 @@ export function GalaxyCanvas({
           for (const s of model.stars) {
             const lx = s.x * scale;
             const ly = s.y * scale;
-            const d = Math.hypot(cx + lx * c - ly * sn - gateNow.x, cy + lx * sn + ly * c - gateNow.y);
-            if (d < bestD) {
-              best = s;
-              bestD = d;
-            }
+            const sx = cx + lx * c - ly * sn;
+            const sy = cy + lx * sn + ly * c;
+            const d = Math.hypot(sx - gateNow.x, sy - gateNow.y);
+            if (d < reach) hits.push({ s, x: sx, y: sy, d });
           }
         }
-        if (best) {
-          const st = evolveStar(best.mass, ageGyr - best.birthGyr, pms.gravity);
-          const key = `${best.mass.toFixed(2)}|${st.stage}|${ageGyr.toFixed(1)}`;
-          if (key !== gatePickKey.current) {
-            gatePickKey.current = key;
-            setGatePick({ mass: best.mass, stage: st.stage, age: Math.max(0, ageGyr - best.birthGyr) });
-          }
-        } else if (gatePickKey.current !== "") {
-          gatePickKey.current = "";
-          setGatePick(null);
+        hits.sort((a, b) => a.d - b.d);
+        const shown = hits.slice(0, 12);
+        const at = shown.length ? gateAtRef.current % shown.length : 0;
+        const chosen = shown[at];
+        if (chosen) {
+          const mx = gateNow.x + (chosen.x - gateNow.x) * zoom;
+          const my = gateNow.y + (chosen.y - gateNow.y) * zoom;
+          ctx.save();
+          ctx.strokeStyle = "rgba(255, 246, 224, 0.95)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(mx, my, 11, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
         }
+        const ringKey = `${Math.round(gateNow.x)}|${Math.round(gateNow.y)}|${Math.round(R)}`;
+        if (ringKey !== gateRingKey.current) {
+          gateRingKey.current = ringKey;
+          setGateRing({ x: gateNow.x, y: gateNow.y, r: R });
+        }
+        const listKey = `${shown.map((h) => h.s.mass.toFixed(3)).join(",")}|${at}|${ageGyr.toFixed(1)}`;
+        if (listKey !== gateListKey.current) {
+          gateListKey.current = listKey;
+          setGateBodies(
+            shown.map((h) => {
+              const st = evolveStar(h.s.mass, ageGyr - h.s.birthGyr, pms.gravity);
+              const mx = gateNow.x + (h.x - gateNow.x) * zoom;
+              const my = gateNow.y + (h.y - gateNow.y) * zoom;
+              return {
+                mass: h.s.mass,
+                stage: st.stage,
+                age: Math.max(0, ageGyr - h.s.birthGyr),
+                x: mx,
+                y: my,
+              };
+            }),
+          );
+        }
+      } else if (gateRingKey.current) {
+        gateRingKey.current = "";
+        gateListKey.current = "";
+        setGateRing(null);
+        setGateBodies([]);
       }
 
       const cursor = dragging
@@ -2539,10 +2586,14 @@ export function GalaxyCanvas({
                 const next = !on;
                 if (!next) {
                   gateRef.current = null;
-                  gatePickKey.current = "";
+                  gateListKey.current = "";
+                  gateRingKey.current = "";
+                  gateAtRef.current = 0;
                   setGatePlaced(false);
                   setGateZoom(1);
-                  setGatePick(null);
+                  setGateAt(0);
+                  setGateBodies([]);
+                  setGateRing(null);
                 }
                 gateDirty.current = true;
                 return next;
@@ -2595,6 +2646,30 @@ export function GalaxyCanvas({
               >
                 {gate?.later ?? "Later"}
               </button>
+              {gatePlaced && gateBodies.length > 1 ? (
+                <>
+                  <button
+                    type="button"
+                    className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                    onClick={() => {
+                      gateDirty.current = true;
+                      setGateAt((i) => (gateBodies.length ? (i - 1 + gateBodies.length) % gateBodies.length : 0));
+                    }}
+                  >
+                    {gate?.prev ?? "Previous"}
+                  </button>
+                  <button
+                    type="button"
+                    className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                    onClick={() => {
+                      gateDirty.current = true;
+                      setGateAt((i) => (gateBodies.length ? (i + 1) % gateBodies.length : 0));
+                    }}
+                  >
+                    {gate?.next ?? "Next"}
+                  </button>
+                </>
+              ) : null}
             </>
           ) : null}
         </div>
@@ -2602,12 +2677,38 @@ export function GalaxyCanvas({
           <p className="pointer-events-none max-w-xs rounded-[var(--radius-sm)] bg-bg/80 px-3 py-2 text-sm text-pretty text-fg shadow-[var(--shadow-border)]">
             {!gatePlaced
               ? (gate?.wait ?? "Tap a place on the sky.")
-              : gatePick
-                ? `${gate?.stages[gatePick.stage] ?? gatePick.stage}. ${gatePick.mass.toFixed(2)} M☉. ${gatePick.age.toFixed(1)} Gyr. ${gate?.note ?? ""}`
+              : gateBodies.length
+                ? `${(gateAt % gateBodies.length) + 1} / ${gateBodies.length}. ${gate?.stages[gateBodies[gateAt % gateBodies.length].stage] ?? gateBodies[gateAt % gateBodies.length].stage}. ${gateBodies[gateAt % gateBodies.length].mass.toFixed(2)} M☉. ${gateBodies[gateAt % gateBodies.length].age.toFixed(1)} ${gate?.year ?? "Gyr"}. ${gate?.note ?? ""}`
                 : (gate?.empty ?? "Nothing bright in this circle.")}
           </p>
         ) : null}
       </div>
+      {gateOn && gateRing ? (
+        <div
+          className="pointer-events-none absolute z-[5] rounded-full"
+          style={{
+            left: gateRing.x - gateRing.r,
+            top: gateRing.y - gateRing.r,
+            width: gateRing.r * 2,
+            height: gateRing.r * 2,
+            border: "3px solid #f0c36b",
+            boxShadow: "0 0 0 3px rgba(9,6,26,0.9), inset 0 0 0 3px rgba(9,6,26,0.75), inset 0 0 0 6px #f0c36b",
+          }}
+        />
+      ) : null}
+      {gateOn && gateBodies.length ? (
+        <div
+          className="pointer-events-none absolute z-[5] rounded-full"
+          style={{
+            left: gateBodies[gateAt % gateBodies.length].x - 9,
+            top: gateBodies[gateAt % gateBodies.length].y - 9,
+            width: 18,
+            height: 18,
+            border: "2px solid #fff6e0",
+            boxShadow: "0 0 0 2px #f0c36b",
+          }}
+        />
+      ) : null}
     </div>
   );
 }

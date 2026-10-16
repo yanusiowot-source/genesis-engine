@@ -2260,6 +2260,9 @@ export function UniverseApp() {
             wait: copy.gateWait,
             empty: copy.gateEmpty,
             note: copy.gateNote,
+            prev: copy.gatePrev,
+            next: copy.gateNext,
+            year: copy.gateYear,
             stages: copy.obs.worldsStage,
           }}
           onStepTime={(dir) => setCosmicTime((t) => Math.min(1, Math.max(0, t + dir * 0.06)))}

@@ -70,6 +70,9 @@ export type Copy = {
   gateWait: string;
   gateEmpty: string;
   gateNote: string;
+  gatePrev: string;
+  gateNext: string;
+  gateYear: string;
   scanning: string;
   plot: {
     arrive: string;
@@ -821,6 +824,9 @@ const en: Copy = {
   gateWait: "Tap a place on the sky.",
   gateEmpty: "Nothing bright in this circle.",
   gateNote: "This sky's model, not a catalog.",
+  gatePrev: "Previous",
+  gateNext: "Next",
+  gateYear: "Gyr",
   scanning: "Survey of 64 skies. Most stay empty.",
   plot: {
     arrive: "This is your first sky. It is not saved until you keep it.",
