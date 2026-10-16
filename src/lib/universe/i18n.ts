@@ -84,6 +84,8 @@ export type Copy = {
     done: string;
   };
   survey: string;
+  stakeAsk: string;
+  stakeOn: { carbon: string; silicon: string; eternal: string; swarm: string };
   ours: string;
   fate: string;
   life: string;
@@ -817,6 +819,13 @@ const en: Copy = {
     done: "The atlas is sealed. The log remains open.",
   },
   survey: "Survey 64",
+  stakeAsk: "Where do you stake the next measurement?",
+  stakeOn: {
+    carbon: "Staked on carbon. Survey 64 looks for water and does not promise it.",
+    silicon: "Staked on silicon. Survey 64 looks for a hot solvent and does not promise it.",
+    eternal: "Staked on the long hold. Survey 64 looks for it and does not promise it.",
+    swarm: "Staked on the tide. Survey 64 looks for a period, not a fleet.",
+  },
   ours: "Our universe",
   fate: "Fate",
   life: "Intelligent life",

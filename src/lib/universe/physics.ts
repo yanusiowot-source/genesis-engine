@@ -729,6 +729,7 @@ function interestingScore(ev: Evaluation): number {
 export function survey(
   count: number,
   seed: number,
+  target?: "carbon" | "silicon" | "eternal" | "swarm",
 ): { params: UniverseParams; evaluation: Evaluation; visualSeed: number }[] {
   const rng = mulberry32(seed);
   const wild = Math.floor(count * 0.28);
@@ -751,7 +752,17 @@ export function survey(
             : nearEternal(rng);
     out.push({ params, evaluation: evaluate(params), visualSeed });
   }
-  out.sort((a, b) => interestingScore(b.evaluation) - interestingScore(a.evaluation));
+  const score = (ev: Evaluation) =>
+    target === "silicon"
+      ? ev.siliconProb
+      : target === "eternal"
+        ? ev.eternalProb
+        : target === "swarm"
+          ? ev.swarmProb
+          : target === "carbon"
+            ? ev.lifeProb
+            : interestingScore(ev);
+  out.sort((a, b) => score(b.evaluation) - score(a.evaluation));
   return out;
 }
 

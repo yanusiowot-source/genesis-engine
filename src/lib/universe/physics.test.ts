@@ -264,5 +264,8 @@ describe("survey", () => {
     assert.ok(rows.some((r) => r.evaluation.siliconProb > 0.3));
     assert.ok(rows.some((r) => r.evaluation.eternalProb > 0.3));
     assert.ok(rows.some((r) => r.evaluation.swarmProb > 0.3));
+    const bestSilicon = Math.max(...rows.map((r) => r.evaluation.siliconProb));
+    const staked = survey(64, 1, "silicon");
+    assert.equal(staked[0]?.evaluation.siliconProb, bestSilicon);
   });
 });

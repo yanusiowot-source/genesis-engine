@@ -460,6 +460,7 @@ export function UniverseApp() {
   const [skyH0, setSkyH0] = useState<number | null>(null);
   const [labPane, setLabPane] = useState<LabPane>("constants");
   const [researchTarget, setResearchTarget] = useState<ResearchTarget>("carbon");
+  const [stake, setStake] = useState<"carbon" | "silicon" | "eternal" | "swarm" | null>(null);
   const [expedition, setExpedition] = useState<ExpeditionResult | null>(null);
   const [hunting, setHunting] = useState(false);
   const [huntFailed, setHuntFailed] = useState(false);
@@ -1203,7 +1204,7 @@ export function UniverseApp() {
       if (gen !== scanGen.current) return;
       setScanning(false);
       const seed = randomSeed();
-      const results = survey(64, seed);
+      const results = survey(64, seed, stake ?? undefined);
       const winner = results[0];
       if (!winner) return;
       if (gen !== scanGen.current) return;
@@ -1227,13 +1228,14 @@ export function UniverseApp() {
       nudgeSoundscape(record.params);
       witnessBirth(record);
     }, reduced ? 240 : 1400);
-  }, [witnessBirth]);
+  }, [stake, witnessBirth]);
 
   const runRefine = useCallback(() => {
     haptic(12);
     const { lifeProb, siliconProb, eternalProb, swarmProb } = current.evaluation;
-    const target =
-      swarmProb >= lifeProb && swarmProb >= siliconProb && swarmProb >= eternalProb && swarmProb >= 0.18
+    const target = stake
+      ? stake
+      : swarmProb >= lifeProb && swarmProb >= siliconProb && swarmProb >= eternalProb && swarmProb >= 0.18
         ? "swarm"
         : eternalProb > lifeProb && eternalProb > siliconProb
           ? "eternal"
@@ -1252,7 +1254,7 @@ export function UniverseApp() {
     nudgeSoundscape(record.params);
     const { progress } = applyMandate(record, "see");
     setDispatchId(voiceFor(record, progress));
-  }, [applyMandate, current.evaluation, current.params, hushBeats, remember, seatNow]);
+  }, [applyMandate, current.evaluation, current.params, hushBeats, remember, seatNow, stake]);
 
   // Snapshot only: params, target, attempt. Not the sky, the clock, or the canvas.
   // Do not extract this. Another file would take the same three inputs and mean no less.
@@ -1880,6 +1882,11 @@ export function UniverseApp() {
   }, [evolving, setCosmicTime]);
 
   const ev = current.evaluation;
+  const plateClosed =
+    ev.lifeProb < 0.18 &&
+    ev.siliconProb < 0.18 &&
+    ev.eternalProb < 0.18 &&
+    (ev.swarmProb ?? 0) < 0.18;
   const lifeTone =
     ev.lifeProb >= 0.52 ? "text-life" : ev.lifeProb >= 0.18 ? "text-fg" : "text-sterile";
   const siliconTone =
@@ -2215,7 +2222,7 @@ export function UniverseApp() {
         className="sky-stage relative min-h-0 flex-1"
         inert={overlayOpen ? true : undefined}
       >
-        <div className="sky-field row-start-3">
+        <div className="sky-field row-start-3" data-stake={stake ?? ""}>
         <GalaxyCanvas
           params={current.params}
           evaluation={ev}
@@ -2744,7 +2751,42 @@ export function UniverseApp() {
             <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
           </div>
-          <div className="glass flex shrink-0 flex-row items-start gap-2 rounded-[var(--radius-xl)] p-1.5" data-hud-band="actions">
+          <div className="glass flex shrink-0 flex-col gap-2 rounded-[var(--radius-xl)] p-1.5" data-hud-band="actions">
+            {plateClosed && !encounter && !scanning ? (
+              <div role="group" aria-label={copy.stakeAsk}>
+                <p className="px-1.5 pt-1 text-pretty text-xs leading-relaxed text-fg-muted">
+                  {stake ? copy.stakeOn[stake] : copy.stakeAsk}
+                </p>
+                <div className="mt-1.5 grid grid-cols-4 gap-1">
+                  {(
+                    [
+                      ["carbon", copy.carbon],
+                      ["silicon", copy.silicon],
+                      ["eternal", copy.eternal],
+                      ["swarm", copy.swarm],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={stake === id}
+                      className={cn(
+                        "min-h-11 rounded-[var(--radius-xs)] px-1 text-center text-xs leading-tight",
+                        stake === id ? "bg-bg-subtle text-fg" : "bg-bg/50 text-fg-subtle",
+                      )}
+                      onClick={() => {
+                        haptic(8);
+                        setStake(id);
+                        setResearchTarget(id);
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            <div className="flex flex-row items-start gap-2">
             <div className="hud-actions min-w-0 flex-1">
             <Button
               onClick={birth}
@@ -2791,6 +2833,7 @@ export function UniverseApp() {
               onDwarf={() => applyPreset(DWARF_SKY, DWARF_SEED)}
               onDesert={() => applyPreset(DESERT_EPOCH, DESERT_SEED)}
             />
+            </div>
           </div>
         </div>
       </div>
