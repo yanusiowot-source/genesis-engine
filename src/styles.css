@@ -633,9 +633,9 @@ html.contrast .glass {
 
 .epoch-ink {
   transition:
-    color 720ms var(--ease-in-out),
-    background-color 720ms var(--ease-in-out),
-    opacity 720ms var(--ease-in-out);
+    color 520ms var(--ease-glide),
+    background-color 520ms var(--ease-glide),
+    opacity 520ms var(--ease-glide);
 }
 
 .seg-pill {
