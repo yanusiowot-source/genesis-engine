@@ -11,13 +11,13 @@ type Props = {
 
 export function ParamSliders({ copy, params, onChange }: Props) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3">
       {PARAM_META.map((meta) => {
         const value = params[meta.key];
         const digits = meta.step < 0.01 ? 3 : 2;
         const text = copy.params[meta.key];
         return (
-          <label key={meta.key} className="flex flex-col gap-2">
+          <label key={meta.key} className="group flex flex-col gap-1">
             <div className="flex items-baseline justify-between gap-3">
               <span className="min-w-0 truncate text-sm font-medium text-fg">
                 {text.label}
@@ -40,13 +40,14 @@ export function ParamSliders({ copy, params, onChange }: Props) {
                 onChange(meta.key, next);
               }}
               aria-label={text.label}
-              title={text.hint}
             />
             <div className="flex justify-between gap-3 text-[0.6875rem] tracking-wide text-fg-subtle uppercase">
               <span className="min-w-0 truncate">{text.low}</span>
               <span className="min-w-0 truncate text-right">{text.high}</span>
             </div>
-            <p className="text-pretty text-xs leading-relaxed text-fg-muted">{text.hint}</p>
+            <p className="hidden text-pretty text-xs leading-relaxed text-fg-muted group-focus-within:block">
+              {text.hint}
+            </p>
           </label>
         );
       })}

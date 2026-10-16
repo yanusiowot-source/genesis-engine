@@ -1,4 +1,4 @@
-import { Pause, Play } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -29,6 +29,8 @@ type Props = {
   onChange: (t: number) => void;
   onToggleEvolve: () => void;
   onEggLight?: () => void;
+  onTurn?: (dir: "left" | "right" | "up" | "down") => void;
+  pitch?: boolean;
 };
 
 const JUMPS = ["inflation", "reionization", "stellar", "heatDeath"] as const;
@@ -43,6 +45,8 @@ export function CosmicClock({
   onChange,
   onToggleEvolve,
   onEggLight,
+  onTurn,
+  pitch = false,
 }: Props) {
   const [live, setLive] = useState(value);
   useEffect(() => {
@@ -120,6 +124,26 @@ export function CosmicClock({
             />
           </span>
         </Button>
+        {onTurn ? (
+          <div className="flex shrink-0" role="group" aria-label={copy.skyKeys}>
+            <Button variant="ghost" size="icon" aria-label={copy.skyLeft} onClick={() => onTurn("left")}>
+              <ChevronLeft />
+            </Button>
+            <Button variant="ghost" size="icon" aria-label={copy.skyRight} onClick={() => onTurn("right")}>
+              <ChevronRight />
+            </Button>
+            {pitch ? (
+              <>
+                <Button variant="ghost" size="icon" aria-label={copy.skyUp} onClick={() => onTurn("up")}>
+                  <ChevronUp />
+                </Button>
+                <Button variant="ghost" size="icon" aria-label={copy.skyDown} onClick={() => onTurn("down")}>
+                  <ChevronDown />
+                </Button>
+              </>
+            ) : null}
+          </div>
+        ) : null}
         <div className="min-w-0 flex-1">
           <p
             className="epoch-ink mb-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 font-mono text-xs uppercase"

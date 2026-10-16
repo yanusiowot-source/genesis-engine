@@ -486,6 +486,7 @@ export function UniverseApp() {
   const draftFor = useRef("");
   const [mode, setMode] = useState<SkyMode>("galaxy");
   const timeRef = useRef(0.55);
+  const skyNudge = useRef<(dx: number, dy: number) => void>(() => {});
   const [cosmicTime, setCosmicTimeState] = useState(0.55);
   const setCosmicTime = useCallback((t: number | ((prev: number) => number)) => {
     setCosmicTimeState((prev) => {
@@ -2267,7 +2268,7 @@ export function UniverseApp() {
           wakeKey={wakeKey}
           onSkyH0={setSkyH0}
           ariaLabel={`${copy.appName} · ${copy.tabs.sky}. ${copy.skyKeys}`}
-          turnLabel={{ left: copy.skyLeft, right: copy.skyRight, up: copy.skyUp, down: copy.skyDown }}
+          nudgeRef={skyNudge}
         />
         {birthFlash ? (
           <div aria-hidden className="birth-flash pointer-events-none absolute inset-0 z-[3]" data-fate={impactFate} />
@@ -2452,6 +2453,18 @@ export function UniverseApp() {
               }}
               onToggleEvolve={toggleEvolve}
               onEggLight={() => flashEgg(copy.eggs.light)}
+              pitch={mode === "planetarium"}
+              onTurn={
+                mode === "galaxy" || mode === "planetarium"
+                  ? (dir) => {
+                      const look = mode === "planetarium";
+                      if (dir === "left") skyNudge.current(look ? -0.2 : -0.35, 0);
+                      else if (dir === "right") skyNudge.current(look ? 0.2 : 0.35, 0);
+                      else if (dir === "up") skyNudge.current(0, -0.16);
+                      else skyNudge.current(0, 0.16);
+                    }
+                  : undefined
+              }
             />
           ) : (
             <div className="h-14" />
