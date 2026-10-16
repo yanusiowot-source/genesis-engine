@@ -368,7 +368,7 @@ function Fold({
       </summary>
       {open ? (
         <Suspense fallback={<FoldLoad line={loading} />}>
-          <div className="flex flex-col gap-6 border-t border-border px-3 py-4">{children}</div>
+          <div className="arrive flex flex-col gap-6 border-t border-border px-3 py-4">{children}</div>
         </Suspense>
       ) : null}
     </details>
@@ -2231,7 +2231,7 @@ export function UniverseApp() {
         className="sky-stage relative min-h-0 flex-1"
         inert={overlayOpen ? true : undefined}
       >
-        <div className="sky-field row-start-3" data-stake={peek ?? stake ?? ""}>
+        <div className="sky-field arrive arrive-3 row-start-3" data-stake={peek ?? stake ?? ""}>
         <GalaxyCanvas
           params={current.params}
           evaluation={ev}
@@ -2293,7 +2293,7 @@ export function UniverseApp() {
         />
         </div>
 
-        <header className={cn("relative z-10 row-start-1 w-full min-w-0 shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pointer-events-none sm:px-8", onboard && "hidden")}>
+        <header className={cn("arrive relative z-10 row-start-1 w-full min-w-0 shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pointer-events-none sm:px-8", onboard && "hidden")}>
           <div className="glass glass-clear pointer-events-auto flex w-full min-w-0 items-center justify-between gap-2 rounded-[var(--radius-xl)] px-3 py-1.5 sm:gap-3 sm:px-4">
           <div className="min-w-0 flex-1 pr-2">
             <button
@@ -2423,7 +2423,7 @@ export function UniverseApp() {
           </div>
           </div>
         </header>
-        <div className={cn("relative z-10 row-start-2 shrink-0 px-4 pt-2 pointer-events-none sm:px-8", onboard && "hidden")}>
+        <div className={cn("arrive arrive-2 relative z-10 row-start-2 shrink-0 px-4 pt-2 pointer-events-none sm:px-8", onboard && "hidden")}>
           <SkyModes
             copy={copy}
             mode={mode}
@@ -2443,7 +2443,7 @@ export function UniverseApp() {
         </div>
 
         <div className={cn("hud-stack relative z-10 row-start-4 px-4 pt-3 pb-3 pointer-events-auto sm:px-8 lg:pb-5", onboard && "hidden")}>
-          <div className="glass shrink-0 rounded-[var(--radius-lg)] px-2 py-1.5" data-hud-band="clock">
+          <div className="arrive arrive-4 glass shrink-0 rounded-[var(--radius-lg)] px-2 py-1.5" data-hud-band="clock">
           {hydrated ? (
             <CosmicClock
               copy={copy}
@@ -2475,7 +2475,7 @@ export function UniverseApp() {
             <div className="h-14" />
           )}
           </div>
-          <div data-hud-band="read">
+          <div className="arrive arrive-5" data-hud-band="read">
           <p className="sky-ink mt-1.5 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase" data-hud-catalog>
             {current.catalog}
             <span className="mx-2 text-fg-subtle/50">/</span>
@@ -2714,7 +2714,7 @@ export function UniverseApp() {
             </div>
           </div>
           </div>
-          <div className="glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
+          <div className="arrive arrive-6 glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
           {encounter ? (
             <p
               role="status"
@@ -2797,7 +2797,7 @@ export function UniverseApp() {
             <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
           </div>
-          <div className="glass flex shrink-0 flex-col gap-2 rounded-[var(--radius-xl)] p-1.5" data-hud-band="actions">
+          <div className="arrive arrive-7 glass flex shrink-0 flex-col gap-2 rounded-[var(--radius-xl)] p-1.5" data-hud-band="actions">
             {plateClosed && !encounter && !scanning ? (
               <div role="group" aria-label={copy.stakeAsk}>
                 <p className="px-1.5 pt-1 text-pretty text-xs leading-relaxed text-fg-muted">
