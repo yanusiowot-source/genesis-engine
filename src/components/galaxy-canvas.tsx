@@ -2590,11 +2590,11 @@ export function GalaxyCanvas({
           >
             {gateOn ? (gate?.shut ?? "Leave") : (gate?.arm ?? "Gate")}
           </button>
-          {gateOn ? (
+          {gateOn && gatePlaced ? (
             <>
               <button
                 type="button"
-                className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-2.5 text-sm text-fg shadow-[var(--shadow-border)]"
                 onClick={() => {
                   setGateZoom((z) => {
                     const next = Math.max(1, z / 1.35);
@@ -2608,7 +2608,7 @@ export function GalaxyCanvas({
               </button>
               <button
                 type="button"
-                className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-2.5 text-sm text-fg shadow-[var(--shadow-border)]"
                 onClick={() => {
                   setGateZoom((z) => {
                     const next = Math.min(8, z * 1.35);
@@ -2622,39 +2622,41 @@ export function GalaxyCanvas({
               </button>
               <button
                 type="button"
-                className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-2.5 text-sm text-fg shadow-[var(--shadow-border)]"
                 onClick={() => onStepTimeRef.current?.(-1)}
               >
                 {gate?.earlier ?? "Earlier"}
               </button>
               <button
                 type="button"
-                className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-2.5 text-sm text-fg shadow-[var(--shadow-border)]"
                 onClick={() => onStepTimeRef.current?.(1)}
               >
                 {gate?.later ?? "Later"}
               </button>
-              {gatePlaced && gateBodies.length > 1 ? (
+              {gateBodies.length > 1 ? (
                 <>
                   <button
                     type="button"
-                    className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                    className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-2.5 text-sm text-fg shadow-[var(--shadow-border)]"
+                    aria-label={gate?.prev ?? "Previous"}
                     onClick={() => {
                       gateDirty.current = true;
                       setGateAt((i) => (gateBodies.length ? (i - 1 + gateBodies.length) % gateBodies.length : 0));
                     }}
                   >
-                    {gate?.prev ?? "Previous"}
+                    ‹
                   </button>
                   <button
                     type="button"
-                    className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                    className="min-h-11 min-w-11 rounded-[var(--radius-sm)] bg-bg/80 px-2.5 text-sm text-fg shadow-[var(--shadow-border)]"
+                    aria-label={gate?.next ?? "Next"}
                     onClick={() => {
                       gateDirty.current = true;
                       setGateAt((i) => (gateBodies.length ? (i + 1) % gateBodies.length : 0));
                     }}
                   >
-                    {gate?.next ?? "Next"}
+                    ›
                   </button>
                 </>
               ) : null}
@@ -2664,7 +2666,7 @@ export function GalaxyCanvas({
         {gateOn ? (
           <p
             key={gatePlaced ? gateAt : "wait"}
-            className="view-swap pointer-events-none line-clamp-2 max-w-sm rounded-[var(--radius-sm)] bg-bg/80 px-2.5 py-1.5 text-sm text-pretty text-fg shadow-[var(--shadow-border)]"
+            className="view-swap pointer-events-none line-clamp-2 max-w-sm text-sm text-pretty text-fg [text-shadow:0_1px_2px_#09061a,0_0_14px_#09061a]"
           >
             {!gatePlaced
               ? (gate?.wait ?? "Tap a place on the sky.")
