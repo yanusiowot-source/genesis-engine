@@ -780,37 +780,56 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 
 @media (max-height: 40rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(5.5rem, 0.65fr) minmax(0, 1.35fr);
+    grid-template-rows: auto auto minmax(3rem, 0.4fr) minmax(0, 1.6fr);
     overflow: hidden;
   }
 
-  .hud-stack {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
+  header h1 button {
+    font-size: 1.05rem;
   }
 
-  .hud-mid {
-    flex: none;
-    overflow: visible;
+  header .glass {
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+  }
+
+  header .glass .flex.max-w-full button {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  nav.glass {
+    margin-bottom: 0.15rem;
+  }
+
+  nav.glass button {
+    height: 2.25rem;
+    min-height: 2.25rem;
+  }
+
+  .sky-modes button {
+    height: 2.25rem;
+    min-height: 2.25rem;
+  }
+
+  [data-clock-readout] {
+    display: none;
   }
 
   .sky-stage > .hud-stack {
     min-height: 0;
     max-height: 100%;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-  }
-
-  .hud-stack > [data-hud-band="read"] {
-    min-height: min-content;
-    max-height: none;
-    overflow: visible;
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
   }
 
   [data-hud-band="clock"] {
     padding-top: 0.125rem;
     padding-bottom: 0.125rem;
+  }
+
+  [data-hud-band="actions"] {
+    padding-bottom: 0.25rem;
   }
 
   [data-kicker] {

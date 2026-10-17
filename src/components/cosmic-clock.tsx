@@ -147,6 +147,7 @@ export function CosmicClock({
         <div className="min-w-0 flex-1">
           <p
             className="epoch-ink mb-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 font-mono text-xs uppercase"
+            data-clock-readout=""
             style={{ color: ink }}
           >
             <span className="min-w-0 text-pretty">
