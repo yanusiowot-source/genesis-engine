@@ -55,10 +55,11 @@ type Props = {
   ringHalo: boolean;
   star: string | null;
   look: Look | null;
+  onStep?: (dir: -1 | 1) => void;
   variant: "thumb" | "row";
 };
 
-export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, look, variant }: Props) {
+export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, look, onStep, variant }: Props) {
   const [open, setOpen] = useState(false);
   const id = plateId(mode, epoch, fragmenting, ringHalo, star);
   const plate = copy.proof[id];
@@ -123,6 +124,16 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
             ) : null}
             <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{plate.body}</p>
             <p className="mt-3 font-mono text-[0.65rem] leading-relaxed tracking-[0.04em] text-fg-subtle">{plate.credit}</p>
+            {look && look.m > 1 && onStep ? (
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button type="button" className="min-h-11 rounded-[var(--radius-sm)] text-sm text-fg shadow-[var(--shadow-border)]" onClick={() => onStep(-1)}>
+                  {copy.proof.prev}
+                </button>
+                <button type="button" className="min-h-11 rounded-[var(--radius-sm)] text-sm text-fg shadow-[var(--shadow-border)]" onClick={() => onStep(1)}>
+                  {copy.proof.next}
+                </button>
+              </div>
+            ) : null}
             <button type="button" className="mt-4 min-h-11 w-full rounded-[var(--radius-sm)] text-sm text-fg-muted" onClick={() => setOpen(false)}>
               {copy.proof.close}
             </button>

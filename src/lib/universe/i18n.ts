@@ -78,6 +78,8 @@ export type Copy = {
     close: string;
     solar: string;
     year: string;
+    prev: string;
+    next: string;
     disk: { title: string; body: string; person: string; years: string; credit: string };
     worlds: { title: string; body: string; person: string; years: string; credit: string };
     lens: { title: string; body: string; person: string; years: string; credit: string };
@@ -853,6 +855,8 @@ const en: Copy = {
     close: "Close",
     solar: "solar masses",
     year: "billion years",
+    prev: "Previous star",
+    next: "Next star",
     disk: {
       title: "Spiral M51",
       body: "This is a real photograph, not a drawing from the lab. William Herschel showed in 1785 that the Milky Way is a flat disk of stars. M51 is another disk, seen from above.",

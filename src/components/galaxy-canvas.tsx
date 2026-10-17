@@ -256,6 +256,7 @@ type Props = {
   };
   onStepTime?: (dir: -1 | 1) => void;
   onGateLook?: (look: { stage: string; mass: number; age: number; n: number; m: number } | null) => void;
+  gateStep?: { current: ((dir: -1 | 1) => void) | null };
 };
 
 /** Frame clock. A hot preview drops the previous loop when this changes. */
@@ -290,6 +291,7 @@ export function GalaxyCanvas({
   gate,
   onStepTime,
   onGateLook,
+  gateStep,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gateOn, setGateOn] = useState(false);
@@ -318,6 +320,20 @@ export function GalaxyCanvas({
       m: gateBodies.length,
     });
   }, [gateOn, gatePlaced, gateBodies, gateAt]);
+  const gateCountRef = useRef(0);
+  gateCountRef.current = gateBodies.length;
+  useEffect(() => {
+    if (!gateStep) return;
+    gateStep.current = (dir) => {
+      const count = gateCountRef.current;
+      if (count < 2) return;
+      gateDirty.current = true;
+      setGateAt((i) => (i + dir + count) % count);
+    };
+    return () => {
+      gateStep.current = null;
+    };
+  }, [gateStep]);
   const gateRef = useRef<{ x: number; y: number; zoom: number } | null>(null);
   const gateOnRef = useRef(false);
   const gateDirty = useRef(false);
@@ -2693,7 +2709,7 @@ export function GalaxyCanvas({
             {!gatePlaced
               ? (gate?.wait ?? "Tap a place on the sky.")
               : gateBodies.length
-                ? `${(gateAt % gateBodies.length) + 1} / ${gateBodies.length}. ${gate?.stages[gateBodies[gateAt % gateBodies.length].stage] ?? gateBodies[gateAt % gateBodies.length].stage}. ${gateBodies[gateAt % gateBodies.length].mass.toFixed(2)} M☉. ${gateBodies[gateAt % gateBodies.length].age.toFixed(1)} ${gate?.year ?? "Gyr"}. ${gate?.note ?? ""}`
+                ? `${(gateAt % gateBodies.length) + 1} / ${gateBodies.length}. ${gate?.stages[gateBodies[gateAt % gateBodies.length].stage] ?? gateBodies[gateAt % gateBodies.length].stage}.`
                 : (gate?.empty ?? "Nothing bright in this circle.")}
           </p>
         ) : null}
