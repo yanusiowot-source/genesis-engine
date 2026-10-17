@@ -31,18 +31,18 @@
 }
 
 @theme {
-  --font-display: "Newsreader", "Newsreader Fallback", "Times New Roman", serif;
-  --font-sans: "Figtree", "Figtree Fallback", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", "IBM Plex Mono Fallback", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
-  --color-bg: #09061a;
-  --color-bg-elevated: #16112a;
-  --color-bg-subtle: #221b3c;
-  --color-fg: #f6f0e4;
-  --color-fg-muted: #cfc0d8;
-  --color-fg-subtle: #9a8ab0;
-  --color-accent: #f0c36b;
-  --color-accent-fg: #1a1206;
+  --color-bg: #000000;
+  --color-bg-elevated: #1c1c1e;
+  --color-bg-subtle: #2c2c2e;
+  --color-fg: #ffffff;
+  --color-fg-muted: #aeaeb2;
+  --color-fg-subtle: #8e8e93;
+  --color-accent: #0a84ff;
+  --color-accent-fg: #ffffff;
   --color-border: color-mix(in oklab, var(--color-fg) 16%, transparent);
   --color-life: #5ee0b8;
   --color-silicon: #f0a468;
@@ -53,18 +53,18 @@
   --color-qr-paper: #ffffff;
   --color-qr-ink: #09061a;
 
-  --radius-xs: 4px;
-  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --radius-sm: 10px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --radius-xl: 24px;
+  --radius-xl: 26px;
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 :root {
-  --shadow-border: 0 0 0 1px rgba(240, 195, 107, 0.16);
-  --shadow-border-hover: 0 0 0 1px rgba(240, 195, 107, 0.34);
+  --shadow-border: 0 0 0 0.5px rgba(255, 255, 255, 0.16);
+  --shadow-border-hover: 0 0 0 0.5px rgba(255, 255, 255, 0.32);
   --motion-stagger: 40ms;
   --motion-micro: 80ms;
   --motion-quick: 150ms;
@@ -124,7 +124,7 @@
     --color-life: #8ff5d0;
     --color-silicon: #ffc08a;
     --color-eternal: #c5e9ff;
-    --color-accent: #ffd98a;
+    --color-accent: #409cff;
   }
 
   h1,
@@ -455,35 +455,28 @@
 }
 
 nav.glass {
-  background: color-mix(in oklab, var(--color-bg) 96%, black);
+  background: color-mix(in oklab, #1c1c1e 88%, transparent);
 }
 
 .hud-actions > * {
   flex: 0 0 auto;
 }
 
-/* iOS 27 glass: clearer than a frost, a dark edge, a light on the rim.
-   No tilt. Contrast and reduced transparency go solid so the words stay. */
+/* iOS material: dark glass, a hairline, no gold rim. */
 .glass {
-  background:
-    linear-gradient(180deg, color-mix(in oklab, white 18%, transparent), transparent 46%),
-    color-mix(in oklab, var(--color-bg-elevated) 58%, transparent);
-  -webkit-backdrop-filter: blur(22px) saturate(1.4);
-  backdrop-filter: blur(22px) saturate(1.4);
+  background: color-mix(in oklab, #1c1c1e 82%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
   box-shadow:
-    inset 0 1px 0 color-mix(in oklab, white 32%, transparent),
-    inset 0 -1px 0 color-mix(in oklab, black 50%, transparent),
-    0 0 0 1px color-mix(in oklab, black 62%, transparent),
-    0 12px 32px color-mix(in oklab, black 32%, transparent);
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.22),
+    0 0 0 0.5px rgba(255, 255, 255, 0.1);
 }
 
-/* Header only. The sky shows through. The rim stays so the capsule is still a thing. */
 .glass-clear {
-  background:
-    linear-gradient(180deg, color-mix(in oklab, white 28%, transparent), transparent 42%),
-    color-mix(in oklab, var(--color-bg) 22%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.6);
-  backdrop-filter: blur(16px) saturate(1.6);
+  background: color-mix(in oklab, #000000 62%, transparent);
+  -webkit-backdrop-filter: blur(22px) saturate(1.8);
+  backdrop-filter: blur(22px) saturate(1.8);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.18);
 }
 
 .glass-ink {
@@ -1022,8 +1015,8 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background: #09061a;
-  color: #f6f0e4;
+  background: #000000;
+  color: #ffffff;
 }
 
 .boot-sheet {
@@ -1036,15 +1029,15 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   justify-content: center;
   background: transparent;
   pointer-events: none;
-  color: #f6f0e4;
+  color: #ffffff;
 }
 
 .boot-sheet .boot-card {
   width: min(18rem, 100%);
   padding: 0.75rem 0.9rem 0.85rem;
   border-radius: var(--radius-md);
-  background: color-mix(in oklab, #14111c 92%, transparent);
-  box-shadow: inset 0 0 0 1px rgba(244, 239, 232, 0.08);
+  background: color-mix(in oklab, #1c1c1e 92%, transparent);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.12);
 }
 
 .boot-card {
@@ -1065,21 +1058,21 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   font-size: 0.6875rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #9a8ab0;
+  color: #8e8e93;
 }
 
 .boot-track {
   margin-top: 1rem;
   height: 2px;
   overflow: hidden;
-  background: rgba(244, 239, 232, 0.12);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .boot-bar {
   display: block;
   height: 100%;
   width: 0;
-  background: #f0c36b;
+  background: #0a84ff;
   animation: boot-fill 1.7s cubic-bezier(0.16, 0.55, 0.2, 1) forwards;
 }
 

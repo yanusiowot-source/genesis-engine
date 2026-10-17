@@ -4,7 +4,7 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-medium outline-none select-none " +
+  "inline-flex items-center justify-center gap-1.5 whitespace-nowrap text-sm font-semibold outline-none select-none " +
     "transition-[color,background-color,box-shadow,transform,opacity] duration-[var(--motion-quick)] " +
     "ease-[var(--ease-out)] disabled:pointer-events-none disabled:opacity-40 " +
     "focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg " +
