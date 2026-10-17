@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { Copy } from "@/lib/universe/i18n";
 import type { CosmicEpoch, SkyMode } from "@/lib/universe/types";
 
-type PlateId = "disk" | "worlds" | "lens" | "fire" | "clash" | "shred" | "cluster" | "ember" | "orbit";
+type PlateId = "disk" | "worlds" | "lens" | "fire" | "clash" | "shred" | "cluster" | "ember" | "orbit" | "sun" | "giant" | "burst" | "cinder" | "pulse" | "hole";
 
 const PHOTO: Record<PlateId, string> = {
   disk: "/proof/m51.jpg",
@@ -14,6 +14,12 @@ const PHOTO: Record<PlateId, string> = {
   cluster: "/proof/cluster.jpg",
   ember: "/proof/crab.jpg",
   orbit: "/proof/saturn.jpg",
+  sun: "/proof/sun.jpg",
+  giant: "/proof/giant.jpg",
+  burst: "/proof/crab.jpg",
+  cinder: "/proof/sirius.jpg",
+  pulse: "/proof/crab.jpg",
+  hole: "/proof/hole.jpg",
 };
 
 const FACE: Partial<Record<PlateId, string>> = {
@@ -23,7 +29,13 @@ const FACE: Partial<Record<PlateId, string>> = {
   orbit: "/proof/kepler.jpg",
 };
 
-function plateId(mode: SkyMode, epoch: CosmicEpoch, fragmenting: boolean, ringHalo: boolean): PlateId {
+function plateId(mode: SkyMode, epoch: CosmicEpoch, fragmenting: boolean, ringHalo: boolean, star: string | null): PlateId {
+  if (star === "mainSequence") return "sun";
+  if (star === "giant") return "giant";
+  if (star === "supernova") return "burst";
+  if (star === "whiteDwarf") return "cinder";
+  if (star === "neutronStar") return "pulse";
+  if (star === "blackHole") return "hole";
   if (epoch === "recombination") return "fire";
   if (epoch === "degeneracy" || epoch === "blackHoles") return "ember";
   if (mode === "collision") return "clash";
@@ -39,12 +51,13 @@ type Props = {
   epoch: CosmicEpoch;
   fragmenting: boolean;
   ringHalo: boolean;
+  star: string | null;
   variant: "thumb" | "row";
 };
 
-export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, variant }: Props) {
+export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, variant }: Props) {
   const [open, setOpen] = useState(false);
-  const id = plateId(mode, epoch, fragmenting, ringHalo);
+  const id = plateId(mode, epoch, fragmenting, ringHalo, star);
   const plate = copy.proof[id];
   const photo = PHOTO[id];
   const face = FACE[id];

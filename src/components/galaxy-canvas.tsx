@@ -255,6 +255,7 @@ type Props = {
     stages: Record<string, string>;
   };
   onStepTime?: (dir: -1 | 1) => void;
+  onGateLook?: (stage: string | null) => void;
 };
 
 /** Frame clock. A hot preview drops the previous loop when this changes. */
@@ -288,6 +289,7 @@ export function GalaxyCanvas({
   onSkyH0,
   gate,
   onStepTime,
+  onGateLook,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gateOn, setGateOn] = useState(false);
@@ -296,6 +298,15 @@ export function GalaxyCanvas({
   const [gateBodies, setGateBodies] = useState<{ mass: number; stage: string; age: number; x: number; y: number }[]>([]);
   const [gateAt, setGateAt] = useState(0);
   const [gateRing, setGateRing] = useState<{ x: number; y: number; r: number } | null>(null);
+  const onGateLookRef = useRef(onGateLook);
+  onGateLookRef.current = onGateLook;
+  useEffect(() => {
+    if (!gateOn || !gatePlaced || gateBodies.length === 0) {
+      onGateLookRef.current?.(null);
+      return;
+    }
+    onGateLookRef.current?.(gateBodies[gateAt % gateBodies.length]?.stage ?? null);
+  }, [gateOn, gatePlaced, gateBodies, gateAt]);
   const gateRef = useRef<{ x: number; y: number; zoom: number } | null>(null);
   const gateOnRef = useRef(false);
   const gateDirty = useRef(false);

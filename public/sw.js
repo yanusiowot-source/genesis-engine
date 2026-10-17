@@ -2,7 +2,7 @@
  * Hashed /assets → cache-first. Documents → network-first, cache fallback.
  * Third-party (fonts, MAST) left on the wire.
  */
-const CACHE = "genesis-sw-2.4";
+const CACHE = "genesis-sw-2.5";
 
 const SHELL = [
   "/",
@@ -22,6 +22,10 @@ const SHELL = [
   "/proof/newton.jpg",
   "/proof/kepler.jpg",
   "/proof/saturn.jpg",
+  "/proof/sun.jpg",
+  "/proof/giant.jpg",
+  "/proof/sirius.jpg",
+  "/proof/hole.jpg",
 ];
 
 self.addEventListener("install", (event) => {

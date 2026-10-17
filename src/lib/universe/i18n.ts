@@ -85,6 +85,12 @@ export type Copy = {
     cluster: { title: string; body: string; person: string; years: string; credit: string };
     ember: { title: string; body: string; person: string; years: string; credit: string };
     orbit: { title: string; body: string; person: string; years: string; credit: string };
+    sun: { title: string; body: string; person: string; years: string; credit: string };
+    giant: { title: string; body: string; person: string; years: string; credit: string };
+    burst: { title: string; body: string; person: string; years: string; credit: string };
+    cinder: { title: string; body: string; person: string; years: string; credit: string };
+    pulse: { title: string; body: string; person: string; years: string; credit: string };
+    hole: { title: string; body: string; person: string; years: string; credit: string };
   };
   scanning: string;
   plot: {
@@ -905,6 +911,48 @@ const en: Copy = {
       person: "Johannes Kepler",
       years: "1571–1630",
       credit: "NASA / JPL / Space Science Institute. Public domain. Portrait from the 17th century, painter unknown.",
+    },
+    sun: {
+      title: "The Sun",
+      body: "The star in the circle is still living quietly, as the Sun does. This photograph is our Sun in ultraviolet. The eye does not see it this way. It is not the star you marked.",
+      person: "",
+      years: "",
+      credit: "NASA / SDO. Public domain.",
+    },
+    giant: {
+      title: "Betelgeuse",
+      body: "The star in the circle has swollen. The photograph is Betelgeuse, a real red giant, not your star. It has already thrown off a shell.",
+      person: "",
+      years: "",
+      credit: "NASA, ESA, E. Wheatley (STScI). CC BY 4.0.",
+    },
+    burst: {
+      title: "The flash",
+      body: "The star in the circle is exploding. The photograph is the Crab Nebula, the wreck of the flash of 1054. That explosion is not yours.",
+      person: "",
+      years: "",
+      credit: "NASA, ESA, J. Hester and A. Loll. Public domain.",
+    },
+    cinder: {
+      title: "A white dwarf",
+      body: "The star in the circle has burned down to a cinder. In the photograph, the bright star is Sirius A. The small dot beside it is the white dwarf Sirius B. Neither is your star.",
+      person: "",
+      years: "",
+      credit: "NASA, ESA, H. Bond and M. Barstow. Public domain.",
+    },
+    pulse: {
+      title: "A neutron star",
+      body: "The star in the circle has been crushed into neutrons. The photograph is the Crab again. A star like that spins in the middle of the cloud. The dot itself is too small to see this way.",
+      person: "",
+      years: "",
+      credit: "NASA, ESA, J. Hester and A. Loll. Public domain.",
+    },
+    hole: {
+      title: "The shadow of M87",
+      body: "The star in the circle has become a black hole. This is not a photograph of its surface. Radio telescopes added up the shadow of the hole in galaxy M87. Light does not come out. It is not your hole.",
+      person: "",
+      years: "",
+      credit: "Event Horizon Telescope Collaboration. CC BY 4.0.",
     },
   },
   scanning: "Survey of 64 skies. Most stay empty.",
