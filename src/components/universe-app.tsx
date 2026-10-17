@@ -20,6 +20,7 @@ import { GalaxyCanvas } from "@/components/galaxy-canvas";
 import { BenchSheet } from "@/components/bench-sheet";
 import { KeepSheet } from "@/components/keep-sheet";
 import { DiskNote } from "@/components/disk-note";
+import { FateNote } from "@/components/fate-note";
 import { ProofButton } from "@/components/proof-card";
 import { CosmicClock } from "@/components/cosmic-clock";
 import { MoreMenu } from "@/components/more-menu";
@@ -521,6 +522,7 @@ export function UniverseApp() {
   const [siliconOpen, setSiliconOpen] = useState(false);
   const [benchOpen, setBenchOpen] = useState(false);
   const [diskOpen, setDiskOpen] = useState(false);
+  const [fateOpen, setFateOpen] = useState(false);
   const [eternalOpen, setEternalOpen] = useState(false);
   const [swarmOpen, setSwarmOpen] = useState(false);
   const [hapticsOn, setHapticsOn] = useState(true);
@@ -2759,6 +2761,7 @@ export function UniverseApp() {
                   fateTaps.current = 0;
                   flashEgg(copy.eggs.panic);
                 }
+                setFateOpen(true);
               }}
               className={cn(
                 "hud-chip rounded-full px-2 py-1 font-mono text-[0.6875rem] tracking-wide uppercase sm:px-2.5",
@@ -3212,6 +3215,7 @@ export function UniverseApp() {
       {diskOpen ? (
         <DiskNote copy={copy} q={disk.Q} niche={disk.niche} onClose={() => setDiskOpen(false)} />
       ) : null}
+      {fateOpen ? <FateNote copy={copy} fate={ev.fate} onClose={() => setFateOpen(false)} /> : null}
       {scriptureOpen && passage ? (
         <ScriptureSheet
           copy={copy}

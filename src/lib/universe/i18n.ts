@@ -75,6 +75,8 @@ export type Copy = {
   clockAsk: string;
   clockAge: string;
   clockHeat: string;
+  fateAsk: string;
+  fateNote: string;
   gatePrev: string;
   gateNext: string;
   gateYear: string;
@@ -889,6 +891,8 @@ const en: Copy = {
     "The first number is this sky's age in the model, in billions of years. The slider moves it. Now puts ours, about 13.8.",
   clockHeat:
     "The second number is the heat of the first light, in kelvin. Since the fog turned clear it has only been stretched. Today in the model it is about 2.7 K. Earlier on the slider it is hotter. It is not a thermometer on a star.",
+  fateAsk: "What this word means",
+  fateNote: "This is the model's verdict for this sky, not a planet that was found. The word says whether chemistry could even start here.",
   gatePrev: "Previous",
   gateNext: "Next",
   gateYear: "Gyr",
