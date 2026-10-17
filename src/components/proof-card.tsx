@@ -45,13 +45,13 @@ function plateId(mode: SkyMode, epoch: CosmicEpoch, fragmenting: boolean, ringHa
   return "disk";
 }
 
-function laterLine(stage: string, mass: number, copy: Copy): string {
-  if (stage === "whiteDwarf" || stage === "neutronStar" || stage === "blackHole") return copy.proof.fateDone;
+function laterLine(stage: string, mass: number, proof: Copy["proof"]): string {
+  if (stage === "whiteDwarf" || stage === "neutronStar" || stage === "blackHole") return proof.fateDone;
   const heavy = mass >= 25;
   const mid = mass >= 8;
-  if (stage === "supernova") return heavy ? copy.proof.fateToHole : copy.proof.fateToPulse;
-  if (stage === "giant") return heavy ? copy.proof.fateHole : mid ? copy.proof.fateBurst : copy.proof.fateCinder;
-  return heavy ? copy.proof.fateHole : mid ? copy.proof.fateBurst : copy.proof.fateQuiet;
+  if (stage === "supernova") return heavy ? proof.fateToHole : proof.fateToPulse;
+  if (stage === "giant") return heavy ? proof.fateHole : mid ? proof.fateBurst : proof.fateCinder;
+  return heavy ? proof.fateHole : mid ? proof.fateBurst : proof.fateQuiet;
 }
 
 type Look = { stage: string; mass: number; age: number; tau: number; n: number; m: number };
@@ -61,14 +61,20 @@ function yearsLeft(n: number): string {
   return n >= 10 ? n.toFixed(0) : n.toFixed(1);
 }
 
-function clockLine(stage: string, age: number, tau: number, copy: Copy): string {
+function clockLine(stage: string, age: number, tau: number, proof: Copy["proof"]): string {
   if (stage === "whiteDwarf" || stage === "neutronStar" || stage === "blackHole" || stage === "supernova") return "";
   const end = stage === "giant" ? tau - age : tau * 0.88 - age;
   if (!(end > 0.05)) return "";
-  if (end > 100) return stage === "giant" ? "" : copy.proof.leftLong;
+  if (end > 100) return stage === "giant" ? "" : proof.leftLong;
   const n = yearsLeft(end);
-  const line = stage === "giant" ? copy.proof.leftGiant : copy.proof.leftQuiet;
+  const line = stage === "giant" ? proof.leftGiant : proof.leftQuiet;
   return line.replace("{n}", n);
+}
+
+export function starLesson(stage: string, mass: number, age: number, tau: number, proof: Copy["proof"]): string {
+  const clock = clockLine(stage, age, tau, proof);
+  const later = laterLine(stage, mass, proof);
+  return clock ? `${clock} ${later}` : later;
 }
 
 type Props = {
@@ -92,8 +98,8 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
   const here = look
     ? `${look.n} / ${look.m} · ${look.mass.toFixed(2)} ${copy.proof.solar} · ${look.age.toFixed(1)} ${copy.proof.year}`
     : "";
-  const later = look ? laterLine(look.stage, look.mass, copy) : "";
-  const clock = look ? clockLine(look.stage, look.age, look.tau, copy) : "";
+  const later = look ? laterLine(look.stage, look.mass, copy.proof) : "";
+  const clock = look ? clockLine(look.stage, look.age, look.tau, copy.proof) : "";
 
   useEffect(() => {
     if (!open) return;

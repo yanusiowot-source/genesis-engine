@@ -2262,6 +2262,7 @@ export function UniverseApp() {
             next: copy.gateNext,
             year: copy.gateYear,
             stages: copy.obs.worldsStage,
+            proof: copy.proof,
           }}
           onStepTime={(dir) => setCosmicTime((t) => Math.min(1, Math.max(0, t + dir * 0.06)))}
           onGateLook={setGateLook}

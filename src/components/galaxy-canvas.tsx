@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { starLesson } from "@/components/proof-card";
+import type { Copy } from "@/lib/universe/i18n";
 import {
   adaptiveQuality,
   canvasDpr,
@@ -254,6 +256,7 @@ type Props = {
     next: string;
     year: string;
     stages: Record<string, string>;
+    proof: Copy["proof"];
   };
   onStepTime?: (dir: -1 | 1) => void;
   onGateLook?: (look: { stage: string; mass: number; age: number; tau: number; n: number; m: number } | null) => void;
@@ -2708,12 +2711,18 @@ export function GalaxyCanvas({
         {gateOn ? (
           <p
             key={gatePlaced ? gateAt : "wait"}
-            className="view-swap pointer-events-none line-clamp-2 max-w-sm text-sm text-pretty text-fg [text-shadow:0_1px_2px_#09061a,0_0_14px_#09061a]"
+            className="view-swap pointer-events-none line-clamp-3 max-w-sm text-sm text-pretty text-fg [text-shadow:0_1px_2px_#000,0_0_14px_#000]"
           >
             {!gatePlaced
               ? (gate?.wait ?? "Tap a place on the sky.")
               : gateBodies.length
-                ? `${(gateAt % gateBodies.length) + 1} / ${gateBodies.length}. ${gate?.stages[gateBodies[gateAt % gateBodies.length].stage] ?? gateBodies[gateAt % gateBodies.length].stage}.`
+                ? (() => {
+                    const body = gateBodies[gateAt % gateBodies.length];
+                    const stage = gate?.stages[body.stage] ?? body.stage;
+                    const mass = `${body.mass.toFixed(1)} ${gate?.proof.solar ?? ""}`.trim();
+                    const lesson = gate?.proof ? starLesson(body.stage, body.mass, body.age, body.tau, gate.proof) : "";
+                    return `${(gateAt % gateBodies.length) + 1} / ${gateBodies.length}. ${stage}. ${mass}. ${lesson}`;
+                  })()
                 : (gate?.empty ?? "Nothing bright in this circle.")}
           </p>
         ) : null}
@@ -2726,8 +2735,8 @@ export function GalaxyCanvas({
             top: gateRing.y - gateRing.r,
             width: gateRing.r * 2,
             height: gateRing.r * 2,
-            border: "3px solid #f0c36b",
-            boxShadow: "0 0 0 3px rgba(9,6,26,0.9), inset 0 0 0 3px rgba(9,6,26,0.75), inset 0 0 0 6px #f0c36b",
+            border: "3px solid #0a84ff",
+            boxShadow: "0 0 0 3px rgba(0,0,0,0.9), inset 0 0 0 3px rgba(0,0,0,0.75), inset 0 0 0 6px #0a84ff",
           }}
         />
       ) : null}
@@ -2740,7 +2749,7 @@ export function GalaxyCanvas({
             width: 18,
             height: 18,
             border: "2px solid #fff6e0",
-            boxShadow: "0 0 0 2px #f0c36b",
+            boxShadow: "0 0 0 2px #0a84ff",
           }}
         />
       ) : null}
