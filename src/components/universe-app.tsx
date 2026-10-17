@@ -18,6 +18,7 @@ import {
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
 import { BenchSheet } from "@/components/bench-sheet";
+import { KeepSheet } from "@/components/keep-sheet";
 import { DiskNote } from "@/components/disk-note";
 import { ProofButton } from "@/components/proof-card";
 import { CosmicClock } from "@/components/cosmic-clock";
@@ -802,7 +803,8 @@ export function UniverseApp() {
     mandateRef.current = loadedWork;
     setMandate(loadedWork);
     if (isKeepHash()) {
-      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      setKeepOpen(true);
+      setOnboard(false);
     } else if (isAboutHash()) {
       setAboutIntent(true);
     }
@@ -822,7 +824,14 @@ export function UniverseApp() {
   useEffect(() => {
     const applyHash = () => {
       if (isKeepHash()) {
-        window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+        setHelpOpen(false);
+        setGamesOpen(false);
+        setInstallOpen(false);
+        setSiliconOpen(false);
+        setSettingsOpen(false);
+        setMandateOpen(false);
+        setKeepOpen(true);
+        setOnboard(false);
         return;
       }
       if (!isAboutHash()) return;
@@ -3167,6 +3176,7 @@ export function UniverseApp() {
             setSettingsOpen(false);
             setBenchOpen(true);
           }}
+          onKeep={() => showOverlay("keep")}
           onCanon={openCanon}
           onClose={() => {
             setSettingsOpen(false);
@@ -3182,6 +3192,17 @@ export function UniverseApp() {
       {helpOpen ? <HelpSheet copy={copy} onClose={() => setHelpOpen(false)} /> : null}
       {gamesOpen ? <ArcadeSheet copy={copy} onClose={() => setGamesOpen(false)} /> : null}
       {benchOpen ? <BenchSheet copy={copy} onClose={() => setBenchOpen(false)} /> : null}
+      {keepOpen ? (
+        <KeepSheet
+          copy={copy}
+          onClose={() => {
+            setKeepOpen(false);
+            if (isKeepHash()) {
+              window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+            }
+          }}
+        />
+      ) : null}
       {diskOpen ? (
         <DiskNote copy={copy} q={disk.Q} niche={disk.niche} onClose={() => setDiskOpen(false)} />
       ) : null}

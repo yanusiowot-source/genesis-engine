@@ -1415,9 +1415,11 @@ const en: Copy = {
     receiptHint: "Keep this. Send it with the tx. The author writes back on X with the window. The lab on the web stays open without it.",
     writeCta: "Write on X with the plate",
     roomTitle: "A room, a class, a hall",
-    roomBody: "Classrooms, planetariums, exhibition: write with the size of the room. That license is separate.",
+    roomBody:
+      "A school, planetarium, or exhibition: 40 USDT once, the same BEP20 network. One window on the computer in that room. Write how many seats. The laboratory in the browser stays free.",
     roomCta: "Write for a room license",
-    roomOrderText: "Hello. Classroom or planetarium license for Genesis Engine. Room size:",
+    roomOrderText:
+      "Hello. Room license for Genesis Engine, 40 USDT once (BEP20). Seats in the room:",
     saveCta: "Save the plate",
     invalidTx: "That does not look like a transaction.",
     openCta: "Keep a copy · from $1",

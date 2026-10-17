@@ -50,6 +50,7 @@ type Props = {
   onHelp: () => void;
   onGames: () => void;
   onBench: () => void;
+  onKeep: () => void;
   onCanon: () => void;
   onClose: () => void;
   openAbout?: boolean;
@@ -96,6 +97,7 @@ export function SettingsSheet({
   onHelp,
   onGames,
   onBench,
+  onKeep,
   onCanon,
   onClose,
   openAbout = false,
@@ -370,6 +372,7 @@ export function SettingsSheet({
         <Group>
           <ActionRow icon={Gamepad2} label={copy.games} onClick={onGames} />
           <ActionRow icon={Cpu} label={copy.siliconBenchOpen} onClick={onBench} />
+          <ActionRow label={copy.keep.openCta} onClick={onKeep} />
           <ActionRow icon={CircleHelp} label={copy.help} onClick={onHelp} />
           <ActionRow icon={ScrollText} label={copy.scripture.title} onClick={onCanon} />
           <ActionRow icon={Info} label={copy.aboutTitle} onClick={scrollToAbout} />
