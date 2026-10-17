@@ -343,11 +343,12 @@
   grid-template-rows: auto auto minmax(11rem, 1fr) minmax(0, 1fr);
   min-width: 0;
   min-height: 0;
-  overflow-x: clip;
+  overflow: hidden;
 }
 
 .sky-stage > * {
   min-width: 0;
+  min-height: 0;
   max-width: 100%;
 }
 
@@ -747,17 +748,16 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 
 @media (max-height: 40rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(8rem, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(6.5rem, 1fr) minmax(0, 1fr);
     overflow: hidden;
   }
 
   .sky-stage > .hud-stack {
-    height: auto;
     min-height: 0;
+    max-height: 100%;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
     overflow-y: auto;
-    grid-template-rows: min-content min-content min-content min-content;
   }
 
   .hud-stack > [data-hud-band="read"] {
@@ -769,6 +769,10 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   [data-hud-band="clock"] {
     padding-top: 0.125rem;
     padding-bottom: 0.125rem;
+  }
+
+  [data-kicker] {
+    display: none;
   }
 
   [data-hud-name] {

@@ -19,7 +19,7 @@ export function ScriptureLine({ copy, locale, passage, onOpen }: Props) {
       className="scripture-line flex min-h-11 w-full items-start gap-2.5 rounded-[var(--radius-lg)] bg-bg-elevated/80 px-3 py-2 text-left shadow-[var(--shadow-border)]"
     >
       <BookOpen className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
-      <span className="min-w-0 flex-1">
+      <span className="min-w-0 max-w-[68ch] flex-1">
         <span className="scripture-quote block font-display text-sm leading-snug text-pretty text-fg italic line-clamp-2">
           {passageLine(passage, locale)}
         </span>
