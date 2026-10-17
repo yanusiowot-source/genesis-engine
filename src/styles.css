@@ -502,7 +502,7 @@ html.contrast .glass {
 }
 
 [data-hud-mandate-label] {
-  display: none;
+  min-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -770,10 +770,6 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 
   [data-kicker] {
-    display: none;
-  }
-
-  [data-hud-name] {
     display: none;
   }
 

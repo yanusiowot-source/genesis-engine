@@ -2635,7 +2635,9 @@ export function UniverseApp() {
               </button>
             ) : null}
           </div>
-          <div className="mt-1 flex max-w-md items-center gap-2" data-hud-name>
+          </div>
+          <div className="arrive arrive-5 shrink-0" data-hud-band="name">
+          <div className="flex max-w-full items-center gap-2" data-hud-name>
             <button
               type="button"
               onClick={() => {
@@ -2668,23 +2670,27 @@ export function UniverseApp() {
                   />
                 ))}
               </span>
-              <span
-                key={current.id}
-                className="hud-swap min-w-0 font-display text-base leading-tight tracking-[-0.02em] text-balance text-fg sm:text-lg"
-              >
-                {skyLabel}
-              </span>
-              {ours && compact ? (
-                <span className="shrink-0 font-mono text-xs tracking-[0.14em] text-fg-muted uppercase">
-                  {copy.oursBadge}
+              <span className="min-w-0 flex-1">
+                <span
+                  key={current.id}
+                  className="hud-swap flex min-w-0 items-baseline gap-2"
+                >
+                  <span className="min-w-0 truncate font-display text-base leading-tight tracking-[-0.02em] text-fg sm:text-lg">
+                    {skyLabel}
+                  </span>
+                  {ours && compact ? (
+                    <span className="shrink-0 font-mono text-xs tracking-[0.14em] text-fg-muted uppercase">
+                      {copy.oursBadge}
+                    </span>
+                  ) : null}
                 </span>
-              ) : null}
-              <span className="hidden min-w-0 truncate font-mono text-[0.6875rem] tracking-[0.14em] text-fg-subtle uppercase sm:inline" data-hud-mandate-label>
-                {workNext === "atlas"
-                  ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters.atlas.title} ${mandate.fates.length}/${ATLAS_N}`
-                  : workNext
-                    ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters[workNext].title}`
-                    : copy.mandate.done}
+                <span className="mt-0.5 block truncate font-mono text-[0.6875rem] tracking-[0.14em] text-fg-subtle uppercase" data-hud-mandate-label>
+                  {workNext === "atlas"
+                    ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters.atlas.title} ${mandate.fates.length}/${ATLAS_N}`
+                    : workNext
+                      ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters[workNext].title}`
+                      : copy.mandate.done}
+                </span>
               </span>
             </button>
             <div className="flex shrink-0 items-center">
