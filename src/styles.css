@@ -778,7 +778,19 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 }
 
+.proof-row {
+  display: none;
+}
+
 @media (max-height: 40rem) {
+  .proof-thumb {
+    display: none;
+  }
+
+  .proof-row {
+    display: flex;
+  }
+
   .sky-stage {
     grid-template-rows: auto auto minmax(3rem, 0.4fr) minmax(0, 1.6fr);
     overflow: hidden;

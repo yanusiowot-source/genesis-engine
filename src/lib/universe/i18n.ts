@@ -73,6 +73,15 @@ export type Copy = {
   gatePrev: string;
   gateNext: string;
   gateYear: string;
+  proof: {
+    open: string;
+    close: string;
+    disk: { title: string; body: string; person: string; years: string; credit: string };
+    worlds: { title: string; body: string; person: string; years: string; credit: string };
+    lens: { title: string; body: string; person: string; years: string; credit: string };
+    fire: { title: string; body: string; person: string; years: string; credit: string };
+    clash: { title: string; body: string; person: string; years: string; credit: string };
+  };
   scanning: string;
   plot: {
     arrive: string;
@@ -827,6 +836,45 @@ const en: Copy = {
   gatePrev: "Previous",
   gateNext: "Next",
   gateYear: "Gyr",
+  proof: {
+    open: "Real photograph",
+    close: "Close",
+    disk: {
+      title: "Spiral M51",
+      body: "This is a real photograph, not a drawing from the lab. William Herschel showed in 1785 that the Milky Way is a flat disk of stars. M51 is another disk, seen from above.",
+      person: "William Herschel",
+      years: "1738–1822",
+      credit: "NASA, ESA and the Hubble Heritage Team. CC BY 3.0. Portrait by Lemuel Francis Abbott, public domain.",
+    },
+    worlds: {
+      title: "The Moon",
+      body: "A real photograph from the Lunar Reconnaissance Orbiter. In 1609 Galileo turned a tube toward the sky and saw mountains, not a smooth lamp.",
+      person: "Galileo Galilei",
+      years: "1564–1642",
+      credit: "NASA / GSFC / Arizona State University. Public domain. Portrait by Justus Sustermans, 1636, public domain.",
+    },
+    lens: {
+      title: "Einstein ring",
+      body: "The ring is light from a far galaxy that bent around a nearer one. Einstein described the bend. A telescope later caught the ring. This lab draws a similar arc. It does not trace every ray.",
+      person: "",
+      years: "",
+      credit: "NASA, ESA and the Hubble Space Telescope. Public domain. SDSS J2321.",
+    },
+    fire: {
+      title: "The first light",
+      body: "This is the oldest light we can photograph, from the WMAP satellite. The spots are about 13.8 billion years old. Galaxies grew from them.",
+      person: "",
+      years: "",
+      credit: "NASA / WMAP Science Team. Public domain.",
+    },
+    clash: {
+      title: "The Antennae",
+      body: "Two real galaxies pulling on each other. Stars almost never hit. Gas does, and the disks drag out tails. The lab's collision is a sketch of that, not a full simulation.",
+      person: "",
+      years: "",
+      credit: "ESA / Hubble and NASA. CC BY 4.0.",
+    },
+  },
   scanning: "Survey of 64 skies. Most stay empty.",
   plot: {
     arrive: "This is your first sky. It is not saved until you keep it.",
