@@ -21,6 +21,7 @@ import { BenchSheet } from "@/components/bench-sheet";
 import { KeepSheet } from "@/components/keep-sheet";
 import { DiskNote } from "@/components/disk-note";
 import { FateNote } from "@/components/fate-note";
+import { ModeNote } from "@/components/mode-note";
 import { ProofButton } from "@/components/proof-card";
 import { CosmicClock } from "@/components/cosmic-clock";
 import { MoreMenu } from "@/components/more-menu";
@@ -523,6 +524,7 @@ export function UniverseApp() {
   const [benchOpen, setBenchOpen] = useState(false);
   const [diskOpen, setDiskOpen] = useState(false);
   const [fateOpen, setFateOpen] = useState(false);
+  const [modeAsk, setModeAsk] = useState<SkyMode | null>(null);
   const [eternalOpen, setEternalOpen] = useState(false);
   const [swarmOpen, setSwarmOpen] = useState(false);
   const [hapticsOn, setHapticsOn] = useState(true);
@@ -2451,6 +2453,7 @@ export function UniverseApp() {
             copy={copy}
             mode={mode}
             collapseLabel={false}
+            onAsk={setModeAsk}
             onChange={(next) => {
               setMode(next);
               if (next === "collision") {
@@ -3216,6 +3219,7 @@ export function UniverseApp() {
         <DiskNote copy={copy} q={disk.Q} niche={disk.niche} onClose={() => setDiskOpen(false)} />
       ) : null}
       {fateOpen ? <FateNote copy={copy} fate={ev.fate} onClose={() => setFateOpen(false)} /> : null}
+      {modeAsk ? <ModeNote copy={copy} mode={modeAsk} onClose={() => setModeAsk(null)} /> : null}
       {scriptureOpen && passage ? (
         <ScriptureSheet
           copy={copy}

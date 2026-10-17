@@ -7,17 +7,21 @@ type Props = {
   copy: Copy;
   mode: SkyMode;
   onChange: (mode: SkyMode) => void;
+  onAsk?: (mode: SkyMode) => void;
   collapseLabel?: boolean;
 };
 
-export function SkyModes({ copy, mode, onChange, collapseLabel = false }: Props) {
+export function SkyModes({ copy, mode, onChange, onAsk, collapseLabel = false }: Props) {
   return (
     <div className="sky-modes glass glass-clear pointer-events-auto w-full min-w-0 max-w-full overflow-hidden rounded-[var(--radius-xl)]">
     <Segmented
       className="h-auto w-full min-w-0 max-w-full flex-wrap bg-transparent text-xs sm:text-sm"
       ariaLabel={copy.obs.modesLabel}
       value={mode}
-      onChange={onChange}
+      onChange={(id) => {
+        if (id === mode) onAsk?.(id);
+        else onChange(id);
+      }}
       collapseLabel={collapseLabel}
       wrap
       items={[
