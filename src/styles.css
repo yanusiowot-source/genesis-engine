@@ -326,23 +326,12 @@
   overflow-x: clip;
 }
 
-@media (max-width: 1100px) {
-  [data-hud-band="actions"] .sky-actions {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 0.5rem;
-  }
-
-  [data-hud-band="actions"] .sky-actions > .hud-actions {
-    display: contents;
-  }
-
-  [data-hud-band="actions"] .sky-actions button {
-    height: auto;
-    min-height: 2.75rem;
-    white-space: normal;
-    text-align: left;
-  }
+/* Width only changes the chrome. The buttons wrap on their own. */
+[data-hud-band="actions"] .sky-actions button {
+  height: auto;
+  min-height: 2.75rem;
+  white-space: normal;
+  text-align: left;
 }
 
 /* Header, the mode shelf, the sky, then the clock.
@@ -718,7 +707,10 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   pointer-events: auto;
 }
 
-@media (max-height: 720px) {
+/* Height ladder. A short window tightens. It does not hide the verse.
+   45rem: pack the stack. 40rem: drop the fate card and the epoch jumps.
+   31rem: the sheet fills the window. Width 40rem is the phone. */
+@media (max-height: 45rem) {
   .sky-stage {
     grid-template-rows: auto auto minmax(10.5rem, 1fr) minmax(0, 1fr);
   }
@@ -743,48 +735,17 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 }
 
-@media (max-height: 900px), (max-width: 640px) {
+@media (max-width: 40rem) {
+  .sky-glow {
+    opacity: 0.35;
+  }
+
   [data-hud-tall] {
     display: none !important;
   }
 }
 
-@media (max-height: 500px) {
-  .games-hint {
-    display: none;
-  }
-
-  .overlay-sheet {
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
-  }
-}
-
-@media (max-width: 640px) {
-  .sky-glow {
-    opacity: 0.35;
-  }
-}
-
-@media (max-height: 800px) {
-  [data-hud-catalog] {
-    display: none !important;
-  }
-}
-
-@media (max-height: 700px) {
-  .scripture-quote {
-    -webkit-line-clamp: 1;
-    line-clamp: 1;
-  }
-
-  [data-hud-mandate] {
-    min-height: 2rem;
-  }
-}
-
-@media (max-height: 640px) {
+@media (max-height: 40rem) {
   .sky-stage {
     grid-template-rows: auto auto minmax(8rem, 1fr) minmax(0, 1fr);
     overflow: hidden;
@@ -818,8 +779,33 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     display: none;
   }
 
+  [data-hud-tall] {
+    display: none !important;
+  }
+
   [data-hud-band="actions"] {
     position: static;
+  }
+
+  .scripture-quote {
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+  }
+
+  [data-hud-mandate] {
+    min-height: 2rem;
+  }
+}
+
+@media (max-height: 31rem) {
+  .games-hint {
+    display: none;
+  }
+
+  .overlay-sheet {
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
   }
 }
 
