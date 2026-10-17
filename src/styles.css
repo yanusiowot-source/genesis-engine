@@ -433,7 +433,7 @@
 
 .sky-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.25rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
   gap: 0.5rem;
   width: 100%;
 }
@@ -444,12 +444,13 @@
 
 .sky-actions button {
   width: 100%;
-  height: 2.75rem;
+  height: auto;
   min-height: 2.75rem;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
+  padding-inline: 0.6rem;
+  overflow: visible;
+  white-space: normal;
   text-align: center;
+  line-height: 1.15;
   justify-content: center;
 }
 
