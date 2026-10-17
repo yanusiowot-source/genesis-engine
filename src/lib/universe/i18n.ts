@@ -222,6 +222,11 @@ export type Copy = {
   siliconBenchCaps: [string, string, string];
   siliconBenchCode: [string, string, string];
   siliconBenchNotes: [string, string, string];
+  siliconBenchWhere: [string, string, string];
+  siliconBenchCopy: string;
+  siliconBenchCopied: string;
+  siliconDeckTitle: string;
+  siliconDeckSteps: [string, string, string, string];
   siliconBenchLaw: string;
   siliconFacts: [string, string, string];
   siliconThisSky: string;
@@ -1488,6 +1493,20 @@ const en: Copy = {
     "The light on the board. An outside light needs a resistor of about 220 ohms in series. Straight across burns it.",
     "A phone will see a network named ya-zdes, with no password. That is the room, not the sky. Turn the board off when you have looked.",
     "Pin 17, the light, and about 220 ohms to ground. Without the resistor you can burn the pin.",
+  ],
+  siliconBenchWhere: [
+    "Arduino IDE: File → New, erase the empty text, paste this, press the upload arrow.",
+    "The same Arduino IDE, with an ESP32 board chosen. Paste and upload. The phone looks for a network named ya-zdes.",
+    "On the Pi, save it as blink.py. In the terminal: python3 blink.py. Stop with Ctrl+C.",
+  ],
+  siliconBenchCopy: "Copy",
+  siliconBenchCopied: "Copied",
+  siliconDeckTitle: "The box",
+  siliconDeckSteps: [
+    "The light blinks on the bench first. Do not build the box until it does.",
+    "A screen on the Pi, one that already shows the desk. A keyboard. A battery that feeds the Pi, not the wall.",
+    "All of that in one box you can open and carry. The lid must not pinch the wires.",
+    "This is still not a cyborg. There is no silicon record. There is a machine in your hands.",
   ],
   siliconBenchLaw: "The lab sells nothing. A blinking light does not raise the silicon number.",
   siliconFacts: [

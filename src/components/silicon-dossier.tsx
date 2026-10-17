@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatGyr, formatPct } from "@/lib/universe/format";
@@ -16,6 +16,7 @@ type Props = {
 
 export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
   const dossier = siliconDossier(params, evaluation);
+  const [copied, setCopied] = useState<number | null>(null);
   const tone =
     evaluation.siliconProb >= 0.45
       ? "text-silicon"
@@ -148,16 +149,59 @@ export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
             <div className="mt-3 flex flex-col gap-4">
               {copy.siliconBenchCode.map((code, i) => (
                 <figure key={copy.siliconBenchCaps[i]} className="min-w-0">
-                  <figcaption className="font-mono text-xs text-fg">{copy.siliconBenchCaps[i]}</figcaption>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <figcaption className="font-mono text-xs text-fg">{copy.siliconBenchCaps[i]}</figcaption>
+                    <button
+                      type="button"
+                      className="min-h-11 rounded-[var(--radius-sm)] px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+                      onClick={() => {
+                        const text = code;
+                        const done = () => {
+                          setCopied(i);
+                          window.setTimeout(() => setCopied((n) => (n === i ? null : n)), 1600);
+                        };
+                        const fallback = () => {
+                          const area = document.createElement("textarea");
+                          area.value = text;
+                          area.setAttribute("readonly", "");
+                          area.style.position = "fixed";
+                          area.style.left = "-9999px";
+                          document.body.appendChild(area);
+                          area.select();
+                          document.execCommand("copy");
+                          area.remove();
+                          done();
+                        };
+                        if (navigator.clipboard?.writeText) {
+                          navigator.clipboard.writeText(text).then(done, fallback);
+                        } else {
+                          fallback();
+                        }
+                      }}
+                    >
+                      {copied === i ? copy.siliconBenchCopied : copy.siliconBenchCopy}
+                    </button>
+                  </div>
                   <pre className="mt-1 max-w-full overflow-x-auto whitespace-pre-wrap break-words rounded-[var(--radius-sm)] bg-bg px-3 py-2 font-mono text-xs leading-relaxed text-fg">
                     {code}
                   </pre>
                   <figcaption className="mt-1 text-pretty text-xs leading-relaxed text-fg-subtle">
                     {copy.siliconBenchNotes[i]}
                   </figcaption>
+                  <p className="mt-1 text-pretty text-xs leading-relaxed text-fg">{copy.siliconBenchWhere[i]}</p>
                 </figure>
               ))}
             </div>
+            <h3 className="mt-6 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+              {copy.siliconDeckTitle}
+            </h3>
+            <ol className="mt-3 flex list-decimal flex-col gap-3 pl-5">
+              {copy.siliconDeckSteps.map((step) => (
+                <li key={step.slice(0, 24)} className="text-pretty text-sm leading-relaxed text-fg">
+                  {step}
+                </li>
+              ))}
+            </ol>
             <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.siliconBenchLaw}</p>
           </section>
 
