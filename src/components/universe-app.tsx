@@ -243,6 +243,7 @@ import {
   type ExpeditionResult,
   type ResearchTarget,
 } from "@/lib/universe/research";
+import { isStoreShell } from "@/lib/universe/platform";
 import { isAboutHash, isHostedLab, isKeepHash } from "@/lib/universe/studio";
 import type { DiscoveryResult } from "@/lib/universe/symbolic";
 import type { BayesResult } from "@/lib/universe/bayes";
@@ -802,7 +803,7 @@ export function UniverseApp() {
     const loadedWork = loadMandate();
     mandateRef.current = loadedWork;
     setMandate(loadedWork);
-    if (isKeepHash()) {
+    if (isKeepHash() && !isStoreShell()) {
       setKeepOpen(true);
       setOnboard(false);
     } else if (isAboutHash()) {
@@ -824,6 +825,10 @@ export function UniverseApp() {
   useEffect(() => {
     const applyHash = () => {
       if (isKeepHash()) {
+        if (isStoreShell()) {
+          window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+          return;
+        }
         setHelpOpen(false);
         setGamesOpen(false);
         setInstallOpen(false);
@@ -1670,6 +1675,7 @@ export function UniverseApp() {
   }, [tab, panelOpen]);
 
   const showOverlay = (which: "help" | "games" | "silicon" | "eternal" | "swarm" | "settings" | "install" | "keep") => {
+    if (which === "keep" && isStoreShell()) return;
     setHelpOpen(which === "help");
     setGamesOpen(which === "games");
     setSiliconOpen(which === "silicon");
@@ -3192,7 +3198,7 @@ export function UniverseApp() {
       {helpOpen ? <HelpSheet copy={copy} onClose={() => setHelpOpen(false)} /> : null}
       {gamesOpen ? <ArcadeSheet copy={copy} onClose={() => setGamesOpen(false)} /> : null}
       {benchOpen ? <BenchSheet copy={copy} onClose={() => setBenchOpen(false)} /> : null}
-      {keepOpen ? (
+      {keepOpen && !isStoreShell() ? (
         <KeepSheet
           copy={copy}
           onClose={() => {

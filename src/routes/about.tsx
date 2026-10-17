@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { KeepDesk } from "@/components/keep-desk";
 import { Button } from "@/components/ui/button";
 import { copyFor, detectLocale } from "@/lib/universe/i18n";
+import { isStoreShell } from "@/lib/universe/platform";
 import { APP_VERSION, productOffers, PUBLIC_LAB_URL } from "@/lib/universe/studio";
 
 const TITLE = "Genesis Engine — physics is not for sale";
@@ -65,9 +66,11 @@ function AboutPage() {
             <Link to="/">{copy.studioEnterCta}</Link>
           </Button>
         </div>
-        <div className="mt-8">
-          <KeepDesk copy={copy} />
-        </div>
+        {isStoreShell() ? null : (
+          <div className="mt-8">
+            <KeepDesk copy={copy} />
+          </div>
+        )}
         <p className="mt-8 text-sm text-fg-subtle">{copy.sourceCode}</p>
         <p className="mt-1 font-mono text-[0.6875rem] text-fg-subtle">{copy.version}</p>
         <script

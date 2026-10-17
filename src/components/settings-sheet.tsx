@@ -7,6 +7,7 @@ import type { Copy, Locale } from "@/lib/universe/i18n";
 import type { MusicSource, PlaylistEntry } from "@/lib/universe/audio";
 import type { TypeScale } from "@/lib/universe/prefs";
 import { cn } from "@/lib/utils";
+import { isStoreShell } from "@/lib/universe/platform";
 import { AUTHOR_X_URL, PUBLIC_LAB_REPO_URL, PUBLIC_LAB_URL, PUBLIC_SOURCE_REPO_URL, isHostedLab } from "@/lib/universe/studio";
 
 type Props = {
@@ -372,7 +373,7 @@ export function SettingsSheet({
         <Group>
           <ActionRow icon={Gamepad2} label={copy.games} onClick={onGames} />
           <ActionRow icon={Cpu} label={copy.siliconBenchOpen} onClick={onBench} />
-          <ActionRow label={copy.keep.openCta} onClick={onKeep} />
+          {isStoreShell() ? null : <ActionRow label={copy.keep.openCta} onClick={onKeep} />}
           <ActionRow icon={CircleHelp} label={copy.help} onClick={onHelp} />
           <ActionRow icon={ScrollText} label={copy.scripture.title} onClick={onCanon} />
           <ActionRow icon={Info} label={copy.aboutTitle} onClick={scrollToAbout} />
@@ -409,7 +410,7 @@ export function SettingsSheet({
           <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">
             {copy.soundLesson}
           </p>
-          {!hosted ? (
+          {!hosted && !isStoreShell() ? (
             <Button asChild variant="outline" className="mt-2 w-full">
               <a href={PUBLIC_LAB_URL} target="_blank" rel="noopener noreferrer">
                 <ExternalLink />

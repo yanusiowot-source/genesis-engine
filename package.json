@@ -1,7 +1,7 @@
 {
   "name": "genesis-engine",
   "private": true,
-  "version": "2.21.0",
+  "version": "2.22.0",
   "license": "UNLICENSED",
   "description": "Cosmological laboratory: sculpt ΛCDM, hunt four corridors of mind, watch a galaxy.",
   "author": "Ян Ярошевич",
@@ -11,7 +11,8 @@
   "sideEffects": false,
   "type": "module",
   "overrides": {
-    "nf3": "0.3.17"
+    "nf3": "0.3.17",
+    "@floating-ui/react-dom": "2.1.9"
   },
   "scripts": {
     "dev": "node scripts/with-app-env.mjs vite dev --host 0.0.0.0 --port 8080",
@@ -26,6 +27,7 @@
     "check:tests": "node scripts/check-test-manifest.mjs",
     "desktop:build": "node scripts/with-app-env.mjs vite build --config vite.desktop.config.ts",
     "lab:publish": "npm run desktop:build && node scripts/publish-lab.mjs",
+    "ios:sync": "npm run desktop:build && npx cap sync ios",
     "desktop:pack": "npm run desktop:build && node desktop/assemble.mjs",
     "desktop:pack:win": "npm run desktop:build && node desktop/assemble.mjs win32",
     "desktop:pack:linux": "npm run desktop:build && node desktop/assemble.mjs linux",
@@ -40,6 +42,8 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@capacitor/core": "^8.5.3",
+    "@capacitor/ios": "^8.5.3",
     "@electric-sql/pglite": "^0.5.4",
     "@hookform/resolvers": "^5.7.0",
     "@radix-ui/react-accordion": "^1.2.12",
@@ -97,6 +101,7 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.5.3",
     "@eslint/js": "^9.20.0",
     "@types/node": "^22.16.5",
     "@types/pg": "^8.11.10",
