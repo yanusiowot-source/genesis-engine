@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { BenchSheet } from "@/components/bench-sheet";
 import { Button } from "@/components/ui/button";
 import { formatGyr, formatPct } from "@/lib/universe/format";
 import type { Copy } from "@/lib/universe/i18n";
@@ -16,7 +17,7 @@ type Props = {
 
 export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
   const dossier = siliconDossier(params, evaluation);
-  const [copied, setCopied] = useState<number | null>(null);
+  const [bench, setBench] = useState(false);
   const tone =
     evaluation.siliconProb >= 0.45
       ? "text-silicon"
@@ -26,11 +27,11 @@ export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !bench) onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
+  }, [onClose, bench]);
 
   const stats = [
     { k: copy.siliconStarT, v: `${dossier.starTempK} K` },
@@ -129,80 +130,10 @@ export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
               {copy.siliconGuess}
             </h3>
             <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{copy.siliconCyborg}</p>
-          </section>
-
-          <section className="mt-6">
-            <h3 className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
-              {copy.siliconBenchTitle}
-            </h3>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{copy.siliconBenchTale}</p>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.siliconBenchOhm}</p>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.siliconBenchRadio}</p>
-            <ol className="mt-3 flex list-decimal flex-col gap-3 pl-5">
-              {copy.siliconBenchSteps.map((step) => (
-                <li key={step.slice(0, 24)} className="text-pretty text-sm leading-relaxed text-fg">
-                  {step}
-                </li>
-              ))}
-            </ol>
-            <p className="mt-4 text-pretty text-sm leading-relaxed text-fg">{copy.siliconBenchPaste}</p>
-            <div className="mt-3 flex flex-col gap-4">
-              {copy.siliconBenchCode.map((code, i) => (
-                <figure key={copy.siliconBenchCaps[i]} className="min-w-0">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <figcaption className="font-mono text-xs text-fg">{copy.siliconBenchCaps[i]}</figcaption>
-                    <button
-                      type="button"
-                      className="min-h-11 rounded-[var(--radius-sm)] px-3 text-sm text-fg shadow-[var(--shadow-border)]"
-                      onClick={() => {
-                        const text = code;
-                        const done = () => {
-                          setCopied(i);
-                          window.setTimeout(() => setCopied((n) => (n === i ? null : n)), 1600);
-                        };
-                        const fallback = () => {
-                          const area = document.createElement("textarea");
-                          area.value = text;
-                          area.setAttribute("readonly", "");
-                          area.style.position = "fixed";
-                          area.style.left = "-9999px";
-                          document.body.appendChild(area);
-                          area.select();
-                          document.execCommand("copy");
-                          area.remove();
-                          done();
-                        };
-                        if (navigator.clipboard?.writeText) {
-                          navigator.clipboard.writeText(text).then(done, fallback);
-                        } else {
-                          fallback();
-                        }
-                      }}
-                    >
-                      {copied === i ? copy.siliconBenchCopied : copy.siliconBenchCopy}
-                    </button>
-                  </div>
-                  <pre className="mt-1 max-w-full overflow-x-auto whitespace-pre-wrap break-words rounded-[var(--radius-sm)] bg-bg px-3 py-2 font-mono text-xs leading-relaxed text-fg">
-                    {code}
-                  </pre>
-                  <figcaption className="mt-1 text-pretty text-xs leading-relaxed text-fg-subtle">
-                    {copy.siliconBenchNotes[i]}
-                  </figcaption>
-                  <p className="mt-1 text-pretty text-xs leading-relaxed text-fg">{copy.siliconBenchWhere[i]}</p>
-                </figure>
-              ))}
-            </div>
-            <h3 className="mt-6 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
-              {copy.siliconDeckTitle}
-            </h3>
-            <ol className="mt-3 flex list-decimal flex-col gap-3 pl-5">
-              {copy.siliconDeckSteps.map((step) => (
-                <li key={step.slice(0, 24)} className="text-pretty text-sm leading-relaxed text-fg">
-                  {step}
-                </li>
-              ))}
-            </ol>
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.siliconBenchLaw}</p>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.siliconBenchDoor}</p>
+            <Button className="mt-3" variant="outline" onClick={() => setBench(true)}>
+              {copy.siliconBenchOpen}
+            </Button>
           </section>
 
           <section className="mt-6">
@@ -272,6 +203,7 @@ export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
           </section>
         </div>
       </div>
+      {bench ? <BenchSheet copy={copy} onClose={() => setBench(false)} /> : null}
     </div>
   );
 }

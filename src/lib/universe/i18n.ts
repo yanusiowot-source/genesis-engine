@@ -214,6 +214,8 @@ export type Copy = {
   siliconGuess: string;
   siliconCyborg: string;
   siliconBenchTitle: string;
+  siliconBenchDoor: string;
+  siliconBenchOpen: string;
   siliconBenchTale: string;
   siliconBenchOhm: string;
   siliconBenchRadio: string;
@@ -1469,7 +1471,10 @@ const en: Copy = {
   siliconGuess: "A guess, not a measurement",
   siliconCyborg:
     "A cyborg is allowed: a machine on the outside, with heredity written on a silicon chain instead of carbon DNA. Nobody has held that chain. In water, silicon becomes sand, so the guess only lives in heat and without free oxygen. The story does not raise this sky's number.",
-  siliconBenchTitle: "The tale, in your hands",
+  siliconBenchTitle: "The bench",
+  siliconBenchDoor:
+    "This is not a measurement, and it is not this sky. The boards, the wire, and the box sit on their own sheet. They do not raise the silicon number.",
+  siliconBenchOpen: "Open the bench",
   siliconBenchTale:
     "The cyborg in the guess is a machine outside and a record nobody has. A cyberdeck is the opposite: a machine you can hold. The tale stays a tale. The bench below is real.",
   siliconBenchOhm:

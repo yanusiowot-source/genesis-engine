@@ -32,10 +32,6 @@ export function SiliconPanel({ copy, params, evaluation, onOpen }: Props) {
       <p className="text-pretty text-sm leading-relaxed text-fg-muted">
         {copy.siliconNote[evaluation.siliconNiche]}
       </p>
-      <p className="text-pretty text-sm leading-relaxed text-fg">
-        <span className="font-mono text-[0.65rem] tracking-[0.08em] text-fg-subtle uppercase">{copy.siliconGuess}. </span>
-        {copy.siliconCyborg}
-      </p>
       <ul className="flex flex-col gap-2.5">
         {factors.map((f) => (
           <li key={f.id} className="flex flex-col gap-1">
