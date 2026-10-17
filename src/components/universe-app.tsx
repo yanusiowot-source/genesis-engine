@@ -18,6 +18,7 @@ import {
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
 import { BenchSheet } from "@/components/bench-sheet";
+import { DiskNote } from "@/components/disk-note";
 import { ProofButton } from "@/components/proof-card";
 import { CosmicClock } from "@/components/cosmic-clock";
 import { MoreMenu } from "@/components/more-menu";
@@ -517,6 +518,7 @@ export function UniverseApp() {
   const [keepOpen, setKeepOpen] = useState(false);
   const [siliconOpen, setSiliconOpen] = useState(false);
   const [benchOpen, setBenchOpen] = useState(false);
+  const [diskOpen, setDiskOpen] = useState(false);
   const [eternalOpen, setEternalOpen] = useState(false);
   const [swarmOpen, setSwarmOpen] = useState(false);
   const [hapticsOn, setHapticsOn] = useState(true);
@@ -2570,7 +2572,13 @@ export function UniverseApp() {
             </div>
           ) : null}
           <div className="arrive arrive-5" data-hud-band="read">
-          <p className="sky-ink mt-1.5 truncate font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase" data-hud-catalog>
+          <button
+            type="button"
+            className="sky-ink mt-1.5 block w-full truncate bg-transparent p-0 text-left font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
+            data-hud-catalog
+            aria-label={`${copy.diskAsk}. ${copy.obs.diskQ} ${disk.Q.toFixed(1)}. ${copy.obs.diskNiche[disk.niche]}`}
+            onClick={() => setDiskOpen(true)}
+          >
             {current.catalog}
             <span className="mx-2 text-fg-subtle/50">/</span>
             {copy.morphology[ev.morphology]}
@@ -2580,7 +2588,7 @@ export function UniverseApp() {
                 {copy.obs.diskQ} {disk.Q.toFixed(1)}
               </>
             ) : null}
-          </p>
+          </button>
           {isAnswerCatalog(current.catalog) ? (
             <p className="mt-1 max-w-md text-pretty text-xs leading-relaxed text-accent line-clamp-1">{copy.eggs.answer}</p>
           ) : null}
@@ -3174,6 +3182,9 @@ export function UniverseApp() {
       {helpOpen ? <HelpSheet copy={copy} onClose={() => setHelpOpen(false)} /> : null}
       {gamesOpen ? <ArcadeSheet copy={copy} onClose={() => setGamesOpen(false)} /> : null}
       {benchOpen ? <BenchSheet copy={copy} onClose={() => setBenchOpen(false)} /> : null}
+      {diskOpen ? (
+        <DiskNote copy={copy} q={disk.Q} niche={disk.niche} onClose={() => setDiskOpen(false)} />
+      ) : null}
       {scriptureOpen && passage ? (
         <ScriptureSheet
           copy={copy}

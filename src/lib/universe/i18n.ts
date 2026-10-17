@@ -70,6 +70,8 @@ export type Copy = {
   gateWait: string;
   gateEmpty: string;
   gateNote: string;
+  diskAsk: string;
+  diskNote: string;
   gatePrev: string;
   gateNext: string;
   gateYear: string;
@@ -876,6 +878,9 @@ const en: Copy = {
   gateWait: "Tap a place on the sky.",
   gateEmpty: "Nothing bright in this circle.",
   gateNote: "This sky's model, not a catalog.",
+  diskAsk: "What Q means",
+  diskNote:
+    "Q is Toomre's number. Above 1 the disk holds together. Near 1 and below, its own gravity breaks it into clumps. This is the model's count, not a photograph.",
   gatePrev: "Previous",
   gateNext: "Next",
   gateYear: "Gyr",
