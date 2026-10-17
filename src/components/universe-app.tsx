@@ -483,7 +483,7 @@ export function UniverseApp() {
   const [draftNote, setDraftNote] = useState<string | null>(null);
   const draftFor = useRef("");
   const [mode, setMode] = useState<SkyMode>("galaxy");
-  const [gateStage, setGateStage] = useState<string | null>(null);
+  const [gateLook, setGateLook] = useState<{ stage: string; mass: number; age: number; n: number; m: number } | null>(null);
   const timeRef = useRef(0.55);
   const skyNudge = useRef<(dx: number, dy: number) => void>(() => {});
   const [cosmicTime, setCosmicTimeState] = useState(0.55);
@@ -2261,7 +2261,7 @@ export function UniverseApp() {
             stages: copy.obs.worldsStage,
           }}
           onStepTime={(dir) => setCosmicTime((t) => Math.min(1, Math.max(0, t + dir * 0.06)))}
-          onGateLook={setGateStage}
+          onGateLook={setGateLook}
         />
         {birthFlash ? (
           <div
@@ -2284,7 +2284,7 @@ export function UniverseApp() {
           aria-hidden
           className="pointer-events-none absolute inset-0 sky-glow"
         />
-        <ProofButton copy={copy} mode={mode} epoch={liveEpoch} fragmenting={disk.niche === "fragmenting"} ringHalo={halo.model === "isothermal"} star={gateStage} variant="thumb" />
+        <ProofButton copy={copy} mode={mode} epoch={liveEpoch} fragmenting={disk.niche === "fragmenting"} ringHalo={halo.model === "isothermal"} star={gateLook?.stage ?? null} look={gateLook} variant="thumb" />
         </div>
 
         <header className={cn("arrive relative z-10 row-start-1 w-full min-w-0 shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pointer-events-none sm:px-8", onboard && "hidden")}>
@@ -2551,7 +2551,7 @@ export function UniverseApp() {
           </div>
           </div>
           <div className="hud-mid">
-          <ProofButton copy={copy} mode={mode} epoch={liveEpoch} fragmenting={disk.niche === "fragmenting"} ringHalo={halo.model === "isothermal"} star={gateStage} variant="row" />
+          <ProofButton copy={copy} mode={mode} epoch={liveEpoch} fragmenting={disk.niche === "fragmenting"} ringHalo={halo.model === "isothermal"} star={gateLook?.stage ?? null} look={gateLook} variant="row" />
           {hydrated && scriptureOn && tab === "sky" && passage ? (
             <div className="arrive arrive-5" data-hud-band="scripture">
               <Suspense fallback={null}>

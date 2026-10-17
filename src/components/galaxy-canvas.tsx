@@ -255,7 +255,7 @@ type Props = {
     stages: Record<string, string>;
   };
   onStepTime?: (dir: -1 | 1) => void;
-  onGateLook?: (stage: string | null) => void;
+  onGateLook?: (look: { stage: string; mass: number; age: number; n: number; m: number } | null) => void;
 };
 
 /** Frame clock. A hot preview drops the previous loop when this changes. */
@@ -305,7 +305,18 @@ export function GalaxyCanvas({
       onGateLookRef.current?.(null);
       return;
     }
-    onGateLookRef.current?.(gateBodies[gateAt % gateBodies.length]?.stage ?? null);
+    const body = gateBodies[gateAt % gateBodies.length];
+    if (!body) {
+      onGateLookRef.current?.(null);
+      return;
+    }
+    onGateLookRef.current?.({
+      stage: body.stage,
+      mass: body.mass,
+      age: body.age,
+      n: (gateAt % gateBodies.length) + 1,
+      m: gateBodies.length,
+    });
   }, [gateOn, gatePlaced, gateBodies, gateAt]);
   const gateRef = useRef<{ x: number; y: number; zoom: number } | null>(null);
   const gateOnRef = useRef(false);

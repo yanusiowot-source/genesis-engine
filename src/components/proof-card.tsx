@@ -45,6 +45,8 @@ function plateId(mode: SkyMode, epoch: CosmicEpoch, fragmenting: boolean, ringHa
   return "disk";
 }
 
+type Look = { stage: string; mass: number; age: number; n: number; m: number };
+
 type Props = {
   copy: Copy;
   mode: SkyMode;
@@ -52,15 +54,19 @@ type Props = {
   fragmenting: boolean;
   ringHalo: boolean;
   star: string | null;
+  look: Look | null;
   variant: "thumb" | "row";
 };
 
-export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, variant }: Props) {
+export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, look, variant }: Props) {
   const [open, setOpen] = useState(false);
   const id = plateId(mode, epoch, fragmenting, ringHalo, star);
   const plate = copy.proof[id];
   const photo = PHOTO[id];
   const face = FACE[id];
+  const here = look
+    ? `${look.n} / ${look.m} · ${look.mass.toFixed(2)} ${copy.proof.solar} · ${look.age.toFixed(1)} ${copy.proof.year}`
+    : "";
 
   useEffect(() => {
     if (!open) return;
@@ -77,13 +83,16 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, va
         type="button"
         className={
           variant === "thumb"
-            ? "proof-thumb absolute top-2 right-2 z-[4] size-14 overflow-hidden rounded-[var(--radius-sm)] shadow-[var(--shadow-border)]"
+            ? "proof-thumb absolute top-2 right-2 z-[4] w-14 overflow-hidden rounded-[var(--radius-sm)] bg-bg/80 text-fg shadow-[var(--shadow-border)]"
             : "proof-row flex min-h-11 w-full items-center gap-2 rounded-[var(--radius-sm)] px-1 text-left"
         }
-        aria-label={`${copy.proof.open}. ${plate.title}`}
+        aria-label={`${copy.proof.open}. ${plate.title}${here ? `. ${here}` : ""}`}
         onClick={() => setOpen(true)}
       >
-        <img src={photo} alt="" className={variant === "thumb" ? "size-full object-cover" : "size-10 shrink-0 rounded-[var(--radius-xs)] object-cover"} />
+        <img src={photo} alt="" className={variant === "thumb" ? "size-14 object-cover" : "size-10 shrink-0 rounded-[var(--radius-xs)] object-cover"} />
+        {variant === "thumb" && star ? (
+          <span className="block truncate px-1 py-0.5 text-center font-mono text-[0.6rem] leading-tight text-fg">{plate.title}</span>
+        ) : null}
         {variant === "row" ? (
           <span className="min-w-0">
             <span className="block truncate font-display text-sm text-fg">{plate.title}</span>
@@ -102,6 +111,7 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, va
           >
             <img src={photo} alt={plate.title} className="aspect-[16/10] w-full rounded-[var(--radius-md)] object-cover" />
             <h2 id="proof-title" className="mt-4 font-display text-2xl tracking-[-0.02em] text-fg">{plate.title}</h2>
+            {here ? <p className="mt-1 font-mono text-xs text-fg-subtle">{here}</p> : null}
             {face ? (
               <div className="mt-3 flex items-center gap-3">
                 <img src={face} alt="" className="size-16 shrink-0 rounded-[var(--radius-sm)] object-cover object-top" />
