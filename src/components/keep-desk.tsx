@@ -30,7 +30,9 @@ export function KeepDesk({ copy, compact = false }: Props) {
   const store = isStoreShell();
   const [rail, setRail] = useState<PayRailId>("usdt");
   const [tx, setTx] = useState("");
-  const [dollarsText, setDollarsText] = useState(String(COPY_PRICE_MIN));
+  const [dollarsText, setDollarsText] = useState(
+    String(COPY_PRICE_CHOICES[COPY_PRICE_CHOICES.length - 1]),
+  );
   const [receipt, setReceipt] = useState(() =>
     typeof window === "undefined" ? null : loadReceipt(),
   );
@@ -177,15 +179,6 @@ export function KeepDesk({ copy, compact = false }: Props) {
           />
           <p className="text-pretty text-sm leading-relaxed text-fg-muted">{copy.keep.dollarsHint}</p>
         </div>
-      )}
-
-      {store ? null : (
-        <section className="rounded-[var(--radius-md)] bg-bg-subtle px-4 py-3">
-          <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-accent uppercase">
-            {copy.keep.storeTitle}
-          </p>
-          <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">{copy.keep.storeBody}</p>
-        </section>
       )}
 
       {store ? null : (

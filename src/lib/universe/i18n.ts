@@ -1394,7 +1394,7 @@ const en: Copy = {
   keep: {
     title: "Keep the instrument",
     kicker: "Desktop copy",
-    lead: "The lab stays free. A window on your machine is one-time, any whole dollar from $1.",
+    lead: "The laboratory in the browser stays free. A Windows or Linux window, offline, is usually $15 once. One dollar is still enough. The archive comes back on X after the plate.",
     includedTitle: "What you take",
     included:
       "Windows or Linux. Offline. The same laboratory. The build is unsigned; SmartScreen may warn. macOS later.",
