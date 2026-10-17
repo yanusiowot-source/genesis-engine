@@ -750,15 +750,47 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 }
 
-@media (max-width: 40rem) and (min-height: 40rem) {
+@media (max-width: 40rem) and (min-height: 50rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(8rem, 0.42fr) minmax(16rem, 1.58fr);
+    grid-template-rows: auto auto 5rem minmax(0, 1fr);
+  }
+
+  .hud-stack {
+    grid-template-rows: auto auto minmax(6.5rem, 1fr) auto auto;
+  }
+
+  .hud-mid [data-hud-band="fate"] {
+    margin-top: 0.85rem;
   }
 }
 
 @media (max-width: 40rem) {
   .sky-glow {
     opacity: 0.35;
+  }
+
+  [data-hud-band="corridors"] {
+    flex-wrap: nowrap;
+    min-height: 2.75rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 1.5rem), transparent);
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 1.5rem), transparent);
+  }
+
+  [data-hud-band="corridors"]::-webkit-scrollbar {
+    display: none;
+  }
+
+  [data-hud-band="corridors"] > span {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    align-self: center;
+    background: #000;
+    padding-right: 0.5rem;
+    white-space: nowrap;
   }
 
   [data-hud-tall] {
