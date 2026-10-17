@@ -132,6 +132,23 @@ export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
 
           <section className="mt-6">
             <h3 className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+              {copy.siliconBenchTitle}
+            </h3>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{copy.siliconBenchTale}</p>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.siliconBenchOhm}</p>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.siliconBenchRadio}</p>
+            <ol className="mt-3 flex list-decimal flex-col gap-3 pl-5">
+              {copy.siliconBenchSteps.map((step) => (
+                <li key={step.slice(0, 24)} className="text-pretty text-sm leading-relaxed text-fg">
+                  {step}
+                </li>
+              ))}
+            </ol>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.siliconBenchLaw}</p>
+          </section>
+
+          <section className="mt-6">
+            <h3 className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
               {copy.siliconThisSky}
             </h3>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">

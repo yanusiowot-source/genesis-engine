@@ -213,6 +213,12 @@ export type Copy = {
   siliconWhy: string;
   siliconGuess: string;
   siliconCyborg: string;
+  siliconBenchTitle: string;
+  siliconBenchTale: string;
+  siliconBenchOhm: string;
+  siliconBenchRadio: string;
+  siliconBenchSteps: [string, string, string, string];
+  siliconBenchLaw: string;
   siliconFacts: [string, string, string];
   siliconThisSky: string;
   siliconStarT: string;
@@ -1454,6 +1460,20 @@ const en: Copy = {
   siliconGuess: "A guess, not a measurement",
   siliconCyborg:
     "A cyborg is allowed: a machine on the outside, with heredity written on a silicon chain instead of carbon DNA. Nobody has held that chain. In water, silicon becomes sand, so the guess only lives in heat and without free oxygen. The story does not raise this sky's number.",
+  siliconBenchTitle: "The tale, in your hands",
+  siliconBenchTale:
+    "The cyborg in the guess is a machine outside and a record nobody has. A cyberdeck is the opposite: a machine you can hold. The tale stays a tale. The bench below is real.",
+  siliconBenchOhm:
+    "Current only flows around a closed path. Voltage pushes, current flows, resistance holds it back. Ohm's law: voltage equals current times resistance. The first parts are a wire, a resistor, a light, and a button. Not a box.",
+  siliconBenchRadio:
+    "A radio wave is a changing field. To send, you change the current in an antenna. To hear, you amplify the tiny current the antenna gives you. A beginner's first radio is a board on your own network, in the room, a few meters. Not a transmitter into the sky, and not a jammer.",
+  siliconBenchSteps: [
+    "Arduino. A small board that runs one text you wrote. First project: a light on for one second, off for one second.",
+    "ESP32. The same blink, and the board already has Wi-Fi. First radio project: the board says “I am here” on your own network.",
+    "Raspberry Pi. A small computer with a screen and Linux. First project: it turns on, you see a desk, and a light blinks from a pin.",
+    "A cyberdeck. A Pi, a battery, a screen, and a keyboard in one box you can carry. Build it after the three steps above, not instead of them.",
+  ],
+  siliconBenchLaw: "The lab sells nothing. A blinking light does not raise the silicon number.",
   siliconFacts: [
     "Si–Si bonds are weaker than C–C (~226 vs ~346 kJ/mol). Chains fall apart unless the world is hot enough for continuous repair.",
     "Silanes hydrolyze in water. On a wet oxygen world, silicon locks as SiO₂ — sand, quartz, glass. That is a thermodynamic grave.",
