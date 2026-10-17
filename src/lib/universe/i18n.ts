@@ -201,6 +201,8 @@ export type Copy = {
   siliconFactors: Record<"heat" | "pressure" | "solvent" | "timescale", string>;
   siliconOpen: string;
   siliconWhy: string;
+  siliconGuess: string;
+  siliconCyborg: string;
   siliconFacts: [string, string, string];
   siliconThisSky: string;
   siliconStarT: string;
@@ -970,7 +972,7 @@ const en: Copy = {
     dice: "A few skies are already in the log. The next step is the same.",
     foothold: "Water could stay liquid here. That is not a find.",
     teeming: "This sky is good for life. The worlds were not counted.",
-    silicon: "Life here would need something hotter than water. Allowed, not proven.",
+    silicon: "Life here would need something hotter than water. A cyborg with a silicon chain instead of DNA is a guess, not a measurement.",
     tide: "Machines could hop from star to star. The number is how often, not how many ships.",
     enduring: "Something could last after the stars go out. The model does not say what.",
     hard: "This sky ends too soon. Save it, then make another.",
@@ -994,7 +996,7 @@ const en: Copy = {
   stakeAsk: "What should the next search look for?",
   stakeOn: {
     carbon: "Looking for water. Search 64 looks, and does not promise.",
-    silicon: "Looking for heat instead of water. Search 64 looks, and does not promise.",
+    silicon: "Looking for heat instead of water. A cyborg with a silicon record is a guess. Search 64 promises nothing.",
     eternal: "Looking for what lasts after the stars. Search 64 looks, and does not promise.",
     swarm: "Looking for machines between stars. The number is how often, not a fleet.",
   },
@@ -1429,6 +1431,9 @@ const en: Copy = {
   },
   siliconOpen: "Open silicon dossier",
   siliconWhy: "Why silicon is hard",
+  siliconGuess: "A guess, not a measurement",
+  siliconCyborg:
+    "A cyborg is allowed: a machine on the outside, with heredity written on a silicon chain instead of carbon DNA. Nobody has held that chain. In water, silicon becomes sand, so the guess only lives in heat and without free oxygen. The story does not raise this sky's number.",
   siliconFacts: [
     "Si–Si bonds are weaker than C–C (~226 vs ~346 kJ/mol). Chains fall apart unless the world is hot enough for continuous repair.",
     "Silanes hydrolyze in water. On a wet oxygen world, silicon locks as SiO₂ — sand, quartz, glass. That is a thermodynamic grave.",
@@ -2021,7 +2026,7 @@ const en: Copy = {
       },
       silicon: {
         title: "Silicon niche",
-        body: "Heat and pressure, not water. Speculative, but allowed.",
+        body: "Heat and pressure, not water. A cyborg with a silicon chain instead of DNA is allowed. It is still a guess.",
         hint: "Known skies → Silicon, or Hunt.",
       },
       eternal: {

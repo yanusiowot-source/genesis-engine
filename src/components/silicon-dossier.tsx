@@ -125,6 +125,13 @@ export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
 
           <section className="mt-6">
             <h3 className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+              {copy.siliconGuess}
+            </h3>
+            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{copy.siliconCyborg}</p>
+          </section>
+
+          <section className="mt-6">
+            <h3 className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
               {copy.siliconThisSky}
             </h3>
             <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
