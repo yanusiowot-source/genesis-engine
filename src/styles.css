@@ -380,7 +380,7 @@
 /* Clock and the name stay put. The middle scrolls. The actions stay at the bottom. */
 .hud-stack {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
   align-content: stretch;
   row-gap: 0.5rem;
   width: 100%;
@@ -421,6 +421,7 @@
 
 .hud-stack > [data-hud-band="clock"],
 .hud-stack > [data-hud-band="name"],
+.hud-stack > [data-hud-band="corridors"],
 .hud-stack > [data-hud-band="fate"],
 .hud-stack > [data-hud-band="actions"] {
   min-width: 0;

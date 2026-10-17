@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
+import { BenchSheet } from "@/components/bench-sheet";
 import { ProofButton } from "@/components/proof-card";
 import { CosmicClock } from "@/components/cosmic-clock";
 import { MoreMenu } from "@/components/more-menu";
@@ -515,6 +516,7 @@ export function UniverseApp() {
   const [aboutIntent, setAboutIntent] = useState(false);
   const [keepOpen, setKeepOpen] = useState(false);
   const [siliconOpen, setSiliconOpen] = useState(false);
+  const [benchOpen, setBenchOpen] = useState(false);
   const [eternalOpen, setEternalOpen] = useState(false);
   const [swarmOpen, setSwarmOpen] = useState(false);
   const [hapticsOn, setHapticsOn] = useState(true);
@@ -2589,136 +2591,7 @@ export function UniverseApp() {
               {egg}
             </p>
           ) : null}
-          <div className="mt-1.5 hud-chips" aria-live="polite" aria-label={copy.foldCorridors}>
-            <span className="basis-full font-mono text-[0.6875rem] tracking-[0.12em] text-fg-subtle">
-              {copy.foldCorridors}
-            </span>
-            <button
-              type="button"
-              onClick={() => {
-                fateTaps.current += 1;
-                if (fateTaps.current >= 5) {
-                  fateTaps.current = 0;
-                  flashEgg(copy.eggs.panic);
-                }
-              }}
-              className={cn(
-                "hud-chip rounded-full px-2 py-1 font-mono text-[0.6875rem] tracking-wide uppercase sm:px-2.5",
-                ev.fate === "teeming" || ev.fate === "habitable"
-                  ? "bg-life/20 text-life"
-                  : ev.fate === "enduring"
-                    ? "bg-eternal/20 text-eternal"
-                  : ev.fate === "sterile" || ev.fate === "rip" || ev.fate === "flash"
-                    ? "bg-sterile/15 text-sterile"
-                    : ev.fate === "crunch"
-                      ? "bg-silicon/20 text-silicon"
-                      : "bg-nebula/20 text-cyan",
-              )}
-            >
-              {copy.fateLabel[ev.fate]}
-            </button>
-            <button
-              type="button"
-              onPointerDown={() => setPeek("carbon")}
-              onPointerUp={() => setPeek(null)}
-              onPointerCancel={() => setPeek(null)}
-              onPointerLeave={() => setPeek(null)}
-              onClick={() => {
-                haptic(8);
-                setTab("lab");
-                setLabPane("life");
-              }}
-              aria-label={copy.factorsTitle}
-              title={`${copy.carbon} ${formatPct(ev.lifeProb)}`}
-              className={cn(
-                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
-                lifeTone,
-              )}
-            >
-              {corridorReadout(compact, copy.carbon, ev.lifeProb)}
-            </button>
-            <button
-              type="button"
-              onPointerDown={() => setPeek("silicon")}
-              onPointerUp={() => setPeek(null)}
-              onPointerCancel={() => setPeek(null)}
-              onPointerLeave={() => setPeek(null)}
-              onClick={() => {
-                haptic(8);
-                siliconTaps.current += 1;
-                if (siliconTaps.current >= 3) {
-                  siliconTaps.current = 0;
-                  flashEgg(copy.eggs.sand);
-                }
-                showOverlay("silicon");
-              }}
-              aria-label={copy.siliconOpen}
-              title={`${copy.silicon} ${formatPct(ev.siliconProb)}`}
-              className={cn(
-                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
-                siliconTone,
-              )}
-            >
-              {corridorReadout(compact, copy.silicon, ev.siliconProb)}
-            </button>
-            <button
-              type="button"
-              onPointerDown={() => setPeek("eternal")}
-              onPointerUp={() => setPeek(null)}
-              onPointerCancel={() => setPeek(null)}
-              onPointerLeave={() => setPeek(null)}
-              onClick={() => {
-                haptic(8);
-                eternalTaps.current += 1;
-                if (eternalTaps.current >= 3) {
-                  eternalTaps.current = 0;
-                  flashEgg(copy.eggs.god);
-                }
-                showOverlay("eternal");
-              }}
-              aria-label={copy.eternalOpen}
-              title={`${copy.eternal} ${formatPct(ev.eternalProb)}`}
-              className={cn(
-                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
-                eternalTone,
-              )}
-            >
-              {corridorReadout(compact, copy.eternal, ev.eternalProb)}
-            </button>
-            <button
-              type="button"
-              onPointerDown={() => setPeek("swarm")}
-              onPointerUp={() => setPeek(null)}
-              onPointerCancel={() => setPeek(null)}
-              onPointerLeave={() => setPeek(null)}
-              onClick={() => {
-                haptic(8);
-                swarmTaps.current += 1;
-                if (swarmTaps.current >= 3) {
-                  swarmTaps.current = 0;
-                  flashEgg(copy.eggs.tide);
-                }
-                showOverlay("swarm");
-              }}
-              aria-label={copy.swarmOpen}
-              title={`${copy.swarm} ${formatPct(ev.swarmProb)}`}
-              className={cn(
-                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
-                swarmTone,
-              )}
-            >
-              {corridorReadout(compact, copy.swarm, ev.swarmProb)}
-            </button>
-            {ours && !compact ? (
-              <button
-                type="button"
-                onClick={() => flashEgg(copy.eggs.dot)}
-                className="hud-chip rounded-full px-2.5 py-1 font-mono text-[0.6875rem] tracking-wide text-fg-muted uppercase"
-              >
-                {copy.oursBadge}
-              </button>
-            ) : null}
-          </div>
+
           </div>
             {plateClosed && !encounter && !scanning ? (
               <div role="group" aria-label={copy.stakeAsk}>
@@ -2849,6 +2722,136 @@ export function UniverseApp() {
             <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
           </div>
+          </div>
+          <div className="hud-chips" data-hud-band="corridors" aria-live="polite" aria-label={copy.foldCorridors}>
+            <span className="basis-full font-mono text-[0.6875rem] tracking-[0.12em] text-fg-subtle">
+              {copy.foldCorridors}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                fateTaps.current += 1;
+                if (fateTaps.current >= 5) {
+                  fateTaps.current = 0;
+                  flashEgg(copy.eggs.panic);
+                }
+              }}
+              className={cn(
+                "hud-chip rounded-full px-2 py-1 font-mono text-[0.6875rem] tracking-wide uppercase sm:px-2.5",
+                ev.fate === "teeming" || ev.fate === "habitable"
+                  ? "bg-life/20 text-life"
+                  : ev.fate === "enduring"
+                    ? "bg-eternal/20 text-eternal"
+                  : ev.fate === "sterile" || ev.fate === "rip" || ev.fate === "flash"
+                    ? "bg-sterile/15 text-sterile"
+                    : ev.fate === "crunch"
+                      ? "bg-silicon/20 text-silicon"
+                      : "bg-nebula/20 text-cyan",
+              )}
+            >
+              {copy.fateLabel[ev.fate]}
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => setPeek("carbon")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
+              onClick={() => {
+                haptic(8);
+                setTab("lab");
+                setLabPane("life");
+              }}
+              aria-label={copy.factorsTitle}
+              title={`${copy.carbon} ${formatPct(ev.lifeProb)}`}
+              className={cn(
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
+                lifeTone,
+              )}
+            >
+              {corridorReadout(compact, copy.carbon, ev.lifeProb)}
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => setPeek("silicon")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
+              onClick={() => {
+                haptic(8);
+                siliconTaps.current += 1;
+                if (siliconTaps.current >= 3) {
+                  siliconTaps.current = 0;
+                  flashEgg(copy.eggs.sand);
+                }
+                showOverlay("silicon");
+              }}
+              aria-label={copy.siliconOpen}
+              title={`${copy.silicon} ${formatPct(ev.siliconProb)}`}
+              className={cn(
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
+                siliconTone,
+              )}
+            >
+              {corridorReadout(compact, copy.silicon, ev.siliconProb)}
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => setPeek("eternal")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
+              onClick={() => {
+                haptic(8);
+                eternalTaps.current += 1;
+                if (eternalTaps.current >= 3) {
+                  eternalTaps.current = 0;
+                  flashEgg(copy.eggs.god);
+                }
+                showOverlay("eternal");
+              }}
+              aria-label={copy.eternalOpen}
+              title={`${copy.eternal} ${formatPct(ev.eternalProb)}`}
+              className={cn(
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
+                eternalTone,
+              )}
+            >
+              {corridorReadout(compact, copy.eternal, ev.eternalProb)}
+            </button>
+            <button
+              type="button"
+              onPointerDown={() => setPeek("swarm")}
+              onPointerUp={() => setPeek(null)}
+              onPointerCancel={() => setPeek(null)}
+              onPointerLeave={() => setPeek(null)}
+              onClick={() => {
+                haptic(8);
+                swarmTaps.current += 1;
+                if (swarmTaps.current >= 3) {
+                  swarmTaps.current = 0;
+                  flashEgg(copy.eggs.tide);
+                }
+                showOverlay("swarm");
+              }}
+              aria-label={copy.swarmOpen}
+              title={`${copy.swarm} ${formatPct(ev.swarmProb)}`}
+              className={cn(
+                "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
+                swarmTone,
+              )}
+            >
+              {corridorReadout(compact, copy.swarm, ev.swarmProb)}
+            </button>
+            {ours && !compact ? (
+              <button
+                type="button"
+                onClick={() => flashEgg(copy.eggs.dot)}
+                className="hud-chip rounded-full px-2.5 py-1 font-mono text-[0.6875rem] tracking-wide text-fg-muted uppercase"
+              >
+                {copy.oursBadge}
+              </button>
+            ) : null}
           </div>
           <div className="arrive arrive-7 glass flex shrink-0 flex-col gap-2 rounded-[var(--radius-xl)] p-1.5" data-hud-band="actions">
             <div className="sky-actions flex min-w-0 flex-wrap items-start gap-2">
@@ -3151,6 +3154,10 @@ export function UniverseApp() {
           }}
           onHelp={() => showOverlay("help")}
           onGames={() => showOverlay("games")}
+          onBench={() => {
+            setSettingsOpen(false);
+            setBenchOpen(true);
+          }}
           onCanon={openCanon}
           onClose={() => {
             setSettingsOpen(false);
@@ -3165,6 +3172,7 @@ export function UniverseApp() {
       ) : null}
       {helpOpen ? <HelpSheet copy={copy} onClose={() => setHelpOpen(false)} /> : null}
       {gamesOpen ? <ArcadeSheet copy={copy} onClose={() => setGamesOpen(false)} /> : null}
+      {benchOpen ? <BenchSheet copy={copy} onClose={() => setBenchOpen(false)} /> : null}
       {scriptureOpen && passage ? (
         <ScriptureSheet
           copy={copy}
