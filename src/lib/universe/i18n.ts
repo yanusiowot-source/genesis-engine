@@ -80,6 +80,13 @@ export type Copy = {
     year: string;
     prev: string;
     next: string;
+    fateQuiet: string;
+    fateBurst: string;
+    fateHole: string;
+    fateCinder: string;
+    fateToPulse: string;
+    fateToHole: string;
+    fateDone: string;
     disk: { title: string; body: string; person: string; years: string; credit: string };
     worlds: { title: string; body: string; person: string; years: string; credit: string };
     lens: { title: string; body: string; person: string; years: string; credit: string };
@@ -859,6 +866,13 @@ const en: Copy = {
     year: "billion years",
     prev: "Previous star",
     next: "Next star",
+    fateQuiet: "Next in this model: it swells, then leaves a white dwarf. The model does not count the wind that carries mass away in real life. The cut is 8 solar masses.",
+    fateBurst: "Next in this model: a flash, then a neutron star. The cut is 8 solar masses. That is the model's rule, not a catalog.",
+    fateHole: "Next in this model: a flash, then a black hole. The cut is 25 solar masses. That is the model's rule.",
+    fateCinder: "It has already swollen. Next in this model: a white dwarf.",
+    fateToPulse: "The flash is still going. Next in this model: a neutron star.",
+    fateToHole: "The flash is still going. Next in this model: a black hole.",
+    fateDone: "This model does not take it any further.",
     disk: {
       title: "Spiral M51",
       body: "This is a real photograph, not a drawing from the lab. William Herschel showed in 1785 that the Milky Way is a flat disk of stars. M51 is another disk, seen from above.",

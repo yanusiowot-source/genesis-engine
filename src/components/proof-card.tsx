@@ -45,6 +45,15 @@ function plateId(mode: SkyMode, epoch: CosmicEpoch, fragmenting: boolean, ringHa
   return "disk";
 }
 
+function laterLine(stage: string, mass: number, copy: Copy): string {
+  if (stage === "whiteDwarf" || stage === "neutronStar" || stage === "blackHole") return copy.proof.fateDone;
+  const heavy = mass >= 25;
+  const mid = mass >= 8;
+  if (stage === "supernova") return heavy ? copy.proof.fateToHole : copy.proof.fateToPulse;
+  if (stage === "giant") return heavy ? copy.proof.fateHole : mid ? copy.proof.fateBurst : copy.proof.fateCinder;
+  return heavy ? copy.proof.fateHole : mid ? copy.proof.fateBurst : copy.proof.fateQuiet;
+}
+
 type Look = { stage: string; mass: number; age: number; n: number; m: number };
 
 type Props = {
@@ -68,6 +77,7 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
   const here = look
     ? `${look.n} / ${look.m} · ${look.mass.toFixed(2)} ${copy.proof.solar} · ${look.age.toFixed(1)} ${copy.proof.year}`
     : "";
+  const later = look ? laterLine(look.stage, look.mass, copy) : "";
 
   useEffect(() => {
     if (!open) return;
@@ -123,6 +133,7 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
               </div>
             ) : null}
             <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{plate.body}</p>
+            {later ? <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{later}</p> : null}
             <p className="mt-3 font-mono text-[0.65rem] leading-relaxed tracking-[0.04em] text-fg-subtle">{plate.credit}</p>
             {look && look.m > 1 && onStep ? (
               <div className="mt-4 grid grid-cols-2 gap-2">
