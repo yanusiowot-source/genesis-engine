@@ -16,7 +16,7 @@ export function ScriptureLine({ copy, locale, passage, onOpen }: Props) {
       data-scripture={passage.id}
       onClick={onOpen}
       aria-label={`${copy.scripture.open}. ${passageRef(passage, locale)}`}
-      className="scripture-line flex min-h-11 w-full items-start gap-2.5 rounded-[var(--radius-lg)] bg-bg-elevated/80 px-3 py-2 text-left shadow-[var(--shadow-border)]"
+      className="scripture-line flex min-h-11 w-full items-start gap-2 px-0.5 py-1 text-left"
     >
       <BookOpen className="mt-0.5 size-4 shrink-0 text-accent" aria-hidden />
       <span className="min-w-0 max-w-[68ch] flex-1">

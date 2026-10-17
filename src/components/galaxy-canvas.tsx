@@ -2563,7 +2563,7 @@ export function GalaxyCanvas({
         zIndex: 0,
       }}
     />
-      <div className="pointer-events-none absolute top-2 left-2 z-[4] flex w-[calc(100%-1rem)] max-w-full flex-col items-start gap-1.5 overflow-x-clip">
+      <div className="pointer-events-none absolute bottom-2 left-2 z-[4] flex w-[calc(100%-1rem)] max-w-full flex-col items-start gap-1 overflow-x-clip">
         <div className="pointer-events-auto flex max-w-full flex-wrap gap-1">
           <button
             type="button"
@@ -2664,7 +2664,7 @@ export function GalaxyCanvas({
         {gateOn ? (
           <p
             key={gatePlaced ? gateAt : "wait"}
-            className="view-swap pointer-events-none max-w-xs rounded-[var(--radius-sm)] bg-bg/80 px-3 py-2 text-sm text-pretty text-fg shadow-[var(--shadow-border)]"
+            className="view-swap pointer-events-none line-clamp-2 max-w-sm rounded-[var(--radius-sm)] bg-bg/80 px-2.5 py-1.5 text-sm text-pretty text-fg shadow-[var(--shadow-border)]"
           >
             {!gatePlaced
               ? (gate?.wait ?? "Tap a place on the sky.")

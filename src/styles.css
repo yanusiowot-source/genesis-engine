@@ -326,14 +326,6 @@
   overflow-x: clip;
 }
 
-/* Width only changes the chrome. The buttons wrap on their own. */
-[data-hud-band="actions"] .sky-actions button {
-  height: auto;
-  min-height: 2.75rem;
-  white-space: normal;
-  text-align: left;
-}
-
 /* Header, the mode shelf, the sky, then the clock.
    The sky row is the only one that draws the galaxy. The clock is the next row,
    so it cannot sit on the disk. */
@@ -741,6 +733,12 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     opacity: 0.35;
   }
 
+  [data-hud-tall] {
+    display: none !important;
+  }
+}
+
+@media (max-height: 900px) {
   [data-hud-tall] {
     display: none !important;
   }
