@@ -54,7 +54,22 @@ function laterLine(stage: string, mass: number, copy: Copy): string {
   return heavy ? copy.proof.fateHole : mid ? copy.proof.fateBurst : copy.proof.fateQuiet;
 }
 
-type Look = { stage: string; mass: number; age: number; n: number; m: number };
+type Look = { stage: string; mass: number; age: number; tau: number; n: number; m: number };
+
+function yearsLeft(n: number): string {
+  if (n > 100) return "";
+  return n >= 10 ? n.toFixed(0) : n.toFixed(1);
+}
+
+function clockLine(stage: string, age: number, tau: number, copy: Copy): string {
+  if (stage === "whiteDwarf" || stage === "neutronStar" || stage === "blackHole" || stage === "supernova") return "";
+  const end = stage === "giant" ? tau - age : tau * 0.88 - age;
+  if (!(end > 0.05)) return "";
+  if (end > 100) return stage === "giant" ? "" : copy.proof.leftLong;
+  const n = yearsLeft(end);
+  const line = stage === "giant" ? copy.proof.leftGiant : copy.proof.leftQuiet;
+  return line.replace("{n}", n);
+}
 
 type Props = {
   copy: Copy;
@@ -78,6 +93,7 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
     ? `${look.n} / ${look.m} · ${look.mass.toFixed(2)} ${copy.proof.solar} · ${look.age.toFixed(1)} ${copy.proof.year}`
     : "";
   const later = look ? laterLine(look.stage, look.mass, copy) : "";
+  const clock = look ? clockLine(look.stage, look.age, look.tau, copy) : "";
 
   useEffect(() => {
     if (!open) return;
@@ -123,6 +139,7 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
             <img src={photo} alt={plate.title} className="aspect-[16/10] w-full rounded-[var(--radius-md)] object-cover" />
             <h2 id="proof-title" className="mt-4 font-display text-2xl tracking-[-0.02em] text-fg">{plate.title}</h2>
             {here ? <p className="mt-1 font-mono text-xs text-fg-subtle">{here}</p> : null}
+            {clock ? <p className="mt-2 text-pretty text-sm leading-relaxed text-fg">{clock}</p> : null}
             {face ? (
               <div className="mt-3 flex items-center gap-3">
                 <img src={face} alt="" className="size-16 shrink-0 rounded-[var(--radius-sm)] object-cover object-top" />

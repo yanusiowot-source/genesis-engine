@@ -483,7 +483,7 @@ export function UniverseApp() {
   const [draftNote, setDraftNote] = useState<string | null>(null);
   const draftFor = useRef("");
   const [mode, setMode] = useState<SkyMode>("galaxy");
-  const [gateLook, setGateLook] = useState<{ stage: string; mass: number; age: number; n: number; m: number } | null>(null);
+  const [gateLook, setGateLook] = useState<{ stage: string; mass: number; age: number; tau: number; n: number; m: number } | null>(null);
   const gateStep = useRef<((dir: -1 | 1) => void) | null>(null);
   const timeRef = useRef(0.55);
   const skyNudge = useRef<(dx: number, dy: number) => void>(() => {});

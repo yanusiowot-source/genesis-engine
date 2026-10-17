@@ -87,6 +87,9 @@ export type Copy = {
     fateToPulse: string;
     fateToHole: string;
     fateDone: string;
+    leftQuiet: string;
+    leftGiant: string;
+    leftLong: string;
     disk: { title: string; body: string; person: string; years: string; credit: string };
     worlds: { title: string; body: string; person: string; years: string; credit: string };
     lens: { title: string; body: string; person: string; years: string; credit: string };
@@ -873,6 +876,9 @@ const en: Copy = {
     fateToPulse: "The flash is still going. Next in this model: a neutron star.",
     fateToHole: "The flash is still going. Next in this model: a black hole.",
     fateDone: "This model does not take it any further.",
+    leftQuiet: "In this model it stays quiet for another {n} billion years, then swells.",
+    leftGiant: "In this model the swelling lasts another {n} billion years.",
+    leftLong: "In this model it stays quiet for more than a hundred billion years. Light stars here outlive the sky as it is now.",
     disk: {
       title: "Spiral M51",
       body: "This is a real photograph, not a drawing from the lab. William Herschel showed in 1785 that the Milky Way is a flat disk of stars. M51 is another disk, seen from above.",

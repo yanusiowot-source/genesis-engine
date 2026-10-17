@@ -27,6 +27,7 @@ import {
   epochShown,
   epochBlend,
   evolveStar,
+  starLifetimeGyr,
   fateWash,
   galaxyVisibility,
   stepCosmicTime,
@@ -255,7 +256,7 @@ type Props = {
     stages: Record<string, string>;
   };
   onStepTime?: (dir: -1 | 1) => void;
-  onGateLook?: (look: { stage: string; mass: number; age: number; n: number; m: number } | null) => void;
+  onGateLook?: (look: { stage: string; mass: number; age: number; tau: number; n: number; m: number } | null) => void;
   gateStep?: { current: ((dir: -1 | 1) => void) | null };
 };
 
@@ -297,7 +298,7 @@ export function GalaxyCanvas({
   const [gateOn, setGateOn] = useState(false);
   const [gatePlaced, setGatePlaced] = useState(false);
   const [gateZoom, setGateZoom] = useState(1);
-  const [gateBodies, setGateBodies] = useState<{ mass: number; stage: string; age: number; x: number; y: number }[]>([]);
+  const [gateBodies, setGateBodies] = useState<{ mass: number; stage: string; age: number; tau: number; x: number; y: number }[]>([]);
   const [gateAt, setGateAt] = useState(0);
   const [gateRing, setGateRing] = useState<{ x: number; y: number; r: number } | null>(null);
   const onGateLookRef = useRef(onGateLook);
@@ -316,6 +317,7 @@ export function GalaxyCanvas({
       stage: body.stage,
       mass: body.mass,
       age: body.age,
+      tau: body.tau,
       n: (gateAt % gateBodies.length) + 1,
       m: gateBodies.length,
     });
@@ -2464,13 +2466,15 @@ export function GalaxyCanvas({
           gateListKey.current = listKey;
           setGateBodies(
             shown.map((h) => {
-              const st = evolveStar(h.s.mass, ageGyr - h.s.birthGyr, pms.gravity);
+              const age = Math.max(0, ageGyr - h.s.birthGyr);
+              const st = evolveStar(h.s.mass, age, pms.gravity);
               const mx = gateNow.x + (h.x - gateNow.x) * zoom;
               const my = gateNow.y + (h.y - gateNow.y) * zoom;
               return {
                 mass: h.s.mass,
                 stage: st.stage,
-                age: Math.max(0, ageGyr - h.s.birthGyr),
+                age,
+                tau: starLifetimeGyr(h.s.mass, pms.gravity),
                 x: mx,
                 y: my,
               };
