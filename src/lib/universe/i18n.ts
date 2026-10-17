@@ -81,6 +81,10 @@ export type Copy = {
     lens: { title: string; body: string; person: string; years: string; credit: string };
     fire: { title: string; body: string; person: string; years: string; credit: string };
     clash: { title: string; body: string; person: string; years: string; credit: string };
+    shred: { title: string; body: string; person: string; years: string; credit: string };
+    cluster: { title: string; body: string; person: string; years: string; credit: string };
+    ember: { title: string; body: string; person: string; years: string; credit: string };
+    orbit: { title: string; body: string; person: string; years: string; credit: string };
   };
   scanning: string;
   plot: {
@@ -873,6 +877,34 @@ const en: Copy = {
       person: "",
       years: "",
       credit: "ESA / Hubble and NASA. CC BY 4.0.",
+    },
+    shred: {
+      title: "A clumpy disk",
+      body: "This is NGC 4214, a real Hubble photograph. The disk is breaking into bright clumps. The lab says the same thing when Q is about 1 or lower: gravity beats the spin. This is not a measurement of Q for this particular galaxy.",
+      person: "",
+      years: "",
+      credit: "NASA, ESA and the Hubble Heritage Team. Public domain.",
+    },
+    cluster: {
+      title: "Cluster Abell 1689",
+      body: "The arcs are light from galaxies behind the cluster. The bend is more than the glowing stars can make. The extra weight is the halo. Newton wrote the law of gravity. He did not discover dark matter.",
+      person: "Isaac Newton",
+      years: "1643–1727",
+      credit: "NASA, ESA and the Hubble Heritage Team. CC BY 3.0. Portrait by Godfrey Kneller, 1689, public domain.",
+    },
+    ember: {
+      title: "The Crab Nebula",
+      body: "In 1054 people saw this as a new star. It is the wreck of that explosion. When the clock says the stars are fading, this is what a death leaves behind.",
+      person: "",
+      years: "",
+      credit: "NASA, ESA, J. Hester and A. Loll. Public domain.",
+    },
+    orbit: {
+      title: "Saturn",
+      body: "A photograph from the Cassini spacecraft. The rings are ice on orbits, not a drawing. Kepler wrote that worlds move on ellipses. Galileo had already seen the moons of Jupiter.",
+      person: "Johannes Kepler",
+      years: "1571–1630",
+      credit: "NASA / JPL / Space Science Institute. Public domain. Portrait from the 17th century, painter unknown.",
     },
   },
   scanning: "Survey of 64 skies. Most stay empty.",

@@ -2282,7 +2282,7 @@ export function UniverseApp() {
           aria-hidden
           className="pointer-events-none absolute inset-0 sky-glow"
         />
-        <ProofButton copy={copy} mode={mode} epoch={liveEpoch} variant="thumb" />
+        <ProofButton copy={copy} mode={mode} epoch={liveEpoch} fragmenting={disk.niche === "fragmenting"} ringHalo={halo.model === "isothermal"} variant="thumb" />
         </div>
 
         <header className={cn("arrive relative z-10 row-start-1 w-full min-w-0 shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pointer-events-none sm:px-8", onboard && "hidden")}>
@@ -2549,7 +2549,7 @@ export function UniverseApp() {
           </div>
           </div>
           <div className="hud-mid">
-          <ProofButton copy={copy} mode={mode} epoch={liveEpoch} variant="row" />
+          <ProofButton copy={copy} mode={mode} epoch={liveEpoch} fragmenting={disk.niche === "fragmenting"} ringHalo={halo.model === "isothermal"} variant="row" />
           {hydrated && scriptureOn && tab === "sky" && passage ? (
             <div className="arrive arrive-5" data-hud-band="scripture">
               <Suspense fallback={null}>
