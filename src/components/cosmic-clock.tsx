@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pause, Play } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, Pause, Play, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
@@ -68,6 +68,7 @@ export function CosmicClock({
   const ink = EPOCH_INK[epoch];
   const track = `linear-gradient(90deg, ${EPOCH_MARKS.map((m) => `${EPOCH_INK[m.id]} ${(m.t * 100).toFixed(1)}%`).join(", ")})`;
   const lastJump = useRef<CosmicEpoch | null>(null);
+  const [readOpen, setReadOpen] = useState(false);
   const rootRef = useRef<HTMLElement>(null);
   const shownRef = useRef(shown);
   shownRef.current = shown;
@@ -145,10 +146,13 @@ export function CosmicClock({
           </div>
         ) : null}
         <div className="min-w-0 flex-1">
-          <p
-            className="epoch-ink mb-0.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 font-mono text-xs uppercase"
+          <button
+            type="button"
+            className="epoch-ink mb-0.5 flex w-full flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 bg-transparent p-0 text-left font-mono text-xs uppercase"
             data-clock-readout=""
             style={{ color: ink }}
+            aria-label={`${copy.clockAsk}. ${copy.obs.epochs[epoch]}. ${formatGyr(age)}. ${formatKelvin(cmb)}`}
+            onClick={() => setReadOpen(true)}
           >
             <span className="min-w-0 text-pretty">
               <span className="normal-case tracking-normal text-fg-subtle">{copy.obs.time}</span>
@@ -160,7 +164,7 @@ export function CosmicClock({
               <span className="text-fg-subtle"> · </span>
               {formatKelvin(cmb)}
             </span>
-          </p>
+          </button>
           <div className="relative">
             <Slider
               min={0}
@@ -257,7 +261,64 @@ export function CosmicClock({
           );
         })}
       </div>
+      {readOpen ? (
+        <ClockRead copy={copy} epoch={epoch} age={formatGyr(age)} heat={formatKelvin(cmb)} onClose={() => setReadOpen(false)} />
+      ) : null}
     </section>
+  );
+}
+
+function ClockRead({
+  copy,
+  epoch,
+  age,
+  heat,
+  onClose,
+}: {
+  copy: Copy;
+  epoch: CosmicEpoch;
+  age: string;
+  heat: string;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
+      <button type="button" aria-label={copy.closePanel} className="overlay-scrim absolute inset-0 bg-bg/80" onClick={onClose} />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="clock-read-title"
+        className="overlay-sheet relative z-10 max-h-[min(32rem,90dvh)] w-full max-w-md overflow-y-auto rounded-t-[var(--radius-xl)] bg-bg-elevated px-5 pt-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-border)] sm:rounded-[var(--radius-xl)]"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">{copy.clockAsk}</p>
+            <h2 id="clock-read-title" className="mt-1 font-display text-2xl tracking-[-0.02em] text-fg">
+              {copy.obs.epochs[epoch]}
+            </h2>
+            <p className="mt-1 font-mono text-sm tabular-nums text-fg-muted">
+              {age}
+              <span className="text-fg-subtle"> · </span>
+              {heat}
+            </p>
+          </div>
+          <Button variant="ghost" size="icon" className="size-11 shrink-0" aria-label={copy.closePanel} autoFocus onClick={onClose}>
+            <X />
+          </Button>
+        </div>
+        <p className="mt-4 text-pretty text-sm leading-relaxed text-fg">{copy.obs.epochHint[epoch]}</p>
+        <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.clockAge}</p>
+        <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-muted">{copy.clockHeat}</p>
+      </div>
+    </div>
   );
 }
 

@@ -72,6 +72,9 @@ export type Copy = {
   gateNote: string;
   diskAsk: string;
   diskNote: string;
+  clockAsk: string;
+  clockAge: string;
+  clockHeat: string;
   gatePrev: string;
   gateNext: string;
   gateYear: string;
@@ -881,6 +884,11 @@ const en: Copy = {
   diskAsk: "What Q means",
   diskNote:
     "Q is Toomre's number. Above 1 the disk holds together. Near 1 and below, its own gravity breaks it into clumps. This is the model's count, not a photograph.",
+  clockAsk: "What the clock says",
+  clockAge:
+    "The first number is this sky's age in the model, in billions of years. The slider moves it. Now puts ours, about 13.8.",
+  clockHeat:
+    "The second number is the heat of the first light, in kelvin. Since the fog turned clear it has only been stretched. Today in the model it is about 2.7 K. Earlier on the slider it is hotter. It is not a thermometer on a star.",
   gatePrev: "Previous",
   gateNext: "Next",
   gateYear: "Gyr",
