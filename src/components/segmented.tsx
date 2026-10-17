@@ -143,7 +143,7 @@ export function Segmented<T extends string>({
                 : cn(
                   "min-h-0 min-w-0 gap-1 px-1.5",
                   wrap
-                    ? "h-auto min-h-11 w-[calc(50%-0.125rem)] max-w-full flex-none py-1.5 text-xs sm:w-auto sm:min-w-[9rem] sm:max-w-full sm:flex-1 sm:basis-[9rem] sm:py-1.5 sm:text-sm"
+                    ? "h-14 min-h-14 w-[calc(50%-0.125rem)] max-w-full flex-none items-center py-1 text-xs sm:w-auto sm:min-w-[9rem] sm:max-w-full sm:flex-1 sm:basis-[9rem] sm:text-sm"
                     : scroll
                       ? "h-11 shrink-0"
                       : "h-11 flex-1",
@@ -156,7 +156,7 @@ export function Segmented<T extends string>({
             <Icon className={stacked ? "size-5" : "size-4"} strokeWidth={active ? 2.2 : 1.8} />
             <span
               className={cn(
-                wrap ? "whitespace-normal text-center leading-tight" : "min-w-0 max-w-full truncate text-center leading-tight",
+                wrap ? "line-clamp-2 whitespace-normal text-center leading-tight" : "min-w-0 max-w-full truncate text-center leading-tight",
                 collapseLabel && "hidden sm:block",
               )}
             >

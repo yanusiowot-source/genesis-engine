@@ -2470,6 +2470,83 @@ export function UniverseApp() {
             <div className="h-14" />
           )}
           </div>
+          <div className="arrive arrive-5 shrink-0" data-hud-band="name">
+          <div className="flex max-w-full items-center gap-2" data-hud-name>
+            <button
+              type="button"
+              onClick={() => {
+                haptic(8);
+                setHelpOpen(false);
+                setInstallOpen(false);
+                setSiliconOpen(false);
+                setEternalOpen(false);
+                setSwarmOpen(false);
+                setSettingsOpen(false);
+                setScriptureOpen(false);
+                setMandateOpen(true);
+              }}
+              aria-label={copy.mandate.open}
+              data-work={workNext ?? "done"}
+              data-work-count={workCount}
+              title={workNext ? copy.mandate.cue[workNext] : copy.mandate.done}
+              className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-[var(--radius-sm)] bg-transparent p-0 text-left"
+              data-hud-mandate
+            >
+              <span className="flex shrink-0 items-center gap-1" aria-hidden>
+                {MANDATE_IDS.map((id) => (
+                  <i
+                    key={id}
+                    className={cn(
+                      "mandate-dot",
+                      mandate.sealed[id] && "is-sealed",
+                      workNext === id && "is-next",
+                    )}
+                  />
+                ))}
+              </span>
+              <span className="min-w-0 flex-1">
+                <span key={current.id} className="hud-swap flex min-w-0 items-baseline gap-2">
+                  <span className="min-w-0 truncate font-display text-base leading-tight tracking-[-0.02em] text-fg sm:text-lg">
+                    {skyLabel}
+                  </span>
+                  {ours && compact ? (
+                    <span className="shrink-0 font-mono text-xs tracking-[0.14em] text-fg-muted uppercase">
+                      {copy.oursBadge}
+                    </span>
+                  ) : null}
+                </span>
+                <span className="mt-0.5 block truncate font-mono text-[0.6875rem] tracking-[0.14em] text-fg-subtle uppercase" data-hud-mandate-label>
+                  {workNext === "atlas"
+                    ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters.atlas.title} ${mandate.fates.length}/${ATLAS_N}`
+                    : workNext
+                      ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters[workNext].title}`
+                      : copy.mandate.done}
+                </span>
+              </span>
+            </button>
+            <div className="flex shrink-0 items-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-11 sm:hidden"
+                aria-label={copy.share}
+                onClick={() => void share()}
+              >
+                <Share2 className="size-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-11 shrink-0"
+                aria-label={current.starred ? copy.unstar : copy.star}
+                onClick={starCurrent}
+              >
+                <Star className="size-4" fill={current.starred ? "currentColor" : "none"} />
+              </Button>
+            </div>
+          </div>
+          </div>
+          <div className="hud-mid">
           {hydrated && scriptureOn && tab === "sky" && passage ? (
             <div className="arrive arrive-5" data-hud-band="scripture">
               <Suspense fallback={null}>
@@ -2636,85 +2713,52 @@ export function UniverseApp() {
             ) : null}
           </div>
           </div>
-          <div className="arrive arrive-5 shrink-0" data-hud-band="name">
-          <div className="flex max-w-full items-center gap-2" data-hud-name>
-            <button
-              type="button"
-              onClick={() => {
-                haptic(8);
-                setHelpOpen(false);
-                setInstallOpen(false);
-                setSiliconOpen(false);
-                setEternalOpen(false);
-                setSwarmOpen(false);
-                setSettingsOpen(false);
-                setScriptureOpen(false);
-                setMandateOpen(true);
-              }}
-              aria-label={copy.mandate.open}
-              data-work={workNext ?? "done"}
-              data-work-count={workCount}
-              title={workNext ? copy.mandate.cue[workNext] : copy.mandate.done}
-              className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-[var(--radius-sm)] bg-transparent p-0 text-left"
-              data-hud-mandate
-            >
-              <span className="flex shrink-0 items-center gap-1" aria-hidden>
-                {MANDATE_IDS.map((id) => (
-                  <i
-                    key={id}
-                    className={cn(
-                      "mandate-dot",
-                      mandate.sealed[id] && "is-sealed",
-                      workNext === id && "is-next",
-                    )}
-                  />
-                ))}
-              </span>
-              <span className="min-w-0 flex-1">
-                <span
-                  key={current.id}
-                  className="hud-swap flex min-w-0 items-baseline gap-2"
-                >
-                  <span className="min-w-0 truncate font-display text-base leading-tight tracking-[-0.02em] text-fg sm:text-lg">
-                    {skyLabel}
-                  </span>
-                  {ours && compact ? (
-                    <span className="shrink-0 font-mono text-xs tracking-[0.14em] text-fg-muted uppercase">
-                      {copy.oursBadge}
-                    </span>
-                  ) : null}
-                </span>
-                <span className="mt-0.5 block truncate font-mono text-[0.6875rem] tracking-[0.14em] text-fg-subtle uppercase" data-hud-mandate-label>
-                  {workNext === "atlas"
-                    ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters.atlas.title} ${mandate.fates.length}/${ATLAS_N}`
-                    : workNext
-                      ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters[workNext].title}`
-                      : copy.mandate.done}
-                </span>
-              </span>
-            </button>
-            <div className="flex shrink-0 items-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-11 sm:hidden"
-                aria-label={copy.share}
-                onClick={() => void share()}
-              >
-                <Share2 className="size-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-11 shrink-0"
-                aria-label={current.starred ? copy.unstar : copy.star}
-                onClick={starCurrent}
-              >
-                <Star className="size-4" fill={current.starred ? "currentColor" : "none"} />
-              </Button>
-            </div>
-          </div>
-          </div>
+            {plateClosed && !encounter && !scanning ? (
+              <div role="group" aria-label={copy.stakeAsk}>
+                <p className="px-1.5 pt-1 text-pretty text-xs leading-relaxed text-fg-muted">
+                  {stake ? copy.stakeOn[stake] : copy.stakeAsk}
+                </p>
+                <div className="mt-1.5 flex flex-wrap gap-1">
+                  {(
+                    [
+                      ["carbon", copy.carbon],
+                      ["silicon", copy.silicon],
+                      ["eternal", copy.eternal],
+                      ["swarm", copy.swarm],
+                    ] as const
+                  ).map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={stake === id}
+                      className={cn(
+                        "min-h-11 min-w-[min(100%,7.5rem)] flex-1 basis-[7.5rem] rounded-[var(--radius-sm)] px-1 text-center text-xs leading-tight shadow-[var(--shadow-border)]",
+                        stake === id
+                          ? id === "carbon"
+                            ? "bg-life/20 text-life"
+                            : id === "silicon"
+                              ? "bg-silicon/20 text-silicon"
+                              : id === "eternal"
+                                ? "bg-eternal/20 text-eternal"
+                                : "bg-accent/20 text-accent"
+                          : "bg-transparent text-fg-muted",
+                      )}
+                      onPointerDown={() => setPeek(id)}
+                      onPointerUp={() => setPeek(null)}
+                      onPointerCancel={() => setPeek(null)}
+                      onPointerLeave={() => setPeek(null)}
+                      onClick={() => {
+                        haptic(8);
+                        setStake(id);
+                        setResearchTarget(id);
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           <div className="arrive arrive-6 glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
           {encounter ? (
             <p
@@ -2798,53 +2842,8 @@ export function UniverseApp() {
             <p className="mt-1.5 font-mono text-xs text-life">{copy.shared}</p>
           ) : null}
           </div>
+          </div>
           <div className="arrive arrive-7 glass flex shrink-0 flex-col gap-2 rounded-[var(--radius-xl)] p-1.5" data-hud-band="actions">
-            {plateClosed && !encounter && !scanning ? (
-              <div role="group" aria-label={copy.stakeAsk}>
-                <p className="px-1.5 pt-1 text-pretty text-xs leading-relaxed text-fg-muted">
-                  {stake ? copy.stakeOn[stake] : copy.stakeAsk}
-                </p>
-                <div className="mt-1.5 flex flex-wrap gap-1">
-                  {(
-                    [
-                      ["carbon", copy.carbon],
-                      ["silicon", copy.silicon],
-                      ["eternal", copy.eternal],
-                      ["swarm", copy.swarm],
-                    ] as const
-                  ).map(([id, label]) => (
-                    <button
-                      key={id}
-                      type="button"
-                      aria-pressed={stake === id}
-                      className={cn(
-                        "min-h-11 min-w-[min(100%,7.5rem)] flex-1 basis-[7.5rem] rounded-[var(--radius-sm)] px-1 text-center text-xs leading-tight shadow-[var(--shadow-border)]",
-                        stake === id
-                          ? id === "carbon"
-                            ? "bg-life/20 text-life"
-                            : id === "silicon"
-                              ? "bg-silicon/20 text-silicon"
-                              : id === "eternal"
-                                ? "bg-eternal/20 text-eternal"
-                                : "bg-accent/20 text-accent"
-                          : "bg-transparent text-fg-muted",
-                      )}
-                      onPointerDown={() => setPeek(id)}
-                      onPointerUp={() => setPeek(null)}
-                      onPointerCancel={() => setPeek(null)}
-                      onPointerLeave={() => setPeek(null)}
-                      onClick={() => {
-                        haptic(8);
-                        setStake(id);
-                        setResearchTarget(id);
-                      }}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
             <div className="sky-actions flex min-w-0 flex-wrap items-start gap-2">
             <div className="hud-actions min-w-[min(100%,16rem)] flex-1 basis-[16rem]">
             <Button

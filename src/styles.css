@@ -332,7 +332,7 @@
 .sky-stage {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(11rem, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(9rem, 0.8fr) minmax(12rem, 1.2fr);
   min-width: 0;
   min-height: 0;
   overflow: hidden;
@@ -377,18 +377,25 @@
   pointer-events: none;
 }
 
-/* Clock, the reading band, the fate line, the actions.
-   The reading band may scroll. It does not grow into the sky. */
+/* Clock and the name stay put. The middle scrolls. The actions stay at the bottom. */
 .hud-stack {
   display: grid;
-  grid-template-rows: min-content auto min-content min-content;
-  align-content: start;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  align-content: stretch;
   row-gap: 0.5rem;
   width: 100%;
   min-height: 0;
+  overflow: hidden;
+}
+
+.hud-mid {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  flex-direction: column;
+  gap: 0.5rem;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scroll-padding-bottom: 5rem;
   scrollbar-width: thin;
   scrollbar-color: color-mix(in oklab, var(--color-fg) 28%, transparent) transparent;
 }
@@ -405,9 +412,6 @@
 .hud-stack > [data-hud-band="read"] {
   min-height: 0;
   min-width: 0;
-  max-height: 7.5rem;
-  overflow-y: auto;
-  overscroll-behavior: contain;
 }
 
 .hud-stack > [data-hud-band="scripture"] {
@@ -416,10 +420,41 @@
 }
 
 .hud-stack > [data-hud-band="clock"],
+.hud-stack > [data-hud-band="name"],
 .hud-stack > [data-hud-band="fate"],
 .hud-stack > [data-hud-band="actions"] {
   min-width: 0;
   max-width: 100%;
+}
+
+[data-hud-band="actions"] {
+  background: var(--color-bg);
+}
+
+.sky-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.25rem), 1fr));
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.sky-actions > .hud-actions {
+  display: contents;
+}
+
+.sky-actions button {
+  width: 100%;
+  height: 2.75rem;
+  min-height: 2.75rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: center;
+  justify-content: center;
+}
+
+nav.glass {
+  background: color-mix(in oklab, var(--color-bg) 96%, black);
 }
 
 .hud-actions > * {
@@ -705,26 +740,24 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
    31rem: the sheet fills the window. Width 40rem is the phone. */
 @media (max-height: 45rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(10.5rem, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(8rem, 0.7fr) minmax(11rem, 1.3fr);
   }
 
   .sky-stage > .hud-stack {
     min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior: contain;
     padding-top: 0.25rem;
     row-gap: 0.25rem;
-  }
-
-  [data-hud-band="actions"] {
-    position: sticky;
-    bottom: 0;
-    z-index: 2;
   }
 
   [data-hud-band="fate"] p {
     -webkit-line-clamp: 1;
     line-clamp: 1;
+  }
+}
+
+@media (max-width: 40rem) and (min-height: 40rem) {
+  .sky-stage {
+    grid-template-rows: auto auto minmax(8rem, 0.42fr) minmax(16rem, 1.58fr);
   }
 }
 
@@ -746,8 +779,19 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 
 @media (max-height: 40rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(6.5rem, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(5.5rem, 0.65fr) minmax(0, 1.35fr);
     overflow: hidden;
+  }
+
+  .hud-stack {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .hud-mid {
+    flex: none;
+    overflow: visible;
   }
 
   .sky-stage > .hud-stack {
@@ -755,7 +799,6 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     max-height: 100%;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
-    overflow-y: auto;
   }
 
   .hud-stack > [data-hud-band="read"] {
@@ -779,10 +822,6 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 
   [data-hud-tall] {
     display: none !important;
-  }
-
-  [data-hud-band="actions"] {
-    position: static;
   }
 
   .scripture-quote {
