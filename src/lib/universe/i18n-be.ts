@@ -567,6 +567,18 @@ export function makeBe(ru: Copy): Copy {
 			"Raspberry Pi. Маленькі камп’ютар з экранам і Linux. Першы праект: ён уключаецца, вы бачыце стол, і з ножкі міргае лямпачка.",
 			"Кібердэк. Гэта Pi, батарэя, экран і клавіятура ў адной скрыні, якую носяць. Яго збіраюць пасля трох крокаў вышэй, не замест іх.",
 		],
+		siliconBenchPaste: "Тры першыя тэксты. Кожны ўстаўляюць цалкам.",
+		siliconBenchCaps: ["Arduino", "ESP32", "Raspberry Pi"],
+		siliconBenchCode: [
+			"void setup() {\n  pinMode(LED_BUILTIN, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(LED_BUILTIN, HIGH);\n  delay(1000);\n  digitalWrite(LED_BUILTIN, LOW);\n  delay(1000);\n}",
+			"#include <WiFi.h>\n\nvoid setup() {\n  WiFi.softAP(\"ya-zdes\");\n}\n\nvoid loop() {\n}",
+			"from gpiozero import LED\nfrom time import sleep\n\nled = LED(17)\n\nwhile True:\n    led.on()\n    sleep(1)\n    led.off()\n    sleep(1)",
+		],
+		siliconBenchNotes: [
+			"Лямпачка на самой плаце. Вонкавую не садзіце напрамую: паслядоўна рэзістар каля 220 Ом.",
+			"Тэлефон убачыць сетку ya-zdes без пароля. Гэта пакой, не неба. Выключыце плату, калі паглядзелі.",
+			"Ножка 17, лямпачка і рэзістар каля 220 Ом на зямлю. Без рэзістара ножку можна спаліць.",
+		],
 		siliconBenchLaw: "Лабараторыя нічога не прадае. Успыхнулая лямпачка не падымае лік крэмнію.",
 		siliconFacts: [
 			"Сувязі Si–Si слабейшыя за C–C. Ланцугі распадаюцца, калі свет недастаткова гарачы для пастаяннай пачынкі.",

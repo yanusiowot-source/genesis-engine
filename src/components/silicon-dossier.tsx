@@ -144,6 +144,20 @@ export function SiliconDossier({ copy, params, evaluation, onClose }: Props) {
                 </li>
               ))}
             </ol>
+            <p className="mt-4 text-pretty text-sm leading-relaxed text-fg">{copy.siliconBenchPaste}</p>
+            <div className="mt-3 flex flex-col gap-4">
+              {copy.siliconBenchCode.map((code, i) => (
+                <figure key={copy.siliconBenchCaps[i]} className="min-w-0">
+                  <figcaption className="font-mono text-xs text-fg">{copy.siliconBenchCaps[i]}</figcaption>
+                  <pre className="mt-1 max-w-full overflow-x-auto whitespace-pre-wrap break-words rounded-[var(--radius-sm)] bg-bg px-3 py-2 font-mono text-xs leading-relaxed text-fg">
+                    {code}
+                  </pre>
+                  <figcaption className="mt-1 text-pretty text-xs leading-relaxed text-fg-subtle">
+                    {copy.siliconBenchNotes[i]}
+                  </figcaption>
+                </figure>
+              ))}
+            </div>
             <p className="mt-3 text-pretty text-sm leading-relaxed text-fg-subtle">{copy.siliconBenchLaw}</p>
           </section>
 

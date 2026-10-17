@@ -218,6 +218,10 @@ export type Copy = {
   siliconBenchOhm: string;
   siliconBenchRadio: string;
   siliconBenchSteps: [string, string, string, string];
+  siliconBenchPaste: string;
+  siliconBenchCaps: [string, string, string];
+  siliconBenchCode: [string, string, string];
+  siliconBenchNotes: [string, string, string];
   siliconBenchLaw: string;
   siliconFacts: [string, string, string];
   siliconThisSky: string;
@@ -1472,6 +1476,18 @@ const en: Copy = {
     "ESP32. The same blink, and the board already has Wi-Fi. First radio project: the board says “I am here” on your own network.",
     "Raspberry Pi. A small computer with a screen and Linux. First project: it turns on, you see a desk, and a light blinks from a pin.",
     "A cyberdeck. A Pi, a battery, a screen, and a keyboard in one box you can carry. Build it after the three steps above, not instead of them.",
+  ],
+  siliconBenchPaste: "Three first texts. Paste each one whole.",
+  siliconBenchCaps: ["Arduino", "ESP32", "Raspberry Pi"],
+  siliconBenchCode: [
+    "void setup() {\n  pinMode(LED_BUILTIN, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(LED_BUILTIN, HIGH);\n  delay(1000);\n  digitalWrite(LED_BUILTIN, LOW);\n  delay(1000);\n}",
+    "#include <WiFi.h>\n\nvoid setup() {\n  WiFi.softAP(\"ya-zdes\");\n}\n\nvoid loop() {\n}",
+    "from gpiozero import LED\nfrom time import sleep\n\nled = LED(17)\n\nwhile True:\n    led.on()\n    sleep(1)\n    led.off()\n    sleep(1)",
+  ],
+  siliconBenchNotes: [
+    "The light on the board. An outside light needs a resistor of about 220 ohms in series. Straight across burns it.",
+    "A phone will see a network named ya-zdes, with no password. That is the room, not the sky. Turn the board off when you have looked.",
+    "Pin 17, the light, and about 220 ohms to ground. Without the resistor you can burn the pin.",
   ],
   siliconBenchLaw: "The lab sells nothing. A blinking light does not raise the silicon number.",
   siliconFacts: [

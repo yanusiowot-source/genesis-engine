@@ -630,6 +630,18 @@ export const ru: Copy = {
     "Raspberry Pi. Маленький компьютер с экраном и Linux. Первый проект: он включается, вы видите стол, и с ножки мигает лампочка.",
     "Кибердек. Это Pi, батарея, экран и клавиатура в одном ящике, который носят. Его собирают после трёх шагов выше, не вместо них.",
   ],
+  siliconBenchPaste: "Три первых текста. Каждый вставляют целиком.",
+  siliconBenchCaps: ["Arduino", "ESP32", "Raspberry Pi"],
+  siliconBenchCode: [
+    "void setup() {\n  pinMode(LED_BUILTIN, OUTPUT);\n}\n\nvoid loop() {\n  digitalWrite(LED_BUILTIN, HIGH);\n  delay(1000);\n  digitalWrite(LED_BUILTIN, LOW);\n  delay(1000);\n}",
+    "#include <WiFi.h>\n\nvoid setup() {\n  WiFi.softAP(\"ya-zdes\");\n}\n\nvoid loop() {\n}",
+    "from gpiozero import LED\nfrom time import sleep\n\nled = LED(17)\n\nwhile True:\n    led.on()\n    sleep(1)\n    led.off()\n    sleep(1)",
+  ],
+  siliconBenchNotes: [
+    "Лампочка на самой плате. Внешнюю не сажайте напрямую: последовательно резистор около 220 Ом.",
+    "Телефон увидит сеть ya-zdes без пароля. Это комната, не небо. Выключите плату, когда посмотрели.",
+    "Ножка 17, лампочка и резистор около 220 Ом на землю. Без резистора ножку можно сжечь.",
+  ],
   siliconBenchLaw: "Лаборатория ничего не продаёт. Вспыхнувшая лампочка не поднимает число кремния.",
   siliconFacts: [
     "Связи Si–Si слабее C–C (~226 против ~346 кДж/моль). Цепи распадаются, если мир недостаточно горяч для постоянной починки.",
