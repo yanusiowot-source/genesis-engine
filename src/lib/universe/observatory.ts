@@ -57,10 +57,12 @@ export function epochAt(t: number): CosmicEpoch {
   return current;
 }
 
-/** The epoch the HUD and sky name — blend majority, not the hard fence. */
+/** The epoch the HUD and sky name. The picture crossfades the whole way.
+ *  The word waits until the next era has mostly arrived, so "stars" does not
+ *  become "fading" a moment after today. */
 export function epochShown(t: number): CosmicEpoch {
   const blend = epochBlend(t);
-  return blend.mix >= 0.5 ? blend.to : blend.from;
+  return blend.mix >= 0.82 ? blend.to : blend.from;
 }
 
 /** Remnant clock. The sky names the hole; the carbon plot stays on the stellar era. */
@@ -286,16 +288,19 @@ export function epochJumpT(
   return epochTickT(id);
 }
 
-/** Wall-clock rate while evolving. A full 0→1 sweep takes ~15 s. */
-export const EVOLVE_RATE = 0.065;
+/** Wall-clock rate while evolving. A full 0→1 sweep takes ~50 s.
+ *  After today the clock halves until fading, so the word «stars» holds ~9 s. */
+export const EVOLVE_RATE = 0.02;
 
-/** One display-frame of cosmic time. Canvas rAF is the only caller. */
+/** One display-frame of cosmic time. Canvas rAF is the only caller.
+ *  Between today and the fading mark the clock runs at half speed, so the disk stays. */
 export function stepCosmicTime(
   t: number,
   dt: number,
   rate = EVOLVE_RATE,
 ): { t: number; done: boolean } {
-  const next = t + Math.min(0.05, Math.max(0, dt)) * rate;
+  const hold = t >= NOW_T && t < 0.72 ? 0.5 : 1;
+  const next = t + Math.min(0.05, Math.max(0, dt)) * rate * hold;
   if (next >= 1) return { t: 1, done: true };
   return { t: next, done: false };
 }
