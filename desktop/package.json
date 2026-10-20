@@ -1,7 +1,7 @@
 {
   "name": "genesis-engine",
   "productName": "Genesis Engine",
-  "version": "2.25.0",
+  "version": "2.26.0",
   "description": "Cosmological laboratory — birth universes on your machine.",
   "main": "main.cjs",
   "author": "Ян Ярошевич",
