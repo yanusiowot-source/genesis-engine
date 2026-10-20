@@ -12,7 +12,7 @@ Three steps: send, paste the tx to make a plate, write on X with the plate and w
 
 Public lab (Pages, build): https://yanusiowot-source.github.io/genesis-lab/
 Lab repository (build only, no source in that tree): https://github.com/yanusiowot-source/genesis-lab
-Source repository (all rights reserved, not OSI): https://github.com/yanusiowot-source/genesis-engine
+Source (MIT): https://github.com/yanusiowot-source/genesis-engine
 
 Storefront: https://yanusiowot-source.github.io/genesis-lab/about/
 Checkout inside the lab: https://yanusiowot-source.github.io/genesis-lab/#keep
@@ -21,7 +21,7 @@ Twenty authored interfaces. A catalog of about 7,000 living language names; chro
 
 Web app, installable PWA, portable Windows and Linux. Same codebase can wrap for Android and iOS.
 
-© 2026 Ян Ярошевич. All rights reserved. This is not open source. “Free” means you may run the lab, not that you may treat the source as a license to fork. The public lab is a build. The source repository is published with all rights reserved. Version 2.28.
+© 2026 Ян Ярошевич. MIT. The lab is free to run. The source may be read, changed, and shared. A packed Windows or Linux zip is still a convenience the author sends after payment; it is not a lock on the code. Version 2.29.
 
 Notes from the author: https://x.com/yanusio
 

@@ -1386,7 +1386,7 @@ const en: Copy = {
   studioFollowCta: "Notes from the author on X",
   studioPublicCta: "Open the public lab",
   studioLabRepoCta: "Lab repository (build only)",
-  studioSourceCta: "Source. All rights reserved.",
+  studioSourceCta: "Source. MIT.",
   studioEnterCta: "Enter the laboratory",
   studioReserveCta: "Order a copy · from $1",
   studioOrderText: "Hello. Paid from $1 in USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Sending the tx.",
@@ -1432,7 +1432,7 @@ const en: Copy = {
     orderText:
       "Hello. Paid {amount} USD as USDT BEP20 (or BTC) for a Genesis Engine desktop copy. Plate {plate}. Tx {tx}. Need Windows / Linux:",
   },
-  sourceCode: "© 2026 Ян Ярошевич. All rights reserved.",
+  sourceCode: "© 2026 Ян Ярошевич. MIT.",
   version: `Version ${APP_VERSION_SHORT}`,
   eggs: {
     answer: "The catalog of this sky contains 42.",
@@ -1463,7 +1463,7 @@ const en: Copy = {
   versusHome: "Versus home",
   versusYounger: "Younger than home by",
   versusOlder: "Older than home by",
-  oursBadge: "ΛCDM",
+  oursBadge: "ours",
   star: "Star this sky",
   unstar: "Remove star",
   remove: "Remove from log",

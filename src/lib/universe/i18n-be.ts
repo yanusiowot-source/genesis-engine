@@ -464,7 +464,7 @@ export function makeBe(ru: Copy): Copy {
 		studioFollowCta: "Нататкі аўтара ў X",
 		studioPublicCta: "Адкрыць публічную лабараторыю",
 		studioLabRepoCta: "Рэпазіторый лабараторыі (толькі зборка)",
-		studioSourceCta: "Зыходнік. Усе правы абаронены.",
+		studioSourceCta: "Зыходнік. MIT.",
 		studioEnterCta: "Увайсці ў лабараторыю",
 		studioReserveCta: "Забраць копію · ад $1",
 		studioOrderText: "Добры дзень. Аплаціў ад $1 у USDT BEP20 (або BTC) за настольную копію Genesis Engine. Дасылаю транзакцыю.",
@@ -508,7 +508,7 @@ export function makeBe(ru: Copy): Copy {
 			orderText:
 				"Добры дзень. Аплаціў {amount} USD як USDT BEP20 (або BTC) за настольную копію Genesis Engine. Пласціна {plate}. Tx {tx}. Трэба Windows / Linux:",
 		},
-		sourceCode: "© 2026 Ян Ярошевіч. Усе правы абаронены.",
+		sourceCode: "© 2026 Ян Ярошевіч. MIT.",
 		version: `Версія ${APP_VERSION_SHORT}`,
 		eggs: {
 			answer: "У каталогу гэтага неба ёсць 42.",
@@ -535,6 +535,7 @@ export function makeBe(ru: Copy): Copy {
 			throat: "Праходная гарлавіна дазволена метрыкай — Морыс і Торн, 1988. Геаметрыя, не дзверы.",
 		},
 		thisIsOurs: "Гэтыя канстанты супадаюць з нашым сусветам — ΛCDM, як мы яго вымяраем.",
+		oursBadge: "наш",
 		compareTitle: "Супраць нашага сусвету",
 		versusHome: "Супраць дома",
 		versusYounger: "Маладзейшы за дом на",

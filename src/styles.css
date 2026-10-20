@@ -840,13 +840,10 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 
   [data-hud-band="corridors"] {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     min-height: 2.75rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
-    scroll-padding-inline: 0.5rem;
-    scrollbar-width: none;
+    overflow: visible;
+    row-gap: 0.35rem;
   }
 
   [data-hud-band="corridors"]::-webkit-scrollbar {

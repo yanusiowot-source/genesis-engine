@@ -1,14 +1,21 @@
-Copyright (c) 2026 Ян Ярошевич. All rights reserved.
+MIT License
 
-Genesis Engine is proprietary software. You may run copies you obtained from
-the copyright holder. You may not copy, modify, distribute, sublicense, or
-sell the source, nor publish it, without a separate written license.
+Copyright (c) 2026 Ян Ярошевич
 
-A personal desktop copy (Windows or Linux) is a one-time purchase. It licenses
-one operator to run the instrument offline. It is not a lock on the public
-laboratory, not a census, and not a license to redistribute the source.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-For a classroom, planetarium, exhibition, or resale license, contact the
-copyright holder.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

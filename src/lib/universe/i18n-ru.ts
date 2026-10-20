@@ -525,7 +525,7 @@ export const ru: Copy = {
   studioFollowCta: "Заметки автора в X",
   studioPublicCta: "Открыть публичную лабораторию",
   studioLabRepoCta: "Репозиторий лаборатории (только сборка)",
-  studioSourceCta: "Исходник. Все права защищены.",
+  studioSourceCta: "Исходник. MIT.",
   studioEnterCta: "Войти в лабораторию",
   studioReserveCta: "Забрать копию · от $1",
   studioOrderText: "Здравствуйте. Оплатил от $1 в USDT BEP20 (или BTC) за настольную копию Genesis Engine. Присылаю транзакцию.",
@@ -570,7 +570,7 @@ export const ru: Copy = {
     orderText:
       "Здравствуйте. Оплатил {amount} USD как USDT BEP20 (или BTC) за настольную копию Genesis Engine. Пластина {plate}. Tx {tx}. Нужно Windows / Linux:",
   },
-  sourceCode: "© 2026 Ян Ярошевич. Все права защищены.",
+  sourceCode: "© 2026 Ян Ярошевич. MIT.",
   version: `Версия ${APP_VERSION_SHORT}`,
   eggs: {
     answer: "В каталоге этого неба есть 42.",
@@ -601,7 +601,7 @@ export const ru: Copy = {
   versusHome: "Против дома",
   versusYounger: "Моложе дома на",
   versusOlder: "Старше дома на",
-  oursBadge: "ΛCDM",
+  oursBadge: "наша",
   star: "Отметить это небо",
   unstar: "Снять отметку",
   remove: "Убрать из журнала",

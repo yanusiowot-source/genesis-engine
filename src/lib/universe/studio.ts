@@ -1,11 +1,11 @@
-/** Hosted lab (Pages). genesis-lab is the build. genesis-engine is source, all rights reserved. */
+/** Hosted lab (Pages). genesis-lab is the build. genesis-engine is the MIT source. */
 export const PUBLIC_LAB_URL = "https://yanusiowot-source.github.io/genesis-lab/";
 export const PUBLIC_ABOUT_URL = `${PUBLIC_LAB_URL}about/`;
 export const PUBLIC_LAB_REPO_URL = "https://github.com/yanusiowot-source/genesis-lab";
 export const PUBLIC_SOURCE_REPO_URL = "https://github.com/yanusiowot-source/genesis-engine";
 export const AUTHOR_X_URL = "https://x.com/yanusio";
 export const AUTHOR_X_ID = "1652518444795928590";
-export const APP_VERSION = "2.28.0";
+export const APP_VERSION = "2.29.0";
 export const APP_VERSION_SHORT = APP_VERSION.split(".").slice(0, 2).join(".");
 /** Lowest whole dollar. A store listing can use this tier. The web desk accepts any whole dollar up to the cap. */
 export const COPY_PRICE_MIN = 1;
