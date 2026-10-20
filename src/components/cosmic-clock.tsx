@@ -102,7 +102,7 @@ export function CosmicClock({
         <Button
           variant="ghost"
           size="icon"
-          className="size-11 shrink-0 rounded-full bg-white/[0.06]"
+          className="liquid-orb size-11 shrink-0 rounded-full"
           onClick={() => {
             haptic(10);
             onToggleEvolve();
