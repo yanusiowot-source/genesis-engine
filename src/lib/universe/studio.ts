@@ -5,7 +5,7 @@ export const PUBLIC_LAB_REPO_URL = "https://github.com/yanusiowot-source/genesis
 export const PUBLIC_SOURCE_REPO_URL = "https://github.com/yanusiowot-source/genesis-engine";
 export const AUTHOR_X_URL = "https://x.com/yanusio";
 export const AUTHOR_X_ID = "1652518444795928590";
-export const APP_VERSION = "2.34.0";
+export const APP_VERSION = "2.35.0";
 export const APP_VERSION_SHORT = APP_VERSION.split(".").slice(0, 2).join(".");
 /** Lowest whole dollar. A store listing can use this tier. The web desk accepts any whole dollar up to the cap. */
 export const COPY_PRICE_MIN = 1;

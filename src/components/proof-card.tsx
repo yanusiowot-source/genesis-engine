@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Copy } from "@/lib/universe/i18n";
 import type { CosmicEpoch, SkyMode } from "@/lib/universe/types";
 
@@ -133,47 +134,50 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
           </span>
         ) : null}
       </button>
-      {open ? (
-        <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
-          <button type="button" className="overlay-scrim absolute inset-0 bg-bg/80" aria-label={copy.proof.close} onClick={() => setOpen(false)} />
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="proof-title"
-            className="overlay-sheet relative z-10 max-h-[min(40rem,92dvh)] w-full max-w-md overflow-y-auto rounded-t-[var(--radius-xl)] bg-bg-elevated px-5 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-border)] sm:rounded-[var(--radius-xl)]"
-          >
-            <img src={photo} alt={plate.title} className="aspect-[16/10] w-full rounded-[var(--radius-md)] object-cover" />
-            <h2 id="proof-title" className="mt-4 font-display text-2xl tracking-[-0.02em] text-fg">{plate.title}</h2>
-            {here ? <p className="mt-1 font-mono text-xs text-fg-subtle">{here}</p> : null}
-            {clock ? <p className="mt-2 text-pretty text-sm leading-relaxed text-fg">{clock}</p> : null}
-            {face ? (
-              <div className="mt-3 flex items-center gap-3">
-                <img src={face} alt="" className="size-16 shrink-0 rounded-[var(--radius-sm)] object-cover object-top" />
-                <p className="min-w-0">
-                  <span className="block font-display text-lg text-fg">{plate.person}</span>
-                  <span className="block font-mono text-xs text-fg-subtle">{plate.years}</span>
-                </p>
-              </div>
-            ) : null}
-            <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{plate.body}</p>
-            {later ? <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{later}</p> : null}
-            <p className="mt-3 font-mono text-[0.65rem] leading-relaxed tracking-[0.04em] text-fg-subtle">{plate.credit}</p>
-            {look && look.m > 1 && onStep ? (
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <button type="button" className="min-h-11 rounded-[var(--radius-sm)] text-sm text-fg shadow-[var(--shadow-border)]" onClick={() => onStep(-1)}>
-                  {copy.proof.prev}
+      {open
+        ? createPortal(
+            <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
+              <button type="button" className="overlay-scrim absolute inset-0 bg-bg/80" aria-label={copy.proof.close} onClick={() => setOpen(false)} />
+              <div
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="proof-title"
+                className="overlay-sheet relative z-10 max-h-[min(40rem,92dvh)] w-full max-w-md overflow-x-hidden overflow-y-auto rounded-t-[var(--radius-xl)] bg-bg-elevated px-5 pt-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-border)] sm:rounded-[var(--radius-xl)]"
+              >
+                <img src={photo} alt={plate.title} className="aspect-[16/10] w-full rounded-[var(--radius-md)] object-cover" />
+                <h2 id="proof-title" className="mt-4 text-pretty font-display text-2xl tracking-[-0.02em] text-fg">{plate.title}</h2>
+                {here ? <p className="mt-1 break-words font-mono text-xs text-fg-subtle">{here}</p> : null}
+                {clock ? <p className="mt-2 text-pretty text-sm leading-relaxed text-fg">{clock}</p> : null}
+                {face ? (
+                  <div className="mt-3 flex items-center gap-3">
+                    <img src={face} alt="" className="size-24 shrink-0 rounded-[var(--radius-sm)] object-cover object-[center_18%]" />
+                    <p className="min-w-0">
+                      <span className="block text-pretty font-display text-lg leading-tight text-fg">{plate.person}</span>
+                      <span className="mt-1 block font-mono text-xs text-fg-subtle">{plate.years}</span>
+                    </p>
+                  </div>
+                ) : null}
+                <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{plate.body}</p>
+                {later ? <p className="mt-3 text-pretty text-sm leading-relaxed text-fg">{later}</p> : null}
+                <p className="mt-3 break-words font-mono text-[0.65rem] leading-relaxed text-fg-subtle">{plate.credit}</p>
+                {look && look.m > 1 && onStep ? (
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button type="button" className="min-h-11 rounded-[var(--radius-sm)] text-sm text-fg shadow-[var(--shadow-border)]" onClick={() => onStep(-1)}>
+                      {copy.proof.prev}
+                    </button>
+                    <button type="button" className="min-h-11 rounded-[var(--radius-sm)] text-sm text-fg shadow-[var(--shadow-border)]" onClick={() => onStep(1)}>
+                      {copy.proof.next}
+                    </button>
+                  </div>
+                ) : null}
+                <button type="button" className="mt-4 min-h-11 w-full rounded-[var(--radius-sm)] text-sm text-fg-muted" onClick={() => setOpen(false)}>
+                  {copy.proof.close}
                 </button>
-                <button type="button" className="min-h-11 rounded-[var(--radius-sm)] text-sm text-fg shadow-[var(--shadow-border)]" onClick={() => onStep(1)}>
-                  {copy.proof.next}
-                </button>
               </div>
-            ) : null}
-            <button type="button" className="mt-4 min-h-11 w-full rounded-[var(--radius-sm)] text-sm text-fg-muted" onClick={() => setOpen(false)}>
-              {copy.proof.close}
-            </button>
-          </div>
-        </div>
-      ) : null}
+            </div>,
+            document.body,
+          )
+        : null}
     </>
   );
 }
