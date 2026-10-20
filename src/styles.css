@@ -447,19 +447,27 @@
   width: 100%;
   height: auto;
   min-height: 2.75rem;
-  padding-inline: 0.6rem;
+  padding-inline: 0.7rem;
   overflow: visible;
   white-space: normal;
   text-align: center;
   line-height: 1.15;
   justify-content: center;
-  border-radius: var(--radius-lg);
-  box-shadow: none;
-  background: var(--color-bg-subtle);
+  border-radius: 20px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  background: color-mix(in oklab, #1c1c1e 62%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+  box-shadow: inset 0 0.5px 0 rgba(255, 255, 255, 0.2);
 }
 
 .sky-actions button.bg-accent {
-  background: var(--color-accent);
+  background: linear-gradient(180deg, #409cff 0%, #0a84ff 100%);
+  box-shadow:
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.45),
+    0 10px 28px color-mix(in oklab, #0a84ff 32%, transparent);
+  color: #fff;
 }
 
 nav.glass {
