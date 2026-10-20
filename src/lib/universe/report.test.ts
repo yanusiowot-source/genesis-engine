@@ -20,7 +20,7 @@ describe("buildFieldReport", () => {
     assert.match(text, /Halo analysis/);
     assert.match(text, /Acoustic peaks/);
     assert.match(text, /Disk hydrodynamics: Marginal, Q /);
-    assert.match(text, /IMF: Chabrier, x \d\.\d{2}, ⟨m⟩ \d\.\d{2}, R \d\.\d{2}/);
+    assert.match(text, /IMF: Usual mix, x \d\.\d{2}, mean mass \d\.\d{2}, gas back \d\.\d{2}/);
     assert.match(text, /SMBH: Quiet, Off, a\* \d\.\d{2}, SANE/);
 
     const cluster = makeRecord(CLUSTER_SKY, 2);
@@ -30,7 +30,7 @@ describe("buildFieldReport", () => {
       copy,
       silicon: siliconDossier(cluster.params, cluster.evaluation),
     });
-    assert.match(loud, /IMF: Bottom-heavy, x \d\.\d{2}, ⟨m⟩ \d\.\d{2}, R \d\.\d{2}/);
+    assert.match(loud, /IMF: Mostly light stars, x \d\.\d{2}, mean mass \d\.\d{2}, gas back \d\.\d{2}/);
     assert.match(loud, /SMBH: Quenched, Jet, a\* \d\.\d{2}, MAD/);
 
     const ru = buildFieldReport({
@@ -40,7 +40,7 @@ describe("buildFieldReport", () => {
       silicon: siliconDossier(home.params, home.evaluation),
     });
     assert.match(ru, /Гидродинамика диска: Пороговый, Q /);
-    assert.match(ru, /IMF: Chabrier, x \d\.\d{2}, ⟨m⟩ \d\.\d{2}, R \d\.\d{2}/);
+    assert.match(ru, /IMF: обычная смесь, x \d\.\d{2}, средняя масса \d\.\d{2}, газ назад \d\.\d{2}/);
     assert.match(ru, /СМЧД: Тихая, Выкл, a\* \d\.\d{2}, SANE/);
   });
 });

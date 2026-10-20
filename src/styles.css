@@ -434,7 +434,7 @@
 
 .sky-actions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
   gap: 0.5rem;
   width: 100%;
 }
@@ -769,6 +769,7 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 @media (max-width: 40rem) {
   .sky-stage {
     grid-template-rows: auto auto minmax(0, 1fr);
+    overflow: hidden;
   }
   .sky-stage > .sky-field {
     position: absolute;
@@ -789,9 +790,13 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     grid-row: 3;
     grid-template-rows: auto auto auto auto auto;
     align-self: end;
+    min-height: 0;
+    max-height: 100%;
     overflow-x: clip;
     overflow-y: auto;
+    overscroll-behavior: contain;
     background: linear-gradient(to bottom, transparent, var(--color-bg) 2.5rem);
+    padding-bottom: 0.35rem;
   }
 
   .hud-mid {

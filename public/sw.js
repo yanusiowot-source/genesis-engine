@@ -2,7 +2,7 @@
  * Hashed /assets → cache-first. Documents → network-first, cache fallback.
  * Third-party (fonts, MAST) left on the wire.
  */
-const CACHE = "genesis-sw-2.29";
+const CACHE = "genesis-sw-2.30";
 
 const SHELL = [
   "/",
