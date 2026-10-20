@@ -2594,11 +2594,12 @@ export function UniverseApp() {
           <div className="arrive arrive-5" data-hud-band="read">
           <button
             type="button"
-            className="sky-ink mt-1.5 block w-full truncate bg-transparent p-0 text-left font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
+            className="sky-ink mt-1.5 block w-full bg-transparent p-0 text-left font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
             data-hud-catalog
-            aria-label={`${copy.diskAsk}. ${copy.obs.diskQ} ${disk.Q.toFixed(1)}. ${copy.obs.diskNiche[disk.niche]}`}
+            aria-label={`${copy.diskAsk}. ${copy.obs.diskQ} ${disk.Q.toFixed(1)}. ${copy.obs.diskNiche[disk.niche]}. ${copy.obs.diskNicheHint[disk.niche]}`}
             onClick={() => setDiskOpen(true)}
           >
+            <span className="block truncate">
             {current.catalog}
             <span className="mx-2 text-fg-subtle/50">/</span>
             {copy.morphology[ev.morphology]}
@@ -2608,6 +2609,8 @@ export function UniverseApp() {
                 {copy.obs.diskQ} {disk.Q.toFixed(1)}
               </>
             ) : null}
+            </span>
+            <span className="sky-science">{copy.obs.diskNicheHint[disk.niche]}</span>
           </button>
           {isAnswerCatalog(current.catalog) ? (
             <p className="mt-1 max-w-md text-pretty text-xs leading-relaxed text-accent line-clamp-1">{copy.eggs.answer}</p>

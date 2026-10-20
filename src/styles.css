@@ -504,6 +504,19 @@ html.contrast .glass {
   text-shadow: 0 0 16px color-mix(in oklab, var(--color-bg) 70%, transparent);
 }
 
+.sky-science {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--color-fg);
+  white-space: normal;
+}
+
 .nudge-ring {
   box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-accent) 55%, transparent);
 }
@@ -751,14 +764,12 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 }
 
 /* A tall phone used to lock the galaxy to 5rem so the text would fit.
-   The galaxy is the instrument. It fills the stage. The text docks at the bottom. */
-@media (max-width: 40rem) and (min-height: 50rem) {
+   The galaxy is the instrument. Phones use the rule above: the sky fills the stage. */
+
+@media (max-width: 40rem) {
   .sky-stage {
     grid-template-rows: auto auto minmax(0, 1fr);
   }
-}
-
-@media (max-width: 40rem) {
   .sky-stage > .sky-field {
     position: absolute;
     inset: 0;
@@ -827,9 +838,9 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     min-height: 2.75rem;
     overflow-x: auto;
     overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 0.5rem;
     scrollbar-width: none;
-    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 1.5rem), transparent);
-    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 1.5rem), transparent);
   }
 
   [data-hud-band="corridors"]::-webkit-scrollbar {
@@ -837,13 +848,24 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 
   [data-hud-band="corridors"] > span {
-    position: sticky;
-    left: 0;
-    z-index: 1;
-    align-self: center;
-    background: #000;
-    padding-right: 0.5rem;
-    white-space: nowrap;
+    display: none;
+  }
+
+  [data-hud-band="corridors"] .hud-chip {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+    padding-inline: 0.4rem;
+  }
+
+  [data-hud-mandate] > span.shrink-0 {
+    display: none;
+  }
+
+  .sky-science {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
   }
 
   [data-hud-tall] {
