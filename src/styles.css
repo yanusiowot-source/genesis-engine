@@ -453,6 +453,13 @@
   text-align: center;
   line-height: 1.15;
   justify-content: center;
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+  background: var(--color-bg-subtle);
+}
+
+.sky-actions button.bg-accent {
+  background: var(--color-accent);
 }
 
 nav.glass {
@@ -839,6 +846,11 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 
   [data-kicker] {
     display: none;
+  }
+
+  [data-hud-band="clock"] {
+    background: color-mix(in oklab, #000000 46%, transparent);
+    box-shadow: none;
   }
 
   [data-hud-band="corridors"] {
