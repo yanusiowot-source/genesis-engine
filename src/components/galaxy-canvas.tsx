@@ -2608,7 +2608,7 @@ export function GalaxyCanvas({
         zIndex: 0,
       }}
     />
-      <div className="pointer-events-none absolute bottom-2 left-2 z-[4] flex w-[calc(100%-1rem)] max-w-full flex-col items-start gap-1 overflow-x-clip">
+      <div className="gate-dock pointer-events-none absolute bottom-2 left-2 z-[4] flex w-[calc(100%-1rem)] max-w-full flex-col items-start gap-1 overflow-x-clip">
         <div className="pointer-events-auto flex max-w-full flex-wrap gap-1">
           <button
             type="button"

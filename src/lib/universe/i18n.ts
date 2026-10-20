@@ -875,7 +875,7 @@ const en: Copy = {
   skyRight: "Turn right",
   skyUp: "Look up",
   skyDown: "Look down",
-  gateArm: "Gate",
+  gateArm: "Loupe",
   gateCloser: "Closer",
   gateFarther: "Farther",
   gateShut: "Leave",
@@ -1048,7 +1048,7 @@ const en: Copy = {
     caughtWhale: "Something big in the last ice. We do not know what.",
     done: "The atlas is full. The log is still open.",
   },
-  survey: "Search 64",
+  survey: "64 skies",
   stakeAsk: "What should the next search look for?",
   stakeOn: {
     carbon: "Looking for water. Search 64 looks, and does not promise.",
@@ -1151,7 +1151,7 @@ const en: Copy = {
     fog: "The fog",
     sterile: "Silent galaxies",
     enduring: "Enduring",
-    habitable: "A foothold",
+    habitable: "Livable",
     teeming: "Alive",
   },
   fateCopy: {
@@ -1938,10 +1938,10 @@ const en: Copy = {
       fragmenting: "Fragmenting",
     },
     diskNicheHint: {
-      rigid: "Little shear. A bulge or elliptical: no density wave.",
-      hot: "Q is high. The disk is too warm to ring into arms.",
-      marginal: "Q ~ 1–2. Spiral waves live here. Inner stars lap the edge.",
-      fragmenting: "Q ≲ 1. Self-gravity wins. The disk breaks into clumps.",
+      rigid: "No arms. This is a ball of stars, not a spinning disk.",
+      hot: "Q is high. The gas is too hot for arms.",
+      marginal: "The arms hold. Q is about 2, so the disk is not tearing.",
+      fragmenting: "Q is under 1. The disk is tearing into clumps.",
     },
     acousticNiche: {
       silent: "Silent",
@@ -2111,7 +2111,7 @@ const en: Copy = {
     atlasNeed: "Still to see",
     chapters: {
       witness: {
-        title: "First light",
+        title: "Look",
         body: "Witness a sky. Any constants. Most stay empty.",
         hint: "Birth a universe.",
       },

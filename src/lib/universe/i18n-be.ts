@@ -139,7 +139,7 @@ export function makeBe(ru: Copy): Copy {
 		skyRight: "Управа",
 		skyUp: "Позірк уверх",
 		skyDown: "Позірк уніз",
-		gateArm: "Брама",
+		gateArm: "Лупа",
 		gateCloser: "Бліжэй",
 		gateFarther: "Далей",
 		gateShut: "Выйсці",
@@ -189,7 +189,7 @@ export function makeBe(ru: Copy): Copy {
 			caughtWhale: "Нешта вялікае ў апошнім лёдзе. Што гэта — невядома.",
 			done: "Атлас запоўнены. Журнал яшчэ адкрыты.",
 		},
-		survey: "Шукаць 64",
+		survey: "64 неба",
 		stakeAsk: "Што шукаць у наступны раз?",
 		stakeOn: {
 			carbon: "Шукаем ваду. «Шукаць 64» глядзіць і нічога не абяцае.",
@@ -284,7 +284,7 @@ export function makeBe(ru: Copy): Copy {
 			fog: "Туман",
 			sterile: "Нямыя галактыкі",
 			enduring: "Трывальны",
-			habitable: "Плацдарм",
+			habitable: "Жылое",
 			teeming: "Жывая"
 		},
 		fateCopy: {
@@ -929,7 +929,7 @@ export function makeBe(ru: Copy): Copy {
 			atlasNeed: "Яшчэ ўбачыць",
 			chapters: {
 				witness: {
-					title: "Першае святло",
+					title: "Глядзі неба",
 					body: "Убачыць неба. Любыя канстанты. Большасць пустыя.",
 					hint: "Нарадзіць сусвет.",
 				},
@@ -1329,10 +1329,10 @@ export function makeBe(ru: Copy): Copy {
 				fragmenting: "Дробіцца",
 			},
 			diskNicheHint: {
-				rigid: "Амаль няма зруху. Балдж ці эліптычная: няма хвалі шчыльнасці.",
-				hot: "Q высокі. Дыск занадта цёплы, каб звінець рукавамі.",
-				marginal: "Q ~ 1–2. Тут жывуць спіральныя хвалі. Унутры зоркі апярэджваюць край.",
-				fragmenting: "Q ≲ 1. Самагравітацыя перамагае. Дыск ламаецца на грудкі.",
+				rigid: "Рукавоў няма. Гэта шар з зорак, не дыск.",
+				hot: "Q высокі. Газ занадта гарачы, рукавы не ўзнікаюць.",
+				marginal: "Рукавы трымаюцца. Q каля 2: дыск не рвецца.",
+				fragmenting: "Q ніжэй за 1. Дыск рвецца на кавалкі.",
 			},
 			acousticNiche: {
 				silent: "Нямо",

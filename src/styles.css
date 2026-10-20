@@ -826,6 +826,12 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     top: 11rem;
   }
 
+  .gate-dock {
+    top: 11rem;
+    bottom: auto;
+    width: auto;
+  }
+
   [data-hud-band="fate"] {
     display: none;
   }
@@ -866,6 +872,10 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     -webkit-line-clamp: 2;
     line-clamp: 2;
     overflow: hidden;
+  }
+
+  [data-hud-catalog] > span:first-child {
+    display: none;
   }
 
   [data-hud-tall] {
