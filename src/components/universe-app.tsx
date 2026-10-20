@@ -2469,7 +2469,7 @@ export function UniverseApp() {
         </div>
 
         <div className={cn("hud-stack relative z-10 row-start-4 px-4 pt-3 pb-3 pointer-events-auto sm:px-8 lg:pb-5", onboard && "hidden")}>
-          <div className="arrive arrive-4 glass shrink-0 rounded-[var(--radius-lg)] px-2 py-1.5" data-hud-band="clock">
+          <div className="arrive arrive-4 glass shrink-0 rounded-[var(--radius-xl)] px-3 py-2.5" data-hud-band="clock">
           {hydrated ? (
             <CosmicClock
               copy={copy}
@@ -2537,11 +2537,11 @@ export function UniverseApp() {
               </span>
               <span className="min-w-0 flex-1">
                 <span key={current.id} className="hud-swap flex min-w-0 items-baseline gap-2">
-                  <span className="min-w-0 truncate font-display text-base leading-tight tracking-[-0.02em] text-fg sm:text-lg">
+                  <span className="min-w-0 truncate font-display text-lg leading-tight tracking-[-0.03em] text-fg sm:text-xl">
                     {skyLabel}
                   </span>
                   {ours && compact ? (
-                    <span className="shrink-0 font-mono text-xs tracking-[0.14em] text-fg-muted uppercase">
+                    <span className="shrink-0 rounded-full px-2 py-0.5 font-mono text-[0.625rem] tracking-[0.14em] text-fg-subtle uppercase shadow-[var(--shadow-border)]">
                       {copy.oursBadge}
                     </span>
                   ) : null}

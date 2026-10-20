@@ -848,6 +848,10 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     display: none;
   }
 
+  .sky-turn {
+    display: none;
+  }
+
   [data-hud-band="clock"] {
     background: color-mix(in oklab, #000000 46%, transparent);
     box-shadow: none;

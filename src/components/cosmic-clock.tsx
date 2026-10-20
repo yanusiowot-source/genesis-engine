@@ -126,7 +126,7 @@ export function CosmicClock({
           </span>
         </Button>
         {onTurn ? (
-          <div className="flex shrink-0" role="group" aria-label={copy.skyKeys}>
+          <div className="sky-turn flex shrink-0" role="group" aria-label={copy.skyKeys}>
             <Button variant="ghost" size="icon" aria-label={copy.skyLeft} onClick={() => onTurn("left")}>
               <ChevronLeft />
             </Button>
@@ -148,24 +148,22 @@ export function CosmicClock({
         <div className="min-w-0 flex-1">
           <button
             type="button"
-            className="epoch-ink mb-0.5 flex w-full flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5 bg-transparent p-0 text-left font-mono text-xs uppercase"
+            className="epoch-ink flex w-full min-w-0 flex-col bg-transparent p-0 text-left"
             data-clock-readout=""
-            style={{ color: ink }}
             aria-label={`${copy.clockAsk}. ${copy.obs.epochs[epoch]}. ${formatGyr(age)}. ${formatKelvin(cmb)}`}
             onClick={() => setReadOpen(true)}
           >
-            <span className="min-w-0 text-pretty">
-              <span className="normal-case tracking-normal text-fg-subtle">{copy.obs.time}</span>
-              <span className="normal-case text-fg-subtle/50"> · </span>
-              {copy.obs.epochs[epoch]}
-            </span>
-            <span className="shrink-0 tabular-nums tracking-normal">
+            <span className="font-display text-xl leading-none tracking-[-0.03em] text-fg tabular-nums">
               {formatGyr(age)}
-              <span className="text-fg-subtle"> · </span>
-              {formatKelvin(cmb)}
+            </span>
+            <span className="mt-1 font-mono text-[0.6875rem] leading-none uppercase" style={{ color: ink }}>
+              {copy.obs.epochs[epoch]}
+              <span className="normal-case text-fg-subtle"> · {formatKelvin(cmb)}</span>
             </span>
           </button>
-          <div className="relative">
+        </div>
+      </div>
+      <div className="relative -mt-1">
             <Slider
               min={0}
               max={1}
@@ -231,8 +229,6 @@ export function CosmicClock({
               </button>
             </div>
           </div>
-        </div>
-      </div>
       <div className="hud-actions" role="group" aria-label={copy.obs.epochs[epoch]} data-hud-tall>
         {JUMPS.map((id) => {
           const active = epoch === id;
