@@ -2921,7 +2921,6 @@ export function UniverseApp() {
             </Button>
             </div>
             <MoreMenu
-              compact
               copy={copy}
               nudge={nudgeSkies}
               onOurs={resetOurs}

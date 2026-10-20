@@ -17,11 +17,10 @@ type Props = {
   onBelt: () => void;
   onCluster: () => void;
   onDwarf: () => void;
-  compact?: boolean;
   nudge?: boolean;
 };
 
-export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm, onHighway, onBelt, onCluster, onDwarf, compact, nudge }: Props) {
+export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm, onHighway, onBelt, onCluster, onDwarf, nudge }: Props) {
   const [open, setOpen] = useState(false);
   const [box, setBox] = useState<{ left: number; width: number; bottom: number; maxH: number } | null>(null);
   const root = useRef<HTMLDivElement>(null);
@@ -82,10 +81,7 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm
     <div ref={root} className="relative shrink-0">
       <Button
         variant="outline"
-        className={cn(
-          compact ? "size-11 px-0 sm:h-11 sm:w-auto sm:px-3" : "px-3",
-          nudge && "nudge-ring",
-        )}
+        className={cn(nudge && "nudge-ring")}
         aria-label={copy.skies}
         aria-expanded={open}
         aria-haspopup="menu"
@@ -95,7 +91,7 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm
           setOpen((v) => !v);
         }}
       >
-        <span className={cn(compact && "hidden sm:inline")}>{copy.skies}</span>
+        <span>{copy.skies}</span>
         <ChevronUp
           className={cn(
             "size-4 transition-transform duration-[var(--motion-quick)] ease-[var(--ease-out)]",
@@ -122,7 +118,7 @@ export function MoreMenu({ copy, onOurs, onSilicon, onDesert, onEternal, onSwarm
                 zIndex: 60,
               }}
             >
-              <p className="px-3 pt-2 pb-1 font-mono text-[0.6875rem] tracking-[0.18em] text-fg-subtle uppercase">
+              <p className="px-3 pt-2 pb-1 font-mono text-[0.6875rem] text-fg-subtle">
                 {copy.skies}
               </p>
               <MenuItem label={copy.ours} onClick={() => pick(onOurs)} />
