@@ -2315,7 +2315,7 @@ export function UniverseApp() {
 
         <header className={cn("arrive relative z-10 row-start-1 w-full min-w-0 shrink-0 px-4 pt-[max(0.5rem,env(safe-area-inset-top))] pointer-events-none sm:px-8", onboard && "hidden")}>
           <div className="glass glass-clear pointer-events-auto flex w-full min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-1 rounded-[var(--radius-xl)] px-3 py-1.5 sm:gap-x-3 sm:px-4">
-          <div className="min-w-[min(100%,12rem)] flex-1 basis-[12rem] pr-2">
+          <div className="min-w-0 flex-1 basis-0 pr-2">
             <button
               type="button"
               className="sky-ink glass-ink block w-full min-w-0 truncate bg-transparent p-0 text-left font-mono text-[0.65rem] leading-snug tracking-[0.04em] text-fg uppercase sm:text-xs"

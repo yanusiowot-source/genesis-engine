@@ -837,6 +837,20 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     width: auto;
   }
 
+  [data-kicker] {
+    display: none;
+  }
+
+  [data-hud-band="corridors"] {
+    display: none;
+  }
+
+  [data-hud-band="actions"] {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+
   [data-hud-band="fate"] {
     display: none;
   }
