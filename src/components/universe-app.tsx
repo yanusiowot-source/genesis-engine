@@ -2546,11 +2546,11 @@ export function UniverseApp() {
                     </span>
                   ) : null}
                 </span>
-                <span className="mt-0.5 block text-pretty font-mono text-[0.6875rem] leading-snug tracking-[0.06em] text-fg-subtle uppercase" data-hud-mandate-label>
+                <span className="mt-0.5 block truncate font-mono text-[0.6875rem] leading-snug text-fg-subtle normal-case" data-hud-mandate-label>
                   {workNext === "atlas"
-                    ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters.atlas.title} ${mandate.fates.length}/${ATLAS_N}`
+                    ? `${copy.mandate.chapters.atlas.hint} ${mandate.fates.length}/${ATLAS_N}`
                     : workNext
-                      ? `${workCount}/${MANDATE_COUNT} · ${copy.mandate.chapters[workNext].title}`
+                      ? copy.mandate.chapters[workNext].hint
                       : copy.mandate.done}
                 </span>
               </span>
