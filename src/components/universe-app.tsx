@@ -2962,7 +2962,7 @@ export function UniverseApp() {
         aria-hidden={!panelOpen}
         inert={overlayOpen || !panelOpen ? true : undefined}
       >
-        <div className="sticky top-0 z-10 -mx-5 mb-5 border-b border-border bg-bg-elevated px-5 pt-[max(1.5rem,env(safe-area-inset-top))] pb-3">
+        <div className="sticky top-0 z-10 -mx-5 mb-3 border-b border-border bg-bg-elevated px-5 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-display text-2xl tracking-[-0.02em] text-fg">
               {tab === "log" ? copy.log : copy.tabs.lab}
@@ -2978,7 +2978,7 @@ export function UniverseApp() {
             </Button>
           </div>
           {tab === "lab" ? (
-            <div className="mt-3">
+            <div className="mt-2">
               <Suspense fallback={<FoldLoad line={loadLine(locale)} />}>
                 <LabPanes
                   copy={copy}
@@ -2987,7 +2987,7 @@ export function UniverseApp() {
                   onChange={setLabPane}
                 />
               </Suspense>
-              <p key={labPane} className="view-swap mt-2 text-pretty text-xs leading-relaxed text-fg-subtle">
+              <p key={labPane} className="view-swap mt-1.5 text-pretty text-xs leading-snug text-fg-subtle">
                 {copy.labPaneHint[labPane]}
               </p>
             </div>
