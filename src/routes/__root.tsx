@@ -50,11 +50,14 @@ function RootDocument() {
             <div className="boot-track" aria-hidden="true">
               <span className="boot-bar" />
             </div>
+            <a id="boot-out" href="https://yanusiowot-source.github.io/genesis-lab/">
+              Open the lab
+            </a>
           </div>
         </div>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(()=>{var l="";try{l=localStorage.getItem("genesis-engine-locale")||""}catch(e){}var t=l==="ru"?"Небо ещё собирается":l==="be"?"Неба яшчэ збіраецца":"The sky is still gathering";var n=document.getElementById("boot-line");if(n)n.textContent=t;window.__bootAt=performance.now();})();`,
+            __html: `(()=>{var l="";try{l=localStorage.getItem("genesis-engine-locale")||""}catch(e){}var ru=l==="ru",be=l==="be";var t=ru?"Небо ещё собирается":be?"Неба яшчэ збіраецца":"The sky is still gathering";var n=document.getElementById("boot-line");if(n)n.textContent=t;window.__bootAt=performance.now();setTimeout(function(){if(document.documentElement.dataset.boot==="done")return;var line=document.getElementById("boot-line");var out=document.getElementById("boot-out");if(line)line.textContent=ru?"Сеть молчит.":be?"Сетка маўчыць.":"The network never answered.";if(out){out.textContent=ru?"Открыть лабораторию":be?"Адкрыць лабараторыю":"Open the lab";out.className="is-on";}},8000);})();`,
           }}
         />
         <PreviewHostBridge />

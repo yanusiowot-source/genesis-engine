@@ -2,7 +2,7 @@
  * Hashed /assets → cache-first. Documents → network-first, cache fallback.
  * Third-party (fonts, MAST) left on the wire.
  */
-const CACHE = "genesis-sw-2.42";
+const CACHE = "genesis-sw-2.43";
 
 const SHELL = [
   "/",
@@ -64,10 +64,16 @@ function isDocument(request) {
   return request.mode === "navigate";
 }
 
+function fetchTimed(request, ms) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  return fetch(request, { signal: ctrl.signal }).finally(() => clearTimeout(timer));
+}
+
 async function cacheFirst(request) {
   const hit = await caches.match(request);
   if (hit) return hit;
-  const response = await fetch(request);
+  const response = await fetchTimed(request, 4000);
   if (response && response.ok) {
     const copy = response.clone();
     const cache = await caches.open(CACHE);
@@ -79,13 +85,16 @@ async function cacheFirst(request) {
 async function networkFirst(request) {
   const cache = await caches.open(CACHE);
   try {
-    const response = await fetch(request);
+    const response = await fetchTimed(request, 2500);
     if (response && response.ok) await cache.put(request, response.clone());
     return response;
   } catch {
-    const hit = await cache.match(request);
+    const hit = (await cache.match(request)) || (await cache.match("/"));
     if (hit) return hit;
-    throw new Error("offline");
+    return new Response("offline", {
+      status: 503,
+      headers: { "Content-Type": "text/plain; charset=utf-8" },
+    });
   }
 }
 

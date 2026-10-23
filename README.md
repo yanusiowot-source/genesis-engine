@@ -21,7 +21,7 @@ Twenty authored interfaces. A catalog of about 7,000 living language names; chro
 
 Web app, installable PWA, portable Windows and Linux. Same codebase can wrap for Android and iOS.
 
-© 2026 Ян Ярошевич. MIT. The lab is free to run. The source may be read, changed, and shared. A packed Windows or Linux zip is still a convenience the author sends after payment; it is not a lock on the code. Version 2.42.
+© 2026 Ян Ярошевич. MIT. The lab is free to run. The source may be read, changed, and shared. A packed Windows or Linux zip is still a convenience the author sends after payment; it is not a lock on the code. Version 2.43.
 
 Notes from the author: https://x.com/yanusio
 

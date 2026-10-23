@@ -9,6 +9,7 @@ import { shouldRegisterWorker, SW_CACHE_NAME, workerScope } from "./service-work
 describe("service worker", () => {
   it("registers only on https or localhost", () => {
     assert.equal(shouldRegisterWorker({ protocol: "https:", hostname: "yanusiowot-source.github.io" }), true);
+    assert.equal(shouldRegisterWorker({ protocol: "https:", hostname: "abc.grok-sandbox.com" }), false);
     assert.equal(shouldRegisterWorker({ protocol: "http:", hostname: "localhost" }), true);
     assert.equal(shouldRegisterWorker({ protocol: "file:", hostname: "" }), false);
     assert.equal(shouldRegisterWorker({ protocol: "http:", hostname: "example.com" }), false);
