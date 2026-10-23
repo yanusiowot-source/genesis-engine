@@ -31,23 +31,24 @@ function CutSelect<T extends string>({
   value,
   onChange,
   options,
+  name,
 }: {
   value: T;
   onChange: (id: T) => void;
   options: { id: T; label: string }[];
+  name: string;
 }) {
-  const named = options.find((o) => o.id !== "any") ?? options[0];
   return (
     <select
-      aria-label={named?.label ?? ""}
+      aria-label={name}
       value={value}
       onChange={(event) => onChange(event.target.value as T)}
-      className="h-11 w-full min-w-0 rounded-[var(--radius-sm)] bg-bg-subtle px-2 text-xs text-fg"
+      className="h-11 w-full min-w-0 rounded-[var(--radius-sm)] bg-bg-subtle px-3 text-xs text-fg"
       style={{ colorScheme: "dark" }}
     >
       {options.map((o) => (
         <option key={o.id} value={o.id}>
-          {o.label}
+          {o.id === "any" ? `${name} · ${o.label}` : o.label}
         </option>
       ))}
     </select>
@@ -156,11 +157,13 @@ export function LogList({
             <CutSelect
               value={pathCut}
               onChange={setPathCut}
+              name={copy.mandate.chapters.corridor.title}
               options={paths}
             />
             <CutSelect
               value={fateCut}
               onChange={setFateCut}
+              name={copy.fate}
               options={([{ id: "any" as FateCut, label: copy.filterAll }] as { id: FateCut; label: string }[]).concat(
                 FATE_CUTS.map((id) => ({ id, label: copy.fateLabel[id] })),
               )}
@@ -168,6 +171,7 @@ export function LogList({
             <CutSelect
               value={morphCut}
               onChange={setMorphCut}
+              name={copy.obs.modes.galaxy}
               options={([{ id: "any" as MorphCut, label: copy.filterAll }] as { id: MorphCut; label: string }[]).concat(
                 MORPH_CUTS.map((id) => ({ id, label: copy.morphology[id] })),
               )}
