@@ -1035,7 +1035,7 @@ const en: Copy = {
     hard: "This sky ends too soon. Save it, then make another.",
     blink: "The disk flashed. There is nowhere to land.",
     survey: "Looking through 64 skies. Most stay empty.",
-    home: "These numbers belong to our universe, the one that gathered a sky like this. A new birth leaves them.",
+    home: "These numbers are our universe. A new birth leaves them.",
     cluster: "A crowded ball of old stars. Not the real Virgo cluster.",
     dwarf: "A small messy galaxy and a quiet black hole. Not a head count.",
     highway: "Stars in a line, far apart. No time to build a town.",
@@ -1164,7 +1164,7 @@ const en: Copy = {
     sterile: "Pretty galaxies, but no chemistry. A museum with nobody in it.",
     enduring:
       "The stars go out, and what is left could keep thinking. Dyson, 1979. Only if the tiny particles allow it.",
-    habitable: "A small chance. Stars last, there is metal for planets, and water worlds are allowed.",
+    habitable: "A small chance: stars last, and water worlds are allowed.",
     teeming: "Many generations of stars and long quiet nights. Here, life is the usual outcome.",
   },
   morphology: {
@@ -1229,7 +1229,7 @@ const en: Copy = {
   haptics: "Haptics",
   soundscape: "Sky music",
   soundOn: "Sky music on",
-  soundLesson: "This tone is made here from this sky. No file and no network. Heavier gravity sits lower.",
+  soundLesson: "Music is made from this sky. Heavier gravity sits lower.",
   soundOff: "Sky music off",
   musicTitle: "Music",
   musicHint: "Quiet chords follow the sliders. Or add as many files as this device will hold.",
@@ -2115,7 +2115,7 @@ const en: Copy = {
       witness: {
         title: "Look",
         body: "Witness a sky. Any constants. Most stay empty.",
-        hint: "Birth a universe.",
+        hint: "Most skies stay empty.",
       },
       corridor: {
         title: "A corridor",

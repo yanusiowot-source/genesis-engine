@@ -1617,7 +1617,6 @@ export function UniverseApp() {
     soundOnRef.current = true;
     unlockAndStart(current.params);
     void setSoundscape(true, current.params);
-    flashEgg(copy.soundLesson);
     if (aboutIntent) {
       setSettingsOpen(true);
     }
@@ -1628,7 +1627,7 @@ export function UniverseApp() {
       window.clearTimeout(labNudgeTimer.current);
       labNudgeTimer.current = window.setTimeout(() => armLabNudge(), 4200);
     }
-  }, [aboutIntent, birth, current.params, armLabNudge, copy.soundLesson]);
+  }, [aboutIntent, birth, current.params, armLabNudge]);
 
   const toggleLocale = useCallback(() => {
     setLocale((prev) => {
