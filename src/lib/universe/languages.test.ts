@@ -56,7 +56,7 @@ describe("copyFor", () => {
     const c = copyFor("en");
     assert.equal(c.birth, "Birth a universe");
     assert.equal(c.onboarding.length, 3);
-    assert.match(c.onboarding[0].body, /Survey 64/);
+    assert.match(c.onboarding[0].body, /Further/);
     assert.match(c.gamesNote, /do not change the sky/i);
     assert.match(copyFor("ru").gamesNote, /не меняют небо/);
     assert.match(copyFor("be").gamesNote, /не мяняюць неба/);
@@ -124,9 +124,9 @@ describe("copyFor", () => {
     assert.match(copyFor("ru").civ.spend, /не флот/);
     assert.match(copyFor("be").civ.spend, /не флот/);
     assert.match(c.aboutBody, /four thin corridors/);
-    assert.match(c.onboarding[2].title, /Four corridors/);
-    assert.match(copyFor("ru").onboarding[2].title, /Четыре/);
-    assert.match(copyFor("be").onboarding[2].title, /Чатыры/);
+    assert.match(c.onboarding[2].title, /One window/);
+    assert.match(copyFor("ru").onboarding[2].title, /Одно/);
+    assert.match(copyFor("be").onboarding[2].title, /Адно/);
     assert.match(c.mandate.title, /work/i);
     assert.match(c.mandate.hint, /not a score/);
     assert.equal(Object.keys(c.mandate.chapters).length, 15);

@@ -895,7 +895,7 @@ const en: Copy = {
     swarm: "A machine still has time to hop. It is not a count of ships.",
     none: "The tear closed the windows.",
   },
-  birthWitness: "A new sky. Most corridors stay closed. Survey 64 is the next measurement if this one is empty.",
+  birthWitness: "A new sky. Most corridors stay closed. If this one is empty, Survey 64 is in Lab.",
   birthGood: "And I saw that it was good.",
   tapSky: "The disk flashed. Look. There is nowhere to land.",
   skyKeys: "Arrow keys turn this sky.",
@@ -1159,16 +1159,16 @@ const en: Copy = {
   tabs: { sky: "Sky", lab: "Lab", log: "Log" },
   onboarding: [
     {
-      title: "Most skies stay empty",
-      body: "Press Birth a universe. Most skies stay empty. If the disk flashes, look. Survey 64 is next.",
+      title: "This sky",
+      body: "Look. Press Further. The clock runs until the stars go out. The words come after.",
     },
     {
-      title: "Six constants",
-      body: "Open Lab to move the six sliders. Sculpt is already open. The reading sits below. Grey marks are our universe, not a goal.",
+      title: "The tear",
+      body: "Press Further again. The disk tears. Q is that measurement, not a score. In Lab, Sculpt holds the six sliders. Grey marks are our universe, not a goal.",
     },
     {
-      title: "Four corridors",
-      body: "Carbon needs quiet water. Silicon needs heat. A mind that lasts needs almost no dark energy. A probe that copies itself needs time and metals. An open corridor means it is allowed, not that worlds were counted, and not a score.",
+      title: "One window",
+      body: "One window remains, without a percentage. Water, heat, a lasting mind, or a machine. Allowed, not counted.",
     },
   ],
   fateLabel: {

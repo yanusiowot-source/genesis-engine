@@ -284,7 +284,7 @@ import {
   tearDisk,
 } from "@/lib/universe/observatory";
 
-const ONBOARD_KEY = "genesis-engine-onboarded-v5";
+const ONBOARD_KEY = "genesis-engine-onboarded-v6";
 
 function SkyLine({
   lead,
