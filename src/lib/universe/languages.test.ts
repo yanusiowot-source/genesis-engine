@@ -205,7 +205,7 @@ describe("copyFor", () => {
     assert.match(copyFor("en").plot.home, /clock/i);
     assert.equal(copyFor("en").lessons.length, 3);
     assert.match(copyFor("ru").lessons[1], /Q/);
-    assert.match(copyFor("ru").lessonWindow.carbon, /окн/);
+    assert.match(copyFor("ru").lessonWindow.carbon, /возможн/);
     assert.doesNotMatch(copyFor("en").lessons.join(" "), /buy|subscribe|don't leave/i);
     assert.doesNotMatch(copyFor("en").plot.home, /standing in this sky/);
     assert.match(copyFor("ru").studioHonesty, /бесплатн/);
