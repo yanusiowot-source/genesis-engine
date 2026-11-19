@@ -55,6 +55,7 @@ export type Copy = {
   birth: string;
   reading: string;
   readingClose: string;
+  lessons: [string, string, string];
   birthWitness: string;
   birthGood: string;
   tapSky: string;
@@ -873,8 +874,13 @@ const en: Copy = {
   kicker: "Cosmological laboratory",
   appName: "Genesis Engine",
   birth: "Birth a universe",
-  reading: "Reading",
+  reading: "Further",
   readingClose: "Just the sky",
+  lessons: [
+    "The clock is the age of this sky. Move it. Stars burn, and the dark remains.",
+    "The arms hold while the disk stays calm. Q says whether the disk is tearing. It is a measurement, not a score.",
+    "A corridor means a window is allowed: water, heat, or a machine with time to build. Not a count of lives.",
+  ],
   birthWitness: "A new sky. Most corridors stay closed. Survey 64 is the next measurement if this one is empty.",
   birthGood: "And I saw that it was good.",
   tapSky: "The disk flashed. Look. There is nowhere to land.",
@@ -1042,7 +1048,7 @@ const en: Copy = {
     hard: "This sky ends too soon. Save it, then make another.",
     blink: "The disk flashed. There is nowhere to land.",
     survey: "Looking through 64 skies. Most stay empty.",
-    home: "These numbers are our universe. A new birth leaves them.",
+    home: "These numbers are our universe. The clock under the disk is its age.",
     cluster: "A crowded ball of old stars. Not the real Virgo cluster.",
     dwarf: "A small messy galaxy and a quiet black hole. Not a head count.",
     highway: "Stars in a line, far apart. No time to build a town.",

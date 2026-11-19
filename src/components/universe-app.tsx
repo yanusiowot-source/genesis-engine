@@ -465,7 +465,7 @@ export function UniverseApp() {
   const huntAuto = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(true);
-  const [reading, setReading] = useState(false);
+  const [lesson, setLesson] = useState(0);
   const [tab, setTab] = useState<AppTab>("sky");
   const tabRef = useRef<AppTab>("sky");
   tabRef.current = tab;
@@ -2229,7 +2229,8 @@ export function UniverseApp() {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-bg text-fg" data-hydrated={hydrated ? "1" : "0"} data-primer={onboard ? "1" : "0"} data-work-count={workCount} data-lab-nudge={labNudge ? "1" : "0"} data-hunt-nudge={huntNudge ? "1" : "0"} data-compact={compact ? "1" : "0"} data-encounter={encounter?.kind ?? ""} data-dispatch={dispatchId} data-scanning={scanning ? "1" : "0"}>
       <div
         className="sky-stage relative min-h-0 flex-1"
-        data-quiet={reading ? "0" : "1"}
+        data-quiet="1"
+        data-lesson={lesson}
         inert={overlayOpen ? true : undefined}
       >
         <div className="sky-field arrive arrive-3 row-start-3" data-stake={peek ?? stake ?? ""}>
@@ -2578,10 +2579,10 @@ export function UniverseApp() {
               <button
                 type="button"
                 className="min-h-11 shrink-0 rounded-[var(--radius-sm)] px-2 font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
-                aria-expanded={reading}
-                onClick={() => setReading((open) => !open)}
+                aria-expanded={lesson > 0}
+                onClick={() => setLesson((step) => (step >= 3 ? 0 : step + 1))}
               >
-                {reading ? copy.readingClose : copy.reading}
+                {lesson >= 3 ? copy.readingClose : copy.reading}
               </button>
             </div>
           </div>
@@ -2681,6 +2682,9 @@ export function UniverseApp() {
               </div>
             ) : null}
           <div className="arrive arrive-6 glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
+          <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="1">{copy.lessons[0]}</p>
+          <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="2">{copy.lessons[1]}</p>
+          <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="3">{copy.lessons[2]}</p>
           {encounter ? (
             <p
               role="status"

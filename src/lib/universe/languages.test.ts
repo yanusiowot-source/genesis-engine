@@ -202,6 +202,10 @@ describe("copyFor", () => {
     assert.match(copyFor("ru").eggs.tau, /гомологи/);
     assert.match(copyFor("ru").plot.home, /нашей вселенной/);
     assert.match(copyFor("en").plot.home, /our universe/);
+    assert.match(copyFor("en").plot.home, /clock/i);
+    assert.equal(copyFor("en").lessons.length, 3);
+    assert.match(copyFor("ru").lessons[2], /Коридор/);
+    assert.doesNotMatch(copyFor("en").lessons.join(" "), /buy|subscribe|don't leave/i);
     assert.doesNotMatch(copyFor("en").plot.home, /standing in this sky/);
     assert.match(copyFor("ru").studioHonesty, /бесплатн/);
     assert.match(copyFor("ru").birthWitness, /Обзор 64/);
