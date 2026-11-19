@@ -1,4 +1,4 @@
-import { CircleDot, Eclipse, Eye, Orbit } from "lucide-react";
+import { CircleDot, Eclipse, Eye, Orbit, Spline } from "lucide-react";
 import { Segmented } from "@/components/segmented";
 import type { Copy } from "@/lib/universe/i18n";
 import type { SkyMode } from "@/lib/universe/types";
@@ -39,6 +39,7 @@ export function SkyModes({ copy, mode, onChange, onAsk, collapseLabel = false }:
           title: copy.obs.modeHint.collision,
           icon: Eclipse,
         },
+        { id: "three", label: copy.obs.modes.three, title: copy.obs.modeHint.three, icon: Spline },
       ]}
     />
     </div>

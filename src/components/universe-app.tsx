@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, lazy, Suspense, type ReactNode } from "react";
 import { GalaxyCanvas } from "@/components/galaxy-canvas";
+import { ThreeForest } from "@/components/three-forest";
 import { BenchSheet } from "@/components/bench-sheet";
 import { KeepSheet } from "@/components/keep-sheet";
 import { DiskNote } from "@/components/disk-note";
@@ -2286,7 +2287,7 @@ export function UniverseApp() {
           onTau={armTau}
           className="absolute inset-0 z-0 h-full w-full"
           relaxed={tab !== "sky" || overlayOpen}
-          paused={overlayOpen || (panelOpen && compact)}
+          paused={overlayOpen || (panelOpen && compact) || mode === "three"}
           scanning={scanning}
           wakeKey={wakeKey}
           onSkyH0={setSkyH0}
@@ -2312,6 +2313,7 @@ export function UniverseApp() {
           onGateLook={setGateLook}
           gateStep={gateStep}
         />
+        {mode === "three" ? <ThreeForest className="pointer-events-none absolute inset-0 z-[1] h-full w-full" /> : null}
         {birthFlash ? (
           <div
             key={impactKey}
@@ -2757,9 +2759,15 @@ export function UniverseApp() {
               </div>
             ) : null}
           <div className="arrive arrive-6 glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
+          {mode === "three" ? (
+            <p className="text-pretty text-sm leading-relaxed">{copy.obs.modeHint.three}</p>
+          ) : (
+            <>
           <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="1">{copy.lessons[0]}</p>
           <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="2">{copy.lessons[1]}</p>
           <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="3">{leadWindow[1] >= 0.08 ? copy.lessonWindow[leadWindow[0]] : copy.lessons[2]}</p>
+            </>
+          )}
           {encounter ? (
             <p
               role="status"

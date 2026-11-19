@@ -118,6 +118,8 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
 
+  if (mode === "three") return null;
+
   return (
     <>
       <button

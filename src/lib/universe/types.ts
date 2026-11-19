@@ -214,7 +214,7 @@ export type SwarmBlocker =
 
 export type LabPane = "constants" | "hunt" | "life" | "laws" | "desk";
 
-export type SkyMode = "galaxy" | "planetarium" | "lensing" | "collision";
+export type SkyMode = "galaxy" | "planetarium" | "lensing" | "collision" | "three";
 
 export type CosmicEpoch =
   | "inflation"

@@ -59,7 +59,7 @@ type Chrome = {
   stages: Stages;
   taxa: Taxa;
   grades: Grades;
-  modes: Modes;
+  modes: Omit<Modes, "three"> & { three?: string };
   sortBiomass: string;
   sortSpecies: string;
   development: string;

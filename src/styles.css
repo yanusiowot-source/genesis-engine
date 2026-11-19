@@ -958,11 +958,11 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 
   .sky-modes button[data-seg] {
-    width: calc(25% - 0.2rem);
-    max-width: calc(25% - 0.2rem);
-    height: 2.6rem;
-    min-height: 2.6rem;
-    flex: 1 1 0;
+    width: calc(33.333% - 0.25rem);
+    max-width: calc(33.333% - 0.25rem);
+    height: auto;
+    min-height: 2.5rem;
+    flex: none;
     overflow: hidden;
     padding-inline: 0.2rem;
     font-size: 0.6875rem;
