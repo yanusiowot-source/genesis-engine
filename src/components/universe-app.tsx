@@ -2468,8 +2468,8 @@ export function UniverseApp() {
           />
         </div>
 
-        <div className={cn("hud-stack relative z-10 row-start-4 px-4 pt-3 pb-3 pointer-events-auto sm:px-8 lg:pb-5", onboard && "hidden")}>
-          <div className="arrive arrive-4 glass shrink-0 rounded-[var(--radius-xl)] px-3 py-2.5" data-hud-band="clock">
+        <div className={cn("hud-stack relative z-10 row-start-4 px-4 pt-2 pb-1 pointer-events-auto sm:px-8", onboard && "hidden")}>
+          <div className="arrive arrive-4 glass shrink-0 rounded-[var(--radius-xl)] px-3 py-1.5" data-hud-band="clock">
           {hydrated ? (
             <CosmicClock
               copy={copy}
@@ -3019,7 +3019,7 @@ export function UniverseApp() {
         </div>
       </aside>
 
-      <div inert={overlayOpen ? true : undefined} className={cn(onboard && "hidden")}>
+      <div inert={overlayOpen ? true : undefined} className={cn("relative z-50 shrink-0", onboard && "hidden")}>
         <TabBar
           copy={copy}
           tab={tab}

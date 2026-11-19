@@ -332,7 +332,7 @@
 .sky-stage {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(9rem, 0.8fr) minmax(12rem, 1.2fr);
+  grid-template-rows: auto auto minmax(5.5rem, 0.42fr) minmax(0, 1fr);
   min-width: 0;
   min-height: 0;
   overflow: hidden;
@@ -382,7 +382,7 @@
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto auto;
   align-content: stretch;
-  row-gap: 0.5rem;
+  row-gap: 0.35rem;
   width: 100%;
   min-height: 0;
   overflow: hidden;
@@ -465,7 +465,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.55),
     inset 0 -1px 0 rgba(255, 255, 255, 0.08),
     0 0 0 0.5px rgba(255, 255, 255, 0.22),
-    0 10px 24px rgba(0, 0, 0, 0.28);
+    0 2px 6px rgba(0, 0, 0, 0.22);
 }
 
 .sky-actions button.bg-accent {
@@ -475,7 +475,7 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.7),
     inset 0 -1px 0 rgba(255, 255, 255, 0.12),
     0 0 0 0.5px rgba(186, 224, 255, 0.45),
-    0 12px 28px rgba(10, 132, 255, 0.32);
+    0 2px 8px rgba(10, 132, 255, 0.28);
   color: #fff;
 }
 
@@ -490,11 +490,12 @@
 }
 
 nav.glass {
+  margin-top: 0.65rem;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(28, 28, 30, 0.46) 42%, rgba(8, 8, 10, 0.55));
+    linear-gradient(180deg, rgba(28, 28, 32, 0.94), rgba(10, 10, 12, 0.96));
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.42),
-    0 0 0 0.5px rgba(255, 255, 255, 0.16);
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 0 0 0.5px rgba(255, 255, 255, 0.14);
 }
 
 .hud-actions > * {
@@ -792,7 +793,7 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
    31rem: the sheet fills the window. Width 40rem is the phone. */
 @media (max-height: 45rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(8rem, 0.7fr) minmax(11rem, 1.3fr);
+    grid-template-rows: auto auto minmax(4.5rem, 0.34fr) minmax(0, 1fr);
   }
 
   .sky-stage > .hud-stack {
@@ -1033,7 +1034,8 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     display: none;
   }
 
-  [data-hud-band="fate"] {
+  [data-hud-band="fate"],
+  [data-hud-band="corridors"] {
     display: none;
   }
 

@@ -5,29 +5,36 @@ import type { CosmicEpoch, SkyMode } from "@/lib/universe/types";
 
 type PlateId = "disk" | "worlds" | "lens" | "fire" | "clash" | "shred" | "cluster" | "ember" | "orbit" | "sun" | "giant" | "burst" | "cinder" | "pulse" | "hole";
 
+function proofUrl(file: string): string {
+  const base = import.meta.env.BASE_URL || "/";
+  const tail = file.replace(/^\//, "");
+  if (base === "./" || base === ".") return `./${tail}`;
+  return `${base.endsWith("/") ? base : `${base}/`}${tail}`;
+}
+
 const PHOTO: Record<PlateId, string> = {
-  disk: "/proof/m51.jpg",
-  worlds: "/proof/moon.jpg",
-  lens: "/proof/ring.jpg",
-  fire: "/proof/cmb.jpg",
-  clash: "/proof/antennae.jpg",
-  shred: "/proof/shred.jpg",
-  cluster: "/proof/cluster.jpg",
-  ember: "/proof/crab.jpg",
-  orbit: "/proof/saturn.jpg",
-  sun: "/proof/sun.jpg",
-  giant: "/proof/giant.jpg",
-  burst: "/proof/crab.jpg",
-  cinder: "/proof/sirius.jpg",
-  pulse: "/proof/crab.jpg",
-  hole: "/proof/hole.jpg",
+  disk: proofUrl("proof/m51.jpg"),
+  worlds: proofUrl("proof/moon.jpg"),
+  lens: proofUrl("proof/ring.jpg"),
+  fire: proofUrl("proof/cmb.jpg"),
+  clash: proofUrl("proof/antennae.jpg"),
+  shred: proofUrl("proof/shred.jpg"),
+  cluster: proofUrl("proof/cluster.jpg"),
+  ember: proofUrl("proof/crab.jpg"),
+  orbit: proofUrl("proof/saturn.jpg"),
+  sun: proofUrl("proof/sun.jpg"),
+  giant: proofUrl("proof/giant.jpg"),
+  burst: proofUrl("proof/crab.jpg"),
+  cinder: proofUrl("proof/sirius.jpg"),
+  pulse: proofUrl("proof/crab.jpg"),
+  hole: proofUrl("proof/hole.jpg"),
 };
 
 const FACE: Partial<Record<PlateId, string>> = {
-  disk: "/proof/herschel.jpg",
-  worlds: "/proof/galileo.jpg",
-  cluster: "/proof/newton.jpg",
-  orbit: "/proof/kepler.jpg",
+  disk: proofUrl("proof/herschel.jpg"),
+  worlds: proofUrl("proof/galileo.jpg"),
+  cluster: proofUrl("proof/newton.jpg"),
+  orbit: proofUrl("proof/kepler.jpg"),
 };
 
 function plateId(mode: SkyMode, epoch: CosmicEpoch, fragmenting: boolean, ringHalo: boolean, star: string | null): PlateId {

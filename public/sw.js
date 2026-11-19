@@ -2,30 +2,30 @@
  * Hashed /assets → cache-first. Documents → network-first, cache fallback.
  * Third-party (fonts, MAST) left on the wire.
  */
-const CACHE = "genesis-sw-2.43";
+const CACHE = "genesis-sw-2.44";
 
 const SHELL = [
-  "/",
-  "/index.html",
-  "/favicon.svg",
-  "/icon-180.png",
-  "/proof/m51.jpg",
-  "/proof/herschel.jpg",
-  "/proof/galileo.jpg",
-  "/proof/moon.jpg",
-  "/proof/ring.jpg",
-  "/proof/cmb.jpg",
-  "/proof/antennae.jpg",
-  "/proof/shred.jpg",
-  "/proof/cluster.jpg",
-  "/proof/crab.jpg",
-  "/proof/newton.jpg",
-  "/proof/kepler.jpg",
-  "/proof/saturn.jpg",
-  "/proof/sun.jpg",
-  "/proof/giant.jpg",
-  "/proof/sirius.jpg",
-  "/proof/hole.jpg",
+  "./",
+  "./index.html",
+  "favicon.svg",
+  "icon-180.png",
+  "proof/m51.jpg",
+  "proof/herschel.jpg",
+  "proof/galileo.jpg",
+  "proof/moon.jpg",
+  "proof/ring.jpg",
+  "proof/cmb.jpg",
+  "proof/antennae.jpg",
+  "proof/shred.jpg",
+  "proof/cluster.jpg",
+  "proof/crab.jpg",
+  "proof/newton.jpg",
+  "proof/kepler.jpg",
+  "proof/saturn.jpg",
+  "proof/sun.jpg",
+  "proof/giant.jpg",
+  "proof/sirius.jpg",
+  "proof/hole.jpg",
 ];
 
 self.addEventListener("install", (event) => {
