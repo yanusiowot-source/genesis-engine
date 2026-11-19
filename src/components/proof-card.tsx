@@ -124,7 +124,7 @@ export function ProofButton({ copy, mode, epoch, fragmenting, ringHalo, star, lo
         type="button"
         className={
           variant === "thumb"
-            ? "proof-thumb absolute top-2 right-2 z-[4] w-14 overflow-hidden rounded-[var(--radius-sm)] bg-bg/80 text-fg shadow-[var(--shadow-border)]"
+            ? "proof-thumb absolute top-[8.35rem] right-3 z-[4] w-14 overflow-hidden rounded-[var(--radius-sm)] bg-bg/80 text-fg shadow-[var(--shadow-border)] sm:top-[9.35rem] sm:right-8"
             : "proof-row flex min-h-11 w-full items-center gap-2 rounded-[var(--radius-sm)] px-1 text-left"
         }
         aria-label={`${copy.proof.open}. ${plate.title}${here ? `. ${here}` : ""}`}

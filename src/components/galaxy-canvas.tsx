@@ -2608,12 +2608,13 @@ export function GalaxyCanvas({
         zIndex: 0,
       }}
     />
-      <div className="gate-dock pointer-events-none absolute bottom-2 left-2 z-[4] flex w-[calc(100%-1rem)] max-w-full flex-col items-start gap-1 overflow-x-clip">
-        <div className="pointer-events-auto flex max-w-full flex-wrap gap-1">
+      <div className="gate-dock pointer-events-none absolute top-[8.35rem] left-3 z-[4] flex max-w-[calc(100%-1.5rem)] flex-col items-start gap-1 sm:top-[9.35rem] sm:left-8">
+        <div className="pointer-events-auto flex max-w-full flex-wrap items-center gap-1">
           <button
             type="button"
-            className="min-h-11 rounded-[var(--radius-sm)] bg-bg/80 px-3 text-sm text-fg shadow-[var(--shadow-border)]"
+            className="grid size-11 place-items-center rounded-full bg-white/10 text-fg shadow-[inset_0_1px_0_rgba(255,255,255,0.45)] backdrop-blur-md"
             aria-pressed={gateOn}
+            aria-label={gateOn ? (gate?.shut ?? "Leave") : (gate?.arm ?? "Gate")}
             onClick={() => {
               setGateOn((on) => {
                 const next = !on;
@@ -2633,7 +2634,10 @@ export function GalaxyCanvas({
               });
             }}
           >
-            {gateOn ? (gate?.shut ?? "Leave") : (gate?.arm ?? "Gate")}
+            <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+              <circle cx="7.5" cy="7.5" r="4.25" fill="none" stroke="currentColor" strokeWidth="1.6" />
+              <path d="M11 11.2 15 15" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
           </button>
           {gateOn && gatePlaced ? (
             <>

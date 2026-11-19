@@ -2764,6 +2764,38 @@ export function UniverseApp() {
           ) : null}
           </div>
           </div>
+          <div className="flex flex-wrap gap-1 px-1" data-hud-band="tools">
+            <Button
+              variant="ghost"
+              className="h-9 min-h-9 w-auto shrink-0 bg-transparent px-2 text-xs text-fg-muted shadow-none"
+              data-nudge={nudgeSurvey ? "survey" : undefined}
+              onClick={runSurvey}
+            >
+              <ScanSearch />
+              {copy.survey}
+            </Button>
+            <Button
+              variant="ghost"
+              className="h-9 min-h-9 w-auto shrink-0 bg-transparent px-2 text-xs text-fg-muted shadow-none"
+              onClick={runRefine}
+            >
+              <Atom />
+              {copy.refine}
+            </Button>
+            <MoreMenu
+              copy={copy}
+              nudge={nudgeSkies}
+              onOurs={resetOurs}
+              onSilicon={() => applyPreset(SILICON_CORRIDOR, SILICON_SEED)}
+              onEternal={() => applyPreset(ETERNAL_CORRIDOR, ETERNAL_SEED)}
+              onSwarm={() => applyPreset(SWARM_CORRIDOR, SWARM_SEED)}
+              onHighway={() => applyPreset(HIGHWAY_CORRIDOR, HIGHWAY_SEED)}
+              onBelt={() => applyPreset(BELT_CORRIDOR, BELT_SEED)}
+              onCluster={() => applyPreset(CLUSTER_SKY, CLUSTER_SEED)}
+              onDwarf={() => applyPreset(DWARF_SKY, DWARF_SEED)}
+              onDesert={() => applyPreset(DESERT_EPOCH, DESERT_SEED)}
+            />
+          </div>
           <div className="hud-chips" data-hud-band="corridors" aria-live="polite" aria-label={copy.foldCorridors}>
             <span className="basis-full font-mono text-[0.6875rem] tracking-[0.12em] text-fg-subtle">
               {copy.foldCorridors}
@@ -2915,35 +2947,6 @@ export function UniverseApp() {
                 {copy.ours}
               </Button>
             ) : null}
-            <Button
-              variant="outline"
-              className={cn("shrink-0", nudgeSurvey && "nudge-ring")}
-              data-quiet-hide
-              data-nudge={nudgeSurvey ? "survey" : undefined}
-              onClick={runSurvey}
-            >
-              <ScanSearch />
-              {copy.survey}
-            </Button>
-            <Button variant="outline" className="shrink-0" data-quiet-hide onClick={runRefine}>
-              <Atom />
-              {copy.refine}
-            </Button>
-            </div>
-            <div data-quiet-hide>
-            <MoreMenu
-              copy={copy}
-              nudge={nudgeSkies}
-              onOurs={resetOurs}
-              onSilicon={() => applyPreset(SILICON_CORRIDOR, SILICON_SEED)}
-              onEternal={() => applyPreset(ETERNAL_CORRIDOR, ETERNAL_SEED)}
-              onSwarm={() => applyPreset(SWARM_CORRIDOR, SWARM_SEED)}
-              onHighway={() => applyPreset(HIGHWAY_CORRIDOR, HIGHWAY_SEED)}
-              onBelt={() => applyPreset(BELT_CORRIDOR, BELT_SEED)}
-              onCluster={() => applyPreset(CLUSTER_SKY, CLUSTER_SEED)}
-              onDwarf={() => applyPreset(DWARF_SKY, DWARF_SEED)}
-              onDesert={() => applyPreset(DESERT_EPOCH, DESERT_SEED)}
-            />
             </div>
             </div>
           </div>

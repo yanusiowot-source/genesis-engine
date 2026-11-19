@@ -341,12 +341,39 @@
 .sky-stage[data-quiet="1"] [data-hud-band="scripture"],
 .sky-stage[data-quiet="1"] [data-hud-band="read"],
 .sky-stage[data-quiet="1"] [data-hud-band="corridors"],
+.sky-stage[data-quiet="1"] [data-hud-band="tools"],
 .sky-stage[data-quiet="1"] [data-hud-mandate-label],
 .sky-stage[data-quiet="1"] .hud-mid > :first-child,
 .sky-stage[data-quiet="1"] .sky-aside,
 .sky-stage[data-quiet="1"] .sky-facts,
 .sky-stage[data-quiet="1"] [data-quiet-hide] {
   display: none;
+}
+
+.sky-stage > .sky-field {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  grid-row: 1 / -1;
+}
+
+.sky-stage > header,
+.sky-stage > .row-start-2,
+.sky-stage > .hud-stack {
+  position: relative;
+  z-index: 2;
+}
+
+.sky-stage > .hud-stack {
+  align-self: end;
+  grid-row: 4;
+  max-height: 42%;
+  background: linear-gradient(to bottom, transparent, var(--color-bg) 1.6rem);
+}
+
+.sky-stage[data-quiet="1"] > .hud-stack {
+  max-height: none;
+  background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--color-bg) 72%, transparent) 2rem);
 }
 
 .sky-stage > * {
@@ -549,6 +576,13 @@ nav.glass {
   text-shadow:
     0 1px 1px color-mix(in oklab, black 85%, transparent),
     0 0 10px color-mix(in oklab, black 75%, transparent);
+}
+
+.sky-stage[data-quiet="1"] [data-hud-band="clock"],
+.sky-stage[data-quiet="1"] [data-hud-band="fate"],
+.sky-stage[data-quiet="1"] [data-hud-band="actions"],
+.sky-stage .sky-modes {
+  background: color-mix(in oklab, #1c1c1e 42%, transparent);
 }
 
 @media (prefers-reduced-transparency: reduce) {
@@ -924,19 +958,12 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
       0 0 0 0.5px rgba(255, 255, 255, 0.12);
   }
 
-  [data-hud-band="corridors"] {
-    display: none;
-  }
-
   [data-hud-band="actions"] {
     background: transparent;
     box-shadow: none;
     padding: 0;
   }
 
-  [data-hud-band="fate"] {
-    display: none;
-  }
   .sky-glow {
     opacity: 0.35;
   }
