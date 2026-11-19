@@ -73,17 +73,18 @@ export function HolePanel({ copy, params, evaluation }: Props) {
         </div>
         <div className="text-right">
           <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdEff}</dt>
-          <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">
-            {(g.ntEff * 100).toFixed(1)}%
-            <span className="ml-2 text-[0.6875rem] text-fg-subtle">{g.isco.toFixed(2)} M</span>
-          </dd>
+          <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{(g.ntEff * 100).toFixed(1)}%</dd>
         </div>
         <div>
+          <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.grmhdIsco}</dt>
+          <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{g.isco.toFixed(2)} M</dd>
+        </div>
+        <div className="text-right">
           <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.agnLambda}</dt>
           <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{agn.lambda.toFixed(3)}</dd>
         </div>
         {live ? (
-          <div className="text-right">
+          <div>
             <dt className="text-[0.6875rem] tracking-wide text-fg-subtle uppercase">{copy.obs.agnHeat}</dt>
             <dd className="mt-0.5 font-mono text-sm tabular-nums text-fg">{agn.heat.toFixed(2)}</dd>
           </div>
@@ -107,6 +108,9 @@ export function HolePanel({ copy, params, evaluation }: Props) {
             <span>{copy.obs.fluxNiche[g.fluxNiche]}</span>
             <span>
               {copy.obs.grmhdEta} {g.etaBz.toFixed(2)}
+            </span>
+            <span>
+              {copy.obs.grmhdBeta} {g.beta.toFixed(1)}
             </span>
           </p>
           {g.state === "mad" ? (
