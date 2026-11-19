@@ -281,6 +281,7 @@ import {
   imfNicheOf,
   imfReturn,
   nowMarker,
+  tearDisk,
 } from "@/lib/universe/observatory";
 
 const ONBOARD_KEY = "genesis-engine-onboarded-v5";
@@ -466,6 +467,10 @@ export function UniverseApp() {
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(true);
   const [lesson, setLesson] = useState(0);
+  const [gliding, setGliding] = useState(false);
+  const lessonHome = useRef<{ params: UniverseParams; seed: number; time: number } | null>(null);
+  const lessonFrame = useRef(0);
+  useEffect(() => () => cancelAnimationFrame(lessonFrame.current), []);
   const [tab, setTab] = useState<AppTab>("sky");
   const tabRef = useRef<AppTab>("sky");
   tabRef.current = tab;
@@ -1158,6 +1163,10 @@ export function UniverseApp() {
   }, [caughtKind, keepSculpt, scanning]);
 
   const birth = useCallback(() => {
+    cancelAnimationFrame(lessonFrame.current);
+    lessonHome.current = null;
+    setGliding(false);
+    setLesson(0);
     haptic(12);
     hushBeats();
     const seed = randomSeed();
@@ -1171,6 +1180,10 @@ export function UniverseApp() {
   }, [hushBeats, remember, witnessBirth]);
 
   const resetOurs = useCallback(() => {
+    cancelAnimationFrame(lessonFrame.current);
+    lessonHome.current = null;
+    setGliding(false);
+    setLesson(0);
     haptic(8);
     hushBeats();
     const record = makeRecord(OUR_UNIVERSE, OUR_SEED);
@@ -1966,6 +1979,14 @@ export function UniverseApp() {
     return { niche, mean: imfMeanMass(x, niche), ret: imfReturn(x, niche) };
   }, [current.params, ev]);
   const liveEpoch = epochShown(liveTime);
+  const leadWindow = (
+    [
+      ["carbon", ev.lifeProb],
+      ["silicon", ev.siliconProb],
+      ["eternal", ev.eternalProb],
+      ["swarm", ev.swarmProb],
+    ] as const
+  ).reduce((best, row) => (row[1] > best[1] ? row : best));
 
   const stats = useMemo(
     () => [
@@ -2230,7 +2251,7 @@ export function UniverseApp() {
       <div
         className="sky-stage relative min-h-0 flex-1"
         data-quiet="1"
-        data-lesson={lesson}
+        data-lesson={gliding ? "travel" : lesson}
         inert={overlayOpen ? true : undefined}
       >
         <div className="sky-field arrive arrive-3 row-start-3" data-stake={peek ?? stake ?? ""}>
@@ -2580,7 +2601,61 @@ export function UniverseApp() {
                 type="button"
                 className="min-h-11 shrink-0 rounded-[var(--radius-sm)] px-2 font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
                 aria-expanded={lesson > 0}
-                onClick={() => setLesson((step) => (step >= 3 ? 0 : step + 1))}
+                disabled={gliding}
+                onClick={() => {
+                  if (gliding) return;
+                  const glide = (to: number, done: () => void) => {
+                    cancelAnimationFrame(lessonFrame.current);
+                    setEvolving(false);
+                    setGliding(true);
+                    const from = timeRef.current;
+                    const t0 = performance.now();
+                    const step = (now: number) => {
+                      const k = Math.min(1, (now - t0) / 1100);
+                      const eased = 1 - (1 - k) ** 3;
+                      setCosmicTime(from + (to - from) * eased);
+                      if (k < 1) lessonFrame.current = requestAnimationFrame(step);
+                      else {
+                        setGliding(false);
+                        done();
+                      }
+                    };
+                    lessonFrame.current = requestAnimationFrame(step);
+                  };
+                  if (lesson >= 3) {
+                    const home = lessonHome.current;
+                    lessonHome.current = null;
+                    if (home) {
+                      setCurrent(makeRecord(home.params, home.seed));
+                      setCosmicTime(home.time);
+                      setDispatchId("home");
+                    }
+                    setLesson(0);
+                    return;
+                  }
+                  if (!lessonHome.current) {
+                    lessonHome.current = {
+                      params: current.params,
+                      seed: current.visualSeed,
+                      time: cosmicTime,
+                    };
+                  }
+                  if (lesson === 0) {
+                    glide(0.99, () => setLesson(1));
+                    return;
+                  }
+                  if (lesson === 1) {
+                    glide(NOW_T, () => {
+                      const torn = tearDisk(current.params);
+                      (Object.keys(torn) as ParamKey[]).forEach((key) => {
+                        if (torn[key] !== current.params[key]) setParams(key, torn[key]);
+                      });
+                      setLesson(2);
+                    });
+                    return;
+                  }
+                  setLesson(3);
+                }}
               >
                 {lesson >= 3 ? copy.readingClose : copy.reading}
               </button>
@@ -2636,7 +2711,7 @@ export function UniverseApp() {
 
           </div>
             {plateClosed && !encounter && !scanning ? (
-              <div role="group" aria-label={copy.stakeAsk}>
+              <div role="group" aria-label={copy.stakeAsk} data-hud-band="stake">
                 <p className="px-1.5 pt-1 text-pretty text-xs leading-relaxed text-fg-muted">
                   {stake ? copy.stakeOn[stake] : copy.stakeAsk}
                 </p>
@@ -2684,7 +2759,7 @@ export function UniverseApp() {
           <div className="arrive arrive-6 glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
           <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="1">{copy.lessons[0]}</p>
           <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="2">{copy.lessons[1]}</p>
-          <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="3">{copy.lessons[2]}</p>
+          <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="3">{leadWindow[1] >= 0.08 ? copy.lessonWindow[leadWindow[0]] : copy.lessons[2]}</p>
           {encounter ? (
             <p
               role="status"
@@ -2810,12 +2885,14 @@ export function UniverseApp() {
               }}
               aria-label={copy.factorsTitle}
               title={`${copy.carbon} ${formatPct(ev.lifeProb)}`}
+              data-window="carbon"
+              data-lesson-keep={lesson === 3 && leadWindow[0] === "carbon" ? "" : undefined}
               className={cn(
                 "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
                 lifeTone,
               )}
             >
-              {corridorReadout(compact, copy.carbon, ev.lifeProb)}
+              {lesson === 3 && leadWindow[0] === "carbon" ? copy.carbon : corridorReadout(compact, copy.carbon, ev.lifeProb)}
             </button>
             <button
               type="button"
@@ -2834,12 +2911,14 @@ export function UniverseApp() {
               }}
               aria-label={copy.siliconOpen}
               title={`${copy.silicon} ${formatPct(ev.siliconProb)}`}
+              data-window="silicon"
+              data-lesson-keep={lesson === 3 && leadWindow[0] === "silicon" ? "" : undefined}
               className={cn(
                 "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
                 siliconTone,
               )}
             >
-              {corridorReadout(compact, copy.silicon, ev.siliconProb)}
+              {lesson === 3 && leadWindow[0] === "silicon" ? copy.silicon : corridorReadout(compact, copy.silicon, ev.siliconProb)}
             </button>
             <button
               type="button"
@@ -2858,12 +2937,14 @@ export function UniverseApp() {
               }}
               aria-label={copy.eternalOpen}
               title={`${copy.eternal} ${formatPct(ev.eternalProb)}`}
+              data-window="eternal"
+              data-lesson-keep={lesson === 3 && leadWindow[0] === "eternal" ? "" : undefined}
               className={cn(
                 "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
                 eternalTone,
               )}
             >
-              {corridorReadout(compact, copy.eternal, ev.eternalProb)}
+              {lesson === 3 && leadWindow[0] === "eternal" ? copy.eternal : corridorReadout(compact, copy.eternal, ev.eternalProb)}
             </button>
             <button
               type="button"
@@ -2882,12 +2963,14 @@ export function UniverseApp() {
               }}
               aria-label={copy.swarmOpen}
               title={`${copy.swarm} ${formatPct(ev.swarmProb)}`}
+              data-window="swarm"
+              data-lesson-keep={lesson === 3 && leadWindow[0] === "swarm" ? "" : undefined}
               className={cn(
                 "hud-chip rounded-full bg-bg-elevated/80 px-2 py-1 font-mono text-[0.6875rem] tabular-nums sm:px-2.5",
                 swarmTone,
               )}
             >
-              {corridorReadout(compact, copy.swarm, ev.swarmProb)}
+              {lesson === 3 && leadWindow[0] === "swarm" ? copy.swarm : corridorReadout(compact, copy.swarm, ev.swarmProb)}
             </button>
             {ours && !compact ? (
               <button

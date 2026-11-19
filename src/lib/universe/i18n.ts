@@ -56,6 +56,13 @@ export type Copy = {
   reading: string;
   readingClose: string;
   lessons: [string, string, string];
+  lessonWindow: {
+    carbon: string;
+    silicon: string;
+    eternal: string;
+    swarm: string;
+    none: string;
+  };
   birthWitness: string;
   birthGood: string;
   tapSky: string;
@@ -877,10 +884,17 @@ const en: Copy = {
   reading: "Further",
   readingClose: "Just the sky",
   lessons: [
-    "The clock is the age of this sky. Move it. Stars burn, and the dark remains.",
-    "The arms hold while the disk stays calm. Q says whether the disk is tearing. It is a measurement, not a score.",
-    "A corridor means a window is allowed: water, heat, or a machine with time to build. Not a count of lives.",
+    "The stars have burned. The dark remains.",
+    "The arms tore. Q fell to the break.",
+    "The tear closed the windows.",
   ],
+  lessonWindow: {
+    carbon: "Water still has a window. It is not a count of lives.",
+    silicon: "Heat still has a window. It is not a count of lives.",
+    eternal: "Something can last after the stars. The model does not say what.",
+    swarm: "A machine still has time to hop. It is not a count of ships.",
+    none: "The tear closed the windows.",
+  },
   birthWitness: "A new sky. Most corridors stay closed. Survey 64 is the next measurement if this one is empty.",
   birthGood: "And I saw that it was good.",
   tapSky: "The disk flashed. Look. There is nowhere to land.",

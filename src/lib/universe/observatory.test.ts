@@ -16,6 +16,7 @@ import {
   epochTickT,
   DISK_MESH,
   diskDossier,
+  tearDisk,
   plummerCircular,
   plummerScale,
   hernquistCircular,
@@ -447,6 +448,12 @@ describe("cosmic clock", () => {
     assert.equal(evaluate(cold).morphology, "spiral");
     assert.ok(frag.Q < ours.Q);
     assert.ok(frag.unstable >= 2);
+    const torn = tearDisk(OUR_UNIVERSE);
+    const tornEv = evaluate(torn);
+    const tornDisk = diskDossier(torn, tornEv);
+    assert.equal(tornEv.morphology, "spiral");
+    assert.equal(tornDisk.niche, "fragmenting");
+    assert.ok(tornDisk.Q < 1.05);
     const fog = evaluate({ ...OUR_UNIVERSE, gravity: 0.2, matter: 0.04 });
     const dead = diskDossier({ ...OUR_UNIVERSE, gravity: 0.2, matter: 0.04 }, fog);
     assert.ok(fog.morphology === "scattered" || fog.fate === "void" || fog.fate === "fog");

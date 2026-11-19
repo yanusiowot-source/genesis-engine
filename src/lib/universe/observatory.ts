@@ -22,7 +22,7 @@ import type {
   UniverseParams,
 } from "./types";
 import { clamp, lerp, mulberry32 } from "./rng.ts";
-import { derivedAstro, omegaBaryon } from "./physics.ts";
+import { derivedAstro, evaluate, omegaBaryon } from "./physics.ts";
 import { nfwFillGrid, nfwKernel } from "./nfw-wasm.ts";
 
 export const EPOCH_MARKS: { id: CosmicEpoch; t: number }[] = [
@@ -1352,6 +1352,26 @@ export function diskDossier(params: UniverseParams, ev: Evaluation): DiskDossier
   const d: DiskDossier = { niche, Q, kappa, shear, pitchDeg, mesh, unstable, plummerA: plummerScale(params, ev) };
   diskHold = { key, d };
   return d;
+}
+
+/** A spiral that crosses the Toomre break. The rest of the sky is left alone. */
+export function tearDisk(params: UniverseParams): UniverseParams {
+  const trials: UniverseParams[] = [
+    {
+      ...params,
+      gravity: Math.max(params.gravity, 1.1),
+      matter: 0.25,
+      quantumNoise: 0,
+      complexity: Math.max(params.complexity, 0.6),
+    },
+    { ...params, gravity: 1.1, matter: 0.25, quantumNoise: 0, complexity: 0.6 },
+    { ...params, gravity: 1.4, matter: 0.2, quantumNoise: 0, complexity: 0.4 },
+  ];
+  for (const next of trials) {
+    const ev = evaluate(next);
+    if (ev.morphology === "spiral" && diskDossier(next, ev).niche === "fragmenting") return next;
+  }
+  return trials[1];
 }
 
 /** Pin: our outer disk lands near 220 km/s. Homology, not a SPARC fit. */

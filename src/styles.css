@@ -370,7 +370,16 @@
   display: flex;
 }
 
-.sky-stage[data-lesson="1"] [data-hud-band="clock"] {
+.sky-stage[data-lesson="3"] [data-hud-band="corridors"] > :not([data-lesson-keep]) {
+  display: none;
+}
+
+.sky-stage:not([data-lesson="0"]) [data-hud-band="stake"] {
+  display: none;
+}
+
+.sky-stage[data-lesson="1"] [data-hud-band="clock"],
+.sky-stage[data-lesson="travel"] [data-hud-band="clock"] {
   outline: 1px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
   outline-offset: 3px;
 }
