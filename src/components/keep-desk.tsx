@@ -37,6 +37,7 @@ export function KeepDesk({ copy, compact = false }: Props) {
     typeof window === "undefined" ? null : loadReceipt(),
   );
   const [error, setError] = useState(false);
+  const [letterCopied, setLetterCopied] = useState(false);
   const receiptBox = useRef<HTMLDivElement>(null);
   const dollars = clampCopyDollars(
     dollarsText.trim() === "" ? COPY_PRICE_MIN : Number(dollarsText),
@@ -264,7 +265,20 @@ export function KeepDesk({ copy, compact = false }: Props) {
             {copy.keep.roomTitle}
           </p>
           <p className="mt-1.5 text-pretty text-sm leading-relaxed text-fg">{copy.keep.roomBody}</p>
-          <Button asChild variant="outline" className="mt-3 h-auto min-h-11 w-full whitespace-normal text-balance">
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-3 h-auto min-h-11 w-full whitespace-normal text-balance"
+            onClick={() => {
+              void navigator.clipboard?.writeText(copy.keep.roomLetter).then(() => {
+                setLetterCopied(true);
+                window.setTimeout(() => setLetterCopied(false), 2000);
+              });
+            }}
+          >
+            {letterCopied ? copy.keep.roomCopied : copy.keep.roomCopy}
+          </Button>
+          <Button asChild variant="ghost" className="mt-2 h-auto min-h-11 w-full whitespace-normal text-balance">
             <a
               href={orderCopyUrl(copy.keep.roomOrderText)}
               target="_blank"

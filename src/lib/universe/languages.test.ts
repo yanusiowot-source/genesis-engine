@@ -241,6 +241,9 @@ describe("copyFor", () => {
     assert.match(copyFor("ru").keep.step3, /архивом/);
     assert.match(copyFor("ru").keep.orderText, /Windows \/ Linux/);
     assert.match(c.keep.roomCta, /room/i);
+    assert.match(c.keep.roomLetter, /genesis-lab/);
+    assert.match(copyFor("ru").keep.roomLetter, /без сети/);
+    assert.match(copyFor("be").keep.roomLetter, /без сеткі/);
     assert.match(copyFor("ru").keep.openCta, /\$1/);
     assert.match(copyFor("be").keep.step2, /пласцін/);
     assert.equal(c.version, `Version ${APP_VERSION_SHORT}`);

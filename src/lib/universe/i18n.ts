@@ -435,6 +435,9 @@ export type Copy = {
     roomTitle: string;
     roomBody: string;
     roomCta: string;
+    roomCopy: string;
+    roomCopied: string;
+    roomLetter: string;
     roomOrderText: string;
     saveCta: string;
     invalidTx: string;
@@ -1428,10 +1431,14 @@ const en: Copy = {
     writeCta: "Write on X with the plate",
     roomTitle: "A room, a class, a hall",
     roomBody:
-      "A school, planetarium, or exhibition: 40 USDT once, the same BEP20 network. One window on the computer in that room. Write how many seats. The laboratory in the browser stays free.",
+      "A school or a planetarium can open the free laboratory in the browser today. A packed copy for the computer in that room is 40 dollars once: one window, offline. Copy the letter and write the seats and the system, Windows or Linux.",
     roomCta: "Write for a room license",
+    roomCopy: "Copy the letter",
+    roomCopied: "Letter copied",
+    roomLetter:
+      "Hello.\n\nGenesis Engine is a free cosmological laboratory in the browser:\nhttps://yanusiowot-source.github.io/genesis-lab/\n\nA lesson can use that. No ads. No subscription.\n\nIf the hall needs a copy on its computer, without the network: one window for this room, 40 dollars once. Seats in the room: ___. System: Windows or Linux.\nThis is not a store and not instant. The author answers and sends the archive.\n\nYan Yaroshevich\nhttps://x.com/yanusio\n",
     roomOrderText:
-      "Hello. Room license for Genesis Engine, 40 USDT once (BEP20). Seats in the room:",
+      "Hello. Room license for Genesis Engine, 40 USD once. Seats in the room:",
     saveCta: "Save the plate",
     invalidTx: "That does not look like a transaction.",
     openCta: "Keep a copy · from $1",
