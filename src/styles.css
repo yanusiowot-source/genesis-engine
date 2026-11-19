@@ -332,10 +332,21 @@
 .sky-stage {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: auto auto minmax(5.5rem, 0.42fr) minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(12rem, 1fr) auto;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
+}
+
+.sky-stage[data-quiet="1"] [data-hud-band="scripture"],
+.sky-stage[data-quiet="1"] [data-hud-band="read"],
+.sky-stage[data-quiet="1"] [data-hud-band="corridors"],
+.sky-stage[data-quiet="1"] [data-hud-mandate-label],
+.sky-stage[data-quiet="1"] .hud-mid > :first-child,
+.sky-stage[data-quiet="1"] .sky-aside,
+.sky-stage[data-quiet="1"] .sky-facts,
+.sky-stage[data-quiet="1"] [data-quiet-hide] {
+  display: none;
 }
 
 .sky-stage > * {
@@ -344,8 +355,20 @@
   max-width: 100%;
 }
 
-.sky-field {
-  position: relative;
+@media (max-width: 40rem) {
+  .sky-modes > div {
+    display: flex;
+    flex-wrap: wrap;
+    height: auto;
+  }
+
+  .sky-modes > div > button {
+    width: calc(50% - 0.125rem);
+    max-width: none;
+    min-width: 0;
+    flex: none;
+  }
+}
   z-index: 0;
   min-height: 0;
   overflow: hidden;
@@ -793,7 +816,7 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
    31rem: the sheet fills the window. Width 40rem is the phone. */
 @media (max-height: 45rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(4.5rem, 0.34fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(8rem, 1fr) auto;
   }
 
   .sky-stage > .hud-stack {
@@ -978,7 +1001,7 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
 
 @media (max-height: 40rem) {
   .sky-stage {
-    grid-template-rows: auto auto minmax(3rem, 0.4fr) minmax(0, 1.6fr);
+    grid-template-rows: auto auto minmax(6rem, 1fr) auto;
     overflow: hidden;
   }
 
@@ -1031,11 +1054,6 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 
   [data-kicker] {
-    display: none;
-  }
-
-  [data-hud-band="fate"],
-  [data-hud-band="corridors"] {
     display: none;
   }
 

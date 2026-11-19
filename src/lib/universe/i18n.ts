@@ -53,6 +53,8 @@ export type Copy = {
   kicker: string;
   appName: string;
   birth: string;
+  reading: string;
+  readingClose: string;
   birthWitness: string;
   birthGood: string;
   tapSky: string;
@@ -868,6 +870,8 @@ const en: Copy = {
   kicker: "Cosmological laboratory",
   appName: "Genesis Engine",
   birth: "Birth a universe",
+  reading: "Reading",
+  readingClose: "Just the sky",
   birthWitness: "A new sky. Most corridors stay closed. Survey 64 is the next measurement if this one is empty.",
   birthGood: "And I saw that it was good.",
   tapSky: "The disk flashed. Look. There is nowhere to land.",
@@ -1133,7 +1137,7 @@ const en: Copy = {
   onboarding: [
     {
       title: "Most skies stay empty",
-      body: "A random set of constants almost never makes stars. Birth one anyway. If the disk flashes, look. There is nowhere to land. If the sky stays empty, run Survey 64.",
+      body: "Press Birth a universe. Most skies stay empty. If the disk flashes, look. Survey 64 is next.",
     },
     {
       title: "Six constants",
@@ -1377,7 +1381,8 @@ const en: Copy = {
   clearLogConfirm: "Tap again to clear",
   aboutTitle: "About",
   aboutBody: "A cosmological laboratory on this machine. Sculpt the constants, watch a galaxy, hunt four thin corridors where a mind might live.",
-  studioHonesty: "The physics is not for sale. Corridors are envelopes, not a census you can buy.",
+  studioHonesty:
+    "The lab is free. A packed copy is one dollar if you want it sent. The code is not locked. Corridors are envelopes, not a census.",
   studioFreeTitle: "The lab stays free",
   studioFreeBody: "Sculpt, survey, export FITS and VOTable, run MCMC. No ads. No accounts. No subscription. Your journal stays on this device.",
   studioKeepTitle: "Keep a copy",
@@ -1942,7 +1947,7 @@ const en: Copy = {
     diskNicheHint: {
       rigid: "No arms. This is a ball of stars, not a spinning disk.",
       hot: "Q is high. The gas is too hot for arms.",
-      marginal: "The arms hold. Q is about 2, so the disk is not tearing.",
+      marginal: "The arms hold. The disk is not tearing.",
       fragmenting: "Q is under 1. The disk is tearing into clumps.",
     },
     acousticNiche: {
@@ -2101,7 +2106,7 @@ const en: Copy = {
   },
   mandate: {
     title: "The work",
-    hint: "An observatory thesis, not a score. Physics is not for sale.",
+    hint: "An observatory thesis, not a score. The lab is free. A packed copy is one dollar.",
     next: "Next",
     sealed: "Sealed",
     openLabel: "Open",

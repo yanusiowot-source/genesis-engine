@@ -102,7 +102,7 @@ describe("copyFor", () => {
     assert.equal(c.tabs.sky, "Sky");
     assert.match(c.eggs.tau, /homology/);
     assert.match(c.helpItems.map((item) => item.title).join(" "), /Nearby/);
-    assert.match(c.studioHonesty, /not for sale/);
+    assert.match(c.studioHonesty, /lab is free/i);
     assert.match(c.studioFreeBody, /No ads/);
     assert.match(c.studioFreeBody, /No subscription/);
     assert.match(c.studioKeepBody, /offline/i);
@@ -203,10 +203,10 @@ describe("copyFor", () => {
     assert.match(copyFor("ru").plot.home, /нашей вселенной/);
     assert.match(copyFor("en").plot.home, /our universe/);
     assert.doesNotMatch(copyFor("en").plot.home, /standing in this sky/);
-    assert.match(copyFor("ru").studioHonesty, /не прода/);
+    assert.match(copyFor("ru").studioHonesty, /бесплатн/);
     assert.match(copyFor("ru").birthWitness, /Обзор 64/);
     assert.match(copyFor("be").eggs.tau, /гамалог/);
-    assert.match(copyFor("be").studioHonesty, /не прада/);
+    assert.match(copyFor("be").studioHonesty, /бясплатн/);
     assert.doesNotMatch(copyFor("ru").studioKeepBody, /уже есть/);
     assert.match(copyFor("ru").studioKeepBody, /разовая/);
     assert.match(copyFor("ru").studioKeepBody, /без сети/);

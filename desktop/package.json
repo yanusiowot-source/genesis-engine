@@ -5,6 +5,6 @@
   "description": "Cosmological laboratory — birth universes on your machine.",
   "main": "main.cjs",
   "author": "Ян Ярошевич",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "private": true
 }

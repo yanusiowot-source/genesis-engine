@@ -1,6 +1,6 @@
 # Genesis Engine
 
-A cosmological laboratory. The physics is not for sale.
+A cosmological laboratory. The lab is free. A packed copy is one dollar if you want it sent. The code is not locked.
 
 Six constants. A galaxy. Four corridors where a mind might live: carbon–water, speculative silicon, Dyson’s remnant computation, or a von Neumann tide. Life scores are envelopes, not a census. The canvas is a planetarium, not a Boltzmann solver.
 
@@ -21,7 +21,7 @@ Twenty authored interfaces. A catalog of about 7,000 living language names; chro
 
 Web app, installable PWA, portable Windows and Linux. Same codebase can wrap for Android and iOS.
 
-© 2026 Ян Ярошевич. MIT. The lab is free to run. The source may be read, changed, and shared. A packed Windows or Linux zip is still a convenience the author sends after payment; it is not a lock on the code. Version 2.43.
+© 2026 Ян Ярошевич. MIT. The lab is free to run. The source may be read, changed, and shared. A packed Windows or Linux zip is still a convenience the author sends after payment; it is not a lock on the code. Version 2.44.
 
 Notes from the author: https://x.com/yanusio
 

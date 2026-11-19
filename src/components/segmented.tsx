@@ -98,7 +98,7 @@ export function Segmented<T extends string>({
       }}
       className={cn(
         "relative flex",
-        stacked ? "gap-0 p-1" : "h-11 gap-0.5 p-0.5",
+        stacked ? "gap-0 p-1" : cn("gap-0.5 p-0.5", wrap ? "h-auto" : "h-11"),
         scroll && "overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         wrap && "flex-wrap",
         "rounded-[var(--radius-sm)] bg-bg-elevated/70",

@@ -2,7 +2,7 @@
   "name": "genesis-engine",
   "private": true,
   "version": "2.44.0",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "description": "Cosmological laboratory: sculpt ΛCDM, hunt four corridors of mind, watch a galaxy.",
   "author": "Ян Ярошевич",
   "engines": {

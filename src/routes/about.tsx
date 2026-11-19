@@ -5,7 +5,7 @@ import { copyFor, detectLocale } from "@/lib/universe/i18n";
 import { isStoreShell } from "@/lib/universe/platform";
 import { APP_VERSION, productOffers, PUBLIC_LAB_URL } from "@/lib/universe/studio";
 
-const TITLE = "Genesis Engine — physics is not for sale";
+const TITLE = "Genesis Engine — the lab is free";
 const DESCRIPTION =
   "A cosmological laboratory. Sculpt ΛCDM, watch a galaxy, hunt four thin corridors where a mind might live. The lab is free. A Windows or Linux copy is any whole dollar from $1.";
 

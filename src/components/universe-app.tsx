@@ -302,10 +302,10 @@ function SkyLine({
     <div className="sky-ink hud-swap mt-1.5 max-w-md" role="status" data-dispatch={dispatch}>
       <p className={cn("line-clamp-2 text-pretty text-sm leading-relaxed", tone)}>{lead}</p>
       {aside ? (
-        <p className="mt-0.5 line-clamp-2 text-pretty text-sm leading-relaxed text-fg-muted">{aside}</p>
+        <p className="sky-aside mt-0.5 line-clamp-2 text-pretty text-sm leading-relaxed text-fg-muted">{aside}</p>
       ) : null}
       {facts.length > 0 ? (
-        <p className="mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg-muted">
+        <p className="sky-facts mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg-muted">
           {facts.map((fact) => (
             <span key={fact}>{fact}</span>
           ))}
@@ -465,6 +465,7 @@ export function UniverseApp() {
   const huntAuto = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(true);
+  const [reading, setReading] = useState(false);
   const [tab, setTab] = useState<AppTab>("sky");
   const tabRef = useRef<AppTab>("sky");
   tabRef.current = tab;
@@ -2228,6 +2229,7 @@ export function UniverseApp() {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-bg text-fg" data-hydrated={hydrated ? "1" : "0"} data-primer={onboard ? "1" : "0"} data-work-count={workCount} data-lab-nudge={labNudge ? "1" : "0"} data-hunt-nudge={huntNudge ? "1" : "0"} data-compact={compact ? "1" : "0"} data-encounter={encounter?.kind ?? ""} data-dispatch={dispatchId} data-scanning={scanning ? "1" : "0"}>
       <div
         className="sky-stage relative min-h-0 flex-1"
+        data-quiet={reading ? "0" : "1"}
         inert={overlayOpen ? true : undefined}
       >
         <div className="sky-field arrive arrive-3 row-start-3" data-stake={peek ?? stake ?? ""}>
@@ -2573,6 +2575,14 @@ export function UniverseApp() {
               >
                 <Star className="size-4" fill={current.starred ? "currentColor" : "none"} />
               </Button>
+              <button
+                type="button"
+                className="min-h-11 shrink-0 rounded-[var(--radius-sm)] px-2 font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
+                aria-expanded={reading}
+                onClick={() => setReading((open) => !open)}
+              >
+                {reading ? copy.readingClose : copy.reading}
+              </button>
             </div>
           </div>
           </div>
@@ -2908,17 +2918,19 @@ export function UniverseApp() {
             <Button
               variant="outline"
               className={cn("shrink-0", nudgeSurvey && "nudge-ring")}
+              data-quiet-hide
               data-nudge={nudgeSurvey ? "survey" : undefined}
               onClick={runSurvey}
             >
               <ScanSearch />
               {copy.survey}
             </Button>
-            <Button variant="outline" className="shrink-0" onClick={runRefine}>
+            <Button variant="outline" className="shrink-0" data-quiet-hide onClick={runRefine}>
               <Atom />
               {copy.refine}
             </Button>
             </div>
+            <div data-quiet-hide>
             <MoreMenu
               copy={copy}
               nudge={nudgeSkies}
@@ -2932,6 +2944,7 @@ export function UniverseApp() {
               onDwarf={() => applyPreset(DWARF_SKY, DWARF_SEED)}
               onDesert={() => applyPreset(DESERT_EPOCH, DESERT_SEED)}
             />
+            </div>
             </div>
           </div>
         </div>
