@@ -2,7 +2,7 @@ import { diskDossier, einsteinRadius, grmhdDossier, hernquistScale, imfHighMass,
 import { persistH0, persistLong } from "./persist.ts";
 import { isOurParams } from "./physics.ts";
 import { lerp, mulberry32 } from "./rng.ts";
-import type { Evaluation, UniverseParams } from "./types";
+import type { DiskNiche, Evaluation, UniverseParams } from "./types";
 
 /** Death cut in star coordinates. Fixed on purpose. Not the canvas scale and not `spread`. */
 const H0_DEATH = 0.18;
@@ -311,7 +311,7 @@ function fillMorphology(
   } else {
     const ours = isOurParams(params);
     const hydro = diskDossier(params, evaluation);
-    const arms = ours ? 4 : hydro.niche === "fragmenting" ? 3 + Math.round(params.complexity * 2) : 2 + Math.round(params.complexity * 2);
+    const arms = spiralArms(params, hydro.niche);
     const wind = 2.6 + 18 / Math.max(hydro.pitchDeg, 6);
     const scatterHydro =
       hydro.niche === "fragmenting" ? scatter * 1.45 : hydro.niche === "hot" ? scatter * 1.15 : scatter;
@@ -346,6 +346,13 @@ function fillMorphology(
     }
   }
   return stars;
+}
+
+/** Same arm count for the stars and the light painted over them. */
+export function spiralArms(params: UniverseParams, niche: DiskNiche): number {
+  if (isOurParams(params)) return 4;
+  const extra = Math.round(params.complexity * 2);
+  return niche === "fragmenting" ? 3 + extra : 2 + extra;
 }
 
 export function buildGalaxy(

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { describe, it } from "node:test";
-import { adaptiveQuality, buildGalaxy, canvasDpr, encounterOf, lookCam, PIXEL_BUDGET, planetariumScreen, PLANETARIUM_FOV, projectLook } from "./galaxy.ts";
+import { adaptiveQuality, buildGalaxy, canvasDpr, encounterOf, lookCam, PIXEL_BUDGET, planetariumScreen, PLANETARIUM_FOV, projectLook, spiralArms } from "./galaxy.ts";
 import { evaluate, OUR_UNIVERSE } from "./physics.ts";
 
 describe("inside-sky camera", () => {
@@ -64,6 +64,9 @@ describe("buildGalaxy", () => {
     assert.ok(ours.stars.length > neighbor.stars.length);
     assert.ok(ours.dust.length > 0);
     assert.ok(ours.background.some((g) => g.kind === "spiral"));
+    assert.equal(spiralArms(OUR_UNIVERSE, "marginal"), 4);
+    assert.equal(spiralArms({ ...neighborParams, complexity: 0 }, "marginal"), 2);
+    assert.equal(spiralArms({ ...neighborParams, complexity: 1 }, "fragmenting"), 5);
   });
 
   it("keeps quality in range without a window", () => {

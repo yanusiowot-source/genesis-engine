@@ -8,6 +8,7 @@ import {
   planetariumScreen,
   PLANETARIUM_FOV,
   projectLook,
+  spiralArms,
   type GalaxyModel,
   type Star,
 } from "@/lib/universe/galaxy";
@@ -846,7 +847,7 @@ export function GalaxyCanvas({
         g.ellipse(0, 0, scale * 1.12, scale * 0.8, 0, 0, Math.PI * 2);
         g.fill();
         if (evn.morphology === "spiral" && vis > 0.18 && hydro.niche !== "hot" && hydro.niche !== "rigid") {
-          const arms = isOurParams(pms) ? 4 : 2;
+          const arms = spiralArms(pms, hydro.niche);
           const wind = 2.6 + 18 / Math.max(hydro.pitchDeg, 6);
           g.strokeStyle = `rgba(${cr},${cg},${cb},${0.12 * vis})`;
           g.lineWidth = Math.max(3, scale * 0.05);
@@ -885,6 +886,23 @@ export function GalaxyCanvas({
               }
               g.stroke();
             }
+            g.globalCompositeOperation = "lighter";
+          }
+          if (isOurParams(pms) && hydro.niche !== "fragmenting") {
+            g.globalCompositeOperation = "lighter";
+            g.strokeStyle = `rgba(${cr},${cg},${cb},${0.14 * vis})`;
+            g.lineWidth = Math.max(2.2, scale * 0.028);
+            g.beginPath();
+            g.moveTo(-scale * 0.2, 0);
+            g.lineTo(scale * 0.2, 0);
+            g.stroke();
+            g.globalCompositeOperation = "source-over";
+            g.strokeStyle = `rgba(16, 9, 18, ${0.26 * vis})`;
+            g.lineWidth = Math.max(1, scale * 0.01);
+            g.beginPath();
+            g.moveTo(-scale * 0.18, scale * 0.01);
+            g.lineTo(scale * 0.18, scale * 0.01);
+            g.stroke();
             g.globalCompositeOperation = "lighter";
           }
         }
