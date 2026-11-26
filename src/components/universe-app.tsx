@@ -2261,7 +2261,7 @@ export function UniverseApp() {
     <div className="relative flex h-dvh flex-col overflow-hidden bg-bg text-fg" data-hydrated={hydrated ? "1" : "0"} data-primer={onboard ? "1" : "0"} data-work-count={workCount} data-lab-nudge={labNudge ? "1" : "0"} data-hunt-nudge={huntNudge ? "1" : "0"} data-compact={compact ? "1" : "0"} data-encounter={encounter?.kind ?? ""} data-dispatch={dispatchId} data-scanning={scanning ? "1" : "0"}>
       <div
         className="sky-stage relative min-h-0 flex-1"
-        data-quiet="1"
+        data-quiet={showLink ? "1" : "0"}
         data-show={showLink ? "1" : "0"}
         data-lesson={gliding ? "travel" : lesson}
         inert={overlayOpen ? true : undefined}

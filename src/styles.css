@@ -438,14 +438,14 @@ html[data-show="1"] [data-reading] {
 .sky-stage > .hud-stack {
   align-self: stretch;
   grid-row: 4;
-  max-height: min(48vh, 28rem);
+  max-height: min(34vh, 18rem);
   overflow-x: clip;
   overflow-y: auto;
   background: var(--color-bg);
 }
 
 .sky-stage[data-quiet="1"] > .hud-stack {
-  max-height: min(48vh, 26rem);
+  max-height: min(32vh, 14rem);
   background: var(--color-bg);
 }
 
@@ -503,15 +503,17 @@ html[data-show="1"] [data-reading] {
   pointer-events: none;
 }
 
-/* Clock and the name stay put. The middle scrolls. The actions stay at the bottom. */
+/* Clock, name, and the reading stay in view. The stack sizes to its text.
+   It does not grow an empty middle and push the galaxy off the screen. */
 .hud-stack {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  align-content: stretch;
+  grid-template-rows: auto auto auto auto auto;
+  align-content: start;
   row-gap: 0.35rem;
   width: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow-x: clip;
+  overflow-y: auto;
 }
 
 .hud-mid {
