@@ -77,6 +77,50 @@ try {
     env: { ...process.env, GIT_ASKPASS: ask, GIT_TERMINAL_PROMPT: "0" },
   });
   console.log(`published ${head} → genesis-lab`);
+  publishPages(WWW, head, version, note);
 } finally {
   rmSync(dir, { recursive: true, force: true });
+}
+
+function publishPages(www, head, version, note) {
+  const remote =
+    process.env.GENESIS_PAGES_REMOTE ||
+    "https://github.com/yanusiowot-source/yanusiowot-source.github.io.git";
+  const pages = mkdtempSync(join(tmpdir(), "genesis-pages-"));
+  try {
+    execFileSync("git", ["clone", "--depth", "1", remote, pages], { stdio: "inherit" });
+    const dest = join(pages, "genesis-lab");
+    rmSync(dest, { recursive: true, force: true });
+    cpSync(www, dest, { recursive: true });
+    writeFileSync(join(dest, ".nojekyll"), "");
+    writeFileSync(join(dest, "404.html"), readFileSync(join(dest, "index.html")));
+    git(pages, ["add", "-A", "genesis-lab"]);
+    const dirty = execFileSync("git", ["status", "--porcelain"], { cwd: pages, encoding: "utf8" });
+    if (!dirty.trim()) {
+      console.log("github.io/genesis-lab already matches this build.");
+      return;
+    }
+    const name = git(pages, ["config", "user.name"]) || "Genesis Engine";
+    const email = git(pages, ["config", "user.email"]) || "genesis@local";
+    git(pages, ["config", "user.name", name]);
+    git(pages, ["config", "user.email", email]);
+    execFileSync("git", ["commit", "-m", `${note}\n\nLive folder for the phone.`], {
+      cwd: pages,
+      stdio: "inherit",
+    });
+    const ask = join(pages, ".git-ask.sh");
+    writeFileSync(
+      ask,
+      "#!/bin/sh\ncase \"$1\" in\n*Username*) printf '%s\\n' x-access-token ;;\n*) gh auth token ;;\nesac\n",
+    );
+    chmodSync(ask, 0o700);
+    execFileSync("git", ["push", "origin", "HEAD"], {
+      cwd: pages,
+      stdio: "inherit",
+      env: { ...process.env, GIT_ASKPASS: ask, GIT_TERMINAL_PROMPT: "0" },
+    });
+    console.log(`published ${head} → github.io/genesis-lab (${version})`);
+  } finally {
+    rmSync(pages, { recursive: true, force: true });
+  }
 }

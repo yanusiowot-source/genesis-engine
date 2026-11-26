@@ -1990,7 +1990,7 @@ export function GalaxyCanvas({
 
       const cx = w / 2;
       const cy = h / 2;
-      const scale = Math.min(w, h) * 0.4;
+      const scale = Math.min(w, h) * (w < 520 ? 0.48 : 0.4);
       if (!Number.isFinite(scale) || scale <= 0) return;
       let shook = false;
       if (trauma > 0.01 && !reducedRef.current) {
