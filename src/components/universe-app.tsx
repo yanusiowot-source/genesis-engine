@@ -264,7 +264,7 @@ import { pickEncounter, type EncounterKind, type SkyEncounter } from "@/lib/univ
 import { closedSkyWitness, fateAside, pickDispatch, plotNeedsFate, voiceFor, type PlotId } from "@/lib/universe/plot";
 import { registerGenesisWorker } from "@/lib/universe/service-worker";
 import { bootNfwWasm } from "@/lib/universe/nfw-wasm";
-import { decodeUniverse, encodeUniverse, shareUrl } from "@/lib/universe/share";
+import { decodeUniverse, encodeUniverse, shareUrl, showVisit } from "@/lib/universe/share";
 import { compareToOurs, formatCompareLine, plateTitle } from "@/lib/universe/compare";
 import type { Fate, LabPane, ParamKey, SkyMode, UniverseParams, UniverseRecord } from "@/lib/universe/types";
 import { cn } from "@/lib/utils";
@@ -783,7 +783,9 @@ export function UniverseApp() {
   }, []);
 
   useLayoutEffect(() => {
-    const next = detectLocale();
+    const visit = showVisit(window.location.search);
+    const next = visit ?? detectLocale();
+    if (visit) persistLocale(visit);
     if (next === "en") setLocale(next);
     else void hydrateLocale(next).then(() => setLocale(next));
     setHapticsOn(loadHapticPref());
@@ -807,9 +809,10 @@ export function UniverseApp() {
       }
     }
     try {
-      setOnboard(localStorage.getItem(ONBOARD_KEY) !== "1");
+      if (visit) localStorage.setItem(ONBOARD_KEY, "1");
+      setOnboard(visit ? false : localStorage.getItem(ONBOARD_KEY) !== "1");
     } catch {
-      setOnboard(true);
+      setOnboard(!visit);
     }
     const loadedWork = loadMandate();
     mandateRef.current = loadedWork;

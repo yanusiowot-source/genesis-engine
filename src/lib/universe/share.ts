@@ -59,3 +59,10 @@ export function shareUrl(params: UniverseParams, seed: number): string {
   const path = typeof window === "undefined" ? "/" : window.location.pathname;
   return `${origin}${path}?${encodeUniverse(params, seed)}`;
 }
+
+/** `?ru` opens the sky in Russian and skips the primer. For a phone, not a saved universe. */
+export function showVisit(search: string): "ru" | null {
+  const q = new URLSearchParams(search.startsWith("?") ? search.slice(1) : search);
+  if (q.has("ru") || q.get("lang") === "ru") return "ru";
+  return null;
+}

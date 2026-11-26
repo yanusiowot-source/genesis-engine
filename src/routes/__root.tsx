@@ -57,7 +57,7 @@ function RootDocument() {
         </div>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(()=>{var l="";try{l=localStorage.getItem("genesis-engine-locale")||""}catch(e){}var ru=l==="ru",be=l==="be";var t=ru?"Небо ещё собирается":be?"Неба яшчэ збіраецца":"The sky is still gathering";var n=document.getElementById("boot-line");if(n)n.textContent=t;window.__bootAt=performance.now();setTimeout(function(){if(document.documentElement.dataset.boot==="done")return;var line=document.getElementById("boot-line");var out=document.getElementById("boot-out");if(line)line.textContent=ru?"Сеть молчит.":be?"Сетка маўчыць.":"The network never answered.";if(out){out.textContent=ru?"Открыть лабораторию":be?"Адкрыць лабараторыю":"Open the lab";out.className="is-on";}},8000);})();`,
+            __html: `(()=>{var l="";try{l=localStorage.getItem("genesis-engine-locale")||""}catch(e){}var q=location.search;var ru=l==="ru"||/(?:^|[?&])ru(?:[=&]|$)/.test(q)||/(?:^|[?&])lang=ru(?:&|$)/.test(q),be=l==="be";var t=ru?"Небо ещё собирается":be?"Неба яшчэ збіраецца":"The sky is still gathering";var n=document.getElementById("boot-line");if(n)n.textContent=t;window.__bootAt=performance.now();setTimeout(function(){if(document.documentElement.dataset.boot==="done")return;var line=document.getElementById("boot-line");var out=document.getElementById("boot-out");if(line)line.textContent=ru?"Если пусто — открой ссылку в Chrome.":be?"Калі пуста — адкрый спасылку ў Chrome.":"If this stays empty, open the link in Chrome.";if(out){out.textContent=ru?"Открыть лабораторию":be?"Адкрыць лабараторыю":"Open the lab";out.className="is-on";}},8000);})();`,
           }}
         />
         <PreviewHostBridge />

@@ -95,6 +95,7 @@
   body {
     background: var(--color-bg);
     color: var(--color-fg);
+    min-height: 100vh;
     min-height: 100dvh;
     max-width: 100%;
     overflow-x: clip;
@@ -1415,6 +1416,11 @@ html[data-boot="done"] #boot {
   visibility: hidden;
   pointer-events: none;
   transition: opacity 520ms ease, visibility 0s linear 520ms;
+}
+
+.h-dvh {
+  height: 100vh;
+  height: 100dvh;
 }
 
 html[data-boot="done"] #boot .boot-bar {
