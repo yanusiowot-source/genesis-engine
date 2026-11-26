@@ -65,12 +65,18 @@ export function integrateThree(kick: number): Braid["paths"] {
   return paths;
 }
 
+const KICKS = [0, 0.0006, -0.0006, 0.0015, -0.0015, 0.004, -0.004, 0.01, -0.01];
+
 let cached: Braid[] | null = null;
 
 /** The exact line, and the thicket that grows when the middle mass is moved by a hair. */
 export function threeForest(): Braid[] {
   if (cached) return cached;
-  const kicks = [0, 0.0006, -0.0006, 0.0015, -0.0015, 0.004, -0.004, 0.01, -0.01];
-  cached = kicks.map((kick) => ({ exact: kick === 0, paths: integrateThree(kick) }));
+  cached = KICKS.map((kick) => ({ exact: kick === 0, paths: integrateThree(kick) }));
   return cached;
+}
+
+/** Same starts as the forest, so the picture can arrive one curve at a time. */
+export function threeKicks(): number[] {
+  return KICKS;
 }

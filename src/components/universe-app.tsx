@@ -2760,7 +2760,7 @@ export function UniverseApp() {
             ) : null}
           <div className="arrive arrive-6 glass shrink-0 rounded-[var(--radius-lg)] px-3 py-2" data-hud-band="fate">
           {mode === "three" ? (
-            <p className="text-pretty text-sm leading-relaxed">{copy.obs.modeHint.three}</p>
+            <p className="text-pretty text-sm leading-relaxed" data-mode-line>{copy.obs.modeHint.three}</p>
           ) : (
             <>
           <p className="lesson-line text-pretty text-sm leading-relaxed" data-lesson-step="1">{copy.lessons[0]}</p>
