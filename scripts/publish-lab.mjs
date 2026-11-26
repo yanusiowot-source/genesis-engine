@@ -49,8 +49,7 @@ try {
   const dirty = execFileSync("git", ["status", "--porcelain"], { cwd: dir, encoding: "utf8" });
   if (!dirty.trim()) {
     console.log("genesis-lab already matches this build.");
-    process.exit(0);
-  }
+  } else {
   const head = git(ROOT, ["rev-parse", "--short", "HEAD"]);
   const sourceDirty = execFileSync("git", ["status", "--porcelain"], { cwd: ROOT, encoding: "utf8" }).trim();
   const version = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
@@ -77,12 +76,15 @@ try {
     env: { ...process.env, GIT_ASKPASS: ask, GIT_TERMINAL_PROMPT: "0" },
   });
   console.log(`published ${head} → genesis-lab`);
-  publishPages(WWW, head, version, note);
+  }
+  const headNow = git(ROOT, ["rev-parse", "--short", "HEAD"]);
+  const versionNow = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version;
+  publishPages(WWW, headNow, versionNow);
 } finally {
   rmSync(dir, { recursive: true, force: true });
 }
 
-function publishPages(www, head, version, note) {
+function publishPages(www, head, version) {
   const remote =
     process.env.GENESIS_PAGES_REMOTE ||
     "https://github.com/yanusiowot-source/yanusiowot-source.github.io.git";
@@ -100,11 +102,11 @@ function publishPages(www, head, version, note) {
       console.log("github.io/genesis-lab already matches this build.");
       return;
     }
-    const name = git(pages, ["config", "user.name"]) || "Genesis Engine";
-    const email = git(pages, ["config", "user.email"]) || "genesis@local";
+    const name = git(ROOT, ["config", "user.name"]) || "Genesis Engine";
+    const email = git(ROOT, ["config", "user.email"]) || "genesis@local";
     git(pages, ["config", "user.name", name]);
     git(pages, ["config", "user.email", email]);
-    execFileSync("git", ["commit", "-m", `${note}\n\nLive folder for the phone.`], {
+    execFileSync("git", ["commit", "-m", `Public lab ${version} from ${head} on the phone site.`], {
       cwd: pages,
       stdio: "inherit",
     });
