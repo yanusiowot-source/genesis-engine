@@ -835,18 +835,20 @@ export function GalaxyCanvas({
       };
 
       g.globalCompositeOperation = "lighter";
-      if (!late && vis > 0.08) {
+      const body = late ? 0.34 : vis;
+      if (body > 0.08) {
         const [cr, cg, cb] = model.coreRgb;
         const disk = g.createRadialGradient(0, 0, 0, 0, 0, scale * 1.18);
-        disk.addColorStop(0, `rgba(${cr},${cg},${cb},${0.22 * vis})`);
-        disk.addColorStop(0.32, `rgba(${cr},${cg},${cb},${0.1 * vis})`);
-        disk.addColorStop(0.7, `rgba(${cr},${cg},${cb},${0.03 * vis})`);
+        const glow = late ? 0.16 : 0.22;
+        disk.addColorStop(0, `rgba(${cr},${cg},${cb},${glow * body})`);
+        disk.addColorStop(0.32, `rgba(${cr},${cg},${cb},${(late ? 0.07 : 0.1) * body})`);
+        disk.addColorStop(0.7, `rgba(${cr},${cg},${cb},${0.03 * body})`);
         disk.addColorStop(1, "rgba(9,6,26,0)");
         g.fillStyle = disk;
         g.beginPath();
         g.ellipse(0, 0, scale * 1.12, scale * 0.8, 0, 0, Math.PI * 2);
         g.fill();
-        if (evn.morphology === "spiral" && vis > 0.18 && hydro.niche !== "hot" && hydro.niche !== "rigid") {
+        if (!late && evn.morphology === "spiral" && vis > 0.18 && hydro.niche !== "hot" && hydro.niche !== "rigid") {
           const arms = spiralArms(pms, hydro.niche);
           const wind = 2.6 + 18 / Math.max(hydro.pitchDeg, 6);
           g.strokeStyle = `rgba(${cr},${cg},${cb},${0.12 * vis})`;
@@ -2095,7 +2097,7 @@ export function GalaxyCanvas({
         if (!(gpu && skyMode === "galaxy")) {
         for (const s of model.field) {
           const tw = twinkleOf(s.phase, time, reducedRef.current);
-          const a = s.a * tw * (late ? 0.08 + vis * 0.35 + eternalProb * 0.18 : 0.7 + vis * 0.5);
+          const a = s.a * tw * (late ? 0.28 + vis * 0.4 + eternalProb * 0.18 : 0.7 + vis * 0.5);
           ctx.globalAlpha = a;
           ctx.fillStyle = rgbInk(s.rgb[0], s.rgb[1], s.rgb[2]);
           const fr = Math.max(0.35, s.r);
