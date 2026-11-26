@@ -467,6 +467,10 @@ export function UniverseApp() {
   const huntAuto = useRef(false);
   const [hydrated, setHydrated] = useState(false);
   const [onboard, setOnboard] = useState(true);
+  const showHeld = useRef(
+    typeof window !== "undefined" && showVisit(window.location.search) === "ru",
+  );
+  const [showLink, setShowLink] = useState(showHeld.current);
   const [lesson, setLesson] = useState(0);
   const [gliding, setGliding] = useState(false);
   const lessonHome = useRef<{ params: UniverseParams; seed: number; time: number } | null>(null);
@@ -783,9 +787,11 @@ export function UniverseApp() {
   }, []);
 
   useLayoutEffect(() => {
-    const visit = showVisit(window.location.search);
+    if (showVisit(window.location.search) === "ru") showHeld.current = true;
+    const visit = showHeld.current ? "ru" : null;
     const next = visit ?? detectLocale();
     if (visit) persistLocale(visit);
+    setShowLink(visit === "ru");
     if (next === "en") setLocale(next);
     else void hydrateLocale(next).then(() => setLocale(next));
     setHapticsOn(loadHapticPref());
@@ -938,7 +944,7 @@ export function UniverseApp() {
     const started = (window as Window & { __bootAt?: number }).__bootAt ?? performance.now();
     const elapsed = performance.now() - started;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const wait = reduce ? 0 : Math.max(280, 1700 - elapsed);
+    const wait = reduce ? 0 : Math.max(160, 700 - elapsed);
     const id = window.setTimeout(() => {
       document.documentElement.dataset.boot = "done";
       document.getElementById("boot")?.setAttribute("aria-hidden", "true");
@@ -993,7 +999,8 @@ export function UniverseApp() {
   useEffect(() => {
     if (!hydrated) return;
     const qs = encodeUniverse(current.params, current.visualSeed);
-    const next = `${window.location.pathname}?${qs}${window.location.hash}`;
+    const tail = showHeld.current ? "&ru" : "";
+    const next = `${window.location.pathname}?${qs}${tail}${window.location.hash}`;
     const now = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     if (now !== next) {
       window.history.replaceState(null, "", next);
@@ -2255,6 +2262,7 @@ export function UniverseApp() {
       <div
         className="sky-stage relative min-h-0 flex-1"
         data-quiet="1"
+        data-show={showLink ? "1" : "0"}
         data-lesson={gliding ? "travel" : lesson}
         inert={overlayOpen ? true : undefined}
       >

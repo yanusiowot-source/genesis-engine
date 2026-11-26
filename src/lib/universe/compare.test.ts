@@ -87,7 +87,7 @@ describe("plateTitle", () => {
     assert.equal(plateTitle(DWARF_SKY, en, "Lyra"), en.presetDwarf);
     assert.equal(plateTitle(SILICON_CORRIDOR, en, "Lyra"), en.presetSilicon);
     assert.equal(plateTitle(DESERT_EPOCH, en, "Lyra"), en.presetDesert);
-    assert.equal(plateTitle(OUR_UNIVERSE, en, "Lyra Minor I"), "Lyra Minor I");
+    assert.equal(plateTitle(OUR_UNIVERSE, en, "Lyra Minor I"), en.ours);
   });
 });
 

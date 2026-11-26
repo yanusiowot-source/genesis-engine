@@ -44,6 +44,7 @@ export function formatDelta(delta: number): string {
 export function plateTitle(
   params: UniverseParams,
   copy: {
+    ours: string;
     presetCluster: string;
     presetDwarf: string;
     presetSilicon: string;
@@ -56,6 +57,8 @@ export function plateTitle(
   fallback: string,
 ): string {
   switch (knownPlate(params)) {
+    case "ours":
+      return copy.ours;
     case "cluster":
       return copy.presetCluster;
     case "dwarf":

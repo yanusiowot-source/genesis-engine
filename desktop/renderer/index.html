@@ -39,6 +39,7 @@
         var ru = /(?:^|[?&])ru(?:[=&]|$)/.test(location.search) || /(?:^|[?&])lang=ru(?:&|$)/.test(location.search);
         var line = document.getElementById("boot-line");
         if (ru && line) line.textContent = "Небо ещё собирается";
+        if (ru) document.documentElement.dataset.show = "1";
         setTimeout(function () {
           if (document.documentElement.dataset.boot === "done") return;
           if (!line) return;

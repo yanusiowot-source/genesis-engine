@@ -355,6 +355,19 @@
   display: none;
 }
 
+html[data-show="1"] .sky-modes,
+html[data-show="1"] [data-hud-band="actions"],
+html[data-show="1"] .mandate-dot,
+html[data-show="1"] [data-hud-mandate-label] {
+  display: none;
+}
+
+#boot .boot-line {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 0.875rem;
+}
+
 .sky-stage[data-lesson="1"] .lesson-line[data-lesson-step="1"],
 .sky-stage[data-lesson="2"] .lesson-line[data-lesson-step="2"],
 .sky-stage[data-lesson="3"] .lesson-line[data-lesson-step="3"] {
