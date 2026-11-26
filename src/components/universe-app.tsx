@@ -2612,6 +2612,7 @@ export function UniverseApp() {
               </Button>
               <button
                 type="button"
+                data-reading
                 className="min-h-11 shrink-0 rounded-[var(--radius-sm)] px-2 font-mono text-[0.6875rem] tracking-[0.08em] text-fg-subtle uppercase"
                 aria-expanded={lesson > 0}
                 disabled={gliding}

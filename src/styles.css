@@ -358,7 +358,8 @@
 html[data-show="1"] .sky-modes,
 html[data-show="1"] [data-hud-band="actions"],
 html[data-show="1"] .mandate-dot,
-html[data-show="1"] [data-hud-mandate-label] {
+html[data-show="1"] [data-hud-mandate-label],
+html[data-show="1"] [data-reading] {
   display: none;
 }
 
@@ -420,10 +421,11 @@ html[data-show="1"] [data-hud-mandate-label] {
 }
 
 .sky-stage > .sky-field {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  grid-row: 1 / -1;
+  position: relative;
+  inset: auto;
+  z-index: 1;
+  grid-row: 3;
+  min-height: 16rem;
 }
 
 .sky-stage > header,
@@ -434,15 +436,17 @@ html[data-show="1"] [data-hud-mandate-label] {
 }
 
 .sky-stage > .hud-stack {
-  align-self: end;
+  align-self: stretch;
   grid-row: 4;
-  max-height: 42%;
-  background: linear-gradient(to bottom, transparent, var(--color-bg) 1.6rem);
+  max-height: min(48vh, 28rem);
+  overflow-x: clip;
+  overflow-y: auto;
+  background: var(--color-bg);
 }
 
 .sky-stage[data-quiet="1"] > .hud-stack {
-  max-height: none;
-  background: linear-gradient(to bottom, transparent, color-mix(in oklab, var(--color-bg) 72%, transparent) 2rem);
+  max-height: min(48vh, 26rem);
+  background: var(--color-bg);
 }
 
 .sky-stage > * {
@@ -1208,6 +1212,11 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     grid-row: 4;
     max-height: none;
   }
+}
+
+html[data-show="1"] [data-hud-band="fate"] [data-dispatch] > p {
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
 }
 
 .lab-fold > summary {
