@@ -460,15 +460,17 @@ html[data-show="1"] [data-reading] {
 @media (max-width: 40rem) {
   .sky-modes > div {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     height: auto;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
 
   .sky-modes > div > button {
-    width: calc(50% - 0.125rem);
+    width: auto;
     max-width: none;
-    min-width: 0;
-    flex: none;
+    min-width: 4.75rem;
+    flex: 1 0 auto;
   }
 }
 
@@ -964,11 +966,9 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     inset: auto;
     z-index: 1;
     order: 2;
-    flex: 0 0 auto;
-    height: 56vh;
-    height: 56dvh;
-    min-height: 56vh;
-    min-height: 56dvh;
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 13rem;
     max-height: none;
   }
 
@@ -986,11 +986,11 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     position: relative;
     z-index: 2;
     order: 3;
-    flex: 1 1 auto;
+    flex: 0 0 auto;
     grid-row: auto;
     align-self: stretch;
-    min-height: 0;
-    max-height: none;
+    min-height: 16rem;
+    max-height: min(22rem, 52%);
     overflow-x: clip;
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -998,20 +998,34 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     padding-bottom: 0.35rem;
   }
 
+  [data-hud-band="scripture"] {
+    display: none;
+  }
+
+  [data-hud-band="actions"] {
+    order: 1;
+  }
+
+  [data-hud-band="corridors"] {
+    order: 2;
+  }
+
   .hud-mid {
     overflow: visible;
   }
 
   .sky-modes button[data-seg] {
-    width: calc(33.333% - 0.25rem);
-    max-width: calc(33.333% - 0.25rem);
+    width: auto;
+    max-width: none;
+    min-width: 4.75rem;
     height: auto;
-    min-height: 2.5rem;
-    flex: none;
+    min-height: 2.75rem;
+    flex: 1 0 auto;
     overflow: hidden;
-    padding-inline: 0.2rem;
-    font-size: 0.6875rem;
-    gap: 0;
+    padding-inline: 0.55rem;
+    font-size: 0.75rem;
+    gap: 0.25rem;
+    white-space: nowrap;
   }
 
   .sky-modes button[data-seg] svg {
@@ -1019,11 +1033,10 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
   }
 
   .sky-modes button[data-seg] span {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    display: block;
     overflow: hidden;
-    white-space: normal;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   .proof-thumb {
@@ -1208,24 +1221,6 @@ html[data-boot="done"] .arrive-7 { animation-delay: 300ms; }
     height: 100dvh;
     max-height: 100dvh;
     border-radius: 0;
-  }
-}
-
-@media (max-width: 40rem) and (max-height: 40rem) {
-  .sky-stage {
-    grid-template-rows: auto auto minmax(34vh, 1fr) minmax(0, 1fr);
-  }
-
-  .sky-stage > .sky-field {
-    position: relative;
-    inset: auto;
-    grid-row: 3;
-    min-height: 34vh;
-  }
-
-  .sky-stage > .hud-stack {
-    grid-row: 4;
-    max-height: none;
   }
 }
 
