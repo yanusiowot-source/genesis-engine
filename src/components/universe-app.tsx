@@ -307,9 +307,12 @@ function SkyLine({
         <p className="sky-aside mt-0.5 line-clamp-2 text-pretty text-sm leading-relaxed text-fg-muted">{aside}</p>
       ) : null}
       {facts.length > 0 ? (
-        <p className="sky-facts mt-0.5 flex flex-wrap gap-x-3 gap-y-0.5 font-mono text-xs tabular-nums text-fg-muted">
-          {facts.map((fact) => (
-            <span key={fact}>{fact}</span>
+        <p className="sky-facts mt-0.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 font-mono text-xs tabular-nums text-fg-muted">
+          {facts.map((fact, i) => (
+            <span key={fact}>
+              {i > 0 ? <span aria-hidden="true"> · </span> : null}
+              {fact}
+            </span>
           ))}
         </p>
       ) : null}
@@ -2846,7 +2849,7 @@ export function UniverseApp() {
               key={dispatchId}
               dispatch={dispatchId}
               lead={copy.plot[dispatchId]}
-              aside={plotNeedsFate(dispatchId) ? copy.fateCopy[ev.fate] : undefined}
+              aside={dispatchId !== "home" && plotNeedsFate(dispatchId) ? copy.fateCopy[ev.fate] : undefined}
               facts={
                 liveEpoch === "stellar"
                   ? [

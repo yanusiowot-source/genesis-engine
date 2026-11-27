@@ -425,7 +425,9 @@ html[data-show="1"] [data-reading] {
   inset: auto;
   z-index: 1;
   grid-row: 3;
-  min-height: 16rem;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
 }
 
 .sky-stage > header,
@@ -438,7 +440,7 @@ html[data-show="1"] [data-reading] {
 .sky-stage > .hud-stack {
   align-self: stretch;
   grid-row: 4;
-  max-height: min(34vh, 18rem);
+  max-height: min(28vh, 16rem);
   overflow-x: clip;
   overflow-y: auto;
   background: var(--color-bg);

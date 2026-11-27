@@ -40,7 +40,7 @@ describe("buildFieldReport", () => {
       silicon: siliconDossier(home.params, home.evaluation),
     });
     assert.match(ru, /Гидродинамика диска: Пороговый, Q /);
-    assert.match(ru, /IMF: обычная смесь, x \d\.\d{2}, средняя масса \d\.\d{2}, газ назад \d\.\d{2}/);
+    assert.match(ru, /IMF: смесь Chabrier, x \d\.\d{2}, средняя \d\.\d{2}, возврат газа \d\.\d{2}/);
     assert.match(ru, /СМЧД: Тихая, Выкл, a\* \d\.\d{2}, SANE/);
   });
 });
